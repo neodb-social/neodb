@@ -422,10 +422,8 @@ msgid "Readmoo Book"
 msgstr ""
 
 #: catalog/models/common.py:98
-#, fuzzy
-#| msgid "Tagalog"
 msgid "BnF Catalogue"
-msgstr "タガログ語"
+msgstr "BnF カタログ"
 
 #: catalog/models/common.py:100
 msgid "Spotify Album"
@@ -532,10 +530,8 @@ msgid "TheTVDB Movie"
 msgstr ""
 
 #: catalog/models/common.py:150
-#, fuzzy
-#| msgid "Persian"
 msgid "TheTVDB Person"
-msgstr "ペルシア語"
+msgstr "TheTVDB 人物"
 
 #: catalog/models/common.py:172
 msgid "Edition"
@@ -931,10 +927,8 @@ msgid "number of discs"
 msgstr ""
 
 #: catalog/models/people.py:33
-#, fuzzy
-#| msgid "Persian"
 msgid "Person"
-msgstr "ペルシア語"
+msgstr "人物"
 
 #: catalog/models/people.py:34
 msgid "Organization"
@@ -977,10 +971,8 @@ msgid "Host"
 msgstr ""
 
 #: catalog/models/people.py:48
-#, fuzzy
-#| msgid "light"
 msgid "Playwright"
-msgstr "ライト"
+msgstr "劇作家"
 
 #: catalog/models/people.py:49
 msgid "Designer"
@@ -1131,10 +1123,8 @@ msgid "Item has been marked by users."
 msgstr ""
 
 #: catalog/templates/_catalog_edit_preview.html:11
-#, fuzzy
-#| msgid "Confirm and save"
 msgid "Confirm changes"
-msgstr "確認して保存"
+msgstr "変更を確認"
 
 #: catalog/templates/_catalog_edit_preview.html:16
 msgid "Please correct the errors below."
@@ -1317,10 +1307,8 @@ msgstr ""
 
 #: catalog/templates/_item_cover_card_body.html:35
 #: catalog/templates/_item_user_pieces.html:77
-#, fuzzy
-#| msgid "Sync in progress."
 msgid "Set progress"
-msgstr "同期中です。"
+msgstr "進捗を設定"
 
 #: catalog/templates/_item_cover_card_body.html:56
 #: catalog/templates/_item_cover_card_body.html:57
@@ -1396,10 +1384,8 @@ msgid "My comment and tags"
 msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:61
-#, fuzzy
-#| msgid "Import in progress."
 msgid "My notes and progress"
-msgstr "インポート中です。"
+msgstr "自分のノートと進捗"
 
 #: catalog/templates/_item_user_pieces.html:68
 msgid "Add note"
@@ -1459,10 +1445,8 @@ msgstr ""
 #: catalog/templates/catalog_verify.html:11
 #: catalog/templates/catalog_verify.html:17
 #: catalog/templates/item_base.html:169
-#, fuzzy
-#| msgid "Send verification code"
 msgid "Creator verification"
-msgstr "確認コードを送信"
+msgstr "クリエイター認証"
 
 #: catalog/templates/_sidebar_edit.html:25
 msgid "Edit options"
@@ -1486,10 +1470,8 @@ msgid "This item is maintained by its verified creators."
 msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:38
-#, fuzzy
-#| msgid "Account is being deleted."
 msgid "This item has been deleted."
-msgstr "アカウントの削除が進行中です。"
+msgstr "このアイテムは削除されています。"
 
 #: catalog/templates/_sidebar_edit.html:43
 msgid "This item contains sub-items."
@@ -1500,10 +1482,8 @@ msgid "This item has been merged to another item."
 msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:53
-#, fuzzy
-#| msgid "This email address is already in use."
 msgid "This item has been marked by users."
-msgstr "このメールアドレスは既に使用されています。"
+msgstr "このアイテムはユーザーによってマークされています。"
 
 #: catalog/templates/_sidebar_edit.html:58
 msgid "The following items are merged into this item"
@@ -1721,10 +1701,8 @@ msgstr ""
 
 #: catalog/templates/_sidebar_search.html:5
 #: journal/templates/_sidebar_search_journal.html:4
-#, fuzzy
-#| msgid "Searching the fediverse"
 msgid "Search filters"
-msgstr "連合宇宙を検索中"
+msgstr "検索フィルター"
 
 #: catalog/templates/_sidebar_search.html:7
 #: journal/templates/_sidebar_search_journal.html:18
@@ -1808,16 +1786,12 @@ msgid "Sure to remove your creator verification? Anyone will be able to edit thi
 msgstr ""
 
 #: catalog/templates/_verify_status.html:26
-#, fuzzy
-#| msgid "Send verification code"
 msgid "Remove my verification"
-msgstr "確認コードを送信"
+msgstr "自分の認証を取り消す"
 
 #: catalog/templates/_verify_status.html:31 users/views/account.py:333
-#, fuzzy
-#| msgid "Send verification code"
 msgid "Verification failed"
-msgstr "確認コードを送信"
+msgstr "認証に失敗しました"
 
 #: catalog/templates/_verify_status.html:39
 #: catalog/templates/_verify_status.html:53
@@ -1825,16 +1799,12 @@ msgid "I have updated my feed's description or website as described above."
 msgstr ""
 
 #: catalog/templates/_verify_status.html:43
-#, fuzzy
-#| msgid "Login again"
 msgid "Try again"
-msgstr "再ログイン"
+msgstr "再試行"
 
 #: catalog/templates/_verify_status.html:57
-#, fuzzy
-#| msgid "Send verification code"
 msgid "Start verification"
-msgstr "確認コードを送信"
+msgstr "認証を開始"
 
 #: catalog/templates/_wikipedia_pages.html:10
 msgid "Wikipedia pages"
@@ -1928,10 +1898,8 @@ msgid "NeoDB does not re-check this periodically at the moment, but we recommend
 msgstr ""
 
 #: catalog/templates/catalog_verify.html:72
-#, fuzzy
-#| msgid "Verified successfully."
 msgid "Verified creators"
-msgstr "認証に成功しました。"
+msgstr "認証済みクリエイター"
 
 #: catalog/templates/catalog_verify.html:82
 msgid "Sure to remove this creator verification?"
@@ -1998,10 +1966,9 @@ msgid "Get started"
 msgstr ""
 
 #: catalog/templates/discover.html:85
-#, fuzzy, python-format
-#| msgid "Your username on %(site_name)s"
+#, python-format
 msgid "About %(site_name)s"
-msgstr "%(site_name)sでのユーザー名"
+msgstr "%(site_name)s について"
 
 #: catalog/templates/discover.html:87 common/templates/common/about.html:41
 msgid "Sign in with a Fediverse account, a Bluesky account, or an email address."
@@ -2095,10 +2062,8 @@ msgid "Because of what is on your shelf."
 msgstr ""
 
 #: catalog/templates/discover.html:218 catalog/views/view.py:1007
-#, fuzzy
-#| msgid "Users you are following"
 msgid "From people you follow"
-msgstr "フォロー中のユーザー"
+msgstr "フォロー中のユーザーから"
 
 #: catalog/templates/discover.html:219 catalog/views/view.py:1008
 msgid "Marked recently by people you follow."
@@ -2294,10 +2259,8 @@ msgid "died"
 msgstr ""
 
 #: catalog/templates/people_works.html:56
-#, fuzzy
-#| msgid "Reset completed."
 msgid "complete"
-msgstr "リセットが完了しました。"
+msgstr "完了"
 
 #: catalog/templates/people_works.html:60
 #: journal/templates/_sidebar_collection_filter.html:17
@@ -2306,10 +2269,8 @@ msgstr ""
 
 #: catalog/templates/people_works.html:62
 #: journal/templates/_sidebar_collection_filter.html:18
-#, fuzzy
-#| msgid "Sync in progress."
 msgid "In progress"
-msgstr "同期中です。"
+msgstr "進行中"
 
 #: catalog/templates/podcast.html:13 common/templates/_sidebar.html:51
 msgid "verified creator"
@@ -2369,10 +2330,8 @@ msgstr ""
 
 #: catalog/templates/search_header.html:97
 #: journal/templates/add_to_collection.html:14
-#, fuzzy
-#| msgid "Save sync settings"
 msgid "Save as dynamic collection"
-msgstr "同期設定を保存"
+msgstr "動的コレクションとして保存"
 
 #: catalog/templates/search_results.html:26
 msgid "Tag"
@@ -2474,10 +2433,8 @@ msgid "Insufficient permission"
 msgstr ""
 
 #: catalog/views/edit.py:342
-#, fuzzy
-#| msgid "Account is being deleted."
 msgid "Item is not deleted"
-msgstr "アカウントの削除が進行中です。"
+msgstr "アイテムは削除されていません"
 
 #: catalog/views/edit.py:385
 msgid "Switching may remove some metadata."
@@ -2492,16 +2449,12 @@ msgid "Links to IMDB and TMDB will be removed."
 msgstr ""
 
 #: catalog/views/edit.py:399
-#, fuzzy
-#| msgid "are you sure to unblock?"
 msgid "Are you sure to switch category?"
-msgstr "ブロックを解除しますか？"
+msgstr "カテゴリを変更しますか？"
 
 #: catalog/views/edit.py:447
-#, fuzzy
-#| msgid "are you sure to unblock?"
 msgid "Are you sure to remove the link to this site?"
-msgstr "ブロックを解除しますか？"
+msgstr "このサイトへのリンクを削除しますか？"
 
 #: catalog/views/edit.py:453
 msgid "You may not be able to undo this operation."
@@ -2576,10 +2529,8 @@ msgid "Cannot link items other than editions"
 msgstr ""
 
 #: catalog/views/edit.py:706
-#, fuzzy
-#| msgid "are you sure to unblock?"
 msgid "Are you sure to unlink?"
-msgstr "ブロックを解除しますか？"
+msgstr "リンクを解除しますか？"
 
 #: catalog/views/edit.py:711
 msgid "This edition will be unlinked from the following work"
@@ -2636,10 +2587,8 @@ msgid "Creator verified."
 msgstr ""
 
 #: catalog/views/verify.py:217
-#, fuzzy
-#| msgid "Send verification code"
 msgid "Creator verification removed."
-msgstr "確認コードを送信"
+msgstr "クリエイター認証を取り消しました。"
 
 #: catalog/views/view.py:104 catalog/views/view.py:129
 msgid "Item not found"
@@ -2651,10 +2600,8 @@ msgid "Item no longer exists"
 msgstr ""
 
 #: catalog/views/view.py:217
-#, fuzzy
-#| msgid "Invalid file."
 msgid "Invalid role"
-msgstr "無効なファイルです。"
+msgstr "無効な役割です"
 
 #: catalog/views/view.py:989
 msgid "Category not found"
@@ -2715,11 +2662,9 @@ msgid "Horror"
 msgstr ""
 
 #: common/models/genre.py:27
-#, fuzzy
-#| msgid "system"
 msgctxt "genre"
 msgid "Mystery"
-msgstr "システム"
+msgstr "ミステリー"
 
 #: common/models/genre.py:28
 msgctxt "genre"
@@ -2747,11 +2692,9 @@ msgid "Documentary"
 msgstr ""
 
 #: common/models/genre.py:33
-#, fuzzy
-#| msgid "Tamil"
 msgctxt "genre"
 msgid "Family"
-msgstr "タミル語"
+msgstr "ファミリー"
 
 #: common/models/genre.py:34
 msgctxt "genre"
@@ -2779,11 +2722,9 @@ msgid "Crime"
 msgstr ""
 
 #: common/models/genre.py:39
-#, fuzzy
-#| msgid "Import"
 msgctxt "genre"
 msgid "Sports"
-msgstr "インポート"
+msgstr "スポーツ"
 
 #: common/models/genre.py:40
 msgctxt "genre"
@@ -2986,11 +2927,9 @@ msgid "K-Pop"
 msgstr ""
 
 #: common/models/genre.py:82
-#, fuzzy
-#| msgid "Mark as listening"
 msgctxt "genre"
 msgid "Easy Listening"
-msgstr "聴取中としてマーク"
+msgstr "イージーリスニング"
 
 #: common/models/genre.py:84
 msgctxt "genre"
@@ -3028,11 +2967,9 @@ msgid "Shooter"
 msgstr ""
 
 #: common/models/genre.py:91
-#, fuzzy
-#| msgid "light"
 msgctxt "genre"
 msgid "Fighting"
-msgstr "ライト"
+msgstr "格闘"
 
 #: common/models/genre.py:92
 msgctxt "genre"
@@ -4190,10 +4127,8 @@ msgid "Move down"
 msgstr ""
 
 #: common/templates/_pagination.html:3
-#, fuzzy
-#| msgid "Persian"
 msgid "Pagination"
-msgstr "ペルシア語"
+msgstr "ページ送り"
 
 #: common/templates/_pagination.html:9 common/templates/_pagination.html:13
 msgid "Previous page"
@@ -4298,26 +4233,20 @@ msgid ""
 msgstr ""
 
 #: common/templates/common/about.html:45
-#, fuzzy
-#| msgid "Status"
 msgid "Statistics"
-msgstr "状態"
+msgstr "統計"
 
 #: common/templates/common/about.html:57
 msgid "Users"
 msgstr ""
 
 #: common/templates/common/about.html:61
-#, fuzzy
-#| msgid "Status"
 msgid "Statuses"
-msgstr "状態"
+msgstr "投稿"
 
 #: common/templates/common/about.html:65
-#, fuzzy
-#| msgid "Authorize via Fediverse instance"
 msgid "Known Fediverse instances"
-msgstr "連合インスタンスで認証して登録またはログイン"
+msgstr "既知の連合インスタンス"
 
 #: common/templates/common/about.html:70 common/templates/common/about.html:165
 msgid "Known NeoDB instances"
@@ -4456,10 +4385,8 @@ msgid "Camera unavailable. Use manual entry below."
 msgstr ""
 
 #: common/templates/manage/base.html:9
-#, fuzzy
-#| msgid "Additional Settings"
 msgid "Site settings"
-msgstr "追加設定"
+msgstr "サイト設定"
 
 #: common/templates/manage/base.html:29
 msgid "Takahe admin"
@@ -4528,30 +4455,24 @@ msgid "Recommendations"
 msgstr ""
 
 #: common/views_manage.py:38
-#, fuzzy
-#| msgid "Accept"
 msgid "Access"
-msgstr "承認"
+msgstr "アクセス"
 
 #: common/views_manage.py:39 common/views_manage.py:878
 msgid "Federation"
 msgstr ""
 
 #: common/views_manage.py:40
-#, fuzzy
-#| msgid "Tagalog"
 msgid "Catalog"
-msgstr "タガログ語"
+msgstr "カタログ"
 
 #: common/views_manage.py:41
 msgid "API keys"
 msgstr ""
 
 #: common/views_manage.py:42
-#, fuzzy
-#| msgid "Download"
 msgid "Downloader"
-msgstr "ダウンロード"
+msgstr "ダウンローダー"
 
 #: common/views_manage.py:43 common/views_manage.py:382
 #: users/templates/users/steam_import.html:113
@@ -4563,18 +4484,14 @@ msgid "Environment"
 msgstr ""
 
 #: common/views_manage.py:281
-#, fuzzy
-#| msgid "Invalid file."
 msgid "Invalid value."
-msgstr "無効なファイルです。"
+msgstr "無効な値です。"
 
 #: common/views_manage.py:285
 msgid "Invalid configuration. Please check your input."
 msgstr ""
 
 #: common/views_manage.py:290
-#, fuzzy
-#| msgid "Settings saved."
 msgid "Settings have been saved."
 msgstr "設定が保存されました。"
 
@@ -4719,10 +4636,8 @@ msgid "Show a shelf of recent episodes from podcasts with a verified creator on 
 msgstr ""
 
 #: common/views_manage.py:439
-#, fuzzy
-#| msgid "Hide these categories in search results"
 msgid "Include fediverse posts in trends"
-msgstr "検索結果から以下のカテゴリを非表示にする"
+msgstr "トレンドに連合宇宙の投稿を含める"
 
 #: common/views_manage.py:441
 msgid "Add popular public posts from this and other servers to the trending posts API, ranked by recent likes and boosts seen by this site."
@@ -4885,10 +4800,8 @@ msgid "Tags, collections and credits shared by more items than this are too broa
 msgstr ""
 
 #: common/views_manage.py:638
-#, fuzzy
-#| msgid "light"
 msgid "Tag weight"
-msgstr "ライト"
+msgstr "タグの重み"
 
 #: common/views_manage.py:640
 msgid "Weight of shared public tags in similar items, relative to shared marks at 1."
@@ -4927,10 +4840,8 @@ msgid "Signal blend"
 msgstr ""
 
 #: common/views_manage.py:685
-#, fuzzy
-#| msgid "Persian"
 msgid "Personalisation"
-msgstr "ペルシア語"
+msgstr "パーソナライズ"
 
 #: common/views_manage.py:703
 msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
@@ -4977,10 +4888,8 @@ msgid "Marks an item needs before the captcha treats it as well known enough to 
 msgstr ""
 
 #: common/views_manage.py:746
-#, fuzzy
-#| msgid "Registration is for invitation only"
 msgid "Registration captcha for email only"
-msgstr "登録は招待制のみです。"
+msgstr "登録時の CAPTCHA をメール登録のみに適用"
 
 #: common/views_manage.py:748
 msgid "Show the captcha only to people who register with an email address. Mastodon, Bluesky and Threads sign-ups already passed an external login and skip it. Has no effect while captcha items is 0."
@@ -5031,10 +4940,8 @@ msgid "Show the Mastodon archive import on the data page. Imported posts become 
 msgstr ""
 
 #: common/views_manage.py:788
-#, fuzzy
-#| msgid "Language"
 msgid "Default language"
-msgstr "言語"
+msgstr "デフォルト言語"
 
 #: common/views_manage.py:791
 msgid "Interface language for visitors and for users who have not chosen one themselves."
@@ -5049,10 +4956,8 @@ msgid "Access control"
 msgstr ""
 
 #: common/views_manage.py:813
-#, fuzzy
-#| msgid "Import Method"
 msgid "Login methods"
-msgstr "インポート方法"
+msgstr "ログイン方法"
 
 #: common/views_manage.py:818 mastodon/models/common.py:30
 #: users/templates/users/account.html:45 users/templates/users/account.html:55
@@ -5061,10 +4966,8 @@ msgid "Email"
 msgstr ""
 
 #: common/views_manage.py:822
-#, fuzzy
-#| msgid "Import"
 msgid "Data import"
-msgstr "インポート"
+msgstr "データのインポート"
 
 #: common/views_manage.py:826
 msgid "Localization"
@@ -5545,10 +5448,8 @@ msgid "Tags (comma separated)"
 msgstr ""
 
 #: journal/forms.py:116 journal/templates/post_compose.html:86
-#, fuzzy
-#| msgid "Mark as listening"
 msgid "Mark as sensitive"
-msgstr "聴取中としてマーク"
+msgstr "センシティブとしてマーク"
 
 #: journal/forms.py:141
 msgid "Owner only"
@@ -5749,10 +5650,8 @@ msgid "A recent post was not posted to Mastodon."
 msgstr ""
 
 #: journal/models/crosspost.py:14
-#, fuzzy
-#| msgid "Authorize via Threads"
 msgid "Authorization expired"
-msgstr "Threadsで認証して登録またはログイン"
+msgstr "認証の有効期限が切れました"
 
 #: journal/models/crosspost.py:17 users/models/task.py:29
 msgid "Failed"
@@ -5771,10 +5670,8 @@ msgid "Progress must be 500 characters or fewer."
 msgstr ""
 
 #: journal/models/mark.py:488
-#, fuzzy
-#| msgid "Sync in progress."
 msgid "Invalid progress type."
-msgstr "同期中です。"
+msgstr "無効な進捗タイプです。"
 
 #: journal/models/mark.py:490
 msgid "Invalid progress type for this item."
@@ -6271,8 +6168,6 @@ msgid "Performances reviewed"
 msgstr ""
 
 #: journal/models/shelf.py:326
-#, fuzzy
-#| msgid "Users you are following"
 msgid "People following"
 msgstr "フォロー中のユーザー"
 
@@ -6407,10 +6302,8 @@ msgid "All categories"
 msgstr ""
 
 #: journal/templates/action_boost_post.html:9
-#, fuzzy
-#| msgid "Boost if possible"
 msgid "Boost this post?"
-msgstr "可能ならブーストする"
+msgstr "この投稿をブーストしますか？"
 
 #: journal/templates/action_boost_post.html:10 mastodon/models/mastodon.py:724
 msgid "Boost"
@@ -6579,10 +6472,8 @@ msgid "Share"
 msgstr ""
 
 #: journal/templates/collection.html:87
-#, fuzzy
-#| msgid "Import as a new collection"
 msgid "created a collection"
-msgstr "新しいコレクションとしてインポート"
+msgstr "コレクションを作成しました"
 
 #: journal/templates/collection.html:154
 msgid "Query"
@@ -6629,10 +6520,8 @@ msgid "Change mark date"
 msgstr ""
 
 #: journal/templates/mark.html:101
-#, fuzzy
-#| msgid "Mark as listening"
 msgid "Mark date"
-msgstr "聴取中としてマーク"
+msgstr "マーク日"
 
 #: journal/templates/mark.html:152
 msgid "Sure to delete mark, comment and tags for this item?"
@@ -6686,26 +6575,20 @@ msgid "Note"
 msgstr ""
 
 #: journal/templates/note.html:21
-#, fuzzy
-#| msgid "Import in progress."
 msgid "Note and progress"
-msgstr "インポート中です。"
+msgstr "ノートと進捗"
 
 #: journal/templates/note.html:29
 msgid "Note with empty content will be deleted, sure to continue?"
 msgstr ""
 
 #: journal/templates/note.html:72 journal/templates/note.html:73
-#, fuzzy
-#| msgid "Import in progress."
 msgid "Clear progress"
-msgstr "インポート中です。"
+msgstr "進捗をクリア"
 
 #: journal/templates/note.html:79
-#, fuzzy
-#| msgid "are you sure to unblock?"
 msgid "Are you sure to delete this note?"
-msgstr "ブロックを解除しますか？"
+msgstr "このノートを削除しますか？"
 
 #: journal/templates/piece_delete.html:20
 msgid "Are you sure to delete this entire content?"
@@ -6731,10 +6614,8 @@ msgid "Compose"
 msgstr ""
 
 #: journal/templates/post_compose.html:35
-#, fuzzy
-#| msgid "Continue"
 msgid "Content"
-msgstr "続ける"
+msgstr "内容"
 
 #: journal/templates/post_compose.html:94
 msgid "Content warning"
@@ -6749,10 +6630,8 @@ msgid "Add image"
 msgstr ""
 
 #: journal/templates/post_compose.html:149
-#, fuzzy
-#| msgid "Select OPML file"
 msgid "Select image"
-msgstr "OPMLファイルを選択"
+msgstr "画像を選択"
 
 #: journal/templates/post_compose.html:160
 #: journal/templates/post_compose.html:170
@@ -6801,10 +6680,8 @@ msgid "Organizations"
 msgstr ""
 
 #: journal/templates/profile_items.html:10
-#, fuzzy
-#| msgid "Import as a new collection"
 msgid "Create collection"
-msgstr "新しいコレクションとしてインポート"
+msgstr "コレクションを作成"
 
 #: journal/templates/replies.html:8
 msgid "Replies"
@@ -6933,10 +6810,8 @@ msgid "Collection by {0}"
 msgstr ""
 
 #: journal/views/collection.py:400
-#, fuzzy
-#| msgid "Authorize via Fediverse instance"
 msgid "Unable to crosspost to Fediverse instance."
-msgstr "連合インスタンスで認証して登録またはログイン"
+msgstr "連合インスタンスにクロスポストできませんでした。"
 
 #: journal/views/collection.py:411
 msgid "Unable to share to Bluesky."
@@ -6993,20 +6868,16 @@ msgstr ""
 
 #: journal/views/mark.py:224 journal/views/mark.py:226
 #: journal/views/mark.py:280
-#, fuzzy
-#| msgid "Invalid file."
 msgid "Invalid input"
-msgstr "無効なファイルです。"
+msgstr "無効な入力です"
 
 #: journal/views/note.py:22
 msgid "Progress"
 msgstr ""
 
 #: journal/views/note.py:27
-#, fuzzy
-#| msgid "Import in progress."
 msgid "Update progress"
-msgstr "インポート中です。"
+msgstr "進捗を更新"
 
 #: journal/views/note.py:58
 msgid "Progress (optional)"
@@ -7045,16 +6916,12 @@ msgid "This post cannot be edited here"
 msgstr ""
 
 #: journal/views/post.py:531
-#, fuzzy
-#| msgid "Invalid file."
 msgid "Invalid choices"
-msgstr "無効なファイルです。"
+msgstr "無効な選択です"
 
 #: journal/views/post.py:534
-#, fuzzy
-#| msgid "Invalid URL."
 msgid "Invalid post"
-msgstr "無効なURLです。"
+msgstr "無効な投稿です"
 
 #: journal/views/review.py:188 journal/views/review.py:202
 #, python-brace-format
@@ -7213,20 +7080,16 @@ msgstr ""
 #: mastodon/views/bluesky.py:53 mastodon/views/email.py:35
 #: mastodon/views/mastodon.py:36 mastodon/views/threads.py:31
 #: users/templates/users/login.html:6 users/views/webauthn.py:142
-#, fuzzy
-#| msgid "Export file expired. Please export again."
 msgid "Security check failed. Please try again."
-msgstr "エクスポートファイルの有効期限が切れました。再度エクスポートしてください。"
+msgstr "セキュリティチェックに失敗しました。もう一度お試しください。"
 
 #: mastodon/views/bluesky.py:60 mastodon/views/email.py:74
 msgid "Too many attempts, please try again later."
 msgstr ""
 
 #: mastodon/views/bluesky.py:65
-#, fuzzy
-#| msgid "ATProto handle"
 msgid "ATProto handle is required."
-msgstr "ATProto ユーザー識別子"
+msgstr "ATProto ユーザー識別子を入力してください。"
 
 #: mastodon/views/bluesky.py:84
 msgid "Error connecting to your ATProto server"
@@ -7350,10 +7213,8 @@ msgid "Invalid account data from Threads."
 msgstr ""
 
 #: mastodon/views/threads.py:149
-#, fuzzy
-#| msgid "Reset completed."
 msgid "Data deletion completed"
-msgstr "リセットが完了しました。"
+msgstr "データの削除が完了しました"
 
 #: mastodon/views/threads.py:151
 #, python-brace-format
@@ -7586,10 +7447,8 @@ msgid "Feeds"
 msgstr ""
 
 #: social/templates/feed.html:45 social/templates/feed.html:47
-#, fuzzy
-#| msgid "Import marks and reviews from Doufen / NiceDB"
 msgid "Marks and reviews"
-msgstr "豆瓣からマークとレビューをインポート"
+msgstr "マークとレビュー"
 
 #: social/templates/feed.html:53 social/templates/feed.html:55
 msgid "Local"
@@ -7678,10 +7537,8 @@ msgid "Activities on this site"
 msgstr ""
 
 #: social/views.py:69
-#, fuzzy
-#| msgid "Searching the fediverse"
 msgid "Activities from the fediverse"
-msgstr "連合宇宙を検索中"
+msgstr "連合宇宙のアクティビティ"
 
 #: takahe/models.py:446
 msgid "Display Name"
@@ -7700,10 +7557,8 @@ msgid "Include profile, marks and posts in discovery"
 msgstr ""
 
 #: takahe/models.py:457
-#, fuzzy
-#| msgid "Hide these categories in search results"
 msgid "Include posts in search results"
-msgstr "検索結果から以下のカテゴリを非表示にする"
+msgstr "検索結果に投稿を含める"
 
 #: takahe/models.py:475
 msgid "Profile picture"
@@ -7734,8 +7589,6 @@ msgid "A user with that username already exists."
 msgstr ""
 
 #: users/models/user.py:414
-#, fuzzy
-#| msgid "This username is already in use."
 msgid "This username is already taken."
 msgstr "このユーザー名は既に使用されています。"
 
@@ -7748,10 +7601,8 @@ msgid "public key"
 msgstr ""
 
 #: users/models/webauthn.py:17
-#, fuzzy
-#| msgid "Migrate Account"
 msgid "sign count"
-msgstr "アカウント移行"
+msgstr "署名カウント"
 
 #: users/models/webauthn.py:18
 msgid "transports"
@@ -7766,10 +7617,8 @@ msgid "last used"
 msgstr ""
 
 #: users/templates/users/_crosspost_row.html:5
-#, fuzzy
-#| msgid "Verified successfully."
 msgid "Crossposted successfully."
-msgstr "認証に成功しました。"
+msgstr "クロスポストに成功しました。"
 
 #: users/templates/users/_crosspost_row.html:41
 msgid "Re-authorize"
@@ -7786,10 +7635,8 @@ msgstr ""
 
 #: users/templates/users/_hardcover_row.html:30
 #: users/templates/users/_storygraph_row.html:30
-#, fuzzy
-#| msgid "Create a new post"
 msgid "Create new book"
-msgstr "新しい投稿を作成"
+msgstr "新しい書籍を作成"
 
 #: users/templates/users/_hardcover_row.html:31
 #: users/templates/users/_rym_row.html:28
@@ -7805,10 +7652,8 @@ msgstr ""
 
 #: users/templates/users/_hardcover_section.html:5
 #: users/templates/users/_hardcover_section.html:23
-#, fuzzy
-#| msgid "Import from Letterboxd"
 msgid "Import from Hardcover"
-msgstr "Letterboxdからマークをインポート"
+msgstr "Hardcover からインポート"
 
 #: users/templates/users/_hardcover_section.html:11
 #: users/templates/users/_rym_section.html:11
@@ -7874,10 +7719,8 @@ msgid "Download previous matches"
 msgstr ""
 
 #: users/templates/users/_import_rules.html:3
-#, fuzzy
-#| msgid "Import"
 msgid "What is imported"
-msgstr "インポート"
+msgstr "インポートされる内容"
 
 #: users/templates/users/_import_rules.html:8
 msgid "What is skipped"
@@ -7888,10 +7731,8 @@ msgid "Data you already have"
 msgstr ""
 
 #: users/templates/users/_import_rules.html:20
-#, fuzzy
-#| msgid "Login again"
 msgid "Importing again"
-msgstr "再ログイン"
+msgstr "再インポートについて"
 
 #: users/templates/users/_pref_device.html:4
 msgid "Settings for current device"
@@ -7942,17 +7783,13 @@ msgid "Settings for current device saved"
 msgstr "現在のデバイスの設定が保存されました"
 
 #: users/templates/users/_rym_row.html:27
-#, fuzzy
-#| msgid "Create a new post"
 msgid "Create new album"
-msgstr "新しい投稿を作成"
+msgstr "新しいアルバムを作成"
 
 #: users/templates/users/_rym_section.html:5
 #: users/templates/users/_rym_section.html:23
-#, fuzzy
-#| msgid "Import from Letterboxd"
 msgid "Import from RateYourMusic"
-msgstr "Letterboxdからマークをインポート"
+msgstr "RateYourMusic からインポート"
 
 #: users/templates/users/_rym_section.html:17
 msgid "Cancel the RateYourMusic import? Progress will be discarded."
@@ -7984,10 +7821,8 @@ msgstr ""
 
 #: users/templates/users/_storygraph_section.html:5
 #: users/templates/users/_storygraph_section.html:23
-#, fuzzy
-#| msgid "Import from Letterboxd"
 msgid "Import from StoryGraph"
-msgstr "Letterboxdからマークをインポート"
+msgstr "StoryGraph からインポート"
 
 #: users/templates/users/_storygraph_section.html:17
 msgid "Cancel the StoryGraph import? Progress will be discarded."
@@ -8057,10 +7892,8 @@ msgid "If you have registered with a federated instance, please enter the instan
 msgstr ""
 
 #: users/templates/users/account.html:104
-#, fuzzy
-#| msgid "e.g. #bookstodon"
 msgid "e.g. mastodon.online"
-msgstr "例: #bookstodon"
+msgstr "例: mastodon.online"
 
 #: users/templates/users/account.html:108
 msgid "Go to target instance and authorize with the identity"
@@ -8152,10 +7985,8 @@ msgid "Created"
 msgstr ""
 
 #: users/templates/users/account.html:235
-#, fuzzy
-#| msgid "Last export"
 msgid "Last used"
-msgstr "最近のエクスポート"
+msgstr "最終使用日時"
 
 #: users/templates/users/account.html:260
 msgid "No passkeys registered."
@@ -8227,10 +8058,8 @@ msgid "If you notice any suspicious activity or have logged in on a shared compu
 msgstr ""
 
 #: users/templates/users/account.html:377
-#, fuzzy
-#| msgid "Authorize via bsky.app"
 msgid "Authorized apps"
-msgstr "Blueskyアカウント情報で登録またはログイン"
+msgstr "認可済みアプリ"
 
 #: users/templates/users/account.html:382
 msgid "Application"
@@ -8261,10 +8090,8 @@ msgid "Revoke"
 msgstr ""
 
 #: users/templates/users/account.html:420
-#, fuzzy
-#| msgid "View authorized applications"
 msgid "No authorized applications."
-msgstr "認可されたアプリを表示"
+msgstr "認可済みアプリはありません。"
 
 #: users/templates/users/account.html:423
 #: users/templates/users/authorized_app_create.html:9
@@ -8281,10 +8108,8 @@ msgid "Upload a CSV file exported from Mastodon or compatible services."
 msgstr ""
 
 #: users/templates/users/account.html:436
-#, fuzzy
-#| msgid "Import"
 msgid "Import type"
-msgstr "インポート"
+msgstr "インポートの種類"
 
 #: users/templates/users/account.html:438
 msgid "Following list"
@@ -8306,16 +8131,12 @@ msgstr ""
 #: users/templates/users/account.html:467
 #: users/templates/users/account.html:476
 #: users/templates/users/account.html:485
-#, fuzzy
-#| msgid "Download"
 msgid "Download CSV"
-msgstr "ダウンロード"
+msgstr "CSV をダウンロード"
 
 #: users/templates/users/account.html:472
-#, fuzzy
-#| msgid "blocked"
 msgid "Blocks"
-msgstr "ブロック済み"
+msgstr "ブロック"
 
 #: users/templates/users/account.html:481
 msgid "Mutes"
@@ -8330,16 +8151,12 @@ msgid "Linking an email to your account is highly recommended before migrating f
 msgstr "他のインスタンスから移行する前に、メールアドレスを関連付けることをお勧めします。"
 
 #: users/templates/users/account.html:502
-#, fuzzy
-#| msgid "Migrate from anther instance to here"
 msgid "Migrate another account here"
-msgstr "他のインスタンスから本サイトへ移行"
+msgstr "他のアカウントをここへ移行"
 
 #: users/templates/users/account.html:505
-#, fuzzy
-#| msgid "Migrate to another instance"
 msgid "Migrate to another account"
-msgstr "本サイトから他のインスタンスへ移行"
+msgstr "他のアカウントへ移行"
 
 #: users/templates/users/account.html:512
 msgid "Delete Account"
@@ -8350,20 +8167,16 @@ msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "一度削除すると、アカウントデータは復元できません。続行しますか？"
 
 #: users/templates/users/account.html:518
-#, fuzzy
-#| msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgid "Enter your full handle, e.g. <code>username@instance.social</code>, <code>email@domain.com</code> or <code>username.bsky.social</code>, to confirm deletion."
-msgstr "削除を確認するために、完全な<code>ユーザー名@インスタンス名</code>または<code>メール@アドレス</code>を入力してください"
+msgstr "削除を確認するには、<code>ユーザー名@インスタンス名</code>、<code>email@domain.com</code>、<code>ユーザー名.bsky.social</code> のような完全なハンドルを入力してください。"
 
 #: users/templates/users/account.html:528
 msgid "Once deleted, account data cannot be recovered."
 msgstr "一度削除すると、アカウントデータは復元できません"
 
 #: users/templates/users/account.html:531 users/views/account.py:548
-#, fuzzy
-#| msgid "Importing in progress, can't delete now."
 msgid "Task in progress, can't delete now."
-msgstr "インポート中のため、現在削除できません"
+msgstr "タスクが進行中のため、現在は削除できません。"
 
 #: users/templates/users/account.html:535
 msgid "Permanently delete"
@@ -8395,10 +8208,8 @@ msgstr ""
 
 #: users/templates/users/authorized_app_create.html:49
 #: users/templates/users/authorized_app_created.html:39
-#, fuzzy
-#| msgid "Migrate Account"
 msgid "Back to Account"
-msgstr "アカウント移行"
+msgstr "アカウントに戻る"
 
 #: users/templates/users/authorized_app_created.html:9
 #: users/templates/users/authorized_app_created.html:19
@@ -8447,10 +8258,8 @@ msgid "Move selected cover to %(label)s"
 msgstr ""
 
 #: users/templates/users/captcha.html:74
-#, fuzzy
-#| msgid "Import"
 msgid "Confirm"
-msgstr "インポート"
+msgstr "確認"
 
 #: users/templates/users/captcha.html:81
 #, python-format
@@ -8507,20 +8316,17 @@ msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr "豆瓣からマークとレビューをインポート"
 
 #: users/views/data.py:278
-#, fuzzy
-#| msgid "Export marks and reviews in XLSX (Doufen format)"
 msgid "Import articles from WordPress"
-msgstr "マーク、短評、レビューをエクスポート（豆坟xlsx形式）"
+msgstr "WordPress から記事をインポート"
 
 #: users/templates/users/data.html:43
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr "<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆坟)</a>でエクスポート時に<mark>書籍・映画・音楽・ゲーム・ドラマ</mark>と<mark>レビュー</mark>にチェックを入れてください。<br>豆伴(豆坟)からエクスポートした<code>.xlsx</code>ファイルを選択してください"
 
 #: users/templates/users/import/douban.html:11
-#, fuzzy, python-format
-#| msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
+#, python-format
 msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href=\"%(neodb_url)s\">Import NeoDB archive</a>."
-msgstr "<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆坟)</a>でエクスポート時に<mark>書籍・映画・音楽・ゲーム・ドラマ</mark>と<mark>レビュー</mark>にチェックを入れてください。<br>豆伴(豆坟)からエクスポートした<code>.xlsx</code>ファイルを選択してください"
+msgstr "<a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> でエクスポートした豆瓣のアーカイブは NeoDB 独自の NDJSON 形式です。<a href=\"%(neodb_url)s\">NeoDB アーカイブをインポート</a>からアップロードしてください。"
 
 #: users/templates/users/import/douban.html:15
 msgid "Marks, ratings, tags, comments and reviews."
@@ -8562,10 +8368,8 @@ msgid "Import in progress, please wait"
 msgstr "バックアップファイルがアップロードされました。インポートが完了するまでお待ちいただくか、ページを更新して最新の進捗状況を確認してください"
 
 #: users/templates/users/data.html:96
-#, fuzzy
-#| msgid "Import Shelf or List from Goodreads"
 msgid "Import from Goodreads"
-msgstr "Goodreadsの本棚またはリストをインポート"
+msgstr "Goodreads からインポート"
 
 #: users/templates/users/data.html:102
 msgid "On Goodreads, click <a href=\"https://www.goodreads.com/review/import\" target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> to download your library as a CSV file."
@@ -8576,10 +8380,8 @@ msgid "Upload the downloaded <code>goodreads_library_export.csv</code> file belo
 msgstr ""
 
 #: users/templates/users/data.html:108
-#, fuzzy
-#| msgid "want-to-read / currently-reading / read books and their reviews will be imported."
 msgid "Want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported."
-msgstr "Goodreadsのユーザープロフィールリンクを提出すると、読みたい、読書中、読了リストがインポートされ、各本のレビューは本サイトの短評としてインポートされます。"
+msgstr "読みたい・読書中・読了・中断した書籍とそのレビューがインポートされます。"
 
 #: users/templates/users/import/goodreads.html:15
 msgid "Books on your own custom shelves."
@@ -8621,10 +8423,8 @@ msgid "Exported file does not indicate whether a list is private, unlisted or pu
 msgstr ""
 
 #: users/templates/users/data.html:207
-#, fuzzy
-#| msgid "Import from Letterboxd"
 msgid "Import from Trakt"
-msgstr "Letterboxdからマークをインポート"
+msgstr "Trakt からインポート"
 
 #: users/templates/users/data.html:213
 msgid "On <a href=\"https://app.trakt.tv/settings/data\" target=\"_blank\" rel=\"noopener\">Trakt Settings - Data</a>, click <b>Export now</b> and wait for the download link to appear."
@@ -8668,10 +8468,8 @@ msgid "Upload a <code>.zip</code> file containing <code>.csv</code> or <code>.nd
 msgstr ""
 
 #: users/templates/users/data.html:331
-#, fuzzy
-#| msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in the same format and is imported here."
-msgstr "<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆坟)</a>でエクスポート時に<mark>書籍・映画・音楽・ゲーム・ドラマ</mark>と<mark>レビュー</mark>にチェックを入れてください。<br>豆伴(豆坟)からエクスポートした<code>.xlsx</code>ファイルを選択してください"
+msgstr "<a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> でエクスポートした豆瓣のアーカイブも同じ形式なので、ここでインポートできます。"
 
 #: users/templates/users/import/neodb.html:14
 msgid "Marks, ratings, comments, tags, reviews and notes. An NDJSON archive also has collections, articles, and your display name and bio."
@@ -8698,10 +8496,8 @@ msgid "Detecting format..."
 msgstr ""
 
 #: users/templates/users/data.html:430
-#, fuzzy
-#| msgid "Unknown or Other"
 msgid "Unknown format"
-msgstr "不明またはその他"
+msgstr "不明な形式"
 
 #: users/templates/users/data.html:455
 msgid "Error detecting format"
@@ -8760,10 +8556,8 @@ msgid "The body is converted between Markdown and HTML, so formatting is kept bu
 msgstr ""
 
 #: users/templates/users/data.html:513
-#, fuzzy
-#| msgid "Export marks and reviews in XLSX (Doufen format)"
 msgid "Export articles in WordPress format"
-msgstr "マーク、短評、レビューをエクスポート（豆坟xlsx形式）"
+msgstr "記事を WordPress 形式でエクスポート"
 
 #: users/templates/users/data.html:72
 msgid "Social graph"
@@ -8774,16 +8568,12 @@ msgid "Following, followers, mutes and blocks are exported as CSV files on the a
 msgstr ""
 
 #: users/templates/users/data.html:82
-#, fuzzy
-#| msgid "Import marks and reviews from Douban"
 msgid "Import marks and reviews"
-msgstr "豆瓣からマークとレビューをインポート"
+msgstr "マークとレビューをインポート"
 
 #: users/templates/users/data.html:91 users/views/data.py:192
-#, fuzzy
-#| msgid "Import Method"
 msgid "Import posts and articles"
-msgstr "インポート方法"
+msgstr "投稿と記事をインポート"
 
 #: users/templates/users/data.html:520
 msgid "In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download an <code>.xml</code> file, then upload it below."
@@ -8810,10 +8600,8 @@ msgid "Imported posts are only visible on this site and are never sent to other 
 msgstr ""
 
 #: users/templates/users/data.html:616
-#, fuzzy
-#| msgid "Import Method"
 msgid "Import Mastodon archive"
-msgstr "インポート方法"
+msgstr "Mastodon アーカイブをインポート"
 
 #: users/templates/users/data.html:622
 msgid "On your Mastodon server, go to <b>Preferences</b> - <b>Import and export</b> - <b>Request your archive</b>. Upload the <code>.zip</code> you receive, or only the <code>outbox.json</code> file inside it if the archive is larger than 100 MB (photos are then not imported)."
@@ -8881,10 +8669,8 @@ msgstr ""
 #: users/templates/users/hardcover_import.html:61
 #: users/templates/users/rym_import.html:76
 #: users/templates/users/storygraph_import.html:76
-#, fuzzy
-#| msgid "Import"
 msgid "Confirm import"
-msgstr "インポート"
+msgstr "インポートを確認"
 
 #: users/templates/users/hardcover_import.html:62
 #: users/templates/users/rym_import.html:77
@@ -8950,10 +8736,8 @@ msgid "Please input your ATProto handle (e.g. neodb.bsky.social, without the lea
 msgstr "ATProtoユーザー識別子を入力してください（例：neodb.bsky.social、先頭の@は含めないでください）。メールアドレスは使用しないでください。最近識別子を変更した場合は、最新のものを使用してください。"
 
 #: users/templates/users/login.html:204
-#, fuzzy
-#| msgid "Authorize via Threads"
 msgid "Authorize via ATProto server"
-msgstr "Threadsで認証して登録またはログイン"
+msgstr "ATProto サーバーで認証"
 
 #: users/templates/users/login.html:211
 #, python-format
@@ -8994,10 +8778,8 @@ msgid "To move another account to this one, first add it as an alias here, and t
 msgstr ""
 
 #: users/templates/users/migrate_in.html:27
-#, fuzzy
-#| msgid "Account mismatch."
 msgid "Account to alias"
-msgstr "アカウントが一致しません。"
+msgstr "エイリアスにするアカウント"
 
 #: users/templates/users/migrate_in.html:35
 msgid "Add alias"
@@ -9018,22 +8800,16 @@ msgstr ""
 
 #: users/templates/users/migrate_out.html:9
 #: users/templates/users/migrate_out.html:43
-#, fuzzy
-#| msgid "Migrate Account"
 msgid "Migrate out"
-msgstr "アカウント移行"
+msgstr "アカウントを移出"
 
 #: users/templates/users/migrate_out.html:20
-#, fuzzy
-#| msgid "Import in progress."
 msgid "Migration in progress"
-msgstr "インポート中です。"
+msgstr "移行中"
 
 #: users/templates/users/migrate_out.html:22
-#, fuzzy
-#| msgid "Account is being deleted."
 msgid "Your account is being migrated to:"
-msgstr "アカウントの削除が進行中です。"
+msgstr "あなたのアカウントは次のアカウントへ移行中です："
 
 #: users/templates/users/migrate_out.html:30
 msgid "Are you sure you want to cancel the migration?"
@@ -9053,10 +8829,8 @@ msgid "Are you sure you want to migrate your account? Your followers will be mov
 msgstr ""
 
 #: users/templates/users/migrate_out.html:53
-#, fuzzy
-#| msgid "Delete Account"
 msgid "Target account"
-msgstr "アカウント削除"
+msgstr "移行先アカウント"
 
 #: users/templates/users/migrate_out.html:60
 msgid "Start migration"
@@ -9142,16 +8916,12 @@ msgid "Turn replies to my own catalog item posts into notes for the item"
 msgstr ""
 
 #: users/templates/users/preferences.html:187
-#, fuzzy
-#| msgid "Hide these categories in search results"
 msgid "Hide these categories in discovery and search results"
-msgstr "検索結果から以下のカテゴリを非表示にする"
+msgstr "発見ページと検索結果で以下のカテゴリを非表示にする"
 
 #: users/templates/users/preferences.html:202
-#, fuzzy
-#| msgid "Language"
 msgid "Preferred catalog languages"
-msgstr "言語"
+msgstr "優先するカタログ言語"
 
 #: users/templates/users/preferences.html:211
 msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."
@@ -9324,10 +9094,8 @@ msgid "Title / artist"
 msgstr ""
 
 #: users/templates/users/steam_import.html:10
-#, fuzzy
-#| msgid "Import from Letterboxd"
 msgid "Import from Steam"
-msgstr "Letterboxdからマークをインポート"
+msgstr "Steam からインポート"
 
 #: users/templates/users/steam_import.html:20
 msgid "Steam ID"
@@ -9346,10 +9114,8 @@ msgid "You can revoke or regenerate the key after the import is complete."
 msgstr ""
 
 #: users/templates/users/steam_import.html:42
-#, fuzzy
-#| msgid "Import in progress."
 msgid "Import sources"
-msgstr "インポート中です。"
+msgstr "インポート元"
 
 #: users/templates/users/steam_import.html:45
 msgid "Steam wishlist"
@@ -9372,10 +9138,8 @@ msgid "Include no free games"
 msgstr ""
 
 #: users/templates/users/steam_import.html:67
-#, fuzzy
-#| msgid "Status"
 msgid "Status filter"
-msgstr "状態"
+msgstr "状態フィルター"
 
 #: users/templates/users/steam_import.html:68
 msgid "Import marks with these estimated status"
@@ -9604,10 +9368,8 @@ msgid "Settings saved."
 msgstr "設定が保存されました。"
 
 #: users/views/data.py:547
-#, fuzzy
-#| msgid "Account is being deleted."
 msgid "Account no longer linked."
-msgstr "アカウントの削除が進行中です。"
+msgstr "アカウントの連携は解除されています。"
 
 #: users/views/data.py:550
 msgid "Content is no longer public."
@@ -9639,10 +9401,8 @@ msgid "Starting import..."
 msgstr ""
 
 #: users/views/data.py:811 users/views/data.py:1014 users/views/data.py:1210
-#, fuzzy
-#| msgid "Export file not available."
 msgid "No matched file available."
-msgstr "エクスポートファイルが利用できません。"
+msgstr "一致するファイルがありません。"
 
 #: users/views/data.py:905
 msgid "No StoryGraph import to preview."
@@ -9653,10 +9413,8 @@ msgid "No Hardcover import to preview."
 msgstr ""
 
 #: users/views/data.py:1422
-#, fuzzy
-#| msgid "Valid username required"
 msgid "Name is required."
-msgstr "有効なユーザー名を入力してください。"
+msgstr "名前を入力してください。"
 
 #: users/views/data.py:1446
 msgid "Application access has been revoked."
@@ -9736,23 +9494,17 @@ msgid "Passkey not recognized"
 msgstr ""
 
 #: users/views/webauthn.py:197
-#, fuzzy
-#| msgid "Account is being deleted."
 msgid "Account is inactive"
-msgstr "アカウントの削除が進行中です。"
+msgstr "アカウントが無効です"
 
 #: users/views/webauthn.py:214
-#, fuzzy
-#| msgid "Send verification code"
 msgid "Passkey verification failed"
-msgstr "確認コードを送信"
+msgstr "パスキーの認証に失敗しました"
 
 #: users/views/webauthn.py:242 users/views/webauthn.py:266
 msgid "Passkey not found"
 msgstr ""
 
 #: users/views/webauthn.py:260
-#, fuzzy
-#| msgid "Valid username required"
 msgid "Name is required"
-msgstr "有効なユーザー名を入力してください。"
+msgstr "名前を入力してください"

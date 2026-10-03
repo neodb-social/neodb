@@ -290,20 +290,16 @@ msgid "WorldCat"
 msgstr ""
 
 #: catalog/models/common.py:55 catalog/models/common.py:131
-#, fuzzy
-#| msgid "Game"
 msgid "MobyGames"
-msgstr "Jokoa"
+msgstr "MobyGames"
 
 #: catalog/models/common.py:56 catalog/models/common.py:132
 msgid "StoryGraph"
 msgstr ""
 
 #: catalog/models/common.py:57 catalog/models/common.py:123
-#, fuzzy
-#| msgid "Douban Music"
 msgid "YouTube Music"
-msgstr "Douban Musika"
+msgstr "YouTube Music"
 
 #: catalog/models/common.py:58
 msgid "RateYourMusic"
@@ -454,34 +450,24 @@ msgid "MusicBrainz Release"
 msgstr "MusicBrainz Argitalpen"
 
 #: catalog/models/common.py:109
-#, fuzzy
-#| msgid "MusicBrainz Release"
 msgid "MusicBrainz Artist"
-msgstr "MusicBrainz Argitalpen"
+msgstr "MusicBrainz Artista"
 
 #: catalog/models/common.py:110
-#, fuzzy
-#| msgid "Douban Game"
 msgid "Douban Personage"
-msgstr "Douban Jokoa"
+msgstr "Douban Pertsona"
 
 #: catalog/models/common.py:111
-#, fuzzy
-#| msgid "Goodreads Work"
 msgid "Goodreads Author"
-msgstr "Goodreadsen Lana"
+msgstr "Goodreads Autorea"
 
 #: catalog/models/common.py:112
-#, fuzzy
-#| msgid "Spotify Podcast"
 msgid "Spotify Artist"
-msgstr "Spotify Podkasta"
+msgstr "Spotify Artista"
 
 #: catalog/models/common.py:113
-#, fuzzy
-#| msgid "TMDB TV Season"
 msgid "TMDB Person"
-msgstr "TMDB TB Denboraldia"
+msgstr "TMDB Pertsona"
 
 #: catalog/models/common.py:114
 msgid "Open Library Author"
@@ -508,10 +494,8 @@ msgid "Open Library Work"
 msgstr ""
 
 #: catalog/models/common.py:133
-#, fuzzy
-#| msgid "MusicBrainz Release"
 msgid "RateYourMusic Release"
-msgstr "MusicBrainz Argitalpen"
+msgstr "RateYourMusic Argitalpena"
 
 #: catalog/models/common.py:137
 msgid "AniList Anime"
@@ -530,34 +514,24 @@ msgid "MyAnimeList Manga"
 msgstr ""
 
 #: catalog/models/common.py:146
-#, fuzzy
-#| msgid "TV Series"
 msgid "TheTVDB Series"
-msgstr "TB Seriea"
+msgstr "TheTVDB Seriea"
 
 #: catalog/models/common.py:147
-#, fuzzy
-#| msgid "TV Season"
 msgid "TheTVDB Season"
-msgstr "TB Denboraldia"
+msgstr "TheTVDB Denboraldia"
 
 #: catalog/models/common.py:148
-#, fuzzy
-#| msgid "TV Episode"
 msgid "TheTVDB Episode"
-msgstr "TB Atala"
+msgstr "TheTVDB Atala"
 
 #: catalog/models/common.py:149
-#, fuzzy
-#| msgid "TMDB Movie"
 msgid "TheTVDB Movie"
-msgstr "TMDB Filma"
+msgstr "TheTVDB Filma"
 
 #: catalog/models/common.py:150
-#, fuzzy
-#| msgid "TMDB TV Season"
 msgid "TheTVDB Person"
-msgstr "TMDB TB Denboraldia"
+msgstr "TheTVDB Pertsona"
 
 #: catalog/models/common.py:172
 msgid "Edition"
@@ -667,10 +641,8 @@ msgid "genre"
 msgstr "generoa"
 
 #: catalog/models/common.py:394
-#, fuzzy
-#| msgid "original creator"
 msgid "origin country"
-msgstr "sortzaile originala"
+msgstr "jatorrizko herrialdea"
 
 #: catalog/models/common.py:423 catalog/templates/album.html:33
 msgid "album type"
@@ -681,10 +653,8 @@ msgid "platform"
 msgstr "plataforma"
 
 #: catalog/models/common.py:431
-#, fuzzy
-#| msgid "book format"
 msgid "media format"
-msgstr "liburu formatua"
+msgstr "euskarria"
 
 #: catalog/models/common.py:436 catalog/templates/_language_list.html:5
 #: users/models/user.py:144
@@ -810,10 +780,8 @@ msgstr "aktorea"
 
 #: catalog/models/item.py:234 catalog/models/movie.py:144
 #: catalog/models/tv.py:237 catalog/models/tv.py:464
-#, fuzzy
-#| msgid "production"
 msgid "producer"
-msgstr "produkzioa"
+msgstr "ekoizlea"
 
 #: catalog/models/item.py:237 catalog/models/performance.py:203
 #: catalog/models/performance.py:410
@@ -845,10 +813,8 @@ msgid "crew"
 msgstr "krew"
 
 #: catalog/models/item.py:246
-#, fuzzy
-#| msgid "production"
 msgid "production company"
-msgstr "produkzioa"
+msgstr "ekoiztetxea"
 
 #: catalog/models/item.py:247
 msgid "record label"
@@ -868,10 +834,8 @@ msgid "troupe"
 msgstr ""
 
 #: catalog/models/item.py:253
-#, fuzzy
-#| msgid "director"
 msgid "voice actor"
-msgstr "zuzendaria"
+msgstr "ahots-aktorea"
 
 #: catalog/models/item.py:254 catalog/templates/edition.html:29
 msgid "publishing house"
@@ -951,10 +915,8 @@ msgstr "luzera"
 
 #: catalog/models/movie.py:162 catalog/models/music.py:131
 #: catalog/models/tv.py:261 catalog/models/tv.py:489
-#, fuzzy
-#| msgid "milliseconds"
 msgid "seconds"
-msgstr "milisegundu"
+msgstr "segundoak"
 
 #: catalog/models/music.py:148
 msgid "tracks"
@@ -969,58 +931,40 @@ msgid "Person"
 msgstr ""
 
 #: catalog/models/people.py:34
-#, fuzzy
-#| msgid "duration"
 msgid "Organization"
-msgstr "iraupena"
+msgstr "Erakundea"
 
 #: catalog/models/people.py:39
-#, fuzzy
-#| msgid "author"
 msgid "Author"
-msgstr "autorea"
+msgstr "Autorea"
 
 #: catalog/models/people.py:40
-#, fuzzy
-#| msgid "translator"
 msgid "Translator"
-msgstr "itzultzailea"
+msgstr "Itzultzailea"
 
 #: catalog/models/people.py:41
-#, fuzzy
-#| msgid "performances"
 msgid "Performer"
-msgstr "ikuskizunak"
+msgstr "Interpretatzailea"
 
 #: catalog/models/people.py:42
-#, fuzzy
-#| msgid "actor"
 msgid "Actor"
-msgstr "aktorea"
+msgstr "Aktorea"
 
 #: catalog/models/people.py:43
-#, fuzzy
-#| msgid "director"
 msgid "Director"
-msgstr "zuzendaria"
+msgstr "Zuzendaria"
 
 #: catalog/models/people.py:44
-#, fuzzy
-#| msgid "composer"
 msgid "Composer"
-msgstr "konpositorea"
+msgstr "Konpositorea"
 
 #: catalog/models/people.py:45
-#, fuzzy
-#| msgid "artist"
 msgid "Artist"
-msgstr "artista"
+msgstr "Artista"
 
 #: catalog/models/people.py:46
-#, fuzzy
-#| msgid "director"
 msgid "Voice Actor"
-msgstr "zuzendaria"
+msgstr "Ahots-aktorea"
 
 #: catalog/models/people.py:47
 msgid "Host"
@@ -1031,28 +975,20 @@ msgid "Playwright"
 msgstr ""
 
 #: catalog/models/people.py:49
-#, fuzzy
-#| msgid "designer"
 msgid "Designer"
-msgstr "diseinatzailea"
+msgstr "Diseinatzailea"
 
 #: catalog/models/people.py:50
-#, fuzzy
-#| msgid "choreographer"
 msgid "Choreographer"
-msgstr "koreografo"
+msgstr "Koreografoa"
 
 #: catalog/models/people.py:51
-#, fuzzy
-#| msgid "original creator"
 msgid "Original Creator"
-msgstr "sortzaile originala"
+msgstr "Sortzaile originala"
 
 #: catalog/models/people.py:52
-#, fuzzy
-#| msgid "Production"
 msgid "Producer"
-msgstr "Produkzioa"
+msgstr "Ekoizlea"
 
 #: catalog/models/people.py:55
 msgid "Publisher"
@@ -1063,10 +999,8 @@ msgid "Distributor"
 msgstr ""
 
 #: catalog/models/people.py:57
-#, fuzzy
-#| msgid "Production"
 msgid "Production Company"
-msgstr "Produkzioa"
+msgstr "Ekoiztetxea"
 
 #: catalog/models/people.py:58
 msgid "Record Label"
@@ -1101,16 +1035,12 @@ msgid "bio"
 msgstr ""
 
 #: catalog/models/people.py:172
-#, fuzzy
-#| msgid "date of publication"
 msgid "date of birth"
-msgstr "publikatutako data"
+msgstr "jaiotze data"
 
 #: catalog/models/people.py:175
-#, fuzzy
-#| msgid "date of publication"
 msgid "date of death"
-msgstr "publikatutako data"
+msgstr "heriotza data"
 
 #: catalog/models/people.py:486
 msgid "character"
@@ -1267,10 +1197,8 @@ msgid "Podcasts by creators on the Fediverse. Play right on this page."
 msgstr ""
 
 #: catalog/templates/_discover_originals.html:15
-#, fuzzy
-#| msgid "Spotify Podcast"
 msgid "All original shows"
-msgstr "Spotify Podkasta"
+msgstr "Jatorrizko saio guztiak"
 
 #: catalog/templates/_discover_originals.html:32
 #: catalog/templates/_item_card_metadata_podcast.html:15
@@ -1279,12 +1207,11 @@ msgid "Play"
 msgstr ""
 
 #: catalog/templates/_discover_originals.html:49
-#, fuzzy, python-format
-#| msgid "Recent episodes"
+#, python-format
 msgid "%(counter)s recent episode"
 msgid_plural "%(counter)s recent episodes"
-msgstr[0] "azkeneko atalak"
-msgstr[1] "azkeneko atalak"
+msgstr[0] "%(counter)s azken atal"
+msgstr[1] "%(counter)s azken atal"
 
 #: catalog/templates/_discover_shelf.html:11
 #: catalog/templates/discover.html:193 catalog/templates/discover.html:222
@@ -1348,10 +1275,8 @@ msgstr ""
 #: catalog/templates/item_mark_list.html:46
 #: journal/templates/action_translate_post.html:3
 #: journal/templates/article.html:76
-#, fuzzy
-#| msgid "translator"
 msgid "Translate"
-msgstr "itzultzailea"
+msgstr "Itzuli"
 
 #: catalog/templates/_item_comments.html:90
 #: catalog/templates/_item_comments_by_episode.html:80
@@ -1465,10 +1390,8 @@ msgid "My notes and progress"
 msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:68
-#, fuzzy
-#| msgid "notes"
 msgid "Add note"
-msgstr "oharrak"
+msgstr "Gehitu oharra"
 
 #: catalog/templates/_item_user_pieces.html:95
 #: catalog/templates/_sidebar_edit.html:8
@@ -1524,10 +1447,8 @@ msgstr ""
 #: catalog/templates/catalog_verify.html:11
 #: catalog/templates/catalog_verify.html:17
 #: catalog/templates/item_base.html:169
-#, fuzzy
-#| msgid "year of publication"
 msgid "Creator verification"
-msgstr "publikatutako urtea"
+msgstr "Sortzaileen egiaztapena"
 
 #: catalog/templates/_sidebar_edit.html:25
 msgid "Edit options"
@@ -1908,10 +1829,8 @@ msgid "album media"
 msgstr ""
 
 #: catalog/templates/album.html:58
-#, fuzzy
-#| msgid "tracks"
 msgid "Tracks"
-msgstr "abestiak"
+msgstr "Abestiak"
 
 #: catalog/templates/album.html:62
 msgid "Play this album"
@@ -1981,10 +1900,8 @@ msgid "NeoDB does not re-check this periodically at the moment, but we recommend
 msgstr ""
 
 #: catalog/templates/catalog_verify.html:72
-#, fuzzy
-#| msgid "original creator"
 msgid "Verified creators"
-msgstr "sortzaile originala"
+msgstr "Sortzaile egiaztatuak"
 
 #: catalog/templates/catalog_verify.html:82
 msgid "Sure to remove this creator verification?"
@@ -2085,10 +2002,8 @@ msgstr ""
 
 #: catalog/templates/discover.html:123 common/templates/common/scan.html:35
 #: common/views_manage.py:883 social/templates/feed_events.html:40
-#, fuzzy
-#| msgid "Search results"
 msgid "Search"
-msgstr "Emaitzak bilatu"
+msgstr "Bilatu"
 
 #: catalog/templates/discover.html:129
 msgid "Follow a few people"
@@ -2103,10 +2018,8 @@ msgid "See posts"
 msgstr ""
 
 #: catalog/templates/discover.html:137
-#, fuzzy
-#| msgid "No history."
 msgid "Bring your history"
-msgstr "historiarik gabe."
+msgstr "Ekarri zure historia"
 
 #: catalog/templates/discover.html:138
 msgid "Import from Douban, Goodreads, Letterboxd, Steam, Trakt or a podcast OPML file."
@@ -2117,10 +2030,8 @@ msgid "Open importers"
 msgstr ""
 
 #: catalog/templates/discover.html:146
-#, fuzzy
-#| msgid "Production"
 msgid "Sections"
-msgstr "Produkzioa"
+msgstr "Atalak"
 
 #: catalog/templates/discover.html:149 catalog/templates/people_works.html:58
 #: catalog/templates/search_header.html:13
@@ -2145,10 +2056,8 @@ msgid "Posts"
 msgstr ""
 
 #: catalog/templates/discover.html:175
-#, fuzzy
-#| msgid "Original website"
 msgid "Originals"
-msgstr "webgune originala"
+msgstr "Jatorrizkoak"
 
 #: catalog/templates/discover.html:190 catalog/views/view.py:1003
 msgid "Because of what is on your shelf."
@@ -2204,10 +2113,8 @@ msgstr ""
 
 #: catalog/templates/discover_original_podcasts.html:10
 #: catalog/templates/discover_original_podcasts.html:18
-#, fuzzy
-#| msgid "original creator"
 msgid "Original podcasts"
-msgstr "sortzaile originala"
+msgstr "Jatorrizko podkastak"
 
 #: catalog/templates/edition.html:38
 msgid "publication date"
@@ -2354,10 +2261,8 @@ msgid "died"
 msgstr ""
 
 #: catalog/templates/people_works.html:56
-#, fuzzy
-#| msgid "composer"
 msgid "complete"
-msgstr "konpositorea"
+msgstr "amaituta"
 
 #: catalog/templates/people_works.html:60
 #: journal/templates/_sidebar_collection_filter.html:17
@@ -2370,10 +2275,8 @@ msgid "In progress"
 msgstr ""
 
 #: catalog/templates/podcast.html:13 common/templates/_sidebar.html:51
-#, fuzzy
-#| msgid "original creator"
 msgid "verified creator"
-msgstr "sortzaile originala"
+msgstr "sortzaile egiaztatua"
 
 #: catalog/templates/podcast.html:28
 msgid "Recent episodes"
@@ -2726,18 +2629,14 @@ msgid "Arcade"
 msgstr ""
 
 #: common/models/game_platform.py:64
-#, fuzzy
-#| msgid "BGG Boardgame"
 msgctxt "platform"
 msgid "Board Game"
-msgstr "BGG Mahai-joko"
+msgstr "Mahai-jokoa"
 
 #: common/models/genre.py:21
-#, fuzzy
-#| msgid "Production"
 msgctxt "genre"
 msgid "Action"
-msgstr "Produkzioa"
+msgstr "Ekintza"
 
 #: common/models/genre.py:22
 msgctxt "genre"
@@ -2770,11 +2669,9 @@ msgid "Mystery"
 msgstr ""
 
 #: common/models/genre.py:28
-#, fuzzy
-#| msgid "performances"
 msgctxt "genre"
 msgid "Romance"
-msgstr "ikuskizunak"
+msgstr "Amodiozkoa"
 
 #: common/models/genre.py:29
 msgctxt "genre"
@@ -2787,11 +2684,9 @@ msgid "Thriller"
 msgstr ""
 
 #: common/models/genre.py:31
-#, fuzzy
-#| msgid "Edition"
 msgctxt "genre"
 msgid "Animation"
-msgstr "Edizioa"
+msgstr "Animazioa"
 
 #: common/models/genre.py:32
 msgctxt "genre"
@@ -2804,11 +2699,9 @@ msgid "Family"
 msgstr ""
 
 #: common/models/genre.py:34
-#, fuzzy
-#| msgid "no history."
 msgctxt "genre"
 msgid "History"
-msgstr "historiarik gabe."
+msgstr "Historia"
 
 #: common/models/genre.py:35
 msgctxt "genre"
@@ -2836,8 +2729,6 @@ msgid "Sports"
 msgstr ""
 
 #: common/models/genre.py:40
-#, fuzzy
-#| msgid "Music"
 msgctxt "genre"
 msgid "Music"
 msgstr "Musika"
@@ -2848,11 +2739,9 @@ msgid "Film Noir"
 msgstr ""
 
 #: common/models/genre.py:43
-#, fuzzy
-#| msgid "Music"
 msgctxt "genre"
 msgid "Musical"
-msgstr "Musika"
+msgstr "Musikala"
 
 #: common/models/genre.py:44
 msgctxt "genre"
@@ -2870,11 +2759,9 @@ msgid "News"
 msgstr ""
 
 #: common/models/genre.py:47
-#, fuzzy
-#| msgid "Game"
 msgctxt "genre"
 msgid "Game Show"
-msgstr "Jokoa"
+msgstr "Lehiaketa"
 
 #: common/models/genre.py:48
 msgctxt "genre"
@@ -2912,11 +2799,9 @@ msgid "LGBTQ"
 msgstr ""
 
 #: common/models/genre.py:55
-#, fuzzy
-#| msgid "TMDB Movie"
 msgctxt "genre"
 msgid "TV Movie"
-msgstr "TMDB Filma"
+msgstr "Telefilma"
 
 #: common/models/genre.py:57
 msgctxt "genre"
@@ -2934,11 +2819,9 @@ msgid "Hip Hop"
 msgstr ""
 
 #: common/models/genre.py:60
-#, fuzzy
-#| msgid "Collection"
 msgctxt "genre"
 msgid "Electronic"
-msgstr "Kolekzio"
+msgstr "Elektronika"
 
 #: common/models/genre.py:61
 msgctxt "genre"
@@ -2996,11 +2879,9 @@ msgid "Latin"
 msgstr ""
 
 #: common/models/genre.py:72
-#, fuzzy
-#| msgid "Apple Music"
 msgctxt "genre"
 msgid "World Music"
-msgstr "Apple Music"
+msgstr "Munduko musika"
 
 #: common/models/genre.py:73
 msgctxt "genre"
@@ -3038,11 +2919,9 @@ msgid "Gospel"
 msgstr ""
 
 #: common/models/genre.py:80
-#, fuzzy
-#| msgid "tracks"
 msgctxt "genre"
 msgid "Soundtrack"
-msgstr "abestiak"
+msgstr "Soinu-banda"
 
 #: common/models/genre.py:81
 msgctxt "genre"
@@ -3065,11 +2944,9 @@ msgid "Strategy"
 msgstr ""
 
 #: common/models/genre.py:86
-#, fuzzy
-#| msgid "duration"
 msgctxt "genre"
 msgid "Simulation"
-msgstr "iraupena"
+msgstr "Simulazioa"
 
 #: common/models/genre.py:87
 msgctxt "genre"
@@ -3082,11 +2959,9 @@ msgid "Puzzle"
 msgstr ""
 
 #: common/models/genre.py:89
-#, fuzzy
-#| msgid "platform"
 msgctxt "genre"
 msgid "Platformer"
-msgstr "plataforma"
+msgstr "Plataformak"
 
 #: common/models/genre.py:90
 msgctxt "genre"
@@ -3119,18 +2994,14 @@ msgid "Visual Novel"
 msgstr ""
 
 #: common/models/genre.py:96
-#, fuzzy
-#| msgid "Main Game"
 msgctxt "genre"
 msgid "Card Game"
-msgstr "Joko nagusia"
+msgstr "Karta-jokoa"
 
 #: common/models/genre.py:97
-#, fuzzy
-#| msgid "BGG Boardgame"
 msgctxt "genre"
 msgid "Board Game"
-msgstr "BGG Mahai-joko"
+msgstr "Mahai-jokoa"
 
 #: common/models/genre.py:98
 msgctxt "genre"
@@ -3208,18 +3079,14 @@ msgid "Technology"
 msgstr ""
 
 #: common/models/genre.py:115
-#, fuzzy
-#| msgid "duration"
 msgctxt "genre"
 msgid "Education"
-msgstr "iraupena"
+msgstr "Hezkuntza"
 
 #: common/models/genre.py:116
-#, fuzzy
-#| msgid "region"
 msgctxt "genre"
 msgid "Religion"
-msgstr "herrialdea"
+msgstr "Erlijioa"
 
 #: common/models/genre.py:117
 msgctxt "genre"
@@ -3384,9 +3251,8 @@ msgid "Guarani"
 msgstr "Guarani"
 
 #: common/models/lang.py:97
-#, fuzzy
 msgid "Gujarati"
-msgstr "Gujarati"
+msgstr "Gujaratera"
 
 #: common/models/lang.py:98
 msgid "Haitian; Haitian Creole"
@@ -3989,8 +3855,6 @@ msgid "Hakka Chinese"
 msgstr ""
 
 #: common/models/music_format.py:18
-#, fuzzy
-#| msgid "Album"
 msgctxt "album_type"
 msgid "Album"
 msgstr "Albuma"
@@ -4006,18 +3870,14 @@ msgid "EP"
 msgstr ""
 
 #: common/models/music_format.py:21
-#, fuzzy
-#| msgid "Collection"
 msgctxt "album_type"
 msgid "Compilation"
-msgstr "Kolekzio"
+msgstr "Bilduma"
 
 #: common/models/music_format.py:22
-#, fuzzy
-#| msgid "tracks"
 msgctxt "album_type"
 msgid "Soundtrack"
-msgstr "abestiak"
+msgstr "Soinu-banda"
 
 #: common/models/music_format.py:23
 msgctxt "album_type"
@@ -4050,32 +3910,24 @@ msgid "Spoken Word"
 msgstr ""
 
 #: common/models/music_format.py:29
-#, fuzzy
-#| msgid "Audiobook"
 msgctxt "album_type"
 msgid "Audiobook"
 msgstr "Audioliburua"
 
 #: common/models/music_format.py:30
-#, fuzzy
-#| msgid "Douban Drama"
 msgctxt "album_type"
 msgid "Audio Drama"
-msgstr "Douban Drama"
+msgstr "Audio-drama"
 
 #: common/models/music_format.py:31
-#, fuzzy
-#| msgid "reviews"
 msgctxt "album_type"
 msgid "Interview"
-msgstr "kritikak"
+msgstr "Elkarrizketa"
 
 #: common/models/music_format.py:32
-#, fuzzy
-#| msgid "Podcast"
 msgctxt "album_type"
 msgid "Broadcast"
-msgstr "Podkasta"
+msgstr "Emankizuna"
 
 #: common/models/music_format.py:33
 msgctxt "album_type"
@@ -4277,10 +4129,8 @@ msgid "Move down"
 msgstr ""
 
 #: common/templates/_pagination.html:3
-#, fuzzy
-#| msgid "translator"
 msgid "Pagination"
-msgstr "itzultzailea"
+msgstr "Orrikatzea"
 
 #: common/templates/_pagination.html:9 common/templates/_pagination.html:13
 msgid "Previous page"
@@ -4325,10 +4175,8 @@ msgid "Recent podcast episodes"
 msgstr ""
 
 #: common/templates/_sidebar.html:149
-#, fuzzy
-#| msgid "recent episodes"
 msgid "Currently reading"
-msgstr "azkeneko atalak"
+msgstr "Orain irakurtzen"
 
 #: common/templates/_sidebar.html:163 journal/forms.py:212
 #: journal/templates/user_tag_list.html:13
@@ -4613,10 +4461,8 @@ msgid "Access"
 msgstr ""
 
 #: common/views_manage.py:39 common/views_manage.py:878
-#, fuzzy
-#| msgid "duration"
 msgid "Federation"
-msgstr "iraupena"
+msgstr "Federazioa"
 
 #: common/views_manage.py:40
 msgid "Catalog"
@@ -4656,10 +4502,8 @@ msgid "Site name"
 msgstr ""
 
 #: common/views_manage.py:313
-#, fuzzy
-#| msgid "description"
 msgid "Site description"
-msgstr "deskribapena"
+msgstr "Gunearen deskribapena"
 
 #: common/views_manage.py:314
 msgid "Short description shown in metadata and about page."
@@ -4698,10 +4542,8 @@ msgid "PicoCSS color theme."
 msgstr ""
 
 #: common/views_manage.py:355
-#, fuzzy
-#| msgid "Production"
 msgid "Site introduction"
-msgstr "Produkzioa"
+msgstr "Gunearen aurkezpena"
 
 #: common/views_manage.py:356
 msgid "URL path for the intro/welcome sidebar page."
@@ -4748,20 +4590,16 @@ msgid "How often to refresh the popular items list."
 msgstr ""
 
 #: common/views_manage.py:414
-#, fuzzy
-#| msgid "filter by year range"
 msgid "Filter by preferred languages"
-msgstr "urte tartearen arabera iragazi"
+msgstr "Iragazi hizkuntza hobetsien arabera"
 
 #: common/views_manage.py:415
 msgid "Only show items with titles in the preferred languages."
 msgstr ""
 
 #: common/views_manage.py:418
-#, fuzzy
-#| msgid "filter by year range"
 msgid "Filter by member languages"
-msgstr "urte tartearen arabera iragazi"
+msgstr "Iragazi kideen hizkuntzen arabera"
 
 #: common/views_manage.py:420
 msgid "Let members pick catalog languages in their preferences. Trending, spotlight and For you then show them only items with a title or an original language in those languages. More like this, items from people they follow, and items without a known language are not filtered. With the option above also on, trending and spotlight hold only the preferred languages to begin with."
@@ -4792,10 +4630,8 @@ msgid "Show popular public tags on the discover page."
 msgstr ""
 
 #: common/views_manage.py:432
-#, fuzzy
-#| msgid "Spotify Podcast"
 msgid "Show verified podcasts"
-msgstr "Spotify Podkasta"
+msgstr "Erakutsi podkast egiaztatuak"
 
 #: common/views_manage.py:434
 msgid "Show a shelf of recent episodes from podcasts with a verified creator on the discover page."
@@ -4818,10 +4654,8 @@ msgid "Accounts (@user@domain) or domains whose posts never appear in popular po
 msgstr ""
 
 #: common/views_manage.py:474
-#, fuzzy
-#| msgid "your timeline"
 msgid "Show world timeline"
-msgstr "zure denbora-lerroa"
+msgstr "Erakutsi munduko denbora-lerroa"
 
 #: common/views_manage.py:476
 msgid "Offer a tab with public posts from this site and every server it federates with."
@@ -4836,10 +4670,8 @@ msgid "Offer a tab with public posts from this site only."
 msgstr ""
 
 #: common/views_manage.py:486
-#, fuzzy
-#| msgid "your timeline"
 msgid "Timelines"
-msgstr "zure denbora-lerroa"
+msgstr "Denbora-lerroak"
 
 #: common/views_manage.py:514
 msgid "Enable recommendations"
@@ -4946,10 +4778,8 @@ msgid "How much a rating above or below the user's own average raises or lowers 
 msgstr ""
 
 #: common/views_manage.py:611
-#, fuzzy
-#| msgid "Reviews"
 msgid "Review boost"
-msgstr "Kritikak"
+msgstr "Kritiken bultzada"
 
 #: common/views_manage.py:613
 msgid "Extra weight for a mark when its owner also wrote a public review of the item."
@@ -4980,10 +4810,8 @@ msgid "Weight of shared public tags in similar items, relative to shared marks a
 msgstr ""
 
 #: common/views_manage.py:646
-#, fuzzy
-#| msgid "Collection"
 msgid "Collection weight"
-msgstr "Kolekzio"
+msgstr "Kolekzioen pisua"
 
 #: common/views_manage.py:648
 msgid "Weight of shared public collections in similar items, relative to shared marks at 1."
@@ -5010,10 +4838,8 @@ msgid "Mark weights"
 msgstr ""
 
 #: common/views_manage.py:680
-#, fuzzy
-#| msgid "original title"
 msgid "Signal blend"
-msgstr "izenburu originala"
+msgstr "Seinaleen nahasketa"
 
 #: common/views_manage.py:685
 msgid "Personalisation"
@@ -5116,10 +4942,8 @@ msgid "Show the Mastodon archive import on the data page. Imported posts become 
 msgstr ""
 
 #: common/views_manage.py:788
-#, fuzzy
-#| msgid "language"
 msgid "Default language"
-msgstr "hizkuntza"
+msgstr "Hizkuntza lehenetsia"
 
 #: common/views_manage.py:791
 msgid "Interface language for visitors and for users who have not chosen one themselves."
@@ -5176,10 +5000,8 @@ msgid "Remote profiles inactive for this many days will be pruned."
 msgstr ""
 
 #: common/views_manage.py:856
-#, fuzzy
-#| msgid "Search results"
 msgid "Search sites"
-msgstr "Emaitzak bilatu"
+msgstr "Bilaketa-guneak"
 
 #: common/views_manage.py:857
 msgid "External search sites to include, one per line."
@@ -5210,10 +5032,8 @@ msgid "Visitors who are not logged in cannot open search result pages beyond thi
 msgstr ""
 
 #: common/views_manage.py:896
-#, fuzzy
-#| msgid "Spotify Album"
 msgid "Spotify API key"
-msgstr "Spotify Albuma"
+msgstr "Spotify API gakoa"
 
 #: common/views_manage.py:897
 msgid "https://developer.spotify.com/"
@@ -5228,20 +5048,16 @@ msgid "https://developer.themoviedb.org/"
 msgstr ""
 
 #: common/views_manage.py:904
-#, fuzzy
-#| msgid "Google Books"
 msgid "Google Books API key"
-msgstr "Google Liburuak"
+msgstr "Google Books API gakoa"
 
 #: common/views_manage.py:905
 msgid "https://developers.google.com/books/"
 msgstr ""
 
 #: common/views_manage.py:908
-#, fuzzy
-#| msgid "Discogs"
 msgid "Discogs API key"
-msgstr "Discogs"
+msgstr "Discogs API gakoa"
 
 #: common/views_manage.py:910
 msgid "Personal access token from https://www.discogs.com/settings/developers"
@@ -5276,20 +5092,16 @@ msgid "Client ID of an app registered at https://myanimelist.net/apiconfig. MyAn
 msgstr ""
 
 #: common/views_manage.py:935
-#, fuzzy
-#| msgid "Steam Game"
 msgid "TheTVDB API key"
-msgstr "Steam Jokoa"
+msgstr "TheTVDB API gakoa"
 
 #: common/views_manage.py:937
 msgid "Project API key from https://thetvdb.com/api-information. TheTVDB is disabled when empty."
 msgstr ""
 
 #: common/views_manage.py:942 users/templates/users/steam_import.html:26
-#, fuzzy
-#| msgid "Steam Game"
 msgid "Steam API key"
-msgstr "Steam Jokoa"
+msgstr "Steam API gakoa"
 
 #: common/views_manage.py:944
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
@@ -5336,10 +5148,8 @@ msgid "Catalog APIs"
 msgstr ""
 
 #: common/views_manage.py:997
-#, fuzzy
-#| msgid "translator"
 msgid "Translation"
-msgstr "itzultzailea"
+msgstr "Itzulpena"
 
 #: common/views_manage.py:1002
 msgid "Third-party login"
@@ -5404,10 +5214,8 @@ msgid "Cache timeout (seconds)"
 msgstr ""
 
 #: common/views_manage.py:1051
-#, fuzzy
-#| msgid "series"
 msgid "Retries"
-msgstr "telesailak"
+msgstr "Berrsaiakerak"
 
 #: common/views_manage.py:1056
 msgid "Providers"
@@ -5498,10 +5306,8 @@ msgid "Domains"
 msgstr ""
 
 #: common/views_manage.py:1144
-#, fuzzy
-#| msgid "optional"
 msgid "Operational"
-msgstr "aukerakoa"
+msgstr "Funtzionamendua"
 
 #: common/views_manage.py:1161
 msgid "Movie genres"
@@ -5536,20 +5342,16 @@ msgid "Genre codes offered in the Game edit dropdown, one per line. Leave empty 
 msgstr ""
 
 #: common/views_manage.py:1189
-#, fuzzy
-#| msgid "Podcast"
 msgid "Podcast genres"
-msgstr "Podkasta"
+msgstr "Podkast generoak"
 
 #: common/views_manage.py:1191
 msgid "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
 #: common/views_manage.py:1196
-#, fuzzy
-#| msgid "performances"
 msgid "Performance genres"
-msgstr "ikuskizunak"
+msgstr "Ikuskizun generoak"
 
 #: common/views_manage.py:1198
 msgid "Genre codes offered in the Performance edit dropdown, one per line. Leave empty to use the built-in default."
@@ -5640,10 +5442,8 @@ msgid "Featured image (optional)"
 msgstr ""
 
 #: journal/forms.py:82 journal/forms.py:88 journal/forms.py:89
-#, fuzzy
-#| msgid "optional"
 msgid "Summary (optional)"
-msgstr "aukerakoa"
+msgstr "Laburpena (aukerakoa)"
 
 #: journal/forms.py:105 journal/forms.py:110 journal/forms.py:111
 msgid "Tags (comma separated)"
@@ -6603,16 +6403,12 @@ msgid "Create a new collection"
 msgstr ""
 
 #: journal/templates/article.html:97 social/templates/_event_post.html:79
-#, fuzzy
-#| msgid "write a review"
 msgid "wrote a review"
-msgstr "idatzi kritika"
+msgstr "kritika bat idatzi du"
 
 #: journal/templates/article.html:99 social/templates/_event_post.html:81
-#, fuzzy
-#| msgid "write a review"
 msgid "wrote an article"
-msgstr "idatzi kritika"
+msgstr "artikulu bat idatzi du"
 
 #: journal/templates/article.html:128
 msgid "This article may contain sensitive content. Click to reveal."
@@ -6628,10 +6424,8 @@ msgstr ""
 
 #: journal/templates/article_edit.html:15
 #: journal/templates/profile_articles.html:12
-#, fuzzy
-#| msgid "composer"
 msgid "Compose article"
-msgstr "konpositorea"
+msgstr "Idatzi artikulua"
 
 #: journal/templates/calendar_data.html:8
 msgid "JAN"
@@ -6689,10 +6483,8 @@ msgid "Share"
 msgstr ""
 
 #: journal/templates/collection.html:87
-#, fuzzy
-#| msgid "Collection"
 msgid "created a collection"
-msgstr "Kolekzio"
+msgstr "kolekzio bat sortu du"
 
 #: journal/templates/collection.html:154
 msgid "Query"
@@ -6870,10 +6662,8 @@ msgid "Add a quote"
 msgstr ""
 
 #: journal/templates/post_quotes.html:60
-#, fuzzy
-#| msgid "notes"
 msgid "Quotes"
-msgstr "oharrak"
+msgstr "Aipuak"
 
 #: journal/templates/profile.html:65 journal/templates/profile.html:67
 msgid "Calendar"
@@ -6901,10 +6691,8 @@ msgid "Organizations"
 msgstr ""
 
 #: journal/templates/profile_items.html:10
-#, fuzzy
-#| msgid "Collection"
 msgid "Create collection"
-msgstr "Kolekzio"
+msgstr "Sortu kolekzioa"
 
 #: journal/templates/replies.html:8
 msgid "Replies"
@@ -6935,12 +6723,11 @@ msgid "Delete this tag"
 msgstr ""
 
 #: journal/templates/user_article_list.html:26
-#, fuzzy, python-format
-#| msgid "write a review"
+#, python-format
 msgid "%(counter)s article"
 msgid_plural "%(counter)s articles"
-msgstr[0] "idatzi kritika"
-msgstr[1] "idatzi kritika"
+msgstr[0] "%(counter)s artikulu"
+msgstr[1] "%(counter)s artikulu"
 
 #: journal/templates/user_article_list.html:31
 #, python-format
@@ -6967,10 +6754,8 @@ msgid "You have no articles yet. An article is a long text that you write here a
 msgstr ""
 
 #: journal/templates/user_article_list.html:120
-#, fuzzy
-#| msgid "write a review"
 msgid "Write an article"
-msgstr "idatzi kritika"
+msgstr "Idatzi artikulu bat"
 
 #: journal/templates/user_article_list.html:125
 #, python-format
@@ -7677,22 +7462,16 @@ msgid "Feeds"
 msgstr ""
 
 #: social/templates/feed.html:45 social/templates/feed.html:47
-#, fuzzy
-#| msgid "Write a review"
 msgid "Marks and reviews"
-msgstr "idatzi kritika"
+msgstr "Markak eta kritikak"
 
 #: social/templates/feed.html:53 social/templates/feed.html:55
-#, fuzzy
-#| msgid "locale"
 msgid "Local"
-msgstr "lokala"
+msgstr "Lokala"
 
 #: social/templates/feed.html:62 social/templates/feed.html:64
-#, fuzzy
-#| msgid "Apple Music"
 msgid "World"
-msgstr "Apple Music"
+msgstr "Mundua"
 
 #: social/templates/feed_events.html:27
 msgid "No matching activities."
@@ -7731,10 +7510,8 @@ msgid "Follows"
 msgstr ""
 
 #: social/templates/post_question.html:6
-#, fuzzy
-#| msgid "Collection"
 msgid "Poll options"
-msgstr "Kolekzio"
+msgstr "Inkestaren aukerak"
 
 #: social/templates/post_question.html:21
 msgid "Poll has ended."
@@ -7835,20 +7612,16 @@ msgid "credential ID"
 msgstr ""
 
 #: users/models/webauthn.py:16
-#, fuzzy
-#| msgid "publication year"
 msgid "public key"
-msgstr "argitaratze urtea"
+msgstr "gako publikoa"
 
 #: users/models/webauthn.py:17
 msgid "sign count"
 msgstr ""
 
 #: users/models/webauthn.py:18
-#, fuzzy
-#| msgid "translator"
 msgid "transports"
-msgstr "itzultzailea"
+msgstr "garraioak"
 
 #: users/models/webauthn.py:19
 msgid "created"
@@ -7863,10 +7636,8 @@ msgid "Crossposted successfully."
 msgstr ""
 
 #: users/templates/users/_crosspost_row.html:41
-#, fuzzy
-#| msgid "author"
 msgid "Re-authorize"
-msgstr "autorea"
+msgstr "Berriro baimendu"
 
 #: users/templates/users/_crosspost_row.html:52
 msgid "Retry"
@@ -7896,10 +7667,8 @@ msgstr ""
 
 #: users/templates/users/_hardcover_section.html:5
 #: users/templates/users/_hardcover_section.html:23
-#, fuzzy
-#| msgid "Goodreads"
 msgid "Import from Hardcover"
-msgstr "Goodreads"
+msgstr "Inportatu Hardcover-etik"
 
 #: users/templates/users/_hardcover_section.html:11
 #: users/templates/users/_rym_section.html:11
@@ -8308,10 +8077,8 @@ msgid "Authorized apps"
 msgstr ""
 
 #: users/templates/users/account.html:382
-#, fuzzy
-#| msgid "publication year"
 msgid "Application"
-msgstr "argitaratze urtea"
+msgstr "Aplikazioa"
 
 #: users/templates/users/account.html:383
 msgid "Scopes"
@@ -8497,10 +8264,8 @@ msgid "Put every cover into the row it belongs to. Drag it, or select a cover an
 msgstr ""
 
 #: users/templates/users/captcha.html:38 users/templates/users/captcha.html:40
-#, fuzzy
-#| msgid "cover"
 msgid "Item cover"
-msgstr "azala"
+msgstr "Elementuaren azala"
 
 #: users/templates/users/captcha.html:56
 #, python-format
@@ -8567,10 +8332,8 @@ msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr ""
 
 #: users/views/data.py:278
-#, fuzzy
-#| msgid "Goodreads"
 msgid "Import articles from WordPress"
-msgstr "Goodreads"
+msgstr "Inportatu artikuluak WordPress-etik"
 
 #: users/templates/users/data.html:43
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
@@ -8621,10 +8384,8 @@ msgid "Import in progress, please wait"
 msgstr ""
 
 #: users/templates/users/data.html:96
-#, fuzzy
-#| msgid "Goodreads"
 msgid "Import from Goodreads"
-msgstr "Goodreads"
+msgstr "Inportatu Goodreads-etik"
 
 #: users/templates/users/data.html:102
 msgid "On Goodreads, click <a href=\"https://www.goodreads.com/review/import\" target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> to download your library as a CSV file."
@@ -8823,16 +8584,12 @@ msgid "Following, followers, mutes and blocks are exported as CSV files on the a
 msgstr ""
 
 #: users/templates/users/data.html:82
-#, fuzzy
-#| msgid "Write a review"
 msgid "Import marks and reviews"
-msgstr "idatzi kritika"
+msgstr "Inportatu markak eta kritikak"
 
 #: users/templates/users/data.html:91 users/views/data.py:192
-#, fuzzy
-#| msgid "write a review"
 msgid "Import posts and articles"
-msgstr "idatzi kritika"
+msgstr "Inportatu argitalpenak eta artikuluak"
 
 #: users/templates/users/data.html:520
 msgid "In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download an <code>.xml</code> file, then upload it below."
@@ -9045,10 +8802,8 @@ msgid "Add alias"
 msgstr ""
 
 #: users/templates/users/migrate_in.html:43
-#, fuzzy
-#| msgid "recent episodes"
 msgid "Current aliases"
-msgstr "azkeneko atalak"
+msgstr "Uneko aliasak"
 
 #: users/templates/users/migrate_in.html:61
 msgid "No aliases configured."
@@ -9181,10 +8936,8 @@ msgid "Hide these categories in discovery and search results"
 msgstr ""
 
 #: users/templates/users/preferences.html:202
-#, fuzzy
-#| msgid "filter by year range"
 msgid "Preferred catalog languages"
-msgstr "urte tartearen arabera iragazi"
+msgstr "Katalogoko hizkuntza hobetsiak"
 
 #: users/templates/users/preferences.html:211
 msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."
@@ -9361,10 +9114,8 @@ msgid "Import from Steam"
 msgstr ""
 
 #: users/templates/users/steam_import.html:20
-#, fuzzy
-#| msgid "Steam"
 msgid "Steam ID"
-msgstr "Steam"
+msgstr "Steam IDa"
 
 #: users/templates/users/steam_import.html:28
 msgid "Your personal Steam API key"
@@ -9678,10 +9429,8 @@ msgid "No Hardcover import to preview."
 msgstr ""
 
 #: users/views/data.py:1422
-#, fuzzy
-#| msgid "required"
 msgid "Name is required."
-msgstr "derrigorrezkoa"
+msgstr "Izena derrigorrezkoa da."
 
 #: users/views/data.py:1446
 msgid "Application access has been revoked."
@@ -9773,7 +9522,5 @@ msgid "Passkey not found"
 msgstr ""
 
 #: users/views/webauthn.py:260
-#, fuzzy
-#| msgid "required"
 msgid "Name is required"
-msgstr "derrigorrezkoa"
+msgstr "Izena derrigorrezkoa da"

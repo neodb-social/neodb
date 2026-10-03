@@ -48,10 +48,8 @@ msgid "Portuguese"
 msgstr "Portugués"
 
 #: boofilsic/settings.py:511
-#, fuzzy
-#| msgid "Portuguese"
 msgid "Brazilian Portuguese"
-msgstr "Portugués"
+msgstr "Portugués brasileño"
 
 #: boofilsic/settings.py:512 common/models/lang.py:318
 msgid "Simplified Chinese"
@@ -284,30 +282,24 @@ msgid "Open Library"
 msgstr ""
 
 #: catalog/models/common.py:53
-#, fuzzy
-#| msgid "MusicBrainz ID"
 msgid "MusicBrainz"
-msgstr "ID de MusicBrainz"
+msgstr "MusicBrainz"
 
 #: catalog/models/common.py:54
 msgid "WorldCat"
 msgstr ""
 
 #: catalog/models/common.py:55 catalog/models/common.py:131
-#, fuzzy
-#| msgid "Game"
 msgid "MobyGames"
-msgstr "Juego"
+msgstr "MobyGames"
 
 #: catalog/models/common.py:56 catalog/models/common.py:132
 msgid "StoryGraph"
 msgstr ""
 
 #: catalog/models/common.py:57 catalog/models/common.py:123
-#, fuzzy
-#| msgid "Douban Music"
 msgid "YouTube Music"
-msgstr "Música de Douban"
+msgstr "YouTube Music"
 
 #: catalog/models/common.py:58
 msgid "RateYourMusic"
@@ -374,10 +366,8 @@ msgid "RSS Feed URL"
 msgstr "URL del feed RSS"
 
 #: catalog/models/common.py:79
-#, fuzzy
-#| msgid "TMDB TV Serie"
 msgid "TMDB TV Series"
-msgstr "Serie de TMDB"
+msgstr "Serie de TV de TMDB"
 
 #: catalog/models/common.py:80
 msgid "TMDB TV Season"
@@ -432,10 +422,8 @@ msgid "Readmoo Book"
 msgstr ""
 
 #: catalog/models/common.py:98
-#, fuzzy
-#| msgid "Catalan"
 msgid "BnF Catalogue"
-msgstr "Catalán"
+msgstr "Catálogo de la BnF"
 
 #: catalog/models/common.py:100
 msgid "Spotify Album"
@@ -454,46 +442,32 @@ msgid "Discogs Master"
 msgstr "Máster de Discogs"
 
 #: catalog/models/common.py:106
-#, fuzzy
-#| msgid "MusicBrainz ID"
 msgid "MusicBrainz Release Group"
-msgstr "ID de MusicBrainz"
+msgstr "Grupo de lanzamientos de MusicBrainz"
 
 #: catalog/models/common.py:108
-#, fuzzy
-#| msgid "MusicBrainz ID"
 msgid "MusicBrainz Release"
-msgstr "ID de MusicBrainz"
+msgstr "Lanzamiento de MusicBrainz"
 
 #: catalog/models/common.py:109
-#, fuzzy
-#| msgid "MusicBrainz ID"
 msgid "MusicBrainz Artist"
-msgstr "ID de MusicBrainz"
+msgstr "Artista de MusicBrainz"
 
 #: catalog/models/common.py:110
-#, fuzzy
-#| msgid "Douban Game"
 msgid "Douban Personage"
-msgstr "Juego de Douban"
+msgstr "Persona de Douban"
 
 #: catalog/models/common.py:111
-#, fuzzy
-#| msgid "Goodreads Work"
 msgid "Goodreads Author"
-msgstr "Trabajo de Goodreads"
+msgstr "Autor de Goodreads"
 
 #: catalog/models/common.py:112
-#, fuzzy
-#| msgid "Spotify Podcast"
 msgid "Spotify Artist"
-msgstr "Podcast de Spotify"
+msgstr "Artista de Spotify"
 
 #: catalog/models/common.py:113
-#, fuzzy
-#| msgid "TMDB TV Season"
 msgid "TMDB Person"
-msgstr "Temporada de TMDB"
+msgstr "Persona de TMDB"
 
 #: catalog/models/common.py:114
 msgid "Open Library Author"
@@ -540,34 +514,24 @@ msgid "MyAnimeList Manga"
 msgstr ""
 
 #: catalog/models/common.py:146
-#, fuzzy
-#| msgid "TV Serie"
 msgid "TheTVDB Series"
-msgstr "Serie de TV"
+msgstr "Serie de TheTVDB"
 
 #: catalog/models/common.py:147
-#, fuzzy
-#| msgid "TV Season"
 msgid "TheTVDB Season"
-msgstr "Temporada"
+msgstr "Temporada de TheTVDB"
 
 #: catalog/models/common.py:148
-#, fuzzy
-#| msgid "TV Episode"
 msgid "TheTVDB Episode"
-msgstr "Episodio de TV"
+msgstr "Episodio de TheTVDB"
 
 #: catalog/models/common.py:149
-#, fuzzy
-#| msgid "TMDB Movie"
 msgid "TheTVDB Movie"
-msgstr "Película de TMDB"
+msgstr "Película de TheTVDB"
 
 #: catalog/models/common.py:150
-#, fuzzy
-#| msgid "TMDB TV Season"
 msgid "TheTVDB Person"
-msgstr "Temporada de TMDB"
+msgstr "Persona de TheTVDB"
 
 #: catalog/models/common.py:172
 msgid "Edition"
@@ -578,8 +542,6 @@ msgid "Work"
 msgstr "Obra"
 
 #: catalog/models/common.py:174
-#, fuzzy
-#| msgid "TV Serie"
 msgid "TV Series"
 msgstr "Serie de TV"
 
@@ -679,10 +641,8 @@ msgid "genre"
 msgstr "género"
 
 #: catalog/models/common.py:394
-#, fuzzy
-#| msgid "original creator"
 msgid "origin country"
-msgstr "creador original"
+msgstr "país de origen"
 
 #: catalog/models/common.py:423 catalog/templates/album.html:33
 msgid "album type"
@@ -693,10 +653,8 @@ msgid "platform"
 msgstr "plataforma"
 
 #: catalog/models/common.py:431
-#, fuzzy
-#| msgid "media type"
 msgid "media format"
-msgstr "tipo de medio"
+msgstr "formato del soporte"
 
 #: catalog/models/common.py:436 catalog/templates/_language_list.html:5
 #: users/models/user.py:144
@@ -704,10 +662,8 @@ msgid "language"
 msgstr "idioma"
 
 #: catalog/models/creator.py:26
-#, fuzzy
-#| msgid "binding"
 msgid "pending"
-msgstr "encuadernación"
+msgstr "pendiente"
 
 #: catalog/models/creator.py:27
 msgid "verified"
@@ -824,10 +780,8 @@ msgstr "actor"
 
 #: catalog/models/item.py:234 catalog/models/movie.py:144
 #: catalog/models/tv.py:237 catalog/models/tv.py:464
-#, fuzzy
-#| msgid "production"
 msgid "producer"
-msgstr "producción"
+msgstr "productor"
 
 #: catalog/models/item.py:237 catalog/models/performance.py:203
 #: catalog/models/performance.py:410
@@ -859,10 +813,8 @@ msgid "crew"
 msgstr "personal"
 
 #: catalog/models/item.py:246
-#, fuzzy
-#| msgid "production"
 msgid "production company"
-msgstr "producción"
+msgstr "productora"
 
 #: catalog/models/item.py:247
 msgid "record label"
@@ -882,10 +834,8 @@ msgid "troupe"
 msgstr "elenco"
 
 #: catalog/models/item.py:253
-#, fuzzy
-#| msgid "director"
 msgid "voice actor"
-msgstr "director"
+msgstr "actor de voz"
 
 #: catalog/models/item.py:254 catalog/templates/edition.html:29
 msgid "publishing house"
@@ -965,10 +915,8 @@ msgstr "duración"
 
 #: catalog/models/movie.py:162 catalog/models/music.py:131
 #: catalog/models/tv.py:261 catalog/models/tv.py:489
-#, fuzzy
-#| msgid "milliseconds"
 msgid "seconds"
-msgstr "milisegundos"
+msgstr "segundos"
 
 #: catalog/models/music.py:148
 msgid "tracks"
@@ -979,114 +927,80 @@ msgid "number of discs"
 msgstr "número de discos"
 
 #: catalog/models/people.py:33
-#, fuzzy
-#| msgid "Persian"
 msgid "Person"
-msgstr "Persa"
+msgstr "Persona"
 
 #: catalog/models/people.py:34
-#, fuzzy
-#| msgid "duration"
 msgid "Organization"
-msgstr "duración"
+msgstr "Organización"
 
 #: catalog/models/people.py:39
-#, fuzzy
-#| msgid "author"
 msgid "Author"
-msgstr "autor"
+msgstr "Autor"
 
 #: catalog/models/people.py:40
-#, fuzzy
-#| msgid "translator"
 msgid "Translator"
-msgstr "traductor"
+msgstr "Traductor"
 
 #: catalog/models/people.py:41
-#, fuzzy
-#| msgid "performer"
 msgid "Performer"
-msgstr "intérprete"
+msgstr "Intérprete"
 
 #: catalog/models/people.py:42
-#, fuzzy
-#| msgid "actor"
 msgid "Actor"
-msgstr "actor"
+msgstr "Actor"
 
 #: catalog/models/people.py:43
-#, fuzzy
-#| msgid "director"
 msgid "Director"
-msgstr "director"
+msgstr "Director"
 
 #: catalog/models/people.py:44
-#, fuzzy
-#| msgid "composer"
 msgid "Composer"
-msgstr "compositor"
+msgstr "Compositor"
 
 #: catalog/models/people.py:45
-#, fuzzy
-#| msgid "artist"
 msgid "Artist"
-msgstr "artista"
+msgstr "Artista"
 
 #: catalog/models/people.py:46
-#, fuzzy
-#| msgid "director"
 msgid "Voice Actor"
-msgstr "director"
+msgstr "Actor de voz"
 
 #: catalog/models/people.py:47
 msgid "Host"
 msgstr ""
 
 #: catalog/models/people.py:48
-#, fuzzy
-#| msgid "playwright"
 msgid "Playwright"
-msgstr "guión"
+msgstr "Dramaturgo"
 
 #: catalog/models/people.py:49
-#, fuzzy
-#| msgid "designer"
 msgid "Designer"
-msgstr "diseñador"
+msgstr "Diseñador"
 
 #: catalog/models/people.py:50
-#, fuzzy
-#| msgid "choreographer"
 msgid "Choreographer"
-msgstr "coreógrafo"
+msgstr "Coreógrafo"
 
 #: catalog/models/people.py:51
-#, fuzzy
-#| msgid "original creator"
 msgid "Original Creator"
-msgstr "creador original"
+msgstr "Creador original"
 
 #: catalog/models/people.py:52
-#, fuzzy
-#| msgid "Production"
 msgid "Producer"
-msgstr "Producción"
+msgstr "Productor"
 
 #: catalog/models/people.py:55
-#, fuzzy
-#| msgid "publisher"
 msgid "Publisher"
-msgstr "editor"
+msgstr "Editor"
 
 #: catalog/models/people.py:56
 msgid "Distributor"
 msgstr ""
 
 #: catalog/models/people.py:57
-#, fuzzy
-#| msgid "Production"
 msgid "Production Company"
-msgstr "Producción"
+msgstr "Productora"
 
 #: catalog/models/people.py:58
 msgid "Record Label"
@@ -1101,16 +1015,12 @@ msgid "Studio"
 msgstr ""
 
 #: catalog/models/people.py:61
-#, fuzzy
-#| msgid "publishing house"
 msgid "Publishing House"
-msgstr "editorial"
+msgstr "Editorial"
 
 #: catalog/models/people.py:62
-#, fuzzy
-#| msgid "troupe"
 msgid "Troupe"
-msgstr "elenco"
+msgstr "Compañía teatral"
 
 #: catalog/models/people.py:63
 msgid "Crew"
@@ -1125,16 +1035,12 @@ msgid "bio"
 msgstr ""
 
 #: catalog/models/people.py:172
-#, fuzzy
-#| msgid "date of publication"
 msgid "date of birth"
-msgstr "fecha de publicación"
+msgstr "fecha de nacimiento"
 
 #: catalog/models/people.py:175
-#, fuzzy
-#| msgid "date of publication"
 msgid "date of death"
-msgstr "fecha de publicación"
+msgstr "fecha de fallecimiento"
 
 #: catalog/models/people.py:486
 msgid "character"
@@ -1237,10 +1143,8 @@ msgid "To"
 msgstr ""
 
 #: catalog/templates/_catalog_edit_preview.html:45
-#, fuzzy
-#| msgid "Item cannot be deleted."
 msgid "No changes detected."
-msgstr "El elemento no se puede eliminar."
+msgstr "No se detectaron cambios."
 
 #: catalog/templates/_catalog_edit_preview.html:54
 #: users/templates/users/register.html:100
@@ -1248,10 +1152,8 @@ msgid "Confirm and save"
 msgstr ""
 
 #: catalog/templates/_catalog_edit_preview.html:57
-#, fuzzy
-#| msgid "back to item"
 msgid "Back to editing"
-msgstr "volver al elemento"
+msgstr "Volver a la edición"
 
 #: catalog/templates/_country_list.html:5
 msgid "region"
@@ -1295,10 +1197,8 @@ msgid "Podcasts by creators on the Fediverse. Play right on this page."
 msgstr ""
 
 #: catalog/templates/_discover_originals.html:15
-#, fuzzy
-#| msgid "Spotify Podcast"
 msgid "All original shows"
-msgstr "Podcast de Spotify"
+msgstr "Todos los programas originales"
 
 #: catalog/templates/_discover_originals.html:32
 #: catalog/templates/_item_card_metadata_podcast.html:15
@@ -1307,38 +1207,32 @@ msgid "Play"
 msgstr ""
 
 #: catalog/templates/_discover_originals.html:49
-#, fuzzy, python-format
-#| msgid "Recent episodes"
+#, python-format
 msgid "%(counter)s recent episode"
 msgid_plural "%(counter)s recent episodes"
-msgstr[0] "episodios recientes"
-msgstr[1] "episodios recientes"
+msgstr[0] "%(counter)s episodio reciente"
+msgstr[1] "%(counter)s episodios recientes"
 
 #: catalog/templates/_discover_shelf.html:11
 #: catalog/templates/discover.html:193 catalog/templates/discover.html:222
-#, fuzzy
-#| msgid "Show all"
 msgid "See all"
-msgstr "ver todo"
+msgstr "Ver todo"
 
 #: catalog/templates/_discover_spotlight.html:6
 #: catalog/templates/_discover_spotlight.html:8
-#, fuzzy
-#| msgid "binding"
 msgid "Trending now"
-msgstr "encuadernación"
+msgstr "Tendencias"
 
 #: catalog/templates/_discover_spotlight.html:9
 msgid "Marked most across the Fediverse recently."
 msgstr ""
 
 #: catalog/templates/_discover_spotlight.html:41
-#, fuzzy, python-format
-#| msgid "merge to another item"
+#, python-format
 msgid "Marked by %(counter)s person recently"
 msgid_plural "Marked by %(counter)s people recently"
-msgstr[0] "fusionar con otro elemento"
-msgstr[1] "fusionar con otro elemento"
+msgstr[0] "Marcado por %(counter)s persona recientemente"
+msgstr[1] "Marcado por %(counter)s personas recientemente"
 
 #: catalog/templates/_discover_tags.html:4
 #: catalog/templates/_discover_tags.html:6
@@ -1381,10 +1275,8 @@ msgstr "oculta esta sugerencia"
 #: catalog/templates/item_mark_list.html:46
 #: journal/templates/action_translate_post.html:3
 #: journal/templates/article.html:76
-#, fuzzy
-#| msgid "translator"
 msgid "Translate"
-msgstr "traductor"
+msgstr "Traducir"
 
 #: catalog/templates/_item_comments.html:90
 #: catalog/templates/_item_comments_by_episode.html:80
@@ -1407,10 +1299,8 @@ msgid "Nothing more."
 msgstr "nada más."
 
 #: catalog/templates/_item_comments.html:101
-#, fuzzy
-#| msgid "comments"
 msgid "Add a comment"
-msgstr "comentarios"
+msgstr "Añadir un comentario"
 
 #: catalog/templates/_item_comments_by_episode.html:35
 #: catalog/templates/podcast_episode_data.html:20
@@ -1429,10 +1319,8 @@ msgid "Not interested"
 msgstr ""
 
 #: catalog/templates/_item_credits_list.html:9
-#, fuzzy
-#| msgid "link to another item"
 msgid "Linked to a person page"
-msgstr "enlazar a otro elemento"
+msgstr "Vinculado a una página de persona"
 
 #: catalog/templates/_item_credits_list.html:15
 msgid "Click to edit character name"
@@ -1446,10 +1334,8 @@ msgstr ""
 #: catalog/templates/catalog_verify.html:85
 #: journal/templates/post_compose.html:186
 #: users/templates/users/migrate_in.html:56
-#, fuzzy
-#| msgid "remove item"
 msgid "Remove"
-msgstr "eliminar elemento"
+msgstr "Quitar"
 
 #: catalog/templates/_item_credits_list.html:44
 msgid "No credits yet."
@@ -1472,10 +1358,8 @@ msgid "Take some note or quote"
 msgstr ""
 
 #: catalog/templates/_item_reviews.html:52
-#, fuzzy
-#| msgid "wrote a review of {item}"
 msgid "Write a review"
-msgstr "escribió una reseña de {item}"
+msgstr "Escribir una reseña"
 
 #: catalog/templates/_item_similar.html:13
 msgid "More like this"
@@ -1502,16 +1386,12 @@ msgid "My comment and tags"
 msgstr "mi comentario e etiquetas"
 
 #: catalog/templates/_item_user_pieces.html:61
-#, fuzzy
-#| msgid "my comment and tags"
 msgid "My notes and progress"
-msgstr "mi comentario e etiquetas"
+msgstr "Mis notas y progreso"
 
 #: catalog/templates/_item_user_pieces.html:68
-#, fuzzy
-#| msgid "Add movies"
 msgid "Add note"
-msgstr "Añadir películas"
+msgstr "Añadir nota"
 
 #: catalog/templates/_item_user_pieces.html:95
 #: catalog/templates/_sidebar_edit.html:8
@@ -1540,10 +1420,8 @@ msgstr "historial de marcadores"
 
 #: catalog/templates/_reco_dismissed_body.html:5
 #: catalog/templates/_reco_dismissed_row.html:12
-#, fuzzy
-#| msgid "comments"
 msgid "Hidden from recommendations."
-msgstr "comentarios"
+msgstr "Oculto de las recomendaciones."
 
 #: catalog/templates/_reco_dismissed_body.html:10
 #: catalog/templates/_reco_dismissed_row.html:8
@@ -1551,10 +1429,8 @@ msgid "Undo"
 msgstr ""
 
 #: catalog/templates/_search_suggest.html:2
-#, fuzzy
-#| msgid "Suggest Edits"
 msgid "Suggestions"
-msgstr "Sugerir edición"
+msgstr "Sugerencias"
 
 #: catalog/templates/_sidebar_edit.html:12
 #: catalog/templates/catalog_history.html:10
@@ -1571,10 +1447,8 @@ msgstr "volver al elemento"
 #: catalog/templates/catalog_verify.html:11
 #: catalog/templates/catalog_verify.html:17
 #: catalog/templates/item_base.html:169
-#, fuzzy
-#| msgid "Notification"
 msgid "Creator verification"
-msgstr "Notificaciones"
+msgstr "Verificación de creador"
 
 #: catalog/templates/_sidebar_edit.html:25
 msgid "Edit options"
@@ -1590,38 +1464,28 @@ msgstr "Editar Opciones"
 #: catalog/views/edit.py:670 catalog/views/edit.py:699
 #: catalog/views/edit.py:778 catalog/views/edit.py:833
 #: catalog/views/edit.py:855 catalog/views/search.py:462
-#, fuzzy
-#| msgid "Edit this item"
 msgid "Editing this item is restricted."
-msgstr "Modificar esta obra"
+msgstr "La edición de este elemento está restringida."
 
 #: catalog/templates/_sidebar_edit.html:33
 msgid "This item is maintained by its verified creators."
 msgstr ""
 
 #: catalog/templates/_sidebar_edit.html:38
-#, fuzzy
-#| msgid "Item has been deleted."
 msgid "This item has been deleted."
-msgstr "El elemento ha sido eliminado."
+msgstr "Este elemento ha sido eliminado."
 
 #: catalog/templates/_sidebar_edit.html:43
-#, fuzzy
-#| msgid "Item contains sub-items."
 msgid "This item contains sub-items."
-msgstr "El elemento contiene sub-elementos."
+msgstr "Este elemento contiene sub-elementos."
 
 #: catalog/templates/_sidebar_edit.html:48
-#, fuzzy
-#| msgid "Item has been merged to another item."
 msgid "This item has been merged to another item."
-msgstr "El elemento ha sido fusionado con otro."
+msgstr "Este elemento ha sido fusionado con otro."
 
 #: catalog/templates/_sidebar_edit.html:53
-#, fuzzy
-#| msgid "Item has been marked by users."
 msgid "This item has been marked by users."
-msgstr "El elemento ha sido marcado por los usuarios."
+msgstr "Este elemento ha sido marcado por usuarios."
 
 #: catalog/templates/_sidebar_edit.html:58
 msgid "The following items are merged into this item"
@@ -1652,18 +1516,14 @@ msgid "Remove link to site"
 msgstr "Eliminar enlace al sitio web"
 
 #: catalog/templates/_sidebar_edit.html:108
-#, fuzzy
-#| msgid "Discover"
 msgid "Choose cover"
-msgstr "Descubrir"
+msgstr "Elegir portada"
 
 #: catalog/templates/_sidebar_edit.html:117
 #: catalog/templates/_sidebar_edit.html:118
 #: catalog/templates/_sidebar_edit.html:120
-#, fuzzy
-#| msgid "Current Targets"
 msgid "Current cover"
-msgstr "Metas actuales"
+msgstr "Portada actual"
 
 #: catalog/templates/_sidebar_edit.html:137
 msgid "Select an image to use as the cover of this item."
@@ -1791,10 +1651,8 @@ msgid "Link to another edition from same work"
 msgstr "Enlace a otra edición de la misma obra"
 
 #: catalog/templates/_sidebar_edit.html:326
-#, fuzzy
-#| msgid "description"
 msgid "Restriction"
-msgstr "descripción"
+msgstr "Restricción"
 
 #: catalog/templates/_sidebar_edit.html:339
 #: journal/templates/collection_update_item_note.html:4
@@ -1845,10 +1703,8 @@ msgstr "Como miembro de esta comunidad puedes modificar algunos de los metadatos
 
 #: catalog/templates/_sidebar_search.html:5
 #: journal/templates/_sidebar_search_journal.html:4
-#, fuzzy
-#| msgid "Search results"
 msgid "Search filters"
-msgstr "Resultados de la búsqueda"
+msgstr "Filtros de búsqueda"
 
 #: catalog/templates/_sidebar_search.html:7
 #: journal/templates/_sidebar_search_journal.html:18
@@ -1924,10 +1780,8 @@ msgid "You are a verified creator of this item."
 msgstr ""
 
 #: catalog/templates/_verify_status.html:16
-#, fuzzy
-#| msgid "watched"
 msgid "Matched"
-msgstr "visto"
+msgstr "Coincidencia"
 
 #: catalog/templates/_verify_status.html:21
 msgid "Sure to remove your creator verification? Anyone will be able to edit this item again."
@@ -1947,16 +1801,12 @@ msgid "I have updated my feed's description or website as described above."
 msgstr ""
 
 #: catalog/templates/_verify_status.html:43
-#, fuzzy
-#| msgid "Fetch again"
 msgid "Try again"
-msgstr "Obtener nuevamente"
+msgstr "Intentar de nuevo"
 
 #: catalog/templates/_verify_status.html:57
-#, fuzzy
-#| msgid "Notification"
 msgid "Start verification"
-msgstr "Notificaciones"
+msgstr "Iniciar verificación"
 
 #: catalog/templates/_wikipedia_pages.html:10
 msgid "Wikipedia pages"
@@ -1979,10 +1829,8 @@ msgid "album media"
 msgstr "imágenes del disco"
 
 #: catalog/templates/album.html:58
-#, fuzzy
-#| msgid "Track"
 msgid "Tracks"
-msgstr "Pista"
+msgstr "Pistas"
 
 #: catalog/templates/album.html:62
 msgid "Play this album"
@@ -2052,10 +1900,8 @@ msgid "NeoDB does not re-check this periodically at the moment, but we recommend
 msgstr ""
 
 #: catalog/templates/catalog_verify.html:72
-#, fuzzy
-#| msgid "original creator"
 msgid "Verified creators"
-msgstr "creador original"
+msgstr "Creadores verificados"
 
 #: catalog/templates/catalog_verify.html:82
 msgid "Sure to remove this creator verification?"
@@ -2156,10 +2002,8 @@ msgstr ""
 
 #: catalog/templates/discover.html:123 common/templates/common/scan.html:35
 #: common/views_manage.py:883 social/templates/feed_events.html:40
-#, fuzzy
-#| msgid "Search results"
 msgid "Search"
-msgstr "Resultados de la búsqueda"
+msgstr "Buscar"
 
 #: catalog/templates/discover.html:129
 msgid "Follow a few people"
@@ -2170,16 +2014,12 @@ msgid "Scroll down to what people are saying and follow the voices you like."
 msgstr ""
 
 #: catalog/templates/discover.html:131
-#, fuzzy
-#| msgid "Recent Posts"
 msgid "See posts"
-msgstr "Publicaciones recientes"
+msgstr "Ver publicaciones"
 
 #: catalog/templates/discover.html:137
-#, fuzzy
-#| msgid "No history."
 msgid "Bring your history"
-msgstr "sin historial."
+msgstr "Trae tu historial"
 
 #: catalog/templates/discover.html:138
 msgid "Import from Douban, Goodreads, Letterboxd, Steam, Trakt or a podcast OPML file."
@@ -2190,10 +2030,8 @@ msgid "Open importers"
 msgstr ""
 
 #: catalog/templates/discover.html:146
-#, fuzzy
-#| msgid "Collections"
 msgid "Sections"
-msgstr "Colecciones"
+msgstr "Secciones"
 
 #: catalog/templates/discover.html:149 catalog/templates/people_works.html:58
 #: catalog/templates/search_header.html:13
@@ -2218,26 +2056,20 @@ msgid "Posts"
 msgstr "Publicaciones"
 
 #: catalog/templates/discover.html:175
-#, fuzzy
-#| msgid "Original website"
 msgid "Originals"
-msgstr "sitio web oficial"
+msgstr "Originales"
 
 #: catalog/templates/discover.html:190 catalog/views/view.py:1003
 msgid "Because of what is on your shelf."
 msgstr ""
 
 #: catalog/templates/discover.html:218 catalog/views/view.py:1007
-#, fuzzy
-#| msgid "marks from who you follow"
 msgid "From people you follow"
-msgstr "marcas de usuarios a los que sigues"
+msgstr "De personas a las que sigues"
 
 #: catalog/templates/discover.html:219 catalog/views/view.py:1008
-#, fuzzy
-#| msgid "Marks from who you follow"
 msgid "Marked recently by people you follow."
-msgstr "marcas de usuarios a los que sigues"
+msgstr "Marcado recientemente por personas a las que sigues."
 
 #: catalog/templates/discover.html:247
 msgid "Recommendations appear here once you mark a few things or follow people."
@@ -2281,10 +2113,8 @@ msgstr "todavía nada."
 
 #: catalog/templates/discover_original_podcasts.html:10
 #: catalog/templates/discover_original_podcasts.html:18
-#, fuzzy
-#| msgid "original creator"
 msgid "Original podcasts"
-msgstr "creador original"
+msgstr "Podcasts originales"
 
 #: catalog/templates/edition.html:38
 msgid "publication date"
@@ -2323,10 +2153,8 @@ msgid "Get the data from %(site_label)s and add it to the catalog?"
 msgstr ""
 
 #: catalog/templates/fetch_confirm.html:31
-#, fuzzy
-#| msgid "Fetch all"
 msgid "Fetch"
-msgstr "Obtener todo"
+msgstr "Obtener"
 
 #: catalog/templates/fetch_pending.html:22
 #, python-format
@@ -2404,10 +2232,8 @@ msgid "Reviews"
 msgstr "Reseñas"
 
 #: catalog/templates/item_base.html:316
-#, fuzzy
-#| msgid "note"
 msgid "Notes"
-msgstr "nota"
+msgstr "Notas"
 
 #: catalog/templates/movie.html:26
 msgid "Number of seasons"
@@ -2419,10 +2245,8 @@ msgstr "número de Episodios"
 
 #: catalog/templates/people.html:13 common/templates/_sidebar.html:74
 #: common/templates/_sidebar.html:81 journal/models/shelf.py:329
-#, fuzzy
-#| msgid "following you"
 msgid "following"
-msgstr "te sigue"
+msgstr "siguiendo"
 
 #: catalog/templates/people.html:16 journal/models/shelf.py:327
 msgid "follow"
@@ -2437,10 +2261,8 @@ msgid "died"
 msgstr ""
 
 #: catalog/templates/people_works.html:56
-#, fuzzy
-#| msgid "books completed"
 msgid "complete"
-msgstr "libros terminados"
+msgstr "completado"
 
 #: catalog/templates/people_works.html:60
 #: journal/templates/_sidebar_collection_filter.html:17
@@ -2453,10 +2275,8 @@ msgid "In progress"
 msgstr ""
 
 #: catalog/templates/podcast.html:13 common/templates/_sidebar.html:51
-#, fuzzy
-#| msgid "original creator"
 msgid "verified creator"
-msgstr "creador original"
+msgstr "creador verificado"
 
 #: catalog/templates/podcast.html:28
 msgid "Recent episodes"
@@ -2512,10 +2332,8 @@ msgstr "tu línea temporal"
 
 #: catalog/templates/search_header.html:97
 #: journal/templates/add_to_collection.html:14
-#, fuzzy
-#| msgid "created collection"
 msgid "Save as dynamic collection"
-msgstr "colección creada"
+msgstr "Guardar como colección dinámica"
 
 #: catalog/templates/search_results.html:26
 msgid "Tag"
@@ -2549,10 +2367,8 @@ msgid "Search is temporarily unavailable. Please try again later."
 msgstr ""
 
 #: catalog/templates/search_results_people.html:31
-#, fuzzy
-#| msgid "No items matching your search query."
 msgid "No people matching your search query."
-msgstr "No hay elementos que coincidan con tu búsqueda."
+msgstr "No hay personas que coincidan con tu búsqueda."
 
 #: catalog/templates/tvseason.html:16 catalog/templates/tvshow.html:22
 msgid "All seasons"
@@ -2595,10 +2411,8 @@ msgstr "¿Confirmar la eliminación?"
 
 #: catalog/views/edit.py:319 catalog/views/edit.py:514
 #: catalog/views/edit.py:613
-#, fuzzy
-#| msgid "This operation cannot be undone. Sure to merge?"
 msgid "This operation cannot be undone."
-msgstr "Esta operación no puede ser anulada. ¿Confirmar la fusión?"
+msgstr "Esta operación no se puede deshacer."
 
 #: catalog/views/edit.py:340 catalog/views/edit.py:433
 #: catalog/views/edit.py:599 catalog/views/edit.py:701
@@ -2621,50 +2435,36 @@ msgid "Insufficient permission"
 msgstr "Permisos insuficientes"
 
 #: catalog/views/edit.py:342
-#, fuzzy
-#| msgid "Item has been deleted."
 msgid "Item is not deleted"
-msgstr "El elemento ha sido eliminado."
+msgstr "El elemento no está eliminado"
 
 #: catalog/views/edit.py:385
-#, fuzzy
-#| msgid "Switching may remove some metadata. Sure to proceed?"
 msgid "Switching may remove some metadata."
-msgstr "Cambiar la categoría podría eliminar algunos metadatos. ¿Desea proceder?"
+msgstr "Cambiar de categoría puede eliminar algunos metadatos."
 
 #: catalog/views/edit.py:391
-#, fuzzy
-#| msgid "The following items are merged into this item"
 msgid "The following seasons will be detached from this show"
-msgstr "Los siguientes elementos han sido fusionados con este elemento"
+msgstr "Las siguientes temporadas se desvincularán de esta serie"
 
 #: catalog/views/edit.py:396
 msgid "Links to IMDB and TMDB will be removed."
 msgstr ""
 
 #: catalog/views/edit.py:399
-#, fuzzy
-#| msgid "Are you sure to merge?"
 msgid "Are you sure to switch category?"
-msgstr "¿Confirmar la fusión?"
+msgstr "¿Seguro que quieres cambiar de categoría?"
 
 #: catalog/views/edit.py:447
-#, fuzzy
-#| msgid "Are you sure to delete?"
 msgid "Are you sure to remove the link to this site?"
-msgstr "¿Confirmar la eliminación?"
+msgstr "¿Seguro que quieres quitar el enlace a este sitio?"
 
 #: catalog/views/edit.py:453
-#, fuzzy
-#| msgid "You may not be able to undo this operation, sure to remove?"
 msgid "You may not be able to undo this operation."
-msgstr "Esta operación no podrá ser anulada, ¿desea eliminarlo?"
+msgstr "Es posible que no puedas deshacer esta operación."
 
 #: catalog/views/edit.py:479
-#, fuzzy
-#| msgid "Link to parent item"
 msgid "Current parent item"
-msgstr "Enlace al elemento superior"
+msgstr "Elemento superior actual"
 
 #: catalog/views/edit.py:483
 msgid "The link to the parent item will be removed."
@@ -2731,22 +2531,16 @@ msgid "Cannot link items other than editions"
 msgstr "Solo es posible asociar ediciones"
 
 #: catalog/views/edit.py:706
-#, fuzzy
-#| msgid "Are you sure to link?"
 msgid "Are you sure to unlink?"
-msgstr "¿Confirmar el enlace?"
+msgstr "¿Seguro que quieres desvincular?"
 
 #: catalog/views/edit.py:711
-#, fuzzy
-#| msgid "This edition belongs to the following work"
 msgid "This edition will be unlinked from the following work"
-msgstr "Esta edición pertenece a las siguientes obras"
+msgstr "Esta edición se desvinculará de la siguiente obra"
 
 #: catalog/views/recommendation.py:58
-#, fuzzy
-#| msgid "comments"
 msgid "Hidden recommendations"
-msgstr "comentarios"
+msgstr "Recomendaciones ocultas"
 
 #: catalog/views/recommendation.py:59
 msgid "These items are not recommended to you. Restore one to let it come back."
@@ -2761,10 +2555,8 @@ msgid "Invalid URL"
 msgstr "URL inválida"
 
 #: catalog/views/search.py:457
-#, fuzzy
-#| msgid "Unsupported item type."
 msgid "Unsupported URL"
-msgstr "Tipo de obra no soportado."
+msgstr "URL no compatible"
 
 #: catalog/views/verify.py:42
 msgid "Creator verification is only available for podcasts for now."
@@ -2810,16 +2602,12 @@ msgid "Item no longer exists"
 msgstr "El elemento ya no existe."
 
 #: catalog/views/view.py:217
-#, fuzzy
-#| msgid "Invalid URL"
 msgid "Invalid role"
-msgstr "URL inválida"
+msgstr "Rol no válido"
 
 #: catalog/views/view.py:989
-#, fuzzy
-#| msgid "User not found"
 msgid "Category not found"
-msgstr "Usuario no encontrado"
+msgstr "Categoría no encontrada"
 
 #: catalog/views/view.py:993
 #, python-format
@@ -2841,18 +2629,14 @@ msgid "Arcade"
 msgstr ""
 
 #: common/models/game_platform.py:64
-#, fuzzy
-#| msgid "BGG Boardgame"
 msgctxt "platform"
 msgid "Board Game"
-msgstr "Juego de mesa de la BGG"
+msgstr "Juego de mesa"
 
 #: common/models/genre.py:21
-#, fuzzy
-#| msgid "Production"
 msgctxt "genre"
 msgid "Action"
-msgstr "Producción"
+msgstr "Acción"
 
 #: common/models/genre.py:22
 msgctxt "genre"
@@ -2875,11 +2659,9 @@ msgid "Fantasy"
 msgstr ""
 
 #: common/models/genre.py:26
-#, fuzzy
-#| msgid "Error"
 msgctxt "genre"
 msgid "Horror"
-msgstr "Error"
+msgstr "Terror"
 
 #: common/models/genre.py:27
 msgctxt "genre"
@@ -2887,11 +2669,9 @@ msgid "Mystery"
 msgstr ""
 
 #: common/models/genre.py:28
-#, fuzzy
-#| msgid "Raeto-Romance"
 msgctxt "genre"
 msgid "Romance"
-msgstr "Retorrománico"
+msgstr "Romance"
 
 #: common/models/genre.py:29
 msgctxt "genre"
@@ -2904,11 +2684,9 @@ msgid "Thriller"
 msgstr ""
 
 #: common/models/genre.py:31
-#, fuzzy
-#| msgid "Edition"
 msgctxt "genre"
 msgid "Animation"
-msgstr "Edición"
+msgstr "Animación"
 
 #: common/models/genre.py:32
 msgctxt "genre"
@@ -2916,18 +2694,14 @@ msgid "Documentary"
 msgstr ""
 
 #: common/models/genre.py:33
-#, fuzzy
-#| msgid "Tamil"
 msgctxt "genre"
 msgid "Family"
-msgstr "Tamil"
+msgstr "Familiar"
 
 #: common/models/genre.py:34
-#, fuzzy
-#| msgid "no history."
 msgctxt "genre"
 msgid "History"
-msgstr "sin historial."
+msgstr "Historia"
 
 #: common/models/genre.py:35
 msgctxt "genre"
@@ -2940,11 +2714,9 @@ msgid "War"
 msgstr ""
 
 #: common/models/genre.py:37
-#, fuzzy
-#| msgid "Remaster"
 msgctxt "genre"
 msgid "Western"
-msgstr "Remasterización"
+msgstr "Wéstern"
 
 #: common/models/genre.py:38
 msgctxt "genre"
@@ -2957,8 +2729,6 @@ msgid "Sports"
 msgstr ""
 
 #: common/models/genre.py:40
-#, fuzzy
-#| msgid "Music"
 msgctxt "genre"
 msgid "Music"
 msgstr "Música"
@@ -2969,11 +2739,9 @@ msgid "Film Noir"
 msgstr ""
 
 #: common/models/genre.py:43
-#, fuzzy
-#| msgid "Music"
 msgctxt "genre"
 msgid "Musical"
-msgstr "Música"
+msgstr "Musical"
 
 #: common/models/genre.py:44
 msgctxt "genre"
@@ -2981,11 +2749,9 @@ msgid "Reality"
 msgstr ""
 
 #: common/models/genre.py:45
-#, fuzzy
-#| msgid "TV Show"
 msgctxt "genre"
 msgid "Talk Show"
-msgstr "Serie de TV"
+msgstr "Programa de entrevistas"
 
 #: common/models/genre.py:46
 msgctxt "genre"
@@ -2993,11 +2759,9 @@ msgid "News"
 msgstr ""
 
 #: common/models/genre.py:47
-#, fuzzy
-#| msgid "TV Show"
 msgctxt "genre"
 msgid "Game Show"
-msgstr "Serie de TV"
+msgstr "Concurso"
 
 #: common/models/genre.py:48
 msgctxt "genre"
@@ -3015,11 +2779,9 @@ msgid "Superhero"
 msgstr ""
 
 #: common/models/genre.py:51
-#, fuzzy
-#| msgid "Discogs Master"
 msgctxt "genre"
 msgid "Disaster"
-msgstr "Máster de Discogs"
+msgstr "Catástrofes"
 
 #: common/models/genre.py:52
 msgctxt "genre"
@@ -3037,11 +2799,9 @@ msgid "LGBTQ"
 msgstr ""
 
 #: common/models/genre.py:55
-#, fuzzy
-#| msgid "TMDB Movie"
 msgctxt "genre"
 msgid "TV Movie"
-msgstr "Película de TMDB"
+msgstr "Película para televisión"
 
 #: common/models/genre.py:57
 msgctxt "genre"
@@ -3059,11 +2819,9 @@ msgid "Hip Hop"
 msgstr ""
 
 #: common/models/genre.py:60
-#, fuzzy
-#| msgid "Collection"
 msgctxt "genre"
 msgid "Electronic"
-msgstr "Colección"
+msgstr "Electrónica"
 
 #: common/models/genre.py:61
 msgctxt "genre"
@@ -3116,18 +2874,14 @@ msgid "Reggae"
 msgstr ""
 
 #: common/models/genre.py:71
-#, fuzzy
-#| msgid "Latin"
 msgctxt "genre"
 msgid "Latin"
-msgstr "Latín"
+msgstr "Latina"
 
 #: common/models/genre.py:72
-#, fuzzy
-#| msgid "Apple Music"
 msgctxt "genre"
 msgid "World Music"
-msgstr "Apple Music"
+msgstr "Músicas del mundo"
 
 #: common/models/genre.py:73
 msgctxt "genre"
@@ -3150,11 +2904,9 @@ msgid "Alternative"
 msgstr ""
 
 #: common/models/genre.py:77
-#, fuzzy
-#| msgid "Cancel"
 msgctxt "genre"
 msgid "Dance"
-msgstr "Cancelar"
+msgstr "Dance"
 
 #: common/models/genre.py:78
 msgctxt "genre"
@@ -3167,11 +2919,9 @@ msgid "Gospel"
 msgstr ""
 
 #: common/models/genre.py:80
-#, fuzzy
-#| msgid "tracks"
 msgctxt "genre"
 msgid "Soundtrack"
-msgstr "pistas"
+msgstr "Banda sonora"
 
 #: common/models/genre.py:81
 msgctxt "genre"
@@ -3179,11 +2929,9 @@ msgid "K-Pop"
 msgstr ""
 
 #: common/models/genre.py:82
-#, fuzzy
-#| msgid "albums listening"
 msgctxt "genre"
 msgid "Easy Listening"
-msgstr "escuchando álbumes"
+msgstr "Easy listening"
 
 #: common/models/genre.py:84
 msgctxt "genre"
@@ -3196,11 +2944,9 @@ msgid "Strategy"
 msgstr ""
 
 #: common/models/genre.py:86
-#, fuzzy
-#| msgid "duration"
 msgctxt "genre"
 msgid "Simulation"
-msgstr "duración"
+msgstr "Simulación"
 
 #: common/models/genre.py:87
 msgctxt "genre"
@@ -3213,11 +2959,9 @@ msgid "Puzzle"
 msgstr ""
 
 #: common/models/genre.py:89
-#, fuzzy
-#| msgid "platform"
 msgctxt "genre"
 msgid "Platformer"
-msgstr "plataforma"
+msgstr "Plataformas"
 
 #: common/models/genre.py:90
 msgctxt "genre"
@@ -3250,18 +2994,14 @@ msgid "Visual Novel"
 msgstr ""
 
 #: common/models/genre.py:96
-#, fuzzy
-#| msgid "Main Game"
 msgctxt "genre"
 msgid "Card Game"
-msgstr "Juego principal"
+msgstr "Juego de cartas"
 
 #: common/models/genre.py:97
-#, fuzzy
-#| msgid "BGG Boardgame"
 msgctxt "genre"
 msgid "Board Game"
-msgstr "Juego de mesa de la BGG"
+msgstr "Juego de mesa"
 
 #: common/models/genre.py:98
 msgctxt "genre"
@@ -3339,18 +3079,14 @@ msgid "Technology"
 msgstr ""
 
 #: common/models/genre.py:115
-#, fuzzy
-#| msgid "duration"
 msgctxt "genre"
 msgid "Education"
-msgstr "duración"
+msgstr "Educación"
 
 #: common/models/genre.py:116
-#, fuzzy
-#| msgid "region"
 msgctxt "genre"
 msgid "Religion"
-msgstr "región"
+msgstr "Religión"
 
 #: common/models/genre.py:117
 msgctxt "genre"
@@ -4119,8 +3855,6 @@ msgid "Hakka Chinese"
 msgstr "Chino Hakka"
 
 #: common/models/music_format.py:18
-#, fuzzy
-#| msgid "Album"
 msgctxt "album_type"
 msgid "Album"
 msgstr "Álbum"
@@ -4136,18 +3870,14 @@ msgid "EP"
 msgstr ""
 
 #: common/models/music_format.py:21
-#, fuzzy
-#| msgid "Collection"
 msgctxt "album_type"
 msgid "Compilation"
-msgstr "Colección"
+msgstr "Recopilatorio"
 
 #: common/models/music_format.py:22
-#, fuzzy
-#| msgid "tracks"
 msgctxt "album_type"
 msgid "Soundtrack"
-msgstr "pistas"
+msgstr "Banda sonora"
 
 #: common/models/music_format.py:23
 msgctxt "album_type"
@@ -4180,32 +3910,24 @@ msgid "Spoken Word"
 msgstr ""
 
 #: common/models/music_format.py:29
-#, fuzzy
-#| msgid "Audiobook"
 msgctxt "album_type"
 msgid "Audiobook"
 msgstr "Audiolibro"
 
 #: common/models/music_format.py:30
-#, fuzzy
-#| msgid "Douban Drama"
 msgctxt "album_type"
 msgid "Audio Drama"
-msgstr "Drama de Douban"
+msgstr "Radioteatro"
 
 #: common/models/music_format.py:31
-#, fuzzy
-#| msgid "overview"
 msgctxt "album_type"
 msgid "Interview"
-msgstr "sinopsis"
+msgstr "Entrevista"
 
 #: common/models/music_format.py:32
-#, fuzzy
-#| msgid "Podcast"
 msgctxt "album_type"
 msgid "Broadcast"
-msgstr "Podcast"
+msgstr "Emisión"
 
 #: common/models/music_format.py:33
 msgctxt "album_type"
@@ -4335,10 +4057,8 @@ msgstr "Inicio"
 
 #: common/templates/_header.html:127 common/templates/common/scan.html:9
 #: common/templates/common/scan.html:17
-#, fuzzy
-#| msgid "barcode"
 msgid "Scan barcode"
-msgstr "código de barras"
+msgstr "Escanear código de barras"
 
 #: common/templates/_header.html:131
 msgid "Notification"
@@ -4393,32 +4113,24 @@ msgid "Edit layout"
 msgstr "editar disposición"
 
 #: common/templates/_layout_editor.html:17
-#, fuzzy
-#| msgid "Edit layout"
 msgid "Page layout"
-msgstr "editar disposición"
+msgstr "Diseño de página"
 
 #: common/templates/_layout_editor.html:19
 msgid "Switch sections on or off and move them up or down. The order applies on every device."
 msgstr ""
 
 #: common/templates/_layout_editor.html:40
-#, fuzzy
-#| msgid "movies to watch"
 msgid "Move up"
-msgstr "filmes por ver"
+msgstr "Subir"
 
 #: common/templates/_layout_editor.html:46
-#, fuzzy
-#| msgid "movies to watch"
 msgid "Move down"
-msgstr "filmes por ver"
+msgstr "Bajar"
 
 #: common/templates/_pagination.html:3
-#, fuzzy
-#| msgid "translator"
 msgid "Pagination"
-msgstr "traductor"
+msgstr "Paginación"
 
 #: common/templates/_pagination.html:9 common/templates/_pagination.html:13
 msgid "Previous page"
@@ -4447,10 +4159,8 @@ msgid "Approving followers manually"
 msgstr "aprobar manualmente las solicitudes de seguidores"
 
 #: common/templates/_sidebar.html:78 common/templates/_sidebar.html:83
-#, fuzzy
-#| msgid "followed"
 msgid "followers"
-msgstr "seguido(a)"
+msgstr "seguidores"
 
 #: common/templates/_sidebar.html:109
 msgid "Current targets"
@@ -4465,10 +4175,8 @@ msgid "Recent podcast episodes"
 msgstr "Episodios recientes de podcasts"
 
 #: common/templates/_sidebar.html:149
-#, fuzzy
-#| msgid "start reading"
 msgid "Currently reading"
-msgstr "comenzar a leer"
+msgstr "Leyendo ahora"
 
 #: common/templates/_sidebar.html:163 journal/forms.py:212
 #: journal/templates/user_tag_list.html:13
@@ -4527,10 +4235,8 @@ msgid ""
 msgstr ""
 
 #: common/templates/common/about.html:45
-#, fuzzy
-#| msgid "artist"
 msgid "Statistics"
-msgstr "artista"
+msgstr "Estadísticas"
 
 #: common/templates/common/about.html:57
 msgid "Users"
@@ -4553,46 +4259,36 @@ msgid "Statistics are being calculated. Please check back in a few minutes."
 msgstr ""
 
 #: common/templates/common/about.html:80
-#, fuzzy
-#| msgid "This season"
 msgid "This instance"
-msgstr "esta temporada"
+msgstr "Esta instancia"
 
 #: common/templates/common/about.html:83
 msgid "Instance domain"
 msgstr ""
 
 #: common/templates/common/about.html:87
-#, fuzzy
-#| msgid "Douban Drama Version"
 msgid "Software version"
-msgstr "Versión de drama de Douban"
+msgstr "Versión del software"
 
 #: common/templates/common/about.html:92
 msgid "Source code"
 msgstr "Código fuente"
 
 #: common/templates/common/about.html:94
-#, fuzzy
-#| msgid "description"
 msgid "Registration"
-msgstr "descripción"
+msgstr "Registro"
 
 #: common/templates/common/about.html:97 common/views_manage.py:701
-#, fuzzy
-#| msgid "Mentioned Only"
 msgid "Invite only"
-msgstr "Solo cuentas mencionadas"
+msgstr "Solo por invitación"
 
 #: common/templates/common/about.html:99
 msgid "Open registration"
 msgstr ""
 
 #: common/templates/common/about.html:102 common/views_manage.py:796
-#, fuzzy
-#| msgid "Preferences"
 msgid "Preferred languages"
-msgstr "Preferencias"
+msgstr "Idiomas preferidos"
 
 #: common/templates/common/about.html:107
 msgid "Not specified"
@@ -4699,10 +4395,8 @@ msgid "Takahe admin"
 msgstr ""
 
 #: common/templates/manage/base.html:32
-#, fuzzy
-#| msgid "Database"
 msgid "Database admin"
-msgstr "Base de datos"
+msgstr "Administración de la base de datos"
 
 #: common/templates/manage/environment.html:6
 msgid "These settings come from environment variables and cannot be changed here. Edit .env and restart the server to change them. Passwords and keys are hidden."
@@ -4755,44 +4449,32 @@ msgid "Login required"
 msgstr ""
 
 #: common/views_manage.py:34 common/views_manage.py:374
-#, fuzzy
-#| msgid "reading"
 msgid "Branding"
-msgstr "leyendo"
+msgstr "Identidad visual"
 
 #: common/views_manage.py:37
-#, fuzzy
-#| msgid "comments"
 msgid "Recommendations"
-msgstr "comentarios"
+msgstr "Recomendaciones"
 
 #: common/views_manage.py:38
-#, fuzzy
-#| msgid "Access denied"
 msgid "Access"
-msgstr "Acceso denegado"
+msgstr "Acceso"
 
 #: common/views_manage.py:39 common/views_manage.py:878
-#, fuzzy
-#| msgid "duration"
 msgid "Federation"
-msgstr "duración"
+msgstr "Federación"
 
 #: common/views_manage.py:40
-#, fuzzy
-#| msgid "Catalan"
 msgid "Catalog"
-msgstr "Catalán"
+msgstr "Catálogo"
 
 #: common/views_manage.py:41
 msgid "API keys"
 msgstr ""
 
 #: common/views_manage.py:42
-#, fuzzy
-#| msgid "Downloadable Content"
 msgid "Downloader"
-msgstr "Contenido descargable"
+msgstr "Descargador"
 
 #: common/views_manage.py:43 common/views_manage.py:382
 #: users/templates/users/steam_import.html:113
@@ -4804,10 +4486,8 @@ msgid "Environment"
 msgstr ""
 
 #: common/views_manage.py:281
-#, fuzzy
-#| msgid "Invalid parameter"
 msgid "Invalid value."
-msgstr "Parámetro no válido"
+msgstr "Valor no válido."
 
 #: common/views_manage.py:285
 msgid "Invalid configuration. Please check your input."
@@ -4822,10 +4502,8 @@ msgid "Site name"
 msgstr ""
 
 #: common/views_manage.py:313
-#, fuzzy
-#| msgid "description"
 msgid "Site description"
-msgstr "descripción"
+msgstr "Descripción del sitio"
 
 #: common/views_manage.py:314
 msgid "Short description shown in metadata and about page."
@@ -4864,10 +4542,8 @@ msgid "PicoCSS color theme."
 msgstr ""
 
 #: common/views_manage.py:355
-#, fuzzy
-#| msgid "Production"
 msgid "Site introduction"
-msgstr "Producción"
+msgstr "Presentación del sitio"
 
 #: common/views_manage.py:356
 msgid "URL path for the intro/welcome sidebar page."
@@ -4922,50 +4598,40 @@ msgid "Only show items with titles in the preferred languages."
 msgstr ""
 
 #: common/views_manage.py:418
-#, fuzzy
-#| msgid "Preferences"
 msgid "Filter by member languages"
-msgstr "Preferencias"
+msgstr "Filtrar por idiomas de los miembros"
 
 #: common/views_manage.py:420
 msgid "Let members pick catalog languages in their preferences. Trending, spotlight and For you then show them only items with a title or an original language in those languages. More like this, items from people they follow, and items without a known language are not filtered. With the option above also on, trending and spotlight hold only the preferred languages to begin with."
 msgstr ""
 
 #: common/views_manage.py:418
-#, fuzzy
-#| msgid "show all"
 msgid "Show local only"
-msgstr "ver todo"
+msgstr "Mostrar solo contenido local"
 
 #: common/views_manage.py:420
 msgid "Only show items marked by local users, not the entire network."
 msgstr ""
 
 #: common/views_manage.py:424
-#, fuzzy
-#| msgid "Popular Tags"
 msgid "Show popular posts"
-msgstr "Etiquetas destacadas"
+msgstr "Mostrar publicaciones populares"
 
 #: common/views_manage.py:425
 msgid "Show popular public posts instead of recent ones."
 msgstr ""
 
 #: common/views_manage.py:428
-#, fuzzy
-#| msgid "Popular Tags"
 msgid "Show popular tags"
-msgstr "Etiquetas destacadas"
+msgstr "Mostrar etiquetas populares"
 
 #: common/views_manage.py:429
 msgid "Show popular public tags on the discover page."
 msgstr ""
 
 #: common/views_manage.py:432
-#, fuzzy
-#| msgid "Spotify Podcast"
 msgid "Show verified podcasts"
-msgstr "Podcast de Spotify"
+msgstr "Mostrar podcasts verificados"
 
 #: common/views_manage.py:434
 msgid "Show a shelf of recent episodes from podcasts with a verified creator on the discover page."
@@ -4988,30 +4654,24 @@ msgid "Accounts (@user@domain) or domains whose posts never appear in popular po
 msgstr ""
 
 #: common/views_manage.py:474
-#, fuzzy
-#| msgid "your timeline"
 msgid "Show world timeline"
-msgstr "tu línea temporal"
+msgstr "Mostrar línea temporal global"
 
 #: common/views_manage.py:476
 msgid "Offer a tab with public posts from this site and every server it federates with."
 msgstr ""
 
 #: common/views_manage.py:481
-#, fuzzy
-#| msgid "show all"
 msgid "Show local timeline"
-msgstr "ver todo"
+msgstr "Mostrar línea temporal local"
 
 #: common/views_manage.py:482
 msgid "Offer a tab with public posts from this site only."
 msgstr ""
 
 #: common/views_manage.py:486
-#, fuzzy
-#| msgid "your timeline"
 msgid "Timelines"
-msgstr "tu línea temporal"
+msgstr "Líneas temporales"
 
 #: common/views_manage.py:514
 msgid "Enable recommendations"
@@ -5110,60 +4770,48 @@ msgid "Item pairs shared by fewer users than this score lower. 0 turns it off."
 msgstr ""
 
 #: common/views_manage.py:602
-#, fuzzy
-#| msgid "ratings"
 msgid "Rating weight"
-msgstr "puntuación"
+msgstr "Peso de la puntuación"
 
 #: common/views_manage.py:604
 msgid "How much a rating above or below the user's own average raises or lowers the weight of a mark. 0 ignores ratings."
 msgstr ""
 
 #: common/views_manage.py:611
-#, fuzzy
-#| msgid "Reviews"
 msgid "Review boost"
-msgstr "Reseñas"
+msgstr "Impulso de reseñas"
 
 #: common/views_manage.py:613
 msgid "Extra weight for a mark when its owner also wrote a public review of the item."
 msgstr ""
 
 #: common/views_manage.py:620
-#, fuzzy
-#| msgid "My comment and tags"
 msgid "Comment and note boost"
-msgstr "mi comentario e etiquetas"
+msgstr "Impulso de comentarios y notas"
 
 #: common/views_manage.py:622
 msgid "Extra weight for a mark for each of a public comment and a public note by its owner on the item. A mark weighs at most twice a plain mark."
 msgstr ""
 
 #: common/views_manage.py:630
-#, fuzzy
-#| msgid "Featured tag"
 msgid "Feature item cap"
-msgstr "Etiqueta destacada"
+msgstr "Límite de elementos por característica"
 
 #: common/views_manage.py:632
 msgid "Tags, collections and credits shared by more items than this are too broad to link items and are ignored."
 msgstr ""
 
 #: common/views_manage.py:638
-#, fuzzy
-#| msgid "playwright"
 msgid "Tag weight"
-msgstr "guión"
+msgstr "Peso de las etiquetas"
 
 #: common/views_manage.py:640
 msgid "Weight of shared public tags in similar items, relative to shared marks at 1."
 msgstr ""
 
 #: common/views_manage.py:646
-#, fuzzy
-#| msgid "Collection"
 msgid "Collection weight"
-msgstr "Colección"
+msgstr "Peso de las colecciones"
 
 #: common/views_manage.py:648
 msgid "Weight of shared public collections in similar items, relative to shared marks at 1."
@@ -5190,16 +4838,12 @@ msgid "Mark weights"
 msgstr ""
 
 #: common/views_manage.py:680
-#, fuzzy
-#| msgid "original title"
 msgid "Signal blend"
-msgstr "título original"
+msgstr "Combinación de señales"
 
 #: common/views_manage.py:685
-#, fuzzy
-#| msgid "Persian"
 msgid "Personalisation"
-msgstr "Persa"
+msgstr "Personalización"
 
 #: common/views_manage.py:703
 msgid "Require an invite token to register. Invite tokens can be generated with neodb-manage invite --create."
@@ -5230,10 +4874,8 @@ msgid "One domain per line. A new account or a new email link is refused when th
 msgstr ""
 
 #: common/views_manage.py:725
-#, fuzzy
-#| msgid "description"
 msgid "Registration captcha items"
-msgstr "descripción"
+msgstr "Elementos del captcha de registro"
 
 #: common/views_manage.py:729
 msgid "Number of item covers a new user must sort into two category rows before choosing a username. 0 disables the captcha; 5-6 is recommended. The covers carry no title text, so this cannot be solved with a screen reader: if you enable it, keep another way in, such as an invite link."
@@ -5248,10 +4890,8 @@ msgid "Marks an item needs before the captcha treats it as well known enough to 
 msgstr ""
 
 #: common/views_manage.py:746
-#, fuzzy
-#| msgid "description"
 msgid "Registration captcha for email only"
-msgstr "descripción"
+msgstr "Captcha de registro solo para correo electrónico"
 
 #: common/views_manage.py:748
 msgid "Show the captcha only to people who register with an email address. Mastodon, Bluesky and Threads sign-ups already passed an external login and skip it. Has no effect while captcha items is 0."
@@ -5270,10 +4910,8 @@ msgid "Enable Threads login"
 msgstr ""
 
 #: common/views_manage.py:764
-#, fuzzy
-#| msgid "Invalid URL"
 msgid "Email URL"
-msgstr "URL inválida"
+msgstr "URL del correo electrónico"
 
 #: common/views_manage.py:766
 msgid "Email backend URL for login codes, such as an SMTP or Anymail URL."
@@ -5304,10 +4942,8 @@ msgid "Show the Mastodon archive import on the data page. Imported posts become 
 msgstr ""
 
 #: common/views_manage.py:788
-#, fuzzy
-#| msgid "language"
 msgid "Default language"
-msgstr "idioma"
+msgstr "Idioma predeterminado"
 
 #: common/views_manage.py:791
 msgid "Interface language for visitors and for users who have not chosen one themselves."
@@ -5364,10 +5000,8 @@ msgid "Remote profiles inactive for this many days will be pruned."
 msgstr ""
 
 #: common/views_manage.py:856
-#, fuzzy
-#| msgid "Search results"
 msgid "Search sites"
-msgstr "Resultados de la búsqueda"
+msgstr "Sitios de búsqueda"
 
 #: common/views_manage.py:857
 msgid "External search sites to include, one per line."
@@ -5382,10 +5016,8 @@ msgid "NeoDB peer instances for federated search, one per line."
 msgstr ""
 
 #: common/views_manage.py:864
-#, fuzzy
-#| msgid "Add tv series"
 msgid "Hidden categories"
-msgstr "Añadir series de tv"
+msgstr "Categorías ocultas"
 
 #: common/views_manage.py:865
 msgid "Category values to hide from the catalog, one per line."
@@ -5400,10 +5032,8 @@ msgid "Visitors who are not logged in cannot open search result pages beyond thi
 msgstr ""
 
 #: common/views_manage.py:896
-#, fuzzy
-#| msgid "Spotify Album"
 msgid "Spotify API key"
-msgstr "Álbum de Spotify"
+msgstr "Clave de API de Spotify"
 
 #: common/views_manage.py:897
 msgid "https://developer.spotify.com/"
@@ -5418,20 +5048,16 @@ msgid "https://developer.themoviedb.org/"
 msgstr ""
 
 #: common/views_manage.py:904
-#, fuzzy
-#| msgid "Google Books"
 msgid "Google Books API key"
-msgstr "Google Books"
+msgstr "Clave de API de Google Books"
 
 #: common/views_manage.py:905
 msgid "https://developers.google.com/books/"
 msgstr ""
 
 #: common/views_manage.py:908
-#, fuzzy
-#| msgid "Discogs"
 msgid "Discogs API key"
-msgstr "Discogs"
+msgstr "Clave de API de Discogs"
 
 #: common/views_manage.py:910
 msgid "Personal access token from https://www.discogs.com/settings/developers"
@@ -5466,20 +5092,16 @@ msgid "Client ID of an app registered at https://myanimelist.net/apiconfig. MyAn
 msgstr ""
 
 #: common/views_manage.py:935
-#, fuzzy
-#| msgid "Steam Game"
 msgid "TheTVDB API key"
-msgstr "Juego de Steam"
+msgstr "Clave de API de TheTVDB"
 
 #: common/views_manage.py:937
 msgid "Project API key from https://thetvdb.com/api-information. TheTVDB is disabled when empty."
 msgstr ""
 
 #: common/views_manage.py:942 users/templates/users/steam_import.html:26
-#, fuzzy
-#| msgid "Steam Game"
 msgid "Steam API key"
-msgstr "Juego de Steam"
+msgstr "Clave de API de Steam"
 
 #: common/views_manage.py:944
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
@@ -5526,10 +5148,8 @@ msgid "Catalog APIs"
 msgstr ""
 
 #: common/views_manage.py:997
-#, fuzzy
-#| msgid "translator"
 msgid "Translation"
-msgstr "traductor"
+msgstr "Traducción"
 
 #: common/views_manage.py:1002
 msgid "Third-party login"
@@ -5594,10 +5214,8 @@ msgid "Cache timeout (seconds)"
 msgstr ""
 
 #: common/views_manage.py:1051
-#, fuzzy
-#| msgid "series"
 msgid "Retries"
-msgstr "serie"
+msgstr "Reintentos"
 
 #: common/views_manage.py:1056
 msgid "Providers"
@@ -5688,10 +5306,8 @@ msgid "Domains"
 msgstr ""
 
 #: common/views_manage.py:1144
-#, fuzzy
-#| msgid "optional"
 msgid "Operational"
-msgstr "opcional"
+msgstr "Operación"
 
 #: common/views_manage.py:1161
 msgid "Movie genres"
@@ -5726,20 +5342,16 @@ msgid "Genre codes offered in the Game edit dropdown, one per line. Leave empty 
 msgstr ""
 
 #: common/views_manage.py:1189
-#, fuzzy
-#| msgid "Podcast"
 msgid "Podcast genres"
-msgstr "Podcast"
+msgstr "Géneros de podcast"
 
 #: common/views_manage.py:1191
 msgid "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
 #: common/views_manage.py:1196
-#, fuzzy
-#| msgid "Performance"
 msgid "Performance genres"
-msgstr "Espectáculo"
+msgstr "Géneros de espectáculos"
 
 #: common/views_manage.py:1198
 msgid "Genre codes offered in the Performance edit dropdown, one per line. Leave empty to use the built-in default."
@@ -5754,10 +5366,8 @@ msgid "Site"
 msgstr ""
 
 #: common/views_manage.py:1238
-#, fuzzy
-#| msgid "Database"
 msgid "Database and services"
-msgstr "Base de datos"
+msgstr "Base de datos y servicios"
 
 #: common/views_manage.py:1248
 msgid "Media and files"
@@ -5796,10 +5406,8 @@ msgstr "Contenido (Markdown)"
 
 #: journal/forms.py:44 journal/forms.py:119 journal/forms.py:221
 #: journal/forms.py:283 journal/views/note.py:37
-#, fuzzy
-#| msgid "Crosspost to timeline"
 msgid "Crosspost"
-msgstr "Compartir en mi cuenta asociada"
+msgstr "Publicación cruzada"
 
 #: journal/forms.py:45 journal/forms.py:120 journal/forms.py:222
 #: journal/forms.py:284 journal/views/note.py:38
@@ -5834,10 +5442,8 @@ msgid "Featured image (optional)"
 msgstr ""
 
 #: journal/forms.py:82 journal/forms.py:88 journal/forms.py:89
-#, fuzzy
-#| msgid "optional"
 msgid "Summary (optional)"
-msgstr "opcional"
+msgstr "Resumen (opcional)"
 
 #: journal/forms.py:105 journal/forms.py:110 journal/forms.py:111
 msgid "Tags (comma separated)"
@@ -5869,10 +5475,8 @@ msgid "Comment"
 msgstr ""
 
 #: journal/forms.py:210 journal/templates/_sidebar_user_mark_list.html:64
-#, fuzzy
-#| msgid "ratings"
 msgid "Rating"
-msgstr "puntuación"
+msgstr "Puntuación"
 
 #: journal/importers/goodreads.py:200 journal/importers/hardcover.py:412
 #: journal/importers/letterboxd.py:147 journal/importers/rym.py:455
@@ -6040,16 +5644,12 @@ msgid "A recent post was not posted to Threads."
 msgstr "Falló la publicación en Threads."
 
 #: journal/models/common.py:1077
-#, fuzzy
-#| msgid "A recent post was not posted to Mastodon."
 msgid "A recent post was not boosted on Mastodon."
-msgstr "Falló la publicación en Mastodon."
+msgstr "Una publicación reciente no se impulsó en Mastodon."
 
 #: journal/models/common.py:1087
-#, fuzzy
-#| msgid "Item no longer exists"
 msgid "Original post no longer exists."
-msgstr "El elemento ya no existe."
+msgstr "La publicación original ya no existe."
 
 #: journal/models/common.py:1101
 msgid "A recent post was not posted to Mastodon, please re-authorize."
@@ -6080,10 +5680,8 @@ msgid "Progress must be 500 characters or fewer."
 msgstr ""
 
 #: journal/models/mark.py:488
-#, fuzzy
-#| msgid "Invalid parameter"
 msgid "Invalid progress type."
-msgstr "Parámetro no válido"
+msgstr "Tipo de progreso no válido."
 
 #: journal/models/mark.py:490
 msgid "Invalid progress type for this item."
@@ -6157,16 +5755,13 @@ msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgstr "acerca de {item_title}, puede contener espoilers o contenido chocante"
 
 #: journal/models/review.py:86
-#, fuzzy, python-brace-format
-#| msgid "a review of {item_title}"
+#, python-brace-format
 msgid "a review of {title}"
-msgstr "reseña de {item_title}"
+msgstr "una reseña de {title}"
 
 #: journal/models/review.py:88
-#, fuzzy
-#| msgid "Item contains sub-items."
 msgid "(may contain spoilers)"
-msgstr "El elemento contiene sub-elementos."
+msgstr "(puede contener spoilers)"
 
 #: journal/models/shelf.py:40
 msgid "WISHLIST"
@@ -6583,28 +6178,24 @@ msgid "Performances reviewed"
 msgstr ""
 
 #: journal/models/shelf.py:326
-#, fuzzy
-#| msgid "following you"
 msgid "People following"
-msgstr "te sigue"
+msgstr "Personas a las que sigues"
 
 #: journal/models/shelf.py:328
-#, fuzzy, python-brace-format
-#| msgid "started playing {item}"
+#, python-brace-format
 msgid "started following {item}"
-msgstr "comenzó a jugar {item}"
+msgstr "empezó a seguir a {item}"
 
 #: journal/models/shelf.py:946
 msgid "removed mark"
 msgstr ""
 
 #: journal/templates/_collection_card.html:32
-#, fuzzy, python-format
-#| msgid "merge to another item"
+#, python-format
 msgid "%(counter)s item"
 msgid_plural "%(counter)s items"
-msgstr[0] "fusionar con otro elemento"
-msgstr[1] "fusionar con otro elemento"
+msgstr[0] "%(counter)s elemento"
+msgstr[1] "%(counter)s elementos"
 
 #: journal/templates/_feature_stats.html:10
 msgid "Stop tracking"
@@ -6619,10 +6210,8 @@ msgid "Set as target"
 msgstr ""
 
 #: journal/templates/_list_item.html:14
-#, fuzzy
-#| msgid "movies to watch"
 msgid "Move to top"
-msgstr "filmes por ver"
+msgstr "Mover al principio"
 
 #: journal/templates/_list_item.html:19
 msgid "Move to bottom"
@@ -6633,10 +6222,8 @@ msgid "Remove from collection"
 msgstr ""
 
 #: journal/templates/_list_item.html:46
-#, fuzzy
-#| msgid "comments"
 msgid "Show in recommendations again"
-msgstr "comentarios"
+msgstr "Volver a mostrar en las recomendaciones"
 
 #: journal/templates/_list_item.html:64
 #: journal/templates/collection_update_item_note_ok.html:3
@@ -6659,10 +6246,8 @@ msgid "Complete"
 msgstr ""
 
 #: journal/templates/_sidebar_collection_filter.html:20
-#, fuzzy
-#| msgid "books dropped"
 msgid "Dropped"
-msgstr "libros abandonados"
+msgstr "Abandonado"
 
 #: journal/templates/_sidebar_collection_filter.html:22
 msgid "Not marked yet"
@@ -6724,10 +6309,8 @@ msgid "Date"
 msgstr "Fecha"
 
 #: journal/templates/_sidebar_user_tag_filter.html:21
-#, fuzzy
-#| msgid "All Items"
 msgid "All categories"
-msgstr "Todas las obras"
+msgstr "Todas las categorías"
 
 #: journal/templates/action_boost_post.html:9
 msgid "Boost this post?"
@@ -6775,22 +6358,16 @@ msgid "Update mark"
 msgstr ""
 
 #: journal/templates/action_open_post.html:7
-#, fuzzy
-#| msgid "Public"
 msgid "Quiet Public"
-msgstr "Público"
+msgstr "Público silencioso"
 
 #: journal/templates/action_open_post.html:11
-#, fuzzy
-#| msgid "created collection"
 msgid "Private Mention"
-msgstr "colección creada"
+msgstr "Mención privada"
 
 #: journal/templates/action_open_post.html:13
-#, fuzzy
-#| msgid "Public"
 msgid "Local Public"
-msgstr "Público"
+msgstr "Público local"
 
 #: journal/templates/action_pin_post.html:8
 msgid "Would you like to pin this to your profile?"
@@ -6826,10 +6403,8 @@ msgid "Create a new collection"
 msgstr ""
 
 #: journal/templates/article.html:97 social/templates/_event_post.html:79
-#, fuzzy
-#| msgid "wrote a review of {item}"
 msgid "wrote a review"
-msgstr "escribió una reseña de {item}"
+msgstr "escribió una reseña"
 
 #: journal/templates/article.html:99 social/templates/_event_post.html:81
 msgid "wrote an article"
@@ -6844,17 +6419,13 @@ msgid "The author has set it to be viewable only by logged-in users."
 msgstr ""
 
 #: journal/templates/article_edit.html:13
-#, fuzzy
-#| msgid "Edit this item"
 msgid "Edit article"
-msgstr "Modificar esta obra"
+msgstr "Editar artículo"
 
 #: journal/templates/article_edit.html:15
 #: journal/templates/profile_articles.html:12
-#, fuzzy
-#| msgid "composer"
 msgid "Compose article"
-msgstr "compositor"
+msgstr "Redactar artículo"
 
 #: journal/templates/calendar_data.html:8
 msgid "JAN"
@@ -6912,10 +6483,8 @@ msgid "Share"
 msgstr ""
 
 #: journal/templates/collection.html:87
-#, fuzzy
-#| msgid "created collection"
 msgid "created a collection"
-msgstr "colección creada"
+msgstr "creó una colección"
 
 #: journal/templates/collection.html:154
 msgid "Query"
@@ -7029,10 +6598,8 @@ msgid "Clear progress"
 msgstr ""
 
 #: journal/templates/note.html:79
-#, fuzzy
-#| msgid "Are you sure to delete?"
 msgid "Are you sure to delete this note?"
-msgstr "¿Confirmar la eliminación?"
+msgstr "¿Seguro que quieres eliminar esta nota?"
 
 #: journal/templates/piece_delete.html:20
 msgid "Are you sure to delete this entire content?"
@@ -7054,34 +6621,24 @@ msgstr ""
 
 #: journal/templates/post_compose.html:20 journal/templates/profile.html:43
 #: social/templates/_compose_menu.html:5
-#, fuzzy
-#| msgid "composer"
 msgid "Compose"
-msgstr "compositor"
+msgstr "Redactar"
 
 #: journal/templates/post_compose.html:35
-#, fuzzy
-#| msgid "contents"
 msgid "Content"
-msgstr "contenidos"
+msgstr "Contenido"
 
 #: journal/templates/post_compose.html:94
-#, fuzzy
-#| msgid "Content (Markdown)"
 msgid "Content warning"
-msgstr "Contenido (Markdown)"
+msgstr "Advertencia de contenido"
 
 #: journal/templates/post_compose.html:103
-#, fuzzy
-#| msgid "Public"
 msgid "Publish"
-msgstr "Público"
+msgstr "Publicar"
 
 #: journal/templates/post_compose.html:115
-#, fuzzy
-#| msgid "Add games"
 msgid "Add image"
-msgstr "Añadir juegos"
+msgstr "Añadir imagen"
 
 #: journal/templates/post_compose.html:149
 msgid "Select image"
@@ -7134,10 +6691,8 @@ msgid "Organizations"
 msgstr ""
 
 #: journal/templates/profile_items.html:10
-#, fuzzy
-#| msgid "created collection"
 msgid "Create collection"
-msgstr "colección creada"
+msgstr "Crear colección"
 
 #: journal/templates/replies.html:8
 msgid "Replies"
@@ -7168,12 +6723,11 @@ msgid "Delete this tag"
 msgstr ""
 
 #: journal/templates/user_article_list.html:26
-#, fuzzy, python-format
-#| msgid "merge to another item"
+#, python-format
 msgid "%(counter)s article"
 msgid_plural "%(counter)s articles"
-msgstr[0] "fusionar con otro elemento"
-msgstr[1] "fusionar con otro elemento"
+msgstr[0] "%(counter)s artículo"
+msgstr[1] "%(counter)s artículos"
 
 #: journal/templates/user_article_list.html:31
 #, python-format
@@ -7181,32 +6735,27 @@ msgid "by %(name)s"
 msgstr ""
 
 #: journal/templates/user_article_list.html:39
-#, fuzzy
-#| msgid "RSS Feed URL"
 msgid "RSS feed"
-msgstr "URL del feed RSS"
+msgstr "Feed RSS"
 
 #: journal/templates/user_article_list.html:46
 msgid "Compose new article"
 msgstr ""
 
 #: journal/templates/user_article_list.html:74
-#, fuzzy, python-format
-#| msgid "merge to another item"
+#, python-format
 msgid "%(counter)s min read"
 msgid_plural "%(counter)s min read"
-msgstr[0] "fusionar con otro elemento"
-msgstr[1] "fusionar con otro elemento"
+msgstr[0] "%(counter)s min de lectura"
+msgstr[1] "%(counter)s min de lectura"
 
 #: journal/templates/user_article_list.html:114
 msgid "You have no articles yet. An article is a long text that you write here and send to the Fediverse."
 msgstr ""
 
 #: journal/templates/user_article_list.html:120
-#, fuzzy
-#| msgid "wrote a review of {item}"
 msgid "Write an article"
-msgstr "escribió una reseña de {item}"
+msgstr "Escribir un artículo"
 
 #: journal/templates/user_article_list.html:125
 #, python-format
@@ -7221,17 +6770,13 @@ msgstr ""
 #: journal/templates/user_follow_list.html:23 journal/views/profile.py:543
 #: social/templates/feed.html:38 social/templates/feed.html:40
 #: users/templates/users/account.html:454
-#, fuzzy
-#| msgid "following you"
 msgid "Following"
-msgstr "te sigue"
+msgstr "Siguiendo"
 
 #: journal/templates/user_follow_list.html:28 journal/views/profile.py:547
 #: users/templates/users/account.html:463
-#, fuzzy
-#| msgid "Followers Only"
 msgid "Followers"
-msgstr "Solo seguidores"
+msgstr "Seguidores"
 
 #: journal/templates/user_follow_list.html:32 journal/views/profile.py:551
 msgid "Mutuals"
@@ -7259,10 +6804,8 @@ msgid "#%(year)s_report"
 msgstr ""
 
 #: journal/views/article.py:191 journal/views/review.py:180
-#, fuzzy
-#| msgid "User not found"
 msgid "User not local"
-msgstr "Usuario no encontrado"
+msgstr "El usuario no es local"
 
 #: journal/views/article.py:199 journal/views/article.py:213
 #, python-brace-format
@@ -7338,20 +6881,16 @@ msgstr ""
 
 #: journal/views/mark.py:224 journal/views/mark.py:226
 #: journal/views/mark.py:280
-#, fuzzy
-#| msgid "Invalid URL"
 msgid "Invalid input"
-msgstr "URL inválida"
+msgstr "Entrada no válida"
 
 #: journal/views/note.py:22
 msgid "Progress"
 msgstr ""
 
 #: journal/views/note.py:27
-#, fuzzy
-#| msgid "Updating episodes"
 msgid "Update progress"
-msgstr "Actualizando episodios"
+msgstr "Actualizar progreso"
 
 #: journal/views/note.py:58
 msgid "Progress (optional)"
@@ -7382,28 +6921,20 @@ msgid "Visibility too high for quoting this post"
 msgstr ""
 
 #: journal/views/post.py:339 journal/views/post.py:414
-#, fuzzy
-#| msgid "Item cannot be deleted."
 msgid "Content cannot be empty."
-msgstr "El elemento no se puede eliminar."
+msgstr "El contenido no puede estar vacío."
 
 #: journal/views/post.py:392
-#, fuzzy
-#| msgid "This operation cannot be undone. Sure to merge?"
 msgid "This post cannot be edited here"
-msgstr "Esta operación no puede ser anulada. ¿Confirmar la fusión?"
+msgstr "Esta publicación no se puede editar aquí"
 
 #: journal/views/post.py:531
-#, fuzzy
-#| msgid "Invalid URL"
 msgid "Invalid choices"
-msgstr "URL inválida"
+msgstr "Opciones no válidas"
 
 #: journal/views/post.py:534
-#, fuzzy
-#| msgid "Invalid URL"
 msgid "Invalid post"
-msgstr "URL inválida"
+msgstr "Publicación no válida"
 
 #: journal/views/review.py:188 journal/views/review.py:202
 #, python-brace-format
@@ -7416,10 +6947,8 @@ msgid "{review_title} - a review of {item_title}"
 msgstr ""
 
 #: journal/views/review.py:215
-#, fuzzy
-#| msgid "regarding {item_title}, may contain spoiler or triggering content"
 msgid "May contain spoiler or triggering content"
-msgstr "acerca de {item_title}, puede contener espoilers o contenido chocante"
+msgstr "Puede contener spoilers o contenido sensible"
 
 #: journal/views/tag.py:46 journal/views/tag.py:60
 msgid "Invalid tag"
@@ -7568,10 +7097,8 @@ msgid "Security check failed. Please try again."
 msgstr ""
 
 #: mastodon/views/bluesky.py:60 mastodon/views/email.py:74
-#, fuzzy
-#| msgid "System busy, please try again in a minute."
 msgid "Too many attempts, please try again later."
-msgstr "El sistema está ocupado, por favor inténtalo de nuevo en un minuto."
+msgstr "Demasiados intentos, inténtalo de nuevo más tarde."
 
 #: mastodon/views/bluesky.py:65
 msgid "ATProto handle is required."
@@ -7731,12 +7258,11 @@ msgid "Write a longer piece with a title"
 msgstr ""
 
 #: social/templates/_event_mark_group.html:26
-#, fuzzy, python-format
-#| msgid "merge to another item"
+#, python-format
 msgid "marked %(counter)s item"
 msgid_plural "marked %(counter)s items"
-msgstr[0] "fusionar con otro elemento"
-msgstr[1] "fusionar con otro elemento"
+msgstr[0] "marcó %(counter)s elemento"
+msgstr[1] "marcó %(counter)s elementos"
 
 #: social/templates/_event_post.html:20
 msgid "boosted"
@@ -7747,10 +7273,8 @@ msgid "wrote a note"
 msgstr ""
 
 #: social/templates/_event_post.html:86
-#, fuzzy
-#| msgid "playing"
 msgid "replying to"
-msgstr "jugando"
+msgstr "en respuesta a"
 
 #: social/templates/_post_action_menu.html:5
 msgid "More"
@@ -7934,28 +7458,20 @@ msgid "Activities"
 msgstr ""
 
 #: social/templates/feed.html:34
-#, fuzzy
-#| msgid "Feed"
 msgid "Feeds"
 msgstr "Actividad"
 
 #: social/templates/feed.html:45 social/templates/feed.html:47
-#, fuzzy
-#| msgid "wrote a review of {item}"
 msgid "Marks and reviews"
-msgstr "escribió una reseña de {item}"
+msgstr "Marcas y reseñas"
 
 #: social/templates/feed.html:53 social/templates/feed.html:55
-#, fuzzy
-#| msgid "locale"
 msgid "Local"
-msgstr "Localización"
+msgstr "Local"
 
 #: social/templates/feed.html:62 social/templates/feed.html:64
-#, fuzzy
-#| msgid "Apple Music"
 msgid "World"
-msgstr "Apple Music"
+msgstr "Global"
 
 #: social/templates/feed_events.html:27
 msgid "No matching activities."
@@ -7986,22 +7502,16 @@ msgid "%(count)s unread"
 msgstr ""
 
 #: social/templates/notification.html:52 social/templates/notification.html:54
-#, fuzzy
-#| msgid "Mentioned Only"
 msgid "Mentions"
-msgstr "Solo cuentas mencionadas"
+msgstr "Menciones"
 
 #: social/templates/notification.html:59 social/templates/notification.html:61
-#, fuzzy
-#| msgid "Followers Only"
 msgid "Follows"
-msgstr "Solo seguidores"
+msgstr "Seguimientos"
 
 #: social/templates/post_question.html:6
-#, fuzzy
-#| msgid "Collections"
 msgid "Poll options"
-msgstr "Colecciones"
+msgstr "Opciones de la encuesta"
 
 #: social/templates/post_question.html:21
 msgid "Poll has ended."
@@ -8026,10 +7536,8 @@ msgid "Activities from those you follow"
 msgstr ""
 
 #: social/templates/single_post.html:12 social/templates/single_post.html:31
-#, fuzzy
-#| msgid "Posts"
 msgid "Post"
-msgstr "Publicaciones"
+msgstr "Publicación"
 
 #: social/templates/single_post.html:25
 msgid "Article"
@@ -8104,42 +7612,32 @@ msgid "credential ID"
 msgstr ""
 
 #: users/models/webauthn.py:16
-#, fuzzy
-#| msgid "publisher"
 msgid "public key"
-msgstr "editor"
+msgstr "clave pública"
 
 #: users/models/webauthn.py:17
 msgid "sign count"
 msgstr ""
 
 #: users/models/webauthn.py:18
-#, fuzzy
-#| msgid "translator"
 msgid "transports"
-msgstr "traductor"
+msgstr "transportes"
 
 #: users/models/webauthn.py:19
-#, fuzzy
-#| msgid "create"
 msgid "created"
-msgstr "crear"
+msgstr "creada"
 
 #: users/models/webauthn.py:20
-#, fuzzy
-#| msgid "Last edited"
 msgid "last used"
-msgstr "Última modificación"
+msgstr "último uso"
 
 #: users/templates/users/_crosspost_row.html:5
 msgid "Crossposted successfully."
 msgstr ""
 
 #: users/templates/users/_crosspost_row.html:41
-#, fuzzy
-#| msgid "author"
 msgid "Re-authorize"
-msgstr "autor"
+msgstr "Volver a autorizar"
 
 #: users/templates/users/_crosspost_row.html:52
 msgid "Retry"
@@ -8169,10 +7667,8 @@ msgstr ""
 
 #: users/templates/users/_hardcover_section.html:5
 #: users/templates/users/_hardcover_section.html:23
-#, fuzzy
-#| msgid "Goodreads"
 msgid "Import from Hardcover"
-msgstr "Goodreads"
+msgstr "Importar desde Hardcover"
 
 #: users/templates/users/_hardcover_section.html:11
 #: users/templates/users/_rym_section.html:11
@@ -8187,10 +7683,8 @@ msgstr ""
 #: users/templates/users/_hardcover_section.html:18
 #: users/templates/users/_rym_section.html:18
 #: users/templates/users/_storygraph_section.html:18
-#, fuzzy
-#| msgid "Cancel"
 msgid "Cancel import"
-msgstr "Cancelar"
+msgstr "Cancelar importación"
 
 #: users/templates/users/_hardcover_section.html:31
 msgid "On Hardcover, open <a href=\"https://hardcover.app/account/exports\" target=\"_blank\" rel=\"noopener\"><b>Export your data</b></a> in your account settings, then generate and download a CSV export."
@@ -8284,10 +7778,8 @@ msgid "Hide reviews and ratings from other users"
 msgstr ""
 
 #: users/templates/users/_pref_device.html:20
-#, fuzzy
-#| msgid "Notification"
 msgid "Demetrication"
-msgstr "Notificaciones"
+msgstr "Ocultar métricas"
 
 #: users/templates/users/_pref_device.html:23
 msgid "Hide number of likes, boosts and replies"
@@ -8504,26 +7996,20 @@ msgstr ""
 
 #: users/templates/users/account.html:234
 #: users/templates/users/account.html:384
-#, fuzzy
-#| msgid "Create"
 msgid "Created"
-msgstr "Crear"
+msgstr "Creada"
 
 #: users/templates/users/account.html:235
-#, fuzzy
-#| msgid "Last edited"
 msgid "Last used"
-msgstr "Última modificación"
+msgstr "Último uso"
 
 #: users/templates/users/account.html:260
 msgid "No passkeys registered."
 msgstr ""
 
 #: users/templates/users/account.html:265
-#, fuzzy
-#| msgid "Add podcasts"
 msgid "Add passkey"
-msgstr "Añadir podcasts"
+msgstr "Añadir llave de acceso"
 
 #: users/templates/users/account.html:273
 msgid "Sync and import social account"
@@ -8591,10 +8077,8 @@ msgid "Authorized apps"
 msgstr ""
 
 #: users/templates/users/account.html:382
-#, fuzzy
-#| msgid "publication year"
 msgid "Application"
-msgstr "año de publicación"
+msgstr "Aplicación"
 
 #: users/templates/users/account.html:383
 msgid "Scopes"
@@ -8643,22 +8127,16 @@ msgid "Import type"
 msgstr ""
 
 #: users/templates/users/account.html:438
-#, fuzzy
-#| msgid "following you"
 msgid "Following list"
-msgstr "te sigue"
+msgstr "Lista de seguidos"
 
 #: users/templates/users/account.html:439
-#, fuzzy
-#| msgid "to listen"
 msgid "Block list"
-msgstr "escuchar"
+msgstr "Lista de bloqueados"
 
 #: users/templates/users/account.html:440
-#, fuzzy
-#| msgid "to listen"
 msgid "Mute list"
-msgstr "escuchar"
+msgstr "Lista de silenciados"
 
 #: users/templates/users/account.html:444
 msgid "CSV file"
@@ -8668,10 +8146,8 @@ msgstr ""
 #: users/templates/users/account.html:467
 #: users/templates/users/account.html:476
 #: users/templates/users/account.html:485
-#, fuzzy
-#| msgid "Downloadable Content"
 msgid "Download CSV"
-msgstr "Contenido descargable"
+msgstr "Descargar CSV"
 
 #: users/templates/users/account.html:472
 msgid "Blocks"
@@ -8694,10 +8170,8 @@ msgid "Migrate another account here"
 msgstr ""
 
 #: users/templates/users/account.html:505
-#, fuzzy
-#| msgid "merge to another item"
 msgid "Migrate to another account"
-msgstr "fusionar con otro elemento"
+msgstr "Migrar a otra cuenta"
 
 #: users/templates/users/account.html:512
 msgid "Delete Account"
@@ -8736,10 +8210,8 @@ msgid "Identifies this app in your app list"
 msgstr ""
 
 #: users/templates/users/authorized_app_create.html:33
-#, fuzzy
-#| msgid "Access denied"
 msgid "Access level"
-msgstr "Acceso denegado"
+msgstr "Nivel de acceso"
 
 #: users/templates/users/authorized_app_create.html:36
 msgid "Read-only access"
@@ -8751,17 +8223,13 @@ msgstr ""
 
 #: users/templates/users/authorized_app_create.html:49
 #: users/templates/users/authorized_app_created.html:39
-#, fuzzy
-#| msgid "Account"
 msgid "Back to Account"
-msgstr "Cuenta"
+msgstr "Volver a la cuenta"
 
 #: users/templates/users/authorized_app_created.html:9
 #: users/templates/users/authorized_app_created.html:19
-#, fuzzy
-#| msgid "Create"
 msgid "Token created"
-msgstr "Crear"
+msgstr "Token creado"
 
 #: users/templates/users/authorized_app_created.html:22
 msgid "Your new personal access token has been created. Copy it now -- you will not be able to see it again."
@@ -8796,10 +8264,8 @@ msgid "Put every cover into the row it belongs to. Drag it, or select a cover an
 msgstr ""
 
 #: users/templates/users/captcha.html:38 users/templates/users/captcha.html:40
-#, fuzzy
-#| msgid "cover"
 msgid "Item cover"
-msgstr "cubierta"
+msgstr "Portada del elemento"
 
 #: users/templates/users/captcha.html:56
 #, python-format
@@ -8866,10 +8332,8 @@ msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr ""
 
 #: users/views/data.py:278
-#, fuzzy
-#| msgid "Goodreads"
 msgid "Import articles from WordPress"
-msgstr "Goodreads"
+msgstr "Importar artículos desde WordPress"
 
 #: users/templates/users/data.html:43
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
@@ -8920,10 +8384,8 @@ msgid "Import in progress, please wait"
 msgstr ""
 
 #: users/templates/users/data.html:96
-#, fuzzy
-#| msgid "Goodreads"
 msgid "Import from Goodreads"
-msgstr "Goodreads"
+msgstr "Importar desde Goodreads"
 
 #: users/templates/users/data.html:102
 msgid "On Goodreads, click <a href=\"https://www.goodreads.com/review/import\" target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> to download your library as a CSV file."
@@ -9030,10 +8492,8 @@ msgid "Marks, ratings, comments, tags, reviews and notes. An NDJSON archive also
 msgstr ""
 
 #: users/templates/users/import/neodb.html:15
-#, fuzzy
-#| msgid "Posts"
 msgid "Posts."
-msgstr "Publicaciones"
+msgstr "Publicaciones."
 
 #: users/templates/users/import/neodb.html:16
 msgid "A record is updated only when the copy in the archive is newer than yours."
@@ -9052,10 +8512,8 @@ msgid "Detecting format..."
 msgstr ""
 
 #: users/templates/users/data.html:430
-#, fuzzy
-#| msgid "Unknown"
 msgid "Unknown format"
-msgstr "Desconocido"
+msgstr "Formato desconocido"
 
 #: users/templates/users/data.html:455
 msgid "Error detecting format"
@@ -9126,16 +8584,12 @@ msgid "Following, followers, mutes and blocks are exported as CSV files on the a
 msgstr ""
 
 #: users/templates/users/data.html:82
-#, fuzzy
-#| msgid "wrote a review of {item}"
 msgid "Import marks and reviews"
-msgstr "escribió una reseña de {item}"
+msgstr "Importar marcas y reseñas"
 
 #: users/templates/users/data.html:91 users/views/data.py:192
-#, fuzzy
-#| msgid "wrote a review of {item}"
 msgid "Import posts and articles"
-msgstr "escribió una reseña de {item}"
+msgstr "Importar publicaciones y artículos"
 
 #: users/templates/users/data.html:520
 msgid "In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download an <code>.xml</code> file, then upload it below."
@@ -9208,10 +8662,8 @@ msgstr ""
 #: users/templates/users/hardcover_import.html:34
 #: users/templates/users/rym_import.html:34
 #: users/templates/users/storygraph_import.html:34
-#, fuzzy
-#| msgid "Downloadable Content"
 msgid "Download matched CSV"
-msgstr "Contenido descargable"
+msgstr "Descargar CSV de coincidencias"
 
 #: users/templates/users/hardcover_import.html:46
 #: users/templates/users/storygraph_import.html:46
@@ -9221,10 +8673,8 @@ msgstr ""
 #: users/templates/users/hardcover_import.html:47
 #: users/templates/users/rym_import.html:47
 #: users/templates/users/storygraph_import.html:47
-#, fuzzy
-#| msgid "watched"
 msgid "Matched link"
-msgstr "visto"
+msgstr "Enlace coincidente"
 
 #: users/templates/users/hardcover_import.html:48
 #: users/templates/users/rym_import.html:48
@@ -9344,22 +8794,16 @@ msgid "To move another account to this one, first add it as an alias here, and t
 msgstr ""
 
 #: users/templates/users/migrate_in.html:27
-#, fuzzy
-#| msgid "Account"
 msgid "Account to alias"
-msgstr "Cuenta"
+msgstr "Cuenta a la que añadir el alias"
 
 #: users/templates/users/migrate_in.html:35
-#, fuzzy
-#| msgid "Add games"
 msgid "Add alias"
-msgstr "Añadir juegos"
+msgstr "Añadir alias"
 
 #: users/templates/users/migrate_in.html:43
-#, fuzzy
-#| msgid "Current Targets"
 msgid "Current aliases"
-msgstr "Metas actuales"
+msgstr "Alias actuales"
 
 #: users/templates/users/migrate_in.html:61
 msgid "No aliases configured."
@@ -9367,10 +8811,8 @@ msgstr ""
 
 #: users/templates/users/migrate_in.html:67
 #: users/templates/users/migrate_out.html:67
-#, fuzzy
-#| msgid "Preferences"
 msgid "Back to Preferences"
-msgstr "Preferencias"
+msgstr "Volver a preferencias"
 
 #: users/templates/users/migrate_out.html:9
 #: users/templates/users/migrate_out.html:43
@@ -9386,10 +8828,8 @@ msgid "Your account is being migrated to:"
 msgstr ""
 
 #: users/templates/users/migrate_out.html:30
-#, fuzzy
-#| msgid "Are you sure to cancel merge?"
 msgid "Are you sure you want to cancel the migration?"
-msgstr "¿Confirmar la cancelación de la fusión?"
+msgstr "¿Seguro que quieres cancelar la migración?"
 
 #: users/templates/users/migrate_out.html:35
 msgid "Cancel migration"
@@ -9409,10 +8849,8 @@ msgid "Target account"
 msgstr ""
 
 #: users/templates/users/migrate_out.html:60
-#, fuzzy
-#| msgid "start reading"
 msgid "Start migration"
-msgstr "comenzar a leer"
+msgstr "Iniciar migración"
 
 #: users/templates/users/preferences.html:28
 msgid "Default view once logged in"
@@ -9498,10 +8936,8 @@ msgid "Hide these categories in discovery and search results"
 msgstr ""
 
 #: users/templates/users/preferences.html:202
-#, fuzzy
-#| msgid "Preferences"
 msgid "Preferred catalog languages"
-msgstr "Preferencias"
+msgstr "Idiomas preferidos del catálogo"
 
 #: users/templates/users/preferences.html:211
 msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."
@@ -9532,10 +8968,8 @@ msgid "Recommendations are generated only from public marks, processed in batch 
 msgstr ""
 
 #: users/templates/users/preferences.html:240
-#, fuzzy
-#| msgid "comments"
 msgid "View hidden recommendations"
-msgstr "comentarios"
+msgstr "Ver recomendaciones ocultas"
 
 #: users/templates/users/profile_actions.html:12
 msgid "Click to unblock"
@@ -9680,10 +9114,8 @@ msgid "Import from Steam"
 msgstr ""
 
 #: users/templates/users/steam_import.html:20
-#, fuzzy
-#| msgid "Steam"
 msgid "Steam ID"
-msgstr "Steam"
+msgstr "Steam ID"
 
 #: users/templates/users/steam_import.html:28
 msgid "Your personal Steam API key"
@@ -9734,40 +9166,32 @@ msgid "Launched in playing threshold"
 msgstr ""
 
 #: users/templates/users/steam_import.html:76
-#, fuzzy
-#| msgid "playing"
 msgid "Playing"
-msgstr "jugando"
+msgstr "Jugando"
 
 #: users/templates/users/steam_import.html:82
 msgid "Not launched in playing threshold & play time > finished threshold"
 msgstr ""
 
 #: users/templates/users/steam_import.html:84
-#, fuzzy
-#| msgid "played"
 msgid "Played"
-msgstr "jugado"
+msgstr "Jugado"
 
 #: users/templates/users/steam_import.html:90
 msgid "Games in wishlist; or purchased in library but never played, mark date will be set as today"
 msgstr ""
 
 #: users/templates/users/steam_import.html:91
-#, fuzzy
-#| msgid "to play"
 msgid "To play"
-msgstr "jugar"
+msgstr "Por jugar"
 
 #: users/templates/users/steam_import.html:97
 msgid "Not launched in playing threshold & play time < finished threshold"
 msgstr ""
 
 #: users/templates/users/steam_import.html:98
-#, fuzzy
-#| msgid "games playing"
 msgid "No longer playing"
-msgstr "jugando juegos"
+msgstr "Ya no juego"
 
 #: users/templates/users/steam_import.html:102
 msgid "Playing threshold"
@@ -9864,10 +9288,8 @@ msgid "Creating a passkey is highly recommended, as the website or email you use
 msgstr ""
 
 #: users/templates/users/welcome.html:40
-#, fuzzy
-#| msgid "Create"
 msgid "Create passkey"
-msgstr "Crear"
+msgstr "Crear llave de acceso"
 
 #: users/templates/users/welcome.html:44
 msgid "Maybe later"
@@ -9894,10 +9316,8 @@ msgid "Registration is for invitation only"
 msgstr ""
 
 #: users/views/account.py:290 users/views/account.py:362
-#, fuzzy
-#| msgid "Timestamp"
 msgid "Time is up"
-msgstr "Marca de tiempo"
+msgstr "Se acabó el tiempo"
 
 #: users/views/account.py:291 users/views/account.py:334
 #: users/views/account.py:363
@@ -9913,10 +9333,8 @@ msgid "Too many attempts"
 msgstr ""
 
 #: users/views/account.py:350
-#, fuzzy
-#| msgid "System busy, please try again in a minute."
 msgid "Please try again later."
-msgstr "El sistema está ocupado, por favor inténtalo de nuevo en un minuto."
+msgstr "Inténtalo de nuevo más tarde."
 
 #: users/views/account.py:439
 msgid "Username already taken. Please try again."
@@ -9982,10 +9400,8 @@ msgid "Loaded from uploaded matched file."
 msgstr ""
 
 #: users/views/data.py:677 users/views/data.py:883 users/views/data.py:1084
-#, fuzzy
-#| msgid "Cancel"
 msgid "Cancelled."
-msgstr "Cancelar"
+msgstr "Cancelado."
 
 #: users/views/data.py:697
 msgid "No RateYourMusic import to preview."
@@ -10013,10 +9429,8 @@ msgid "No Hardcover import to preview."
 msgstr ""
 
 #: users/views/data.py:1422
-#, fuzzy
-#| msgid "games reviewed"
 msgid "Name is required."
-msgstr "juegos reseñados"
+msgstr "El nombre es obligatorio."
 
 #: users/views/data.py:1446
 msgid "Application access has been revoked."
@@ -10104,13 +9518,9 @@ msgid "Passkey verification failed"
 msgstr ""
 
 #: users/views/webauthn.py:242 users/views/webauthn.py:266
-#, fuzzy
-#| msgid "User not found"
 msgid "Passkey not found"
-msgstr "Usuario no encontrado"
+msgstr "Llave de acceso no encontrada"
 
 #: users/views/webauthn.py:260
-#, fuzzy
-#| msgid "required"
 msgid "Name is required"
-msgstr "requerido"
+msgstr "El nombre es obligatorio"

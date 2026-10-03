@@ -4940,10 +4940,8 @@ msgid "Show the Mastodon archive import on the data page. Imported posts become 
 msgstr ""
 
 #: common/views_manage.py:788
-#, fuzzy
-#| msgid "Language"
 msgid "Default language"
-msgstr "語言"
+msgstr "預設語言"
 
 #: common/views_manage.py:791
 msgid "Interface language for visitors and for users who have not chosen one themselves."
@@ -7441,7 +7439,6 @@ msgstr ""
 
 #: social/templates/feed.html:19 social/templates/notification.html:35
 #: users/templates/users/preferences.html:40
-#, fuzzy
 msgid "Activities"
 msgstr "世事"
 
@@ -7536,9 +7533,8 @@ msgid "Poll"
 msgstr ""
 
 #: social/views.py:68
-#, fuzzy
 msgid "Activities on this site"
-msgstr "世事"
+msgstr "本站世事"
 
 #: social/views.py:69
 msgid "Activities from the fediverse"
@@ -8082,9 +8078,8 @@ msgid "Disabled"
 msgstr ""
 
 #: users/templates/users/account.html:401
-#, fuzzy
 msgid "Active"
-msgstr "世事"
+msgstr "啟用"
 
 #: users/templates/users/account.html:409
 msgid "Revoke access for this application?"
@@ -8925,10 +8920,8 @@ msgid "Hide these categories in discovery and search results"
 msgstr ""
 
 #: users/templates/users/preferences.html:202
-#, fuzzy
-#| msgid "Language"
 msgid "Preferred catalog languages"
-msgstr "語言"
+msgstr "所好條目之語言"
 
 #: users/templates/users/preferences.html:211
 msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."

@@ -1315,10 +1315,8 @@ msgstr "Definir progresso"
 #: catalog/templates/_item_cover_card_body.html:56
 #: catalog/templates/_item_cover_card_body.html:57
 #: journal/templates/_list_item.html:36
-#, fuzzy
-#| msgid "Not rated"
 msgid "Not interested"
-msgstr "não avaliado"
+msgstr "Não tenho interesse"
 
 #: catalog/templates/_item_credits_list.html:9
 msgid "Linked to a person page"
@@ -1422,10 +1420,8 @@ msgstr "histórico de marcações"
 
 #: catalog/templates/_reco_dismissed_body.html:5
 #: catalog/templates/_reco_dismissed_row.html:12
-#, fuzzy
-#| msgid "Enable recommendations"
 msgid "Hidden from recommendations."
-msgstr "Ativar Recomendações"
+msgstr "Ocultado das recomendações."
 
 #: catalog/templates/_reco_dismissed_body.html:10
 #: catalog/templates/_reco_dismissed_row.html:8
@@ -2543,10 +2539,8 @@ msgid "This edition will be unlinked from the following work"
 msgstr "Esta edição será desvinculada da seguinte obra"
 
 #: catalog/views/recommendation.py:58
-#, fuzzy
-#| msgid "Enable recommendations"
 msgid "Hidden recommendations"
-msgstr "Ativar Recomendações"
+msgstr "Recomendações ocultas"
 
 #: catalog/views/recommendation.py:59
 msgid "These items are not recommended to you. Restore one to let it come back."
@@ -4135,18 +4129,14 @@ msgid "Move down"
 msgstr "Mover para baixo"
 
 #: common/templates/_pagination.html:3
-#, fuzzy
-#| msgid "Translation"
 msgid "Pagination"
-msgstr "Tradução"
+msgstr "Paginação"
 
 #: common/templates/_pagination.html:9 common/templates/_pagination.html:13
 msgid "Previous page"
 msgstr ""
 
 #: common/templates/_pagination.html:9 common/templates/_pagination.html:13
-#, fuzzy
-#| msgid "Prev"
 msgid "Previous"
 msgstr "Anterior"
 
@@ -4156,10 +4146,8 @@ msgid "%(current)s of %(total)s"
 msgstr ""
 
 #: common/templates/_pagination.html:38 common/templates/_pagination.html:42
-#, fuzzy
-#| msgid "Next"
 msgid "Next page"
-msgstr "Próximo"
+msgstr "Próxima página"
 
 #: common/templates/_pagination.html:38 common/templates/_pagination.html:42
 msgid "Next"
@@ -4631,10 +4619,8 @@ msgid "Only show items with titles in the preferred languages."
 msgstr "Mostrar apenas itens com títulos nos idiomas preferidos."
 
 #: common/views_manage.py:418
-#, fuzzy
-#| msgid "Filter by preferred languages"
 msgid "Filter by member languages"
-msgstr "Filtrar por Idiomas Preferidos"
+msgstr "Filtrar por idiomas dos membros"
 
 #: common/views_manage.py:420
 msgid "Let members pick catalog languages in their preferences. Trending, spotlight and For you then show them only items with a title or an original language in those languages. More like this, items from people they follow, and items without a known language are not filtered. With the option above also on, trending and spotlight hold only the preferred languages to begin with."
@@ -4925,10 +4911,8 @@ msgid "Marks an item needs before the captcha treats it as well known enough to 
 msgstr "Marca um item como necessário antes que o captcha o trate como suficientemente conhecido para ser reconhecível. Categorias com muito poucos desses itens recorrem a qualquer item."
 
 #: common/views_manage.py:746
-#, fuzzy
-#| msgid "Registration captcha items"
 msgid "Registration captcha for email only"
-msgstr "Registro de itens de Captcha"
+msgstr "Captcha de registro apenas para cadastro por e-mail"
 
 #: common/views_manage.py:748
 msgid "Show the captcha only to people who register with an email address. Mastodon, Bluesky and Threads sign-ups already passed an external login and skip it. Has no effect while captcha items is 0."
@@ -6259,10 +6243,8 @@ msgid "Remove from collection"
 msgstr "Remover da coleção"
 
 #: journal/templates/_list_item.html:46
-#, fuzzy
-#| msgid "Enable recommendations"
 msgid "Show in recommendations again"
-msgstr "Ativar Recomendações"
+msgstr "Mostrar nas recomendações novamente"
 
 #: journal/templates/_list_item.html:64
 #: journal/templates/collection_update_item_note_ok.html:3
@@ -6570,10 +6552,8 @@ msgid "Change mark date"
 msgstr "alterar data da marcação"
 
 #: journal/templates/mark.html:101
-#, fuzzy
-#| msgid "Change mark date"
 msgid "Mark date"
-msgstr "alterar data da marcação"
+msgstr "Data da marcação"
 
 #: journal/templates/mark.html:152
 msgid "Sure to delete mark, comment and tags for this item?"
@@ -7799,10 +7779,8 @@ msgstr "(pular)"
 
 #: users/templates/users/_hardcover_section.html:5
 #: users/templates/users/_hardcover_section.html:23
-#, fuzzy
-#| msgid "Import from Trakt"
 msgid "Import from Hardcover"
-msgstr "Importar do Trakt"
+msgstr "Importar do Hardcover"
 
 #: users/templates/users/_hardcover_section.html:11
 #: users/templates/users/_rym_section.html:11
@@ -7811,10 +7789,8 @@ msgid "Review pending matches"
 msgstr "Revisar correspondências pendentes"
 
 #: users/templates/users/_hardcover_section.html:17
-#, fuzzy
-#| msgid "Cancel the StoryGraph import? Progress will be discarded."
 msgid "Cancel the Hardcover import? Progress will be discarded."
-msgstr "Cancelar a importação do StoryGraph? O progresso será descartado."
+msgstr "Cancelar a importação do Hardcover? O progresso será descartado."
 
 #: users/templates/users/_hardcover_section.html:18
 #: users/templates/users/_rym_section.html:18
@@ -7823,10 +7799,8 @@ msgid "Cancel import"
 msgstr "Cancelar importação"
 
 #: users/templates/users/_hardcover_section.html:31
-#, fuzzy
-#| msgid "On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to download your library as a CSV file."
 msgid "On Hardcover, open <a href=\"https://hardcover.app/account/exports\" target=\"_blank\" rel=\"noopener\"><b>Export your data</b></a> in your account settings, then generate and download a CSV export."
-msgstr "No StoryGraph, clique em <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Exportar sua biblioteca</b></a> para baixar sua biblioteca em formato CSV."
+msgstr "No Hardcover, abra <a href=\"https://hardcover.app/account/exports\" target=\"_blank\" rel=\"noopener\"><b>Export your data</b></a> nas configurações da sua conta e, em seguida, gere e baixe uma exportação em CSV."
 
 #: users/templates/users/_hardcover_section.html:33
 #: users/templates/users/_rym_section.html:33
@@ -7835,10 +7809,8 @@ msgid "Upload the downloaded CSV file below."
 msgstr "Envie abaixo o arquivo CSV baixado."
 
 #: users/templates/users/_hardcover_section.html:35
-#, fuzzy
-#| msgid "Books are matched by ISBN — first against the local catalog, then Google Books and OpenLibrary — with a title + author search as fallback. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
 msgid "Books are matched by ISBN or ASIN against the local catalog, then by ISBN on Google Books and OpenLibrary, with a title and author search as fallback. After auto-matching, you can preview the matches in a table, edit any link or shelf status, and confirm the import."
-msgstr "Os livros são correspondidos por ISBN — primeiro com o catálogo local, depois com o Google Books e o OpenLibrary — com uma busca por título + autor como alternativa (fallback). Após a correspondência automática, você poderá revisar as correspondências em uma tabela, editar qualquer link ou status de prateleira e confirmar a importação."
+msgstr "Os livros são correspondidos por ISBN ou ASIN com o catálogo local e, depois, por ISBN no Google Books e no OpenLibrary, com uma busca por título e autor como alternativa. Após a correspondência automática, você pode revisar as correspondências em uma tabela, editar qualquer link ou status de prateleira e confirmar a importação."
 
 #: users/templates/users/_hardcover_section.html:38
 msgid "Each book keeps its privacy setting from Hardcover: public books are imported as public, followers-only books as followers only, and private books as mentioned only."
@@ -7874,10 +7846,8 @@ msgid "Download previous matches"
 msgstr "Baixar correspondências anteriores"
 
 #: users/templates/users/_import_rules.html:3
-#, fuzzy
-#| msgid "Data import"
 msgid "What is imported"
-msgstr "Importação de dados"
+msgstr "O que é importado"
 
 #: users/templates/users/_import_rules.html:8
 msgid "What is skipped"
@@ -7888,10 +7858,8 @@ msgid "Data you already have"
 msgstr ""
 
 #: users/templates/users/_import_rules.html:20
-#, fuzzy
-#| msgid "Login again"
 msgid "Importing again"
-msgstr "Entrar novamente"
+msgstr "Importar novamente"
 
 #: users/templates/users/_pref_device.html:4
 msgid "Settings for current device"
@@ -8476,20 +8444,17 @@ msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr "Importar Marcações e Análises do Douban"
 
 #: users/views/data.py:278
-#, fuzzy
-#| msgid "Export articles in WordPress format"
 msgid "Import articles from WordPress"
-msgstr "Exportar artigos no formato WordPress"
+msgstr "Importar artigos do WordPress"
 
 #: users/templates/users/data.html:43
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr "Selecione o arquivo <code>.xlsx</code> exportado do <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 
 #: users/templates/users/import/douban.html:11
-#, fuzzy, python-format
-#| msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href=\"#import-neodb-archive\">Import NeoDB Archive</a> below."
+#, python-format
 msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href=\"%(neodb_url)s\">Import NeoDB archive</a>."
-msgstr "Um arquivo Douban exportado por <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> está no formato NDJSON do próprio NeoDB; carregue-o em <a href=\"#import-neodb-archive\">Importar arquivo NeoDB</a> abaixo."
+msgstr "Um arquivo do Douban exportado pelo <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> está no formato NDJSON do próprio NeoDB; envie-o em <a href=\"%(neodb_url)s\">Importar arquivo do NeoDB</a>."
 
 #: users/templates/users/import/douban.html:15
 msgid "Marks, ratings, tags, comments and reviews."
@@ -8639,10 +8604,8 @@ msgid "Marks, ratings, comments, tags, reviews and notes. An NDJSON archive also
 msgstr ""
 
 #: users/templates/users/import/neodb.html:15
-#, fuzzy
-#| msgid "Posts"
 msgid "Posts."
-msgstr "Publicações"
+msgstr "Publicações."
 
 #: users/templates/users/import/neodb.html:16
 msgid "A record is updated only when the copy in the archive is newer than yours."
@@ -8673,10 +8636,8 @@ msgid "Export your subscriptions from your podcast app as an OPML file."
 msgstr ""
 
 #: users/templates/users/import/opml.html:7
-#, fuzzy
-#| msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
 msgid "Upload the <code>.opml</code> or <code>.xml</code> file below."
-msgstr "Envie abaixo o arquivo <code>.zip</code> baixado, sem descompactá-lo."
+msgstr "Envie abaixo o arquivo <code>.opml</code> ou <code>.xml</code>."
 
 #: users/templates/users/import/opml.html:12
 msgid "Each podcast in the file, marked as listening or added to a new collection."
@@ -8735,16 +8696,12 @@ msgid "Following, followers, mutes and blocks are exported as CSV files on the a
 msgstr ""
 
 #: users/templates/users/data.html:82
-#, fuzzy
-#| msgid "Import marks and reviews from Douban"
 msgid "Import marks and reviews"
-msgstr "Importar Marcações e Análises do Douban"
+msgstr "Importar marcações e análises"
 
 #: users/templates/users/data.html:91 users/views/data.py:192
-#, fuzzy
-#| msgid "wrote an article"
 msgid "Import posts and articles"
-msgstr "escreveu um artigo"
+msgstr "Importar publicações e artigos"
 
 #: users/templates/users/data.html:520
 msgid "In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download an <code>.xml</code> file, then upload it below."
@@ -8801,10 +8758,8 @@ msgstr "Pesquisando no Fediverso"
 
 #: users/templates/users/hardcover_import.html:9
 #: users/templates/users/hardcover_import.html:26
-#, fuzzy
-#| msgid "Review pending matches"
 msgid "Review Hardcover matches"
-msgstr "Revisar correspondências pendentes"
+msgstr "Revisar correspondências do Hardcover"
 
 #: users/templates/users/hardcover_import.html:28
 #: users/templates/users/rym_import.html:28
@@ -9096,10 +9051,8 @@ msgid "Hide these categories in discovery and search results"
 msgstr "Ocultar essas categorias na descoberta e nos resultados de busca"
 
 #: users/templates/users/preferences.html:202
-#, fuzzy
-#| msgid "Preferred languages"
 msgid "Preferred catalog languages"
-msgstr "Idiomas Preferidos"
+msgstr "Idiomas de catálogo preferidos"
 
 #: users/templates/users/preferences.html:211
 msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."
@@ -9130,10 +9083,8 @@ msgid "Recommendations are generated only from public marks, processed in batch 
 msgstr "As recomendações são geradas apenas a partir de marcações públicas, processadas em lote neste servidor. Suas marcações privadas e restritas a seguidores nunca são usadas como sinal para ninguém, e nunca compartilhamos seus dados com terceiros para este recurso. Ao compartilhar suas marcações publicamente e manter seu perfil detectável, suas marcações ajudam outras pessoas aqui e em todo o Fediverse a encontrar coisas que possam gostar -- essa contribuição voluntária é o que faz o recurso funcionar para todos. Se preferir não contribuir, desmarque \"Incluir perfil, marcações e publicações na descoberta\" na página da sua conta; essa configuração é publicada via ActivityPub, portanto outros servidores também deixarão de incluí-lo(a) em seus próprios recursos de descoberta."
 
 #: users/templates/users/preferences.html:240
-#, fuzzy
-#| msgid "Enable recommendations"
 msgid "View hidden recommendations"
-msgstr "Ativar Recomendações"
+msgstr "Ver recomendações ocultas"
 
 #: users/templates/users/profile_actions.html:12
 msgid "Click to unblock"
@@ -9257,10 +9208,8 @@ msgid "Export your data"
 msgstr ""
 
 #: users/templates/users/data.html:40
-#, fuzzy
-#| msgid "Import NeoDB archive"
 msgid "NeoDB archive"
-msgstr "Importar Arquivo do NeoDB"
+msgstr "Arquivo do NeoDB"
 
 #: users/templates/users/relationship_list.html:20
 msgid "You may download the list here."
@@ -9594,10 +9543,8 @@ msgid "No StoryGraph import to preview."
 msgstr "Nenhuma importação do StoryGraph para pré-visualizar."
 
 #: users/views/data.py:1103
-#, fuzzy
-#| msgid "No StoryGraph import to preview."
 msgid "No Hardcover import to preview."
-msgstr "Nenhuma importação do StoryGraph para pré-visualizar."
+msgstr "Nenhuma importação do Hardcover para pré-visualizar."
 
 #: users/views/data.py:1422
 msgid "Name is required."
