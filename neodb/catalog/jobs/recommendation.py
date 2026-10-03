@@ -2,18 +2,23 @@ import logging
 import math
 from array import array
 from collections import defaultdict
-from collections.abc import Iterator
+from collections.abc import Hashable, Iterable, Iterator
 from datetime import timedelta
+from heapq import merge
+from itertools import groupby
+from operator import itemgetter
 from typing import NamedTuple
 
 import numpy as np
 from django.db import transaction
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils import timezone
 from scipy.sparse import csc_matrix, csr_matrix
 
 from catalog.models import (
+    CreditRole,
     Item,
+    ItemCredit,
     ItemSimilarity,
     UserRecommendation,
     item_categories,
@@ -31,7 +36,7 @@ from catalog.recommendation import (
     user_mean_grade,
 )
 from common.models import BaseJob, JobManager, SiteConfig
-from journal.models import ShelfMember
+from journal.models import CollectionMember, ShelfMember, Tag, TagMember
 from takahe.models import Identity as TakaheIdentity
 from users.models import APIdentity
 
@@ -41,6 +46,10 @@ logger = logging.getLogger(__name__)
 _WEIGH_OWNER_BATCH = 200
 # source columns per item-item product block, bounds peak memory
 _SOURCE_BLOCK = 256
+# sources replaced per transaction
+_WRITE_SOURCE_BATCH = 200
+# ids per IN list
+_ID_CHUNK = 10_000
 
 
 class UserMarks(NamedTuple):
@@ -132,6 +141,252 @@ def _cosine_topk(
                 val = val[cut]
             order = np.argsort(-val)
             yield int(src), idx[order], val[order]
+
+
+# credits that say who made a work; companies that only publish, distribute
+# or fund it are left out, and genre and language are deliberately unused
+CONTENT_CREDIT_ROLES = (
+    CreditRole.Author,
+    CreditRole.Translator,
+    CreditRole.Director,
+    CreditRole.Playwright,
+    CreditRole.Actor,
+    CreditRole.VoiceActor,
+    CreditRole.Artist,
+    CreditRole.Designer,
+    CreditRole.Composer,
+    CreditRole.Choreographer,
+    CreditRole.Performer,
+    CreditRole.Host,
+    CreditRole.OriginalCreator,
+    CreditRole.Developer,
+    CreditRole.Troupe,
+)
+
+# (source item, method, target items, scores) as yielded per category
+Neighbours = tuple[int, int, np.ndarray, np.ndarray]
+# (item after rewrite, feature key, weight)
+FeatureCell = tuple[int, Hashable, float]
+
+
+def _resolve_item(
+    item_id: int, merged_to: int | None, rewrite: dict[int, int]
+) -> int | None:
+    """The item a row counts toward, or None for a merged item left out."""
+    target = rewrite.get(item_id)
+    if target is not None:
+        return target
+    return None if merged_to is not None else item_id
+
+
+def _tag_cells(
+    ctypes: list[int], excluded_owners: set[int], rewrite: dict[int, int]
+) -> Iterator[FeatureCell]:
+    """Public tags; a cell weighs the number of owners who applied the tag."""
+    qs = TagMember.objects.filter(
+        parent__visibility=0,
+        item__polymorphic_ctype_id__in=ctypes,
+        item__is_deleted=False,
+    )
+    if excluded_owners:
+        qs = qs.exclude(owner_id__in=excluded_owners)
+    rows = (
+        qs.order_by()
+        .values("item_id", "item__merged_to_item_id", "parent__title")
+        .annotate(n=Count("id"))
+        .values_list("item_id", "item__merged_to_item_id", "parent__title", "n")
+        .iterator(chunk_size=20_000)
+    )
+    for item_id, merged_to, title, n in rows:
+        key = Tag.deep_cleanup_title(title)
+        target = _resolve_item(item_id, merged_to, rewrite)
+        if key != "_" and target is not None:
+            yield target, key, float(n)
+
+
+def _collection_cells(
+    ctypes: list[int], excluded_owners: set[int], rewrite: dict[int, int]
+) -> Iterator[FeatureCell]:
+    qs = CollectionMember.objects.filter(
+        parent__visibility=0,
+        item__polymorphic_ctype_id__in=ctypes,
+        item__is_deleted=False,
+    )
+    if excluded_owners:
+        qs = qs.exclude(owner_id__in=excluded_owners)
+    rows = (
+        qs.order_by()
+        .values_list("item_id", "item__merged_to_item_id", "parent_id")
+        .iterator(chunk_size=20_000)
+    )
+    for item_id, merged_to, collection_id in rows:
+        target = _resolve_item(item_id, merged_to, rewrite)
+        if target is not None:
+            yield target, collection_id, 1.0
+
+
+def _credit_cells(ctypes: list[int], rewrite: dict[int, int]) -> Iterator[FeatureCell]:
+    """Creator credits of items with a public mark, which bounds the matrix."""
+    marked = ShelfMember._base_manager.filter(
+        visibility=0, parent__shelf_type__in=SHELF_TYPES_AS_SEED
+    ).values("item_id")
+    rows = (
+        ItemCredit.objects.filter(
+            role__in=CONTENT_CREDIT_ROLES,
+            item__polymorphic_ctype_id__in=ctypes,
+            item__is_deleted=False,
+            item_id__in=marked,
+        )
+        .order_by()
+        .values_list("item_id", "item__merged_to_item_id", "role", "person_id", "name")
+        .iterator(chunk_size=20_000)
+    )
+    for item_id, merged_to, role, person_id, name in rows:
+        target = _resolve_item(item_id, merged_to, rewrite)
+        if target is None:
+            continue
+        if person_id is not None:
+            yield target, (role, person_id), 1.0
+        elif name and name.strip():
+            yield target, (role, name.strip().casefold()), 1.0
+
+
+def _unusable_items(
+    item_ids: np.ndarray, excluded_ctypes: set[int]
+) -> tuple[set[int], set[int]]:
+    """(not sources, not targets) among ``item_ids``, queried in chunks."""
+    dead: set[int] = set()
+    non_target: set[int] = set()
+    q = Q(is_deleted=True) | Q(merged_to_item_id__isnull=False)
+    if excluded_ctypes:
+        q |= Q(polymorphic_ctype_id__in=excluded_ctypes)
+    for i in range(0, len(item_ids), _ID_CHUNK):
+        chunk = item_ids[i : i + _ID_CHUNK].tolist()
+        for pk, deleted, merged_to in Item.objects.filter(q, pk__in=chunk).values_list(
+            "pk", "is_deleted", "merged_to_item_id"
+        ):
+            non_target.add(pk)
+            if deleted or merged_to is not None:
+                dead.add(pk)
+    return dead, non_target
+
+
+def _feature_topk(
+    method: int,
+    cells: Iterable[FeatureCell],
+    binary: bool,
+    top_k: int,
+    max_feature_items: int,
+    excluded_ctypes: set[int],
+) -> Iterator[Neighbours]:
+    """Item-item cosine over shared features, for one category.
+
+    Features on fewer than 2 or more than ``max_feature_items`` items are
+    dropped, and each kept feature is damped by ``1/sqrt(n_items)`` so a
+    common tag weighs less than a rare one. A cell sums its weights, or is 1
+    when ``binary``. Every usable item with a kept feature is a source.
+    """
+    feature_ids: dict[Hashable, int] = {}
+    f = array("i")
+    it = array("q")
+    w = array("f")
+    for item_id, key, weight in cells:
+        f.append(feature_ids.setdefault(key, len(feature_ids)))
+        it.append(item_id)
+        w.append(weight)
+    del feature_ids
+    if not f:
+        return
+    items, item_idx = np.unique(np.frombuffer(it, dtype=np.int64), return_inverse=True)
+    pair = np.frombuffer(f, dtype=np.int32).astype(np.int64) * len(items) + item_idx
+    pairs, pair_idx = np.unique(pair, return_inverse=True)
+    if binary:
+        weights = np.ones(len(pairs), dtype=np.float32)
+    else:
+        weights = np.bincount(
+            pair_idx, weights=np.frombuffer(w, dtype=np.float32)
+        ).astype(np.float32)
+    del pair, pair_idx, item_idx, f, it, w
+    feat = pairs // len(items)
+    col = pairs % len(items)
+    n_items = np.bincount(feat)
+    keep = (n_items[feat] >= 2) & (n_items[feat] <= max_feature_items)
+    if not keep.any():
+        return
+    feat, col, weights = feat[keep], col[keep], weights[keep]
+    weights /= np.sqrt(n_items[feat]).astype(np.float32)
+    kept_cols, cols = np.unique(col, return_inverse=True)
+    item_ids = items[kept_cols]
+    _, rows = np.unique(feat, return_inverse=True)
+    m = csc_matrix(
+        (weights, (rows.astype(np.int32), cols.astype(np.int32))),
+        shape=(int(rows.max()) + 1, len(item_ids)),
+    )
+    dead, non_target = _unusable_items(item_ids, excluded_ctypes)
+    target_mask = ~np.isin(item_ids, np.fromiter(non_target, dtype=np.int64))
+    sources = np.flatnonzero(~np.isin(item_ids, np.fromiter(dead, dtype=np.int64)))
+    for src_col, tgt_cols, scores in _cosine_topk(m, sources, target_mask, top_k, 0.0):
+        yield int(item_ids[src_col]), method, item_ids[tgt_cols], scores
+
+
+class _SimilarityWriter:
+    """Replaces every row of a source, in batches of sources.
+
+    Batched transactions keep each commit small, avoid one long-lived
+    transaction across the rebuild, and give readers a consistent view per
+    source. Sources no longer covered are pruned in ``finish``.
+    """
+
+    def __init__(self) -> None:
+        self.pending: dict[int, list[ItemSimilarity]] = {}
+        self.covered: set[int] = set()
+        self.counts: dict[int, int] = defaultdict(int)
+
+    def add(
+        self, src: int, by_method: dict[int, tuple[np.ndarray, np.ndarray]]
+    ) -> None:
+        rows: list[ItemSimilarity] = []
+        for method, (targets, scores) in by_method.items():
+            rows.extend(
+                ItemSimilarity(
+                    source_id=src, target_id=int(t), score=float(v), method=method
+                )
+                for t, v in zip(targets, scores)
+            )
+            self.counts[method] += len(targets)
+        self.pending[src] = rows
+        self.covered.add(src)
+        if len(self.pending) >= _WRITE_SOURCE_BATCH:
+            self.flush()
+
+    def flush(self) -> None:
+        if not self.pending:
+            return
+        with transaction.atomic():
+            ItemSimilarity.objects.filter(source_id__in=list(self.pending)).delete()
+            ItemSimilarity.objects.bulk_create(
+                [r for rows in self.pending.values() for r in rows],
+                ignore_conflicts=True,
+                batch_size=5_000,
+            )
+        self.pending = {}
+
+    def finish(self) -> dict[int, int]:
+        self.flush()
+        existing = set(
+            ItemSimilarity.objects.order_by()
+            .values_list("source_id", flat=True)
+            .distinct()
+        )
+        stale = sorted(existing - self.covered)
+        if stale:
+            logger.info(f"Pruning {len(stale)} stale similarity sources")
+        for i in range(0, len(stale), _ID_CHUNK):
+            with transaction.atomic():
+                ItemSimilarity.objects.filter(
+                    source_id__in=stale[i : i + _ID_CHUNK]
+                ).delete()
+        return dict(self.counts)
 
 
 def _enabled() -> bool:
@@ -339,8 +594,10 @@ class BuildItemSimilarity(BaseJob):
         top_k = sys.reco_similarity_top_k
         dampen = sys.reco_user_idf_dampen
         shrinkage = sys.reco_similarity_shrinkage
+        max_feature_items = sys.reco_max_feature_items
         excluded = _non_discoverable_identity_ids()
-        rewrite = self._rewrite_for_marked_items(training_rewrite_map())
+        full_rewrite = training_rewrite_map()
+        rewrite = self._rewrite_for_marked_items(full_rewrite)
         excluded_target_ctypes = excluded_target_ctype_ids()
         logger.info(
             f"Similarity build start: min_source={min_source} min_target={min_target} "
@@ -369,6 +626,7 @@ class BuildItemSimilarity(BaseJob):
 
         # Resolve item -> category once, dropping deleted items and merged
         # items left out of the rewrite (their chain ends on a deleted item).
+        # Every method works per category, which bounds its matrices.
         # Several content types share the same category string (TVShow /
         # TVSeason / TVEpisode -> "tv"), so we use the category label rather
         # than polymorphic_ctype_id to avoid blocking cross-type pairs within
@@ -381,7 +639,7 @@ class BuildItemSimilarity(BaseJob):
                 if ct_id is not None:
                     ctype_to_cat[ct_id] = str(cat_enum)
         live: set[int] = set()
-        category_by_id: dict[int, str] = {}
+        items_by_cat: dict[str, set[int]] = defaultdict(set)
         for pk, ct_id in Item.objects.filter(
             pk__in=active | target_set,
             is_deleted=False,
@@ -390,165 +648,148 @@ class BuildItemSimilarity(BaseJob):
             live.add(pk)
             cat = ctype_to_cat.get(ct_id)
             if cat:
-                category_by_id[pk] = cat
+                items_by_cat[cat].add(pk)
         active &= live
         target_set &= live
         logger.info(f"Active items: {len(active)} target candidates: {len(target_set)}")
 
-        item_categories_map: dict[int, list[tuple[int, float]]] = {}
+        category_by_id = {
+            iid: cat for cat, cat_items in items_by_cat.items() for iid in cat_items
+        }
+        users_by_cat: dict[str, list[UserMarks]] = defaultdict(list)
         if active:
             user_items = self._user_item_pairs(
                 active | target_set, cap, excluded, rewrite
             )
             logger.info(f"Users contributing: {len(user_items)}")
+            # Bucket each user's truncated mark list by the categories it
+            # touches, so a category only walks users with an item in it.
+            for marks in user_items.values():
+                cats_in_user: set[str] = set()
+                for it in marks.items:
+                    cat = category_by_id.get(it)
+                    if cat is not None:
+                        cats_in_user.add(cat)
+                for cat in cats_in_user:
+                    users_by_cat[cat].append(marks)
+        del category_by_id
 
-            item_categories_map = self._topk_per_category(
-                user_items=user_items,
-                active=active,
-                target_set=target_set,
-                category_by_id=category_by_id,
-                top_k=top_k,
-                dampen=dampen,
-                shrinkage=shrinkage,
-            )
+        ctypes_by_cat: dict[str, list[int]] = defaultdict(list)
+        for ct_id, cat in ctype_to_cat.items():
+            ctypes_by_cat[cat].append(ct_id)
+        writer = _SimilarityWriter()
+        if top_k > 0:
+            for cat, ctypes in ctypes_by_cat.items():
+                cat_items = items_by_cat.get(cat, set())
+                methods = [
+                    self._shelf_topk(
+                        users_by_cat[cat],
+                        cat_items,
+                        active & cat_items,
+                        target_set & cat_items,
+                        top_k,
+                        dampen,
+                        shrinkage,
+                    ),
+                    _feature_topk(
+                        ItemSimilarity.METHOD_TAG_COOC,
+                        _tag_cells(ctypes, excluded, full_rewrite),
+                        False,
+                        top_k,
+                        max_feature_items,
+                        excluded_target_ctypes,
+                    ),
+                    _feature_topk(
+                        ItemSimilarity.METHOD_COLLECTION_COOC,
+                        _collection_cells(ctypes, excluded, full_rewrite),
+                        True,
+                        top_k,
+                        max_feature_items,
+                        excluded_target_ctypes,
+                    ),
+                    _feature_topk(
+                        ItemSimilarity.METHOD_CONTENT,
+                        _credit_cells(ctypes, full_rewrite),
+                        True,
+                        top_k,
+                        max_feature_items,
+                        excluded_target_ctypes,
+                    ),
+                ]
+                # every method yields sources in ascending item id order, so
+                # one pass groups each source's rows across methods
+                for src, group in groupby(
+                    merge(*methods, key=itemgetter(0)), key=itemgetter(0)
+                ):
+                    writer.add(src, {m: (t, v) for _, m, t, v in group})
+        counts = writer.finish()
+        logger.info(
+            f"Similarity build done: {len(writer.covered)} sources, rows per "
+            f"method {counts}"
+        )
 
-        logger.info(f"Sources with similar rows: {len(item_categories_map)}")
-        rows_written = self._write_similarity_rows(item_categories_map)
-        logger.info(f"Similarity build done: {rows_written} rows")
-
-    def _topk_per_category(
+    def _shelf_topk(
         self,
-        user_items: dict[int, UserMarks],
-        active: set[int],
-        target_set: set[int],
-        category_by_id: dict[int, str],
+        users: list[UserMarks],
+        cat_items: set[int],
+        active_in_cat: set[int],
+        target_in_cat: set[int],
         top_k: int,
         dampen: bool,
         shrinkage: float,
-    ) -> dict[int, list[tuple[int, float]]]:
-        """Per-category sparse cosine similarity: top-K targets per active source.
+    ) -> Iterator[Neighbours]:
+        """Shelf cosine similarity for one category: top-K per active source.
 
-        Builds one ``scipy.sparse`` user-item matrix per category. Each entry
-        is ``w_u * mark_weight``, where ``w_u = 1/sqrt(n_user_total)`` (or 1
-        when damping is off). Scores are cosine times ``n / (n + shrinkage)``
-        with ``n`` the users who marked both items, see ``_cosine_topk``.
-        Users with a single mark in the category add no pair but still count
-        toward the item norms, as cosine requires.
+        Builds a ``scipy.sparse`` user-item matrix. Each entry is
+        ``w_u * mark_weight``, where ``w_u = 1/sqrt(n_user_total)`` (or 1 when
+        damping is off). Scores are cosine times ``n / (n + shrinkage)`` with
+        ``n`` the users who marked both items, see ``_cosine_topk``. Users
+        with a single mark in the category add no pair but still count toward
+        the item norms, as cosine requires.
         """
-        if top_k <= 0:
-            return {}
-        items_by_cat: dict[str, set[int]] = defaultdict(set)
-        for iid, cat in category_by_id.items():
-            items_by_cat[cat].add(iid)
+        if not active_in_cat or not target_in_cat:
+            return
+        item_list = sorted(cat_items)
+        col_of = {iid: idx for idx, iid in enumerate(item_list)}
+        n_items = len(item_list)
 
-        # Bucket each user's truncated mark list by the categories it touches,
-        # so the per-category inner loop only walks users with at least one
-        # item in that category instead of every user every time. Users who
-        # specialise in 1-2 categories are the common case.
-        users_by_cat: dict[str, list[UserMarks]] = defaultdict(list)
-        for marks in user_items.values():
-            cats_in_user: set[str] = set()
-            for it in marks.items:
-                cat = category_by_id.get(it)
-                if cat is not None:
-                    cats_in_user.add(cat)
-            for cat in cats_in_user:
-                users_by_cat[cat].append(marks)
+        rows = array("i")
+        cols = array("i")
+        data = array("f")
+        user_idx = 0
+        for marks in users:
+            # Damping uses the user's full truncated list size, not the
+            # per-category subset, so a heavy shelver is damped equally
+            # regardless of which category we're currently scoring.
+            n_total = len(marks.items)
+            w = (1.0 / math.sqrt(n_total)) if dampen else 1.0
+            for it, mw in zip(marks.items, marks.weights):
+                col = col_of.get(it)
+                if col is None:
+                    continue
+                rows.append(user_idx)
+                cols.append(col)
+                data.append(w * mw)
+            user_idx += 1
+        if user_idx == 0:
+            return
 
-        out: dict[int, list[tuple[int, float]]] = {}
-        for cat, cat_items in items_by_cat.items():
-            active_in_cat = active & cat_items
-            target_in_cat = target_set & cat_items
-            if not active_in_cat or not target_in_cat:
-                continue
-            item_list = sorted(cat_items)
-            col_of = {iid: idx for idx, iid in enumerate(item_list)}
-            n_items = len(item_list)
-
-            rows = array("i")
-            cols = array("i")
-            data = array("f")
-            user_idx = 0
-            for marks in users_by_cat[cat]:
-                # Damping uses the user's full truncated list size, not the
-                # per-category subset, so a heavy shelver is damped equally
-                # regardless of which category we're currently scoring.
-                n_total = len(marks.items)
-                w = (1.0 / math.sqrt(n_total)) if dampen else 1.0
-                for it, mw in zip(marks.items, marks.weights):
-                    col = col_of.get(it)
-                    if col is None:
-                        continue
-                    rows.append(user_idx)
-                    cols.append(col)
-                    data.append(w * mw)
-                user_idx += 1
-            if user_idx == 0:
-                continue
-
-            m = _coo_to_csc(rows, cols, data, (user_idx, n_items))
-            del rows, cols, data
-
-            target_mask = np.zeros(n_items, dtype=bool)
-            for iid in target_in_cat:
-                target_mask[col_of[iid]] = True
-            sources = np.array(sorted(col_of[i] for i in active_in_cat))
-            for src_col, tgt_cols, scores in _cosine_topk(
-                m, sources, target_mask, top_k, shrinkage
-            ):
-                out[item_list[src_col]] = [
-                    (item_list[c], float(v)) for c, v in zip(tgt_cols, scores)
-                ]
-        return out
-
-    def _write_similarity_rows(
-        self, item_categories_map: dict[int, list[tuple[int, float]]]
-    ) -> int:
-        """Replace shelf-cooc rows per source in short atomic batches.
-
-        Per-source transactions keep each commit small (<= top_k rows), avoid
-        holding a long-lived DB transaction across the whole rebuild, and
-        present a consistent per-source view to concurrent readers during the
-        run. Sources no longer covered are cleaned up afterwards in chunks.
-        """
-        rows_written = 0
-        covered: set[int] = set()
-        for src, top in item_categories_map.items():
-            covered.add(src)
-            new_rows = [
-                ItemSimilarity(
-                    source_id=src,
-                    target_id=tgt,
-                    score=score,
-                    method=ItemSimilarity.METHOD_SHELF_COOC,
-                )
-                for tgt, score in top
-            ]
-            with transaction.atomic():
-                ItemSimilarity.objects.filter(
-                    source_id=src, method=ItemSimilarity.METHOD_SHELF_COOC
-                ).delete()
-                if new_rows:
-                    ItemSimilarity.objects.bulk_create(new_rows, ignore_conflicts=True)
-            rows_written += len(new_rows)
-        # Drop orphan rows for sources that no longer meet thresholds. Chunk to
-        # avoid a single very large DELETE on a populated table.
-        stale_ids = list(
-            ItemSimilarity.objects.filter(method=ItemSimilarity.METHOD_SHELF_COOC)
-            .exclude(source_id__in=covered)
-            .values_list("source_id", flat=True)
-            .distinct()
-        )
-        if stale_ids:
-            logger.info(f"Pruning {len(stale_ids)} stale similarity sources")
-            for i in range(0, len(stale_ids), 1000):
-                chunk = stale_ids[i : i + 1000]
-                with transaction.atomic():
-                    ItemSimilarity.objects.filter(
-                        method=ItemSimilarity.METHOD_SHELF_COOC,
-                        source_id__in=chunk,
-                    ).delete()
-        return rows_written
+        m = _coo_to_csc(rows, cols, data, (user_idx, n_items))
+        del rows, cols, data
+        target_mask = np.zeros(n_items, dtype=bool)
+        for iid in target_in_cat:
+            target_mask[col_of[iid]] = True
+        sources = np.array(sorted(col_of[i] for i in active_in_cat))
+        item_arr = np.asarray(item_list, dtype=np.int64)
+        for src_col, tgt_cols, scores in _cosine_topk(
+            m, sources, target_mask, top_k, shrinkage
+        ):
+            yield (
+                item_list[src_col],
+                ItemSimilarity.METHOD_SHELF_COOC,
+                item_arr[tgt_cols],
+                scores,
+            )
 
 
 @JobManager.register

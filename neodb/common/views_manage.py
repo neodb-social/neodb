@@ -626,6 +626,38 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "min_value": 0,
             "max_value": 1,
         },
+        "reco_max_feature_items": {
+            "title": _("Feature item cap"),
+            "help_text": _(
+                "Tags, collections and credits shared by more items than this "
+                "are too broad to link items and are ignored."
+            ),
+            "min_value": 2,
+        },
+        "reco_tag_weight": {
+            "title": _("Tag weight"),
+            "help_text": _(
+                "Weight of shared public tags in similar items, relative to "
+                "shared marks at 1."
+            ),
+            "min_value": 0,
+        },
+        "reco_collection_weight": {
+            "title": _("Collection weight"),
+            "help_text": _(
+                "Weight of shared public collections in similar items, "
+                "relative to shared marks at 1."
+            ),
+            "min_value": 0,
+        },
+        "reco_content_weight": {
+            "title": _("Credit weight"),
+            "help_text": _(
+                "Weight of shared creators, such as authors, directors and "
+                "actors, in similar items, relative to shared marks at 1."
+            ),
+            "min_value": 0,
+        },
     }
     layout = {
         _("Master switch"): [
@@ -638,11 +670,17 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "reco_user_idf_dampen",
             "reco_user_mark_cap",
             "reco_similarity_shrinkage",
+            "reco_max_feature_items",
         ],
         _("Mark weights"): [
             "reco_rating_weight",
             "reco_review_boost",
             "reco_comment_note_boost",
+        ],
+        _("Signal blend"): [
+            "reco_tag_weight",
+            "reco_collection_weight",
+            "reco_content_weight",
         ],
         _("Personalisation"): [
             "reco_user_top_n",

@@ -19,6 +19,7 @@ from catalog.models import (
     ExternalResource,
     IdType,
     Item,
+    ItemCredit,
     ItemSimilarity,
     Performance,
     PerformanceProduction,
@@ -36,7 +37,7 @@ from catalog.recommendation import (
     user_mean_grade,
 )
 from common.models import SiteConfig
-from journal.models import Mark, Note, Review, ShelfType
+from journal.models import Collection, Mark, Note, Review, ShelfType
 from users.models import User
 
 
@@ -966,3 +967,110 @@ class TestSeedCombiner:
         row = next(r for r in rows if r.item_id == self.t1.pk)
         assert row.seed_item_ids == [s.pk for s in seeds[:3]]
         assert row.score == pytest.approx(0.5 + 0.4 + 0.3 + 0.2 + 0.1)
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestFeatureSimilarity:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_min_source_marks=3,
+            reco_min_target_marks=3,
+            reco_similarity_top_k=10,
+            reco_max_feature_items=500,
+        )
+        self.users = [
+            User.register(email=f"ft{i}@t.com", username=f"ft_user{i}").identity
+            for i in range(2)
+        ]
+        self.a, self.b, self.c, self.d = (
+            Edition.objects.create(title=f"Feature {t}") for t in "ABCD"
+        )
+
+    def _pairs(self, method: int) -> set[tuple[int, int]]:
+        return set(
+            ItemSimilarity.objects.filter(method=method).values_list(
+                "source_id", "target_id"
+            )
+        )
+
+    def _tag(self, identity, item, tags, visibility=0):
+        identity.tag_manager.tag_item(item, tags, visibility)
+
+    def test_shared_tags_link_items(self):
+        u0, u1 = self.users
+        for item in (self.a, self.b):
+            self._tag(u0, item, ["space", "robots"])
+            self._tag(u1, item, ["#Space"])
+        self._tag(u0, self.c, ["cooking"])
+        self._tag(u0, self.d, ["cooking"])
+        BuildItemSimilarity().run()
+        pairs = self._pairs(ItemSimilarity.METHOD_TAG_COOC)
+        assert {(self.a.pk, self.b.pk), (self.b.pk, self.a.pk)} <= pairs
+        assert (self.c.pk, self.d.pk) in pairs
+        assert (self.a.pk, self.c.pk) not in pairs
+
+    def test_private_tag_does_not_count(self):
+        self._tag(self.users[0], self.a, ["secret"], visibility=2)
+        self._tag(self.users[0], self.b, ["secret"], visibility=2)
+        BuildItemSimilarity().run()
+        assert not self._pairs(ItemSimilarity.METHOD_TAG_COOC)
+
+    def test_hub_feature_is_ignored(self):
+        _set(reco_max_feature_items=2)
+        for item in (self.a, self.b, self.c):
+            self._tag(self.users[0], item, ["everything"])
+        self._tag(self.users[0], self.a, ["pair"])
+        self._tag(self.users[0], self.b, ["pair"])
+        BuildItemSimilarity().run()
+        pairs = self._pairs(ItemSimilarity.METHOD_TAG_COOC)
+        assert (self.a.pk, self.b.pk) in pairs
+        assert (self.a.pk, self.c.pk) not in pairs
+
+    def _collection(self, identity, items, visibility=0):
+        collection = Collection.objects.create(
+            owner=identity, title="Shelf", brief="", visibility=visibility
+        )
+        for item in items:
+            collection.append_item(item)
+
+    def test_collection_links_items(self):
+        self._collection(self.users[0], [self.a, self.b])
+        self._collection(self.users[1], [self.c, self.d], visibility=2)
+        BuildItemSimilarity().run()
+        pairs = self._pairs(ItemSimilarity.METHOD_COLLECTION_COOC)
+        assert pairs == {(self.a.pk, self.b.pk), (self.b.pk, self.a.pk)}
+
+    def test_non_discoverable_collection_is_ignored(self):
+        t = self.users[0].takahe_identity
+        t.discoverable = False
+        t.save(update_fields=["discoverable"])
+        self._collection(self.users[0], [self.a, self.b])
+        BuildItemSimilarity().run()
+        assert not self._pairs(ItemSimilarity.METHOD_COLLECTION_COOC)
+
+    def test_credit_links_books_by_same_author(self):
+        for item in (self.a, self.b, self.c, self.d):
+            _public_mark(self.users[0], item, rating=0)
+        ItemCredit.objects.create(item=self.a, role="author", name="Ursula Le Guin")
+        ItemCredit.objects.create(item=self.b, role="author", name=" ursula le guin")
+        ItemCredit.objects.create(item=self.c, role="publisher", name="Ace")
+        ItemCredit.objects.create(item=self.d, role="publisher", name="Ace")
+        BuildItemSimilarity().run()
+        pairs = self._pairs(ItemSimilarity.METHOD_CONTENT)
+        assert pairs == {(self.a.pk, self.b.pk), (self.b.pk, self.a.pk)}
+
+    def test_credit_needs_a_public_mark(self):
+        ItemCredit.objects.create(item=self.a, role="author", name="Anon")
+        ItemCredit.objects.create(item=self.b, role="author", name="Anon")
+        BuildItemSimilarity().run()
+        assert not self._pairs(ItemSimilarity.METHOD_CONTENT)
+
+    def test_merged_item_features_count_toward_final(self):
+        self._tag(self.users[0], self.a, ["moon"])
+        self._tag(self.users[0], self.c, ["moon"])
+        self.a.merge_to(self.b)
+        BuildItemSimilarity().run()
+        pairs = self._pairs(ItemSimilarity.METHOD_TAG_COOC)
+        assert pairs == {(self.b.pk, self.c.pk), (self.c.pk, self.b.pk)}
