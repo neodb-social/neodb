@@ -294,6 +294,7 @@ def reco_mark_weight(
 
 
 _LAZY_LOCK_TTL = 120  # seconds — covers typical compute duration
+_REFILL_INTERVAL = 86400
 
 # Shelves that count as positive interest signal for recommendation training
 # and as seeds for personalised recommendations. Wishlist is an explicit
@@ -576,6 +577,23 @@ def _refresh_lazy(user_pk: int, identity_pk: int) -> bool:
         cache.delete(lock_key)
 
 
+def _refill(user_pk: int, identity_pk: int) -> bool:
+    """Recompute for a member who shelved or dismissed most of the stored rows.
+
+    At most once a day per member. When nothing new turns up the old rows are
+    kept, so an exhausted member does not recompute on every request.
+    """
+    if not cache.add(f"reco:refill:{user_pk}", "1", timeout=_REFILL_INTERVAL):
+        return False
+    rows = compute_for_user(user_pk, identity_pk)
+    if not rows:
+        return False
+    with transaction.atomic():
+        UserRecommendation.objects.filter(user_id=user_pk).delete()
+        UserRecommendation.objects.bulk_create(rows, ignore_conflicts=True)
+    return True
+
+
 def _cached_user_rows(user_pk: int, ttl_days: int) -> list[UserRecommendation]:
     qs = UserRecommendation.objects.filter(user_id=user_pk).order_by("-score")
     rows = list(qs)
@@ -603,13 +621,22 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
             logger.exception(f"Lazy reco refresh failed for user {viewer.pk}: {e}")
             return []
         rows = _cached_user_rows(viewer.pk, sys.reco_lazy_ttl_days)
+    # filter before cutting to ``limit``, so the rows stored beyond it
+    # (reco_user_top_n) fill the places of shelved, dismissed or dead items
+    skip = _user_excluded_item_ids(identity.pk) | _user_dismissed_item_ids(viewer.pk)
+    usable = sum(1 for r in rows if r.item_id not in skip)
+    # the stored rows ran out because of shelving or dismissing, not because
+    # the list is short; a fresh compute skips those and reaches further
+    if usable < limit and usable < len(rows):
+        try:
+            if _refill(viewer.pk, identity.pk):
+                rows = _cached_user_rows(viewer.pk, sys.reco_lazy_ttl_days)
+        except Exception as e:
+            logger.exception(f"Reco refill failed for user {viewer.pk}: {e}")
     if category:
         rows = [r for r in rows if r.category == category]
     if not rows:
         return []
-    # filter before cutting to ``limit``, so the rows stored beyond it
-    # (reco_user_top_n) fill the places of shelved, dismissed or dead items
-    skip = _user_excluded_item_ids(identity.pk) | _user_dismissed_item_ids(viewer.pk)
     candidates = [r.item_id for r in rows if r.item_id not in skip]
     if not candidates:
         return []
