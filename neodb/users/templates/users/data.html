@@ -34,6 +34,20 @@
             </ul>
           </article>
         {% endif %}
+        <article id="import">
+          <h5>{% trans "Import marks and reviews" %}</h5>
+          <div class="import-groups">
+            {% for group, items in import_groups %}
+              {% include "users/_import_tiles.html" %}
+            {% endfor %}
+          </div>
+        </article>
+        {% if post_sources %}
+          <article id="import-posts">
+            <h5>{% trans "Import posts and articles" %}</h5>
+            {% include "users/_import_tiles.html" with group=None items=post_sources %}
+          </article>
+        {% endif %}
         <article id="export">
           <h5>{% trans "Export your data" %}</h5>
           <section>
@@ -78,20 +92,6 @@
                class="secondary outline">{% trans "Import/export social graph" %}</a>
           </section>
         </article>
-        <article id="import">
-          <h5>{% trans "Import marks and reviews" %}</h5>
-          <div class="import-groups">
-            {% for group, items in import_groups %}
-              {% include "users/_import_tiles.html" %}
-            {% endfor %}
-          </div>
-        </article>
-        {% if post_sources %}
-          <article id="import-posts">
-            <h5>{% trans "Import posts and articles" %}</h5>
-            {% include "users/_import_tiles.html" with group=None items=post_sources %}
-          </article>
-        {% endif %}
       </div>
       {% include "_sidebar.html" with show_profile=1 identity=request.user.identity annual_summary_years=years %}
     </main>

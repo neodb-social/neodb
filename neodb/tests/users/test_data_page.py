@@ -51,10 +51,10 @@ def _task(cls: type[Task], user: User, state: int, minutes_ago: int = 0) -> Task
     return task
 
 
-def test_hub_puts_export_before_import(client, all_sources):
+def test_hub_puts_export_after_import(client, all_sources):
     content = client.get(reverse("users:data")).content.decode()
-    assert content.index('id="export"') < content.index('id="import"')
     assert content.index('id="import"') < content.index('id="import-posts"')
+    assert content.index('id="import-posts"') < content.index('id="export"')
     for source in IMPORT_SOURCES:
         assert f'href="{reverse(source.url_name)}"' in content
     assert f'href="{reverse("users:info")}#social-graph"' in content
@@ -92,7 +92,7 @@ def test_recent_activity_lists_newest_tasks_first(client, user):
     _task(NdjsonExporter, user, Task.States.complete, minutes_ago=10)
     _task(LetterboxdImporter, user, Task.States.started, minutes_ago=1)
     content = client.get(reverse("users:data")).content.decode()
-    activity = content[content.index('id="activity"') : content.index('id="export"')]
+    activity = content[content.index('id="activity"') : content.index('id="import"')]
     assert (
         activity.index(reverse("users:import_letterboxd"))
         < activity.index(f"{reverse('users:data')}#export")
@@ -118,7 +118,7 @@ def test_recent_activity_is_limited(client, user):
     ):
         _task(cls, user, Task.States.complete, minutes_ago=i)
     content = client.get(reverse("users:data")).content.decode()
-    activity = content[content.index('id="activity"') : content.index('id="export"')]
+    activity = content[content.index('id="activity"') : content.index('id="import"')]
     assert activity.count("<li>") == RECENT_ACTIVITY_LIMIT
 
 
