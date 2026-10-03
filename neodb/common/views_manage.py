@@ -590,6 +590,42 @@ class RecommendationSettings(SiteConfigSettingsPage):
             ),
             "min_value": 1,
         },
+        "reco_similarity_shrinkage": {
+            "title": _("Similarity shrinkage"),
+            "help_text": _(
+                "Added to the cosine denominator so item pairs shared by few "
+                "users score lower. 0 turns it off."
+            ),
+            "min_value": 0,
+        },
+        "reco_rating_weight": {
+            "title": _("Rating weight"),
+            "help_text": _(
+                "How much a rating above or below the user's own average "
+                "raises or lowers the weight of a mark. 0 ignores ratings."
+            ),
+            "min_value": 0,
+            "max_value": 2,
+        },
+        "reco_review_boost": {
+            "title": _("Review boost"),
+            "help_text": _(
+                "Extra weight for a mark when its owner also wrote a public "
+                "review of the item."
+            ),
+            "min_value": 0,
+            "max_value": 1,
+        },
+        "reco_comment_note_boost": {
+            "title": _("Comment and note boost"),
+            "help_text": _(
+                "Extra weight for a mark for each of a public comment and a "
+                "public note by its owner on the item. A mark weighs at most "
+                "twice a plain mark."
+            ),
+            "min_value": 0,
+            "max_value": 1,
+        },
     }
     layout = {
         _("Master switch"): [
@@ -601,6 +637,12 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "reco_similarity_top_k",
             "reco_user_idf_dampen",
             "reco_user_mark_cap",
+            "reco_similarity_shrinkage",
+        ],
+        _("Mark weights"): [
+            "reco_rating_weight",
+            "reco_review_boost",
+            "reco_comment_note_boost",
         ],
         _("Personalisation"): [
             "reco_user_top_n",

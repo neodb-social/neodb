@@ -23,12 +23,22 @@ from catalog.recommendation import (
     blended_for_discover,
     compute_for_user,
     from_your_circles,
+    mark_weight,
     similar_items,
     training_rewrite_map,
+    user_mean_grade,
 )
 from common.models import SiteConfig
-from journal.models import Mark, ShelfType
+from journal.models import Mark, Note, Review, ShelfType
 from users.models import User
+
+
+@pytest.fixture(autouse=True)
+def _isolate_site_config(_load_site_config):
+    saved = SiteConfig.system
+    SiteConfig.system = saved.model_copy()
+    yield
+    SiteConfig.system = saved
 
 
 def _set(**kwargs):
@@ -697,3 +707,206 @@ class TestFromYourCircles:
         loner.identity.follow(self.friends[0].identity, True)
         items = from_your_circles(loner)
         assert {i.pk for i in items} == {self.book_a.pk, self.book_b.pk}
+
+
+class TestMarkWeight:
+    BOOSTS = {"rating_weight": 0.5, "review_boost": 0.5, "comment_note_boost": 0.25}
+
+    def _w(self, grade, mean, review=False, comment=False, note=False, **kw):
+        return mark_weight(grade, mean, review, comment, note, **(self.BOOSTS | kw))
+
+    def test_unrated_is_neutral(self):
+        assert self._w(None, 8.0) == 1.0
+        assert self._w(9, None) == 1.0
+
+    def test_rating_is_centered_on_user_mean(self):
+        assert self._w(10, 8.0) == pytest.approx(1 + 0.5 * 2 / 4.5)
+        assert self._w(6, 8.0) == pytest.approx(1 - 0.5 * 2 / 4.5)
+        assert self._w(8, 8.0) == pytest.approx(1.0)
+        assert self._w(10, 8.0, rating_weight=0) == 1.0
+
+    def test_floor_and_cap(self):
+        assert self._w(1, 10.0) == pytest.approx(0.2)
+        assert self._w(10, 1.0, review=True, comment=True, note=True) == 2.0
+        assert self._w(
+            None, None, review=True, comment=True, note=True, review_boost=1
+        ) == pytest.approx(2.0)
+
+    def test_annotations_raise_weight(self):
+        assert self._w(None, None, review=True) == pytest.approx(1.5)
+        assert self._w(None, None, comment=True, note=True) == pytest.approx(1.5)
+        assert self._w(None, None, review=True) > self._w(None, None, comment=True)
+
+    def test_user_mean_needs_three_grades(self):
+        assert user_mean_grade([8, None, 9]) is None
+        assert user_mean_grade([3, 9, 9, None]) == pytest.approx(7.0)
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestTrainingMarkSignals:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_rating_weight=0.5,
+            reco_review_boost=0.5,
+            reco_comment_note_boost=0.25,
+        )
+        self.identity = User.register(email="ms@t.com", username="ms_user").identity
+        self.items = [Edition.objects.create(title=f"MS {i}") for i in range(5)]
+        a, b, c, d, e = self.items
+        _public_mark(self.identity, a, rating=10)
+        _public_mark(self.identity, b, rating=3)
+        Mark(self.identity, c).update(ShelfType.COMPLETE, "liked it", 8, [], 0)
+        _public_mark(self.identity, d, rating=8)
+        _public_mark(self.identity, e, rating=0)
+        Note.objects.create(item=d, owner=self.identity, content="n", visibility=0)
+        Review.update_item_review(b, self.identity, "private", "body", visibility=2)
+        Review.update_item_review(e, self.identity, "public", "body", visibility=0)
+
+    def test_weights_from_public_signals(self):
+        pk = self.identity.pk
+        ids = [i.pk for i in self.items]
+        marks = BuildItemSimilarity()._weigh_marks({pk: ids}, {})[pk]
+        assert list(marks.items) == ids
+        mean = (10 + 3 + 8 + 8) / 4
+        factor = 1 + 0.5 * (8 - mean) / 4.5
+        expected = [
+            1 + 0.5 * (10 - mean) / 4.5,
+            1 + 0.5 * (3 - mean) / 4.5,  # private review is ignored
+            factor * 1.25,  # comment
+            factor * 1.25,  # note
+            1.5,  # unrated, public review
+        ]
+        assert list(marks.weights) == pytest.approx(expected, rel=1e-5)
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSimilarityCosine:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_min_source_marks=1,
+            reco_min_target_marks=1,
+            reco_similarity_top_k=10,
+            reco_user_mark_cap=100,
+            reco_user_idf_dampen=False,
+            reco_review_boost=0.5,
+        )
+
+    def _users(self, prefix: str, n: int) -> list:
+        return [
+            User.register(email=f"{prefix}{i}@t.com", username=f"{prefix}{i}").identity
+            for i in range(n)
+        ]
+
+    def _score(self, src, tgt) -> float:
+        return ItemSimilarity.objects.get(source=src, target=tgt).score
+
+    def test_shrinkage_favours_well_supported_pairs(self):
+        _set(reco_similarity_shrinkage=5.0)
+        p, q, x, y = (Edition.objects.create(title=t) for t in "PQXY")
+        for ident in self._users("cs", 2):
+            _public_mark(ident, p, rating=0)
+            _public_mark(ident, q, rating=0)
+        for ident in self._users("cl", 10):
+            _public_mark(ident, x, rating=0)
+            _public_mark(ident, y, rating=0)
+        BuildItemSimilarity().run()
+        # both pairs have cosine 1; shrinkage keeps the 2-user pair lower
+        assert self._score(p, q) == pytest.approx(2 / 7, rel=1e-5)
+        assert self._score(x, y) == pytest.approx(10 / 15, rel=1e-5)
+        scores = list(ItemSimilarity.objects.values_list("score", flat=True))
+        assert scores and all(0 <= s < 1 for s in scores)
+
+    def test_review_backed_mark_outweighs_bare_mark(self):
+        _set(reco_similarity_shrinkage=0.0)
+        s, a, b = (Edition.objects.create(title=t) for t in "SAB")
+        u1, u2, u3, u4 = self._users("rv", 4)
+        _public_mark(u1, s, rating=0)
+        _public_mark(u1, a, rating=0)
+        Review.update_item_review(a, u1, "great", "body", visibility=0)
+        _public_mark(u2, s, rating=0)
+        _public_mark(u2, b, rating=0)
+        # single-mark users still count toward each item's norm
+        _public_mark(u3, a, rating=0)
+        _public_mark(u4, b, rating=0)
+        BuildItemSimilarity().run()
+        assert self._score(s, a) == pytest.approx(1.5 / (2**0.5 * 3.25**0.5), rel=1e-5)
+        assert self._score(s, b) == pytest.approx(0.5, rel=1e-5)
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestSeedCombiner:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_user_top_n=10,
+            reco_per_user_seed_cap=50,
+            reco_rating_weight=0.5,
+            reco_review_boost=0.5,
+            reco_comment_note_boost=0.25,
+        )
+        self.user = User.register(email="sc@t.com", username="sc_user")
+        self.identity = self.user.identity
+        self.t1 = Edition.objects.create(title="T1")
+        self.t2 = Edition.objects.create(title="T2")
+
+    def _seed(self, title: str, rating: int = 0, **sims: float) -> Edition:
+        seed = Edition.objects.create(title=title)
+        _public_mark(self.identity, seed, rating=rating)
+        for attr, score in sims.items():
+            ItemSimilarity.objects.create(
+                source=seed, target=getattr(self, attr), score=score
+            )
+        return seed
+
+    def _scores(self) -> dict[int, float]:
+        return {
+            r.item_id: r.score for r in compute_for_user(self.user.pk, self.identity.pk)
+        }
+
+    def test_rating_centering_flips_ranking(self):
+        self._seed("low", rating=3, t1=0.5)
+        self._seed("high", rating=10, t2=0.4)
+        self._seed("filler 1", rating=9)
+        self._seed("filler 2", rating=9)
+        scores = self._scores()
+        assert scores[self.t2.pk] > scores[self.t1.pk]
+        _set(reco_rating_weight=0.0)
+        scores = self._scores()
+        assert scores[self.t1.pk] > scores[self.t2.pk]
+
+    def test_too_few_grades_are_neutral(self):
+        self._seed("low", rating=2, t1=0.5)
+        self._seed("high", rating=10, t2=0.4)
+        scores = self._scores()
+        assert scores[self.t1.pk] == pytest.approx(0.5)
+        assert scores[self.t2.pk] == pytest.approx(0.4)
+
+    def test_review_backed_seed_outweighs_bare_seed(self):
+        reviewed = self._seed("reviewed", t1=0.4)
+        self._seed("bare", t2=0.45)
+        Review.update_item_review(reviewed, self.identity, "t", "body", visibility=0)
+        scores = self._scores()
+        assert scores[self.t1.pk] == pytest.approx(0.6)
+        assert scores[self.t1.pk] > scores[self.t2.pk]
+
+    def test_few_strong_seeds_beat_many_weak_ones(self):
+        for i in range(3):
+            self._seed(f"strong {i}", t1=0.5)
+        for i in range(20):
+            self._seed(f"weak {i}", t2=0.1)
+        scores = self._scores()
+        assert scores[self.t1.pk] == pytest.approx(1.5)
+        assert scores[self.t2.pk] == pytest.approx(0.5)
+
+    def test_seed_ids_are_the_strongest(self):
+        # strongest seeds are marked first, so they are the oldest
+        seeds = [self._seed(f"s{i}", t1=0.5 - 0.1 * i) for i in range(5)]
+        rows = compute_for_user(self.user.pk, self.identity.pk)
+        row = next(r for r in rows if r.item_id == self.t1.pk)
+        assert row.seed_item_ids == [s.pk for s in seeds[:3]]
+        assert row.score == pytest.approx(0.5 + 0.4 + 0.3 + 0.2 + 0.1)

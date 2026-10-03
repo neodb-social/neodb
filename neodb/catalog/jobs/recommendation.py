@@ -1,7 +1,9 @@
 import logging
 import math
+from array import array
 from collections import defaultdict
 from datetime import timedelta
+from typing import NamedTuple
 
 import numpy as np
 from django.db import transaction
@@ -17,11 +19,15 @@ from catalog.models import (
     item_content_types,
 )
 from catalog.recommendation import (
+    NO_MARK_SIGNALS,
     SHELF_TYPES_AS_SEED,
     compute_for_user,
     excluded_target_ctype_ids,
+    load_mark_signals,
     production_to_performance_map,
+    reco_mark_weight,
     training_rewrite_map,
+    user_mean_grade,
 )
 from common.models import BaseJob, JobManager, SiteConfig
 from journal.models import ShelfMember
@@ -29,6 +35,18 @@ from takahe.models import Identity as TakaheIdentity
 from users.models import APIdentity
 
 logger = logging.getLogger(__name__)
+
+# owners whose kept marks are weighed together; bounds the signal lookup
+_WEIGH_OWNER_BATCH = 200
+# nonzeros of the item-item matrix rescaled per step, bounds temporaries
+_COSINE_CHUNK = 1_000_000
+
+
+class UserMarks(NamedTuple):
+    """One user's kept marks, item ids and weights in parallel compact arrays."""
+
+    items: "array[int]"
+    weights: "array[float]"
 
 
 def _non_discoverable_identity_ids() -> set[int]:
@@ -44,6 +62,21 @@ def _non_discoverable_identity_ids() -> set[int]:
     )
 
 
+def _shrunk_cosine_inplace(sim: csr_matrix, shrinkage: float) -> None:
+    """Rescale ``sim = M.T @ M`` to ``sim[a, b] / (sqrt(d_a * d_b) + shrinkage)``.
+
+    ``d`` is the diagonal. Works on ``sim.data`` in chunks so the temporary
+    arrays stay small next to the matrix itself.
+    """
+    norms = np.sqrt(sim.diagonal()).astype(np.float32)
+    for start in range(0, sim.nnz, _COSINE_CHUNK):
+        stop = min(start + _COSINE_CHUNK, sim.nnz)
+        row = np.searchsorted(sim.indptr, np.arange(start, stop), side="right") - 1
+        denom = norms[row] * norms[sim.indices[start:stop]]
+        denom += np.float32(shrinkage)
+        sim.data[start:stop] /= denom
+
+
 def _enabled() -> bool:
     return bool(SiteConfig.system.enable_recommendations)
 
@@ -53,8 +86,9 @@ class BuildItemSimilarity(BaseJob):
     """Weekly item-item shelf co-occurrence builder.
 
     Output: top-K rows in ``ItemSimilarity`` per active source item, scored by
-    cosine-like sum of per-user weights. Users contribute ``1/sqrt(n_marks)``
-    (IDF damping) when enabled to neutralise mega-shelvers, and are truncated
+    cosine similarity with shrinkage over weighted marks. Each mark carries
+    ``mark_weight`` (rating and annotations) times ``1/sqrt(n_marks)`` (IDF
+    damping, when enabled, to neutralise mega-shelvers); users are truncated
     to the most recent ``reco_user_mark_cap`` marks each.
     """
 
@@ -150,14 +184,16 @@ class BuildItemSimilarity(BaseJob):
         cap: int,
         excluded_owners: set[int],
         rewrite: dict[int, int],
-    ) -> dict[int, list[int]]:
-        """Per-user lists of active item ids, each truncated to ``cap`` most recent.
+    ) -> dict[int, UserMarks]:
+        """Per-user active item ids and mark weights, truncated to ``cap`` most recent.
 
         Streams ordered by (owner_id, -edited_time) so we can drop overflow per
         owner in-line without accumulating every mark in memory first. Critical
         at scale: a mega-shelver with 22k marks would otherwise allocate before
         being truncated. Rewrite sources are mapped to their targets and
-        deduplicated per owner, keeping the most recent mark.
+        deduplicated per owner, keeping the most recent mark. Kept marks are
+        weighed in batches of owners, see ``_weigh_marks``. A user with a
+        single kept mark is kept too, because it counts toward cosine norms.
         """
         # rewrite sources whose target is active must be streamed too
         sources_to_include = (
@@ -167,7 +203,7 @@ class BuildItemSimilarity(BaseJob):
         )
         item_filter = active_items | sources_to_include
 
-        qs = ShelfMember.objects.filter(
+        qs = ShelfMember._base_manager.filter(
             visibility=0,
             parent__shelf_type__in=SHELF_TYPES_AS_SEED,
             item_id__in=item_filter,
@@ -177,14 +213,18 @@ class BuildItemSimilarity(BaseJob):
         qs = qs.order_by("owner_id", "-edited_time")
         rows = qs.values_list("owner_id", "item_id").iterator(chunk_size=20_000)
 
-        out: dict[int, list[int]] = {}
+        out: dict[int, UserMarks] = {}
+        pending: dict[int, list[int]] = {}
         current_owner: int | None = None
         current_items: list[int] = []
         current_seen: set[int] = set()
         for owner_id, item_id in rows:
             if owner_id != current_owner:
-                if current_owner is not None and len(current_items) >= 2:
-                    out[current_owner] = current_items
+                if current_owner is not None and current_items:
+                    pending[current_owner] = current_items
+                    if len(pending) >= _WEIGH_OWNER_BATCH:
+                        out.update(self._weigh_marks(pending, rewrite))
+                        pending = {}
                 current_owner = owner_id
                 current_items = []
                 current_seen = set()
@@ -194,8 +234,44 @@ class BuildItemSimilarity(BaseJob):
             if len(current_items) < cap:
                 current_items.append(mapped)
                 current_seen.add(mapped)
-        if current_owner is not None and len(current_items) >= 2:
-            out[current_owner] = current_items
+        if current_owner is not None and current_items:
+            pending[current_owner] = current_items
+        if pending:
+            out.update(self._weigh_marks(pending, rewrite))
+        return out
+
+    def _weigh_marks(
+        self, pending: dict[int, list[int]], rewrite: dict[int, int]
+    ) -> dict[int, UserMarks]:
+        """Attach a ``mark_weight`` to each kept mark of a batch of owners.
+
+        The rating is centered on the owner's mean over the same kept marks.
+        """
+        sys = SiteConfig.system
+        signals = load_mark_signals(
+            {owner_id: set(items) for owner_id, items in pending.items()}, rewrite
+        )
+        out: dict[int, UserMarks] = {}
+        for owner_id, items in pending.items():
+            owner_signals = [
+                signals.get((owner_id, it), NO_MARK_SIGNALS) for it in items
+            ]
+            user_mean = user_mean_grade(g for g, _, _, _ in owner_signals)
+            weights = array(
+                "f",
+                (
+                    reco_mark_weight(
+                        sys,
+                        grade,
+                        user_mean,
+                        has_comment=has_comment,
+                        has_review=has_review,
+                        has_note=has_note,
+                    )
+                    for grade, has_comment, has_review, has_note in owner_signals
+                ),
+            )
+            out[owner_id] = UserMarks(array("q", items), weights)
         return out
 
     def run(self) -> None:
@@ -205,12 +281,14 @@ class BuildItemSimilarity(BaseJob):
         cap = sys.reco_user_mark_cap
         top_k = sys.reco_similarity_top_k
         dampen = sys.reco_user_idf_dampen
+        shrinkage = sys.reco_similarity_shrinkage
         excluded = _non_discoverable_identity_ids()
         rewrite = self._rewrite_for_marked_items(training_rewrite_map())
         excluded_target_ctypes = excluded_target_ctype_ids()
         logger.info(
             f"Similarity build start: min_source={min_source} min_target={min_target} "
-            f"cap={cap} top_k={top_k} dampen={dampen} excluded_owners={len(excluded)} "
+            f"cap={cap} top_k={top_k} dampen={dampen} shrinkage={shrinkage} "
+            f"excluded_owners={len(excluded)} "
             f"rewrites={len(rewrite)} excluded_target_ctypes={len(excluded_target_ctypes)}"
         )
 
@@ -274,6 +352,7 @@ class BuildItemSimilarity(BaseJob):
                 category_by_id=category_by_id,
                 top_k=top_k,
                 dampen=dampen,
+                shrinkage=shrinkage,
             )
 
         logger.info(f"Sources with similar rows: {len(item_categories_map)}")
@@ -282,25 +361,28 @@ class BuildItemSimilarity(BaseJob):
 
     def _topk_per_category(
         self,
-        user_items: dict[int, list[int]],
+        user_items: dict[int, UserMarks],
         active: set[int],
         target_set: set[int],
         category_by_id: dict[int, str],
         top_k: int,
         dampen: bool,
+        shrinkage: float,
     ) -> dict[int, list[tuple[int, float]]]:
-        """Per-category sparse co-occurrence: top-K targets per active source.
+        """Per-category sparse cosine similarity: top-K targets per active source.
 
         Builds one ``scipy.sparse`` user-item matrix per category and computes
-        ``M.T @ M`` for the item-item co-occurrence within that category. Each
-        user-item entry carries weight ``w_u = 1/sqrt(n_user_total)`` (or 1
-        when damping is off), so ``(M.T M)[a, b] = sum_u w_u^2 = sum 1/n_u``
-        over users who shelved both items -- matching the pre-existing
-        per-pair contribution. Working per category keeps peak memory bounded
-        by the densest single category instead of the whole catalog and lets
-        ``M.T M`` use C-level math instead of Python dict-of-dict. The win is
-        category-distribution-dependent: if one category dominates the mark
-        volume, the densest matrix can still approach the prior peak.
+        ``M.T @ M``. Each entry is ``w_u * mark_weight``, where
+        ``w_u = 1/sqrt(n_user_total)`` (or 1 when damping is off). The product
+        is rescaled to ``sim[a, b] / (sqrt(d_a * d_b) + shrinkage)`` with ``d``
+        its diagonal, so scores fall in [0, 1) and pairs backed by little
+        weight score lower. Users with a single mark in the category add no
+        pair but still count toward ``d``, as cosine requires. Working per
+        category keeps peak memory bounded by the densest single category
+        instead of the whole catalog and lets ``M.T M`` use C-level math
+        instead of Python dict-of-dict. The win is category-distribution-
+        dependent: if one category dominates the mark volume, the densest
+        matrix can still approach the prior peak.
         """
         if top_k <= 0:
             return {}
@@ -312,15 +394,15 @@ class BuildItemSimilarity(BaseJob):
         # so the per-category inner loop only walks users with at least one
         # item in that category instead of every user every time. Users who
         # specialise in 1-2 categories are the common case.
-        users_by_cat: dict[str, list[list[int]]] = defaultdict(list)
-        for items in user_items.values():
+        users_by_cat: dict[str, list[UserMarks]] = defaultdict(list)
+        for marks in user_items.values():
             cats_in_user: set[str] = set()
-            for it in items:
+            for it in marks.items:
                 cat = category_by_id.get(it)
                 if cat is not None:
                     cats_in_user.add(cat)
             for cat in cats_in_user:
-                users_by_cat[cat].append(items)
+                users_by_cat[cat].append(marks)
 
         out: dict[int, list[tuple[int, float]]] = {}
         for cat, cat_items in items_by_cat.items():
@@ -332,38 +414,41 @@ class BuildItemSimilarity(BaseJob):
             col_of = {iid: idx for idx, iid in enumerate(item_list)}
             n_items = len(item_list)
 
-            rows: list[int] = []
-            cols: list[int] = []
-            data: list[float] = []
+            rows = array("i")
+            cols = array("i")
+            data = array("f")
             user_idx = 0
-            for items in users_by_cat[cat]:
-                cat_user_items = [it for it in items if it in cat_items]
-                if len(cat_user_items) < 2:
-                    continue
+            for marks in users_by_cat[cat]:
                 # Damping uses the user's full truncated list size, not the
                 # per-category subset, so a heavy shelver is damped equally
                 # regardless of which category we're currently scoring.
-                n_total = len(items)
+                n_total = len(marks.items)
                 w = (1.0 / math.sqrt(n_total)) if dampen else 1.0
-                for it in cat_user_items:
+                for it, mw in zip(marks.items, marks.weights):
+                    col = col_of.get(it)
+                    if col is None:
+                        continue
                     rows.append(user_idx)
-                    cols.append(col_of[it])
-                    data.append(w)
+                    cols.append(col)
+                    data.append(w * mw)
                 user_idx += 1
             if user_idx == 0:
                 continue
 
             m = csr_matrix(
                 (
-                    np.asarray(data, dtype=np.float32),
+                    np.frombuffer(data, dtype=np.float32),
                     (
-                        np.asarray(rows, dtype=np.int32),
-                        np.asarray(cols, dtype=np.int32),
+                        np.frombuffer(rows, dtype=np.int32),
+                        np.frombuffer(cols, dtype=np.int32),
                     ),
                 ),
                 shape=(user_idx, n_items),
             )
+            del rows, cols, data
             sim = (m.T @ m).tocsr()
+            del m
+            _shrunk_cosine_inplace(sim, shrinkage)
             sim.setdiag(0)
             sim.eliminate_zeros()
 

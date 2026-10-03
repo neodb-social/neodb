@@ -105,6 +105,10 @@ class SiteConfig(models.Model):
         reco_per_user_seed_cap: int = 200
         reco_lazy_ttl_days: int = 7
         reco_circles_window_days: int = 30
+        reco_rating_weight: float = 0.5
+        reco_similarity_shrinkage: float = 5.0
+        reco_review_boost: float = 0.5
+        reco_comment_note_boost: float = 0.25
 
         # Localization
         preferred_languages: list[str] = ["en", "zh"]
