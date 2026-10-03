@@ -1,0 +1,25 @@
+{% load i18n %}
+<dl class="import-rules">
+  <dt>{% trans 'What is imported' %}</dt>
+  <dd>
+    {{ imported }}
+  </dd>
+  {% if skipped %}
+    <dt>{% trans 'What is skipped' %}</dt>
+    <dd>
+      {{ skipped }}
+    </dd>
+  {% endif %}
+  {% if existing %}
+    <dt>{% trans 'Data you already have' %}</dt>
+    <dd>
+      {{ existing }}
+    </dd>
+  {% endif %}
+  {% if again %}
+    <dt>{% trans 'Importing again' %}</dt>
+    <dd>
+      {{ again }}
+    </dd>
+  {% endif %}
+</dl>

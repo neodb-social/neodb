@@ -1,0 +1,29 @@
+{% extends "users/import/_base.html" %}
+{% load i18n %}
+{% block steps %}
+  <ol>
+    <li>
+      {% blocktrans %}On <a href="https://app.trakt.tv/settings/data" target="_blank" rel="noopener">Trakt Settings - Data</a>, click <b>Export now</b> and wait for the download link to appear.{% endblocktrans %}
+    </li>
+    <li>
+      {% blocktrans %}Upload the downloaded <code>.zip</code> file below, do not unzip.{% endblocktrans %}
+    </li>
+  </ol>
+{% endblock %}
+{% block rules %}
+  {% trans 'Ratings, watched movies/shows and watchlist will be imported.' as imported %}
+  {% trans 'Only forward status changes are imported, for example from wishlist to complete. A mark that is already complete is not changed.' as existing %}
+  {% trans 'Safe. Nothing is imported twice.' as again %}
+  {% include "users/_import_rules.html" %}
+{% endblock %}
+{% block form %}
+  <form hx-post="{% url 'users:import_trakt' %}"
+        enctype="multipart/form-data"
+        {% if running_import %}hx-confirm="{% trans 'Another import is in progress, starting a new import may cause issues, sure to import?' %}" hx-disinherit="hx-confirm"{% endif %}>
+    {% csrf_token %}
+    <input type="file" name="file" required accept=".zip">
+    {% include "users/_visibility_field.html" %}
+    <input type="submit" value="{% trans 'Import' %}" />
+    {% include "users/user_task_status.html" %}
+  </form>
+{% endblock %}

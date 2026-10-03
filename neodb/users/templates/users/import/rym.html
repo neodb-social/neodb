@@ -1,0 +1,26 @@
+{% extends "users/import/_base.html" %}
+{% load i18n %}
+{% block steps %}
+  <ol>
+    <li>
+      {% blocktrans %}On RateYourMusic, go to your profile and use the <b>Export your music catalog</b> option to download your library as a CSV file.{% endblocktrans %}
+    </li>
+    <li>{% blocktrans %}Upload the downloaded CSV file below.{% endblocktrans %}</li>
+    <li>
+      {% blocktrans %}Albums are matched by title + artist (and year if present) — first against the local catalog, then MusicBrainz, then Spotify. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import.{% endblocktrans %}
+    </li>
+  </ol>
+  <p>
+    {% blocktrans %}You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match.{% endblocktrans %}
+  </p>
+{% endblock %}
+{% block rules %}
+  {% trans 'Status, rating and review of each album.' as imported %}
+  {% trans 'Rows that you set to skip in the preview.' as skipped %}
+  {% trans 'Existing marks, ratings and reviews are replaced with the values in the preview, also when the status moves back.' as existing %}
+  {% trans 'Safe. Nothing is imported twice.' as again %}
+  {% include "users/_import_rules.html" %}
+{% endblock %}
+{% block form %}
+  <div id="rym">{% include "users/_rym_section.html" with rym_task=task %}</div>
+{% endblock %}

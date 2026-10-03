@@ -1,0 +1,22 @@
+<div class="import-group">
+  {% if group %}<h6>{{ group }}</h6>{% endif %}
+  <div class="import-tiles">
+    {% for source, task in items %}
+      <a class="import-tile" href="{% url source.url_name %}">
+        <strong>{{ source.name }}</strong>
+        {% if task %}
+          <small>
+            {% if task.state == 0 or task.state == 1 %}
+              <i class="fa-solid fa-gear fa-spin"></i>
+            {% elif task.state == 3 %}
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            {% else %}
+              <i class="fa-solid fa-check"></i>
+            {% endif %}
+            {{ task.created_time|date }}
+          </small>
+        {% endif %}
+      </a>
+    {% endfor %}
+  </div>
+</div>

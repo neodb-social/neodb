@@ -1,8 +1,10 @@
 {% load i18n %}
 {% if task %}
+  {% url 'users:user_task_status' task.type as status_url %}
   <div hx-target="this"
-       {% if task.state == 0 or task.state == 1 %} hx-get="{% url 'users:user_task_status' task.type %}" hx-trigger="every 30s"{% endif %}
-       hx-swap="outerHTML">
+       {% if task.state == 0 or task.state == 1 %} hx-get="{{ status_url }}?compact={{ compact|yesno:'1,' }}" hx-trigger="every 30s"{% endif %}
+       hx-swap="outerHTML"
+       class="task-status">
     <div>
       {% if task.state == 0 %}
         <i class="fa-solid fa-spinner fa-spin"></i>
@@ -10,8 +12,10 @@
         <i class="fa-solid fa-gear fa-spin"></i>
       {% elif task.state == 3 %}
         <i class="fa-solid fa-triangle-exclamation"></i>
-      {% elif "exporter" in task.type %}
-        <a href="{% url 'users:user_task_download' task.type %}" download><i class="fa fa-download"></i></a>
+      {% elif 'exporter' in task.type %}
+        <a href="{% url 'users:user_task_download' task.type %}"
+           download
+           title="{% trans 'Download' %}"><i class="fa fa-download"></i></a>
       {% else %}
         <i class="fa-solid fa-check"></i>
       {% endif %}
@@ -25,13 +29,15 @@
         </div>
       {% endif %}
     {% endif %}
-    {% if task.metadata.failed_items %}
-      {% trans "Failed items" %}:
-      <textarea readonly>{% for item in task.metadata.failed_items %}{{item}}&#10;{% endfor %}</textarea>
-    {% endif %}
-    {% if task.metadata.failed_urls %}
-      {% trans "Failed links, you may have to mark them manually" %}:
-      <textarea readonly>{% for url in task.metadata.failed_urls %}{{url}}&#10;{% endfor %}</textarea>
+    {% if not compact %}
+      {% if task.metadata.failed_items %}
+        {% trans 'Failed items' %}:
+        <textarea readonly>{% for item in task.metadata.failed_items %}{{item}}&#10;{% endfor %}</textarea>
+      {% endif %}
+      {% if task.metadata.failed_urls %}
+        {% trans 'Failed links, you may have to mark them manually' %}:
+        <textarea readonly>{% for url in task.metadata.failed_urls %}{{url}}&#10;{% endfor %}</textarea>
+      {% endif %}
     {% endif %}
   </div>
 {% endif %}

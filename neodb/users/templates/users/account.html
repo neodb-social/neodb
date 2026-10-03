@@ -10,6 +10,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans "Account information" %}</title>
     {% include "common_libs.html" %}
+    <script>
+    // A link to a collapsed <details> scrolls to it and leaves it shut, so
+    // open it here; the data page links to #social-graph.
+    const openLinkedSection = () => {
+      const el = location.hash && document.getElementById(location.hash.slice(1));
+      const details = el && el.closest('details');
+      if (details) details.open = true;
+    };
+    window.addEventListener('hashchange', openLinkedSection);
+    document.addEventListener('DOMContentLoaded', openLinkedSection);
+    </script>
   </head>
   <body>
     {% include "_header.html" %}
@@ -425,7 +436,7 @@
           </details>
         </article>
         <article>
-          <details>
+          <details id="social-graph">
             <summary>{% trans "Import/export social graph" %}</summary>
             <p>{% trans "Upload a CSV file exported from Mastodon or compatible services." %}</p>
             <form action="{% url 'users:import_social_graph' %}"

@@ -1,0 +1,41 @@
+{% extends "users/import/_base.html" %}
+{% load i18n %}
+{% block steps %}
+  <ol>
+    <li>
+      {% blocktrans %}Select <code>.xlsx</code> exported from <a href="https://doufen.org" target="_blank" rel="noopener">Doufen</a>{% endblocktrans %}
+    </li>
+  </ol>
+  <p>
+    {% url 'users:import_neodb' as neodb_url %}
+    {% blocktrans %}A Douban archive exported by <a href="https://doubak.com" target="_blank" rel="noopener">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href="{{ neodb_url }}">Import NeoDB archive</a>.{% endblocktrans %}
+  </p>
+{% endblock %}
+{% block rules %}
+  {% trans 'Marks, ratings, tags, comments and reviews.' as imported %}
+  {% trans 'Depends on the import method below.' as existing %}
+  {% trans 'Safe. Nothing is imported twice.' as again %}
+  {% include "users/_import_rules.html" %}
+{% endblock %}
+{% block form %}
+  <form hx-post="{% url 'users:import_douban' %}"
+        enctype="multipart/form-data"
+        {% if running_import %}hx-confirm="{% trans 'Another import is in progress, starting a new import may cause issues, sure to import?' %}" hx-disinherit="hx-confirm"{% endif %}>
+    {% csrf_token %}
+    <input type="file" name="file" id="excel" required accept=".xlsx">
+    <fieldset>
+      <legend>{% trans "Import method" %}</legend>
+      <label for="import_mode_0">
+        <input id="import_mode_0" type="radio" name="import_mode" value="0" checked>
+        {% trans "Merge: only update when status changes from wishlist to in-progress, or from in-progress to complete." %}
+      </label>
+      <label for="import_mode_1">
+        <input id="import_mode_1" type="radio" name="import_mode" value="1">
+        {% trans "Overwrite: update all imported status." %}
+      </label>
+    </fieldset>
+    {% include "users/_visibility_field.html" %}
+    <input type="submit" value="{% trans 'Import' %}" />
+    {% include "users/user_task_status.html" %}
+  </form>
+{% endblock %}

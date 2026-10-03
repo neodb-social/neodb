@@ -102,6 +102,22 @@
       </article>
     </section>
   {% endif %}
+  {% if annual_summary_years %}
+    <section>
+      <article>
+        <details open>
+          <summary>{% trans 'View annual summary' %}</summary>
+          <div class="tag-list">
+            {% for year in annual_summary_years %}
+              <span>
+                <a href="{% url 'journal:wrapped' year %}">{{ year }}</a>
+              </span>
+            {% endfor %}
+          </div>
+        </details>
+      </article>
+    </section>
+  {% endif %}
   {% if show_progress %}
     <section>
       <article>
