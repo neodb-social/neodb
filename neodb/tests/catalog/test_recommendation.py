@@ -1164,6 +1164,13 @@ class TestBlendedSimilarity:
             self.a, self.b, ItemSimilarity.METHOD_BLENDED
         ) == pytest.approx(0.3, rel=1e-5)
 
+    def test_writer_refuses_a_source_twice(self):
+        writer = recommendation_job._SimilarityWriter({}, 10)
+        empty = (np.array([], dtype=np.int64), np.array([], dtype=np.float32))
+        writer.add(self.a.pk, {ItemSimilarity.METHOD_TAG_COOC: empty})
+        with pytest.raises(RuntimeError):
+            writer.add(self.a.pk, {ItemSimilarity.METHOD_CONTENT: empty})
+
     def test_rebuild_prunes_sources_without_rows(self):
         self.test_cold_item_gets_credit_neighbours()
         ItemCredit.objects.filter(item=self.b).delete()

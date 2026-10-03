@@ -105,6 +105,7 @@ def _cosine_topk(
     bc: csc_matrix | None = None
     bt: csr_matrix | None = None
     if shrinkage > 0:
+        # shares mc's index arrays on purpose; neither matrix is modified
         bc = csc_matrix((np.ones_like(mc.data), mc.indices, mc.indptr), shape=mc.shape)
         bt = bc.T
     for start in range(0, len(sources), _SOURCE_BLOCK):
@@ -123,6 +124,9 @@ def _cosine_topk(
             ):
                 r.data *= factor
             else:
+                logger.warning(
+                    f"similarity count pattern differs: {r.nnz} vs {n.nnz} entries"
+                )
                 n.data = factor
                 r = csc_matrix(r.multiply(n))
                 r.sort_indices()
@@ -349,6 +353,9 @@ class _SimilarityWriter:
     def add(
         self, src: int, by_method: dict[int, tuple[np.ndarray, np.ndarray]]
     ) -> None:
+        if src in self.covered:
+            # a second add would delete the rows of the first
+            raise RuntimeError(f"similarity source {src} added twice")
         rows: list[ItemSimilarity] = []
         blended: dict[int, float] = defaultdict(float)
         for method, (targets, scores) in by_method.items():
@@ -748,8 +755,9 @@ class BuildItemSimilarity(BaseJob):
                         excluded_target_ctypes,
                     ),
                 ]
-                # every method yields sources in ascending item id order, so
-                # one pass groups each source's rows across methods
+                # every method must yield each source once, in ascending item
+                # id order, so one pass groups each source's rows across
+                # methods; the writer refuses a source seen twice
                 for src, group in groupby(
                     merge(*methods, key=itemgetter(0)), key=itemgetter(0)
                 ):
