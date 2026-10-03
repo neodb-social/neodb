@@ -14,6 +14,7 @@ from .common import (
     LIST_OF_STR_SCHEMA,
     AlbumTypeListField,
     GenreListField,
+    LanguageListField,
     MediaFormatListField,
     jsondata,
 )
@@ -41,6 +42,7 @@ class AlbumInSchema(ItemInSchema):
     release_date: str | None = None
     album_type: list[str]
     media_format: list[str]
+    language: list[str]
     track_list: str | None = None
     # media is deprecated
     media: str | None = Field(None, deprecated="Use `media_format` (list) instead.")
@@ -116,6 +118,7 @@ class Album(Item):
         "media_format",
         "disc_count",
         "genre",
+        "language",
         "release_date",
         "length",
         "bandcamp_album_id",
@@ -138,6 +141,7 @@ class Album(Item):
         schema=LIST_OF_ONE_PLUS_STR_SCHEMA,
     )
     genre = GenreListField(ItemCategory.Music)
+    language = LanguageListField()
     company = jsondata.JSONField(
         verbose_name=_("publisher"),
         null=False,

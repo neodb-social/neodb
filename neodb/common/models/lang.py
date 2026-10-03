@@ -255,7 +255,8 @@ TOP_USED_LANGUAGES = [
     "ar",
     "bn",
 ]
-_UNKNOWN_LANGUAGE = ("x", _("Unknown"))
+UNKNOWN_LANGUAGE_CODE = "x"
+_UNKNOWN_LANGUAGE = (UNKNOWN_LANGUAGE_CODE, _("Unknown"))
 RE_LOCALIZED_SEASON_NUMBERS = re.compile(
     r"〇|一|二|三|四|五|六|七|八|九|零|十|\d|\s|\.|Season |Temporada |ª Temporada|Staffel |Saison |Stagione |Sæson |Temporada |Serie |S|#|第|季|シーズン|Сезон |시즌 ",
     flags=re.IGNORECASE,
@@ -327,9 +328,11 @@ _LANGUAGE_SUBTAGS_PRIO = {
     }
 }
 _LANGUAGE_SUBTAGS_ADD = {
-    "nan": _("Min Nan Chinese"),
-    "wuu": _("Wu Chinese"),
-    "hak": _("Hakka Chinese"),
+    "zh": {
+        "nan": _("Min Nan Chinese"),
+        "wuu": _("Wu Chinese"),
+        "hak": _("Hakka Chinese"),
+    }
 }
 
 
@@ -346,6 +349,22 @@ def get_preferred_locales() -> list[str]:
 
 
 SITE_PREFERRED_LOCALES = get_preferred_locales()
+
+
+def language_variants(languages: list[str]) -> list[str]:
+    """Codes under the given base languages that a localized title or an item's
+    language list may carry, e.g. zh gives zh, zh-cn, zh-hant, cmn and yue."""
+    codes: list[str] = []
+    for k in languages:
+        codes.append(k)
+        for subtags in (
+            _LOCALE_SUBTAGS_PRIO,
+            _LOCALE_SUBTAGS_ADD,
+            _LANGUAGE_SUBTAGS_PRIO,
+            _LANGUAGE_SUBTAGS_ADD,
+        ):
+            codes += subtags.get(k, {}).keys()
+    return list(dict.fromkeys(codes))
 
 
 def _get_locale_choices() -> list[tuple[str, Any]]:
@@ -369,14 +388,20 @@ def _get_script_choices() -> list[tuple[str, str]]:
     return list(_BASE_LANGUAGE_LIST.items()) + [_UNKNOWN_LANGUAGE]
 
 
-def _get_language_choices() -> list[tuple[str, str]]:
+def base_language_choices() -> list[tuple[str, Any]]:
+    """ISO 639-1 languages, the site's preferred and the most used first."""
+    return list(_BASE_LANGUAGE_LIST.items())
+
+
+def _get_language_choices() -> list[tuple[str, Any]]:
     choices = []
     for k, v in _BASE_LANGUAGE_LIST.items():
         if k in _LANGUAGE_SUBTAGS_PRIO:
             choices += _LANGUAGE_SUBTAGS_PRIO[k].items()
         else:
             choices.append((k, v))
-    choices += _LANGUAGE_SUBTAGS_ADD.items()
+    for v in _LANGUAGE_SUBTAGS_ADD.values():
+        choices += v.items()
     choices.append(_UNKNOWN_LANGUAGE)
     return choices
 

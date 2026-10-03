@@ -23,8 +23,10 @@ from django.views.decorators.http import require_http_methods
 
 from catalog.common import SiteManager
 from catalog.models import Item, SiteName
+from catalog.recommendation import forget_for_user
 from catalog.sites import FediverseInstance
 from common.models import SiteConfig
+from common.models.lang import base_language_choices
 from common.sentry import record_activity
 from common.storage import (
     local_media_file,
@@ -118,24 +120,38 @@ def preferences(request):
             request.POST.get("disable_recommendations")
         )
         preference.auto_note_on_reply = bool(request.POST.get("auto_note_on_reply"))
-        preference.save(
-            update_fields=[
-                "default_visibility",
-                "post_public_mode",
-                "classic_homepage",
-                "mastodon_append_tag",
-                "auto_bookmark_cats",
-                "mastodon_repost_mode",
-                "mastodon_default_repost",
-                "mastodon_boost_enabled",
-                "bluesky_publish_records",
-                "show_last_edit",
-                "hidden_categories",
-                "disabled_search_sources",
-                "disable_recommendations",
-                "auto_note_on_reply",
+        update_fields = [
+            "default_visibility",
+            "post_public_mode",
+            "classic_homepage",
+            "mastodon_append_tag",
+            "auto_bookmark_cats",
+            "mastodon_repost_mode",
+            "mastodon_default_repost",
+            "mastodon_boost_enabled",
+            "bluesky_publish_records",
+            "show_last_edit",
+            "hidden_categories",
+            "disabled_search_sources",
+            "disable_recommendations",
+            "auto_note_on_reply",
+        ]
+        # the select is only on the page with the site option on; without it
+        # a save must keep the stored list
+        languages_changed = False
+        if SiteConfig.system.discover_user_languages:
+            valid = {code for code, _name in base_language_choices()}
+            languages = [
+                code
+                for code in request.POST.getlist("catalog_languages")
+                if code in valid
             ]
-        )
+            languages_changed = languages != preference.catalog_languages
+            preference.catalog_languages = languages
+            update_fields.append("catalog_languages")
+        preference.save(update_fields=update_fields)
+        if languages_changed:
+            forget_for_user(request.user)
         lang = request.POST.get("language")
         if lang in dict(settings.LANGUAGES).keys() and lang != request.user.language:
             request.user.language = lang
@@ -156,6 +172,8 @@ def preferences(request):
             "enable_local_only": SiteConfig.system.enable_local_only,
             "search_sources": search_sources,
             "enable_recommendations": SiteConfig.system.enable_recommendations,
+            "enable_catalog_languages": SiteConfig.system.discover_user_languages,
+            "catalog_language_choices": base_language_choices(),
         },
     )
 

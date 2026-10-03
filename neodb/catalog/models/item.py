@@ -3,7 +3,7 @@ import re
 import uuid
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Iterable, NamedTuple, Self
+from typing import TYPE_CHECKING, Any, Container, Iterable, NamedTuple, Self
 
 from auditlog.context import disable_auditlog
 from auditlog.models import LogEntry
@@ -30,7 +30,11 @@ from common.models import (
     uniq,
 )
 from common.models.genre import normalize_genres
-from common.models.lang import localized_label_text, normalize_languages
+from common.models.lang import (
+    UNKNOWN_LANGUAGE_CODE,
+    localized_label_text,
+    normalize_languages,
+)
 from common.models.misc import MISSING_COVER, is_missing_cover
 from common.utils import (
     clean_json,
@@ -758,6 +762,46 @@ class Item(PolymorphicModel):
     @property
     def brief_description(self):
         return (str(self.display_description) or "")[:155]
+
+    @staticmethod
+    def languages_fit(language: Any, titles: Any, codes: Container[str]) -> bool:
+        """Whether an item with this ``language`` and these localized ``titles``
+        suits someone who reads ``codes``.
+
+        An item without a known language suits everyone. Otherwise its own
+        language or one of its non-empty localized titles must be in ``codes``.
+        """
+        if not language:
+            languages = []
+        elif isinstance(language, list):
+            languages = language
+        else:  # legacy scalar, read as ArrayField.from_json reads it
+            languages = [language]
+        if not languages or UNKNOWN_LANGUAGE_CODE in languages:
+            return True
+        return any(code in codes for code in languages) or any(
+            isinstance(t, dict) and t.get("text") and t.get("lang") in codes
+            for t in titles or []
+        )
+
+    def in_languages(self, codes: Container[str]) -> bool:
+        meta = self.metadata or {}
+        return Item.languages_fit(
+            meta.get("language"), meta.get("localized_title"), codes
+        )
+
+    @staticmethod
+    def ids_in_languages(ids: Iterable[int], codes: Container[str]) -> set[int]:
+        """Those of ``ids`` whose items are ``in_languages(codes)``, reading only
+        the two metadata keys the rule needs."""
+        rows = Item.objects.filter(pk__in=ids).values_list(
+            "pk", "metadata__language", "metadata__localized_title"
+        )
+        return {
+            pk
+            for pk, language, titles in rows
+            if Item.languages_fit(language, titles, codes)
+        }
 
     def to_indexable_titles(self) -> list[str]:
         titles = [t["text"] for t in self.localized_title if t["text"]]

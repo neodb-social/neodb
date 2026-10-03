@@ -4616,6 +4616,14 @@ msgid "Only show items with titles in the preferred languages."
 msgstr "仅显示标题为偏好语言的条目。"
 
 #: common/views_manage.py:418
+msgid "Filter by member languages"
+msgstr "按成员语言过滤"
+
+#: common/views_manage.py:420
+msgid "Let members pick catalog languages in their preferences. Trending, spotlight and For you then show them only items with a title or an original language in those languages. More like this, items from people they follow, and items without a known language are not filtered. With the option above also on, trending and spotlight hold only the preferred languages to begin with."
+msgstr "允许成员在偏好设置中选择条目语言。之后热门、焦点和“为你推荐”只向其显示标题或原始语言属于这些语言的条目。“更多类似内容”、来自其关注的人的条目，以及没有已知语言的条目，不做过滤。若同时开启上面的选项，热门和焦点本身只包含主要语言的条目。"
+
+#: common/views_manage.py:418
 msgid "Show local only"
 msgstr "仅显示本站内容"
 
@@ -9033,6 +9041,14 @@ msgstr "将我对自己条目帖文的回复转为该条目的笔记"
 #: users/templates/users/preferences.html:187
 msgid "Hide these categories in discovery and search results"
 msgstr "发现和搜索时不显示以下类型"
+
+#: users/templates/users/preferences.html:202
+msgid "Preferred catalog languages"
+msgstr "偏好的条目语言"
+
+#: users/templates/users/preferences.html:211
+msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."
+msgstr "热门条目和“为你推荐”只显示标题或原始语言属于这些语言的条目。“更多类似内容”、来自你关注的人的条目，以及没有已知语言的条目，不做过滤。不选则显示全部。"
 
 #: users/templates/users/preferences.html:201
 msgid "Disable these sources in external search"

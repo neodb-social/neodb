@@ -27,7 +27,7 @@ from journal.models import (
     q_piece_visible_to_user,
 )
 from takahe.models import Identity as TakaheIdentity
-from users.models import APIdentity, User
+from users.models import APIdentity, Preference, User
 
 from .models import (
     Item,
@@ -328,6 +328,34 @@ def can_show_reco(user, kind: str) -> bool:
     return bool(SiteConfig.system.enable_recommendations)
 
 
+def viewer_language_codes(viewer) -> list[str]:
+    """Language codes the viewer keeps trending items and For you to.
+
+    Empty for no filter: anonymous viewers, members without catalog
+    languages, or the site option off.
+    """
+    if not viewer or not getattr(viewer, "is_authenticated", False):
+        return []
+    pref = getattr(viewer, "preference", None)
+    return pref.catalog_language_codes() if pref else []
+
+
+_LANGUAGE_BATCH = 1000
+
+
+def _first_in_languages(ranked: list[int], codes: list[str], n: int) -> list[int]:
+    """The first ``n`` ids of ``ranked`` whose items are in ``codes``."""
+    wanted = set(codes)
+    out: list[int] = []
+    for start in range(0, len(ranked), _LANGUAGE_BATCH):
+        batch = ranked[start : start + _LANGUAGE_BATCH]
+        matched = Item.ids_in_languages(batch, wanted)
+        out += [i for i in batch if i in matched]
+        if len(out) >= n:
+            break
+    return out[:n]
+
+
 def _live_items(qs):
     """Filter to items that are valid recommendation *targets*.
 
@@ -404,6 +432,11 @@ def dismiss_item(user: User, item: Item) -> None:
     RecommendationDismissal.objects.get_or_create(user=user, item=item.final_item)
 
 
+def forget_for_user(user: User) -> None:
+    """Drop the stored personal rows, so the next read computes them again."""
+    UserRecommendation.objects.filter(user=user).delete()
+
+
 def restore_item(user: User, item: Item) -> None:
     """Undo ``dismiss_item`` for every dismissal that resolves to the same item."""
     target = item.final_item.pk
@@ -424,7 +457,8 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
 
     Excludes items the viewer has already shelved (any state) or dismissed.
     Drops deleted and merged items. No author/owner visibility filter needed:
-    ItemSimilarity is built from public marks only.
+    ItemSimilarity is built from public marks only. The viewer's catalog
+    languages do not apply: a similar item is wanted in any language.
     """
     rows = list(
         ItemSimilarity.objects.filter(source=item, method=ItemSimilarity.METHOD_BLENDED)
@@ -532,7 +566,15 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
         tgt: [src for _, src in nlargest(3, heap)] for tgt, heap in contribs.items()
     }
 
-    top = nlargest(top_n, scores.items(), key=lambda t: t[1])
+    codes: list[str] = []
+    if sys.discover_user_languages:
+        pref = Preference.objects.filter(user_id=user_pk).first()
+        codes = pref.catalog_language_codes() if pref else []
+    if codes:
+        ranked = sorted(scores, key=scores.__getitem__, reverse=True)
+        top = [(t, scores[t]) for t in _first_in_languages(ranked, codes, top_n)]
+    else:
+        top = nlargest(top_n, scores.items(), key=lambda t: t[1])
     if not top:
         return []
     target_ids = [t for t, _ in top]
@@ -630,6 +672,12 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
     # filter before cutting to ``limit``, so the rows stored beyond it
     # (reco_user_top_n) fill the places of shelved, dismissed or dead items
     skip = _user_excluded_item_ids(identity.pk) | _user_dismissed_item_ids(viewer.pk)
+    codes = viewer_language_codes(viewer)
+    if codes:
+        # rows stored before the site turned the language filter on; out of
+        # language they count as used up, so a refill replaces them
+        stored = [r.item_id for r in rows if r.item_id not in skip]
+        skip |= set(stored) - Item.ids_in_languages(stored, set(codes))
     usable = sum(1 for r in rows if r.item_id not in skip)
     # the stored rows ran out because of shelving or dismissing, not because
     # the list is short; a fresh compute skips those and reaches further

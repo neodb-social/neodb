@@ -75,6 +75,7 @@ class PreferenceSchema(Schema):
     default_crosspost: bool = Field(alias="mastodon_default_repost")
     default_visibility: int
     hidden_categories: list[str]
+    catalog_languages: list[str]
     language: str = Field(alias="user.language")
 
 

@@ -24,6 +24,7 @@
   </div>
   <div>{% include "_platform_list.html" with list=item.platform max=8 %}</div>
   <div>{% include "_genre_list.html" with list=item.genre max=5 %}</div>
+  <div>{% include "_language_list.html" with list=item.language max=5 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.designer role_label="designer" max=3 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.artist role_label="artist" max=3 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.developer role_label="developer" max=2 %}</div>

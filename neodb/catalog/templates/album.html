@@ -23,6 +23,7 @@
     {% endif %}
   </div>
   <div>{% include "_genre_list.html" with list=item.genre max=5 %}</div>
+  <div>{% include "_language_list.html" with list=item.language max=5 %}</div>
   <div>
     {% if item.barcode %}
       {% trans "barcode" %}: {{ item.barcode }}

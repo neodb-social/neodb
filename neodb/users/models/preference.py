@@ -1,6 +1,7 @@
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 
+from common.models.lang import language_variants
 from common.models.site_config import SiteConfig
 
 from .user import User
@@ -48,6 +49,9 @@ class Preference(models.Model):
     # PDS; the crosspost switch then only controls the timeline post
     bluesky_publish_records = models.BooleanField(null=False, default=False)
     disable_recommendations = models.BooleanField(null=True, default=False)
+    # base language codes; trending items and For you keep to items in these
+    # when the site enables discover_user_languages, empty means all
+    catalog_languages = models.JSONField(default=list, blank=True)
     # when replying to one's own catalog item post, turn the reply into a note
     auto_note_on_reply = models.BooleanField(null=False, default=True)
 
@@ -65,3 +69,10 @@ class Preference(models.Model):
         if self.disable_recommendations:
             return False
         return bool(SiteConfig.system.enable_recommendations)
+
+    def catalog_language_codes(self) -> list[str]:
+        """Title and item language codes to keep trending items and For you to,
+        or an empty list for no filter."""
+        if not SiteConfig.system.discover_user_languages:
+            return []
+        return language_variants(self.catalog_languages or [])

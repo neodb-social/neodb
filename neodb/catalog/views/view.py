@@ -62,7 +62,13 @@ from ..models import (
     item_categories,
 )
 from ..models.people import People, credit_role_label
-from ..recommendation import can_show_reco, for_you, from_your_circles, similar_items
+from ..recommendation import (
+    can_show_reco,
+    for_you,
+    from_your_circles,
+    similar_items,
+    viewer_language_codes,
+)
 from .search import visible_categories
 from ..sites import WikiData
 
@@ -691,6 +697,13 @@ def _in_visible_categories(items: list[Item], visible: set[str]) -> list[Item]:
     return [i for i in items if i.category.value in visible]
 
 
+def _in_languages(items: list[Item], codes: list[str]) -> list[Item]:
+    if not codes:
+        return items
+    wanted = set(codes)
+    return [i for i in items if i.in_languages(wanted)]
+
+
 def prepare_list_items(request, items: list[Item]) -> None:
     """Batch what _list_item.html reads, as search results do."""
     if not items:
@@ -762,8 +775,8 @@ def _prepare_reco_cards(items: list[Item]) -> None:
 DiscoverSection = tuple[str, dict, list[Item], int]
 
 
-def _shelf_section(gallery: dict, rot: int) -> DiscoverSection:
-    items = _rotate(cache.get(gallery["name"], []), rot)
+def _shelf_section(gallery: dict, rot: int, codes: list[str]) -> DiscoverSection:
+    items = _rotate(_in_languages(cache.get(gallery["name"], []), codes), rot)
     return (
         "_discover_shelf.html",
         {"gallery": {**gallery, "items": items}},
@@ -773,10 +786,11 @@ def _shelf_section(gallery: dict, rot: int) -> DiscoverSection:
 
 
 def _spotlight_section(
-    template: str, rot: int, categories: set[str]
+    template: str, rot: int, categories: set[str], codes: list[str]
 ) -> DiscoverSection:
     spotlight = _in_visible_categories(
-        _rotate(cache.get("discover_spotlight", []), rot), categories
+        _rotate(_in_languages(cache.get("discover_spotlight", []), codes), rot),
+        categories,
     )
     return template, {"spotlight": spotlight}, spotlight, len(spotlight)
 
@@ -877,10 +891,13 @@ def discover(request):
         if getattr(g.get("category"), "value", ItemCategory.Podcast.value) in shown
     ]
 
+    codes = viewer_language_codes(request.user)
     # rotate every 6 minutes
     rot = timezone.now().minute // 6
     builders: dict[str, Callable[[], DiscoverSection]] = {
-        "spotlight": partial(_spotlight_section, "_discover_spotlight.html", rot, shown)
+        "spotlight": partial(
+            _spotlight_section, "_discover_spotlight.html", rot, shown, codes
+        )
     }
     shelves: list[dict] = []
     # episode dates render in the member's detected timezone
@@ -890,7 +907,7 @@ def discover(request):
             builders[originals] = partial(_originals_section, rot)
         else:
             shelves.append(gallery)
-            builders[gallery["name"]] = partial(_shelf_section, gallery, rot)
+            builders[gallery["name"]] = partial(_shelf_section, gallery, rot, codes)
     builders["collections"] = partial(_collections_section, rot)
     if SiteConfig.system.discover_show_popular_tags:
         builders["tags"] = _tags_section
@@ -930,7 +947,7 @@ def discover(request):
         )
         if is_new_member:
             builders["onboarding"] = partial(
-                _spotlight_section, "_discover_spotlight_cards.html", rot, shown
+                _spotlight_section, "_discover_spotlight_cards.html", rot, shown, codes
             )
     else:
         identity = None
@@ -941,7 +958,8 @@ def discover(request):
     stamp = int(updated.timestamp()) if updated else 0
     frag = _discover_fragments(
         builders,
-        f"discover_frag:{stamp}:{get_language()}:{rot}:{','.join(sorted(excluded))}",
+        f"discover_frag:{stamp}:{get_language()}:{rot}:{','.join(sorted(excluded))}"
+        f":{','.join(sorted(codes))}",
     )
     for gallery in shelves:
         gallery.update(frag[gallery["name"]])
@@ -989,7 +1007,9 @@ def discover_category(request, category: str):
         raise Http404(_("Category not found")) from None
     return _discover_list_page(
         request,
-        cache.get("trending_" + cat.value, []),
+        _in_languages(
+            cache.get("trending_" + cat.value, []), viewer_language_codes(request.user)
+        ),
         _("Trending in %(category)s") % {"category": cat.label},
         _("Most marked across the Fediverse recently. Refreshed every hour."),
     )
