@@ -8945,7 +8945,7 @@ msgid "Data management"
 msgstr "Datastyring"
 
 #: users/templates/users/data.html:39
-msgid "Import marks and reviews from Douban"
+msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr "Importér markeringer og anmeldelser fra Douban"
 
 #: users/templates/users/data.html:43

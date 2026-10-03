@@ -8830,7 +8830,7 @@ msgid "Data management"
 msgstr "Gestão de Dados"
 
 #: users/templates/users/data.html:39
-msgid "Import marks and reviews from Douban"
+msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr "Importar Marcações e Críticas de Douban"
 
 #: users/templates/users/data.html:43

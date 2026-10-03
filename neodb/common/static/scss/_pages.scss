@@ -651,6 +651,10 @@ main.import-preview {
     width: auto;
   }
 
+  #export form + form {
+    margin-top: var(--pico-spacing);
+  }
+
   .task-list {
     margin: 0;
     padding: 0;
@@ -687,8 +691,8 @@ main.import-preview {
 
   .import-groups {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--pico-spacing) calc(1.5 * var(--pico-spacing));
+    flex-direction: column;
+    gap: var(--pico-spacing);
   }
 
   .import-tiles {
@@ -718,10 +722,6 @@ main.import-preview {
   }
 
   @media (max-width: 768px) {
-    .import-group {
-      flex-basis: 100%;
-    }
-
     .import-tiles {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));

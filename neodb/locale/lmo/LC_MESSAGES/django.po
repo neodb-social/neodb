@@ -8049,7 +8049,7 @@ msgid "Data management"
 msgstr ""
 
 #: users/templates/users/data.html:39
-msgid "Import marks and reviews from Douban"
+msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr ""
 
 #: users/templates/users/data.html:43
