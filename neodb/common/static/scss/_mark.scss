@@ -5,6 +5,11 @@
     margin-inline-end: .1em;
   }
 
+  // the fieldset already spaces the row; a field margin would double it
+  fieldset > :is(input, textarea) {
+    margin-bottom: 0;
+  }
+
   .mark-form-error {
     color: var(--pico-del-color);
     margin-bottom: var(--pico-spacing);

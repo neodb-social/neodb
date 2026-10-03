@@ -91,6 +91,10 @@ dialog {
       input[type="submit"] {
         margin-top: 1em;
       }
+
+      .post-options > input[type="submit"] {
+        margin-top: 0;
+      }
     }
   }
 
