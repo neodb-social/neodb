@@ -149,6 +149,7 @@ Each type below includes the common fields unless stated otherwise.
 | `release_date` | string? |
 | `album_type` | string[] |
 | `media_format` | string[] |
+| `language` | string[] |
 | `track_list` | string? |
 | `barcode` | string? |
 | ~~`duration`~~ **deprecated** | ~~integer? (milliseconds)~~ **deprecated** |
@@ -162,6 +163,7 @@ Each type below includes the common fields unless stated otherwise.
 | `developer` | string[] |
 | `publisher` | string[] |
 | `platform` | string[] |
+| `language` | string[] |
 | `release_type` | string? |
 | `release_date` | string? |
 | `official_site` | string? |

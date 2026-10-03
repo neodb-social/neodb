@@ -197,6 +197,20 @@
                   {% endfor %}
                 </select>
               </fieldset>
+              {% if enable_catalog_languages %}
+                <fieldset>
+                  <label>{% trans "Preferred catalog languages" %}</label>
+                  <select name="catalog_languages" size="5" multiple>
+                    {% for code, name in catalog_language_choices %}
+                      <option value="{{ code }}"
+                              {% if code in request.user.preference.catalog_languages %}selected{% endif %}>
+                        {{ name }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <small>{% trans "Trending items and recommendations show only items with a title or an original language in these languages. Items without a known language, and items from people you follow, are not filtered. Select none to see all." %}</small>
+                </fieldset>
+              {% endif %}
               <fieldset>
                 <label>{% trans "Disable these sources in external search" %}</label>
                 <select name="disabled_search_sources" size="5" multiple>

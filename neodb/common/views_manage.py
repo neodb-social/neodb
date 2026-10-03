@@ -414,6 +414,18 @@ class DiscoverSettings(SiteConfigSettingsPage):
             "title": _("Filter by preferred languages"),
             "help_text": _("Only show items with titles in the preferred languages."),
         },
+        "discover_user_languages": {
+            "title": _("Filter by member languages"),
+            "help_text": _(
+                "Let members pick catalog languages in their preferences. "
+                "Trending, spotlight and recommendations then show them only "
+                "items with a title or an original language in those languages. "
+                "Items without a known language, and items from people they "
+                "follow, are not filtered. With the option above also on, "
+                "trending and spotlight hold only the preferred languages to "
+                "begin with."
+            ),
+        },
         "discover_show_local_only": {
             "title": _("Show local only"),
             "help_text": _(
@@ -457,6 +469,7 @@ class DiscoverSettings(SiteConfigSettingsPage):
             "discover_spotlight_days",
             "discover_update_interval",
             "discover_filter_language",
+            "discover_user_languages",
             "discover_show_local_only",
             "discover_show_popular_posts",
             "discover_show_popular_tags",

@@ -3,7 +3,7 @@ import re
 import uuid
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Iterable, NamedTuple, Self
+from typing import TYPE_CHECKING, Any, Container, Iterable, NamedTuple, Self
 
 from auditlog.context import disable_auditlog
 from auditlog.models import LogEntry
@@ -30,7 +30,11 @@ from common.models import (
     uniq,
 )
 from common.models.genre import normalize_genres
-from common.models.lang import localized_label_text, normalize_languages
+from common.models.lang import (
+    UNKNOWN_LANGUAGE_CODE,
+    localized_label_text,
+    normalize_languages,
+)
 from common.models.misc import MISSING_COVER, is_missing_cover
 from common.utils import (
     clean_json,
@@ -758,6 +762,36 @@ class Item(PolymorphicModel):
     @property
     def brief_description(self):
         return (str(self.display_description) or "")[:155]
+
+    def in_languages(self, codes: Container[str]) -> bool:
+        """Whether the item suits someone who reads ``codes``.
+
+        An item without a known language suits everyone. Otherwise its own
+        language or one of its localized titles must be in ``codes``.
+        """
+        meta = self.metadata or {}
+        languages = meta.get("language") or []
+        if not languages or UNKNOWN_LANGUAGE_CODE in languages:
+            return True
+        return any(code in codes for code in languages) or any(
+            isinstance(t, dict) and t.get("lang") in codes
+            for t in meta.get("localized_title") or []
+        )
+
+    @staticmethod
+    def q_in_languages(codes: Iterable[str]) -> Q:
+        """``in_languages`` as a filter on Item rows."""
+        q = (
+            Q(metadata__isnull=True)
+            | Q(metadata__language__isnull=True)
+            | Q(metadata__language=None)
+            | Q(metadata__language=[])
+            | Q(metadata__language__contains=[UNKNOWN_LANGUAGE_CODE])
+        )
+        for code in codes:
+            q |= Q(metadata__localized_title__contains=[{"lang": code}])
+            q |= Q(metadata__language__contains=[code])
+        return q
 
     def to_indexable_titles(self) -> list[str]:
         titles = [t["text"] for t in self.localized_title if t["text"]]

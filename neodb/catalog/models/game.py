@@ -10,6 +10,7 @@ from .common import (
     LIST_OF_STR_SCHEMA,
     GamePlatformListField,
     GenreListField,
+    LanguageListField,
     jsondata,
 )
 from .item import (
@@ -43,6 +44,7 @@ class GameInSchema(ItemInSchema):
     developer: list[str]
     publisher: list[str]
     platform: list[str]
+    language: list[str]
     release_type: str | None = None
     release_date: str | None = None
     official_site: str | None = None
@@ -103,6 +105,7 @@ class Game(Item):
         "release_type",
         "genre",
         "platform",
+        "language",
         "official_site",
         "localized_description",
     ]
@@ -175,6 +178,8 @@ class Game(Item):
     genre = GenreListField(ItemCategory.Game)
 
     platform = GamePlatformListField()
+
+    language = LanguageListField(script=True)
 
     official_site = jsondata.CharField(
         verbose_name=_("website"), max_length=1000, null=True, blank=True

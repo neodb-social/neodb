@@ -27,7 +27,7 @@ from journal.models import (
     q_piece_visible_to_user,
 )
 from takahe.models import Identity as TakaheIdentity
-from users.models import APIdentity, User
+from users.models import APIdentity, Preference, User
 
 from .models import (
     Item,
@@ -328,6 +328,37 @@ def can_show_reco(user, kind: str) -> bool:
     return bool(SiteConfig.system.enable_recommendations)
 
 
+def viewer_language_codes(viewer) -> list[str]:
+    """Language codes the viewer keeps discover and recommendations to.
+
+    Empty for no filter: anonymous viewers, members without catalog
+    languages, or the site option off.
+    """
+    if not viewer or not getattr(viewer, "is_authenticated", False):
+        return []
+    pref = getattr(viewer, "preference", None)
+    return pref.catalog_language_codes() if pref else []
+
+
+_LANGUAGE_BATCH = 1000
+
+
+def _first_in_languages(ranked: list[int], codes: list[str], n: int) -> list[int]:
+    """The first ``n`` ids of ``ranked`` whose items are in ``codes``."""
+    out: list[int] = []
+    for start in range(0, len(ranked), _LANGUAGE_BATCH):
+        batch = ranked[start : start + _LANGUAGE_BATCH]
+        matched = set(
+            Item.objects.filter(pk__in=batch)
+            .filter(Item.q_in_languages(codes))
+            .values_list("pk", flat=True)
+        )
+        out += [i for i in batch if i in matched]
+        if len(out) >= n:
+            break
+    return out[:n]
+
+
 def _live_items(qs):
     """Filter to items that are valid recommendation *targets*.
 
@@ -404,6 +435,11 @@ def dismiss_item(user: User, item: Item) -> None:
     RecommendationDismissal.objects.get_or_create(user=user, item=item.final_item)
 
 
+def forget_for_user(user: User) -> None:
+    """Drop the stored personal rows, so the next read computes them again."""
+    UserRecommendation.objects.filter(user=user).delete()
+
+
 def restore_item(user: User, item: Item) -> None:
     """Undo ``dismiss_item`` for every dismissal that resolves to the same item."""
     target = item.final_item.pk
@@ -422,15 +458,19 @@ def restore_item(user: User, item: Item) -> None:
 def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
     """Return up to ``limit`` items similar to ``item``.
 
-    Excludes items the viewer has already shelved (any state) or dismissed.
-    Drops deleted and merged items. No author/owner visibility filter needed:
-    ItemSimilarity is built from public marks only.
+    Excludes items the viewer has already shelved (any state) or dismissed,
+    and items outside the viewer's catalog languages. Drops deleted and merged
+    items. No author/owner visibility filter needed: ItemSimilarity is built
+    from public marks only.
     """
-    rows = list(
+    codes = viewer_language_codes(viewer)
+    ranked = (
         ItemSimilarity.objects.filter(source=item, method=ItemSimilarity.METHOD_BLENDED)
         .order_by("-score")
-        .values_list("target_id", flat=True)[: limit * 2]
+        .values_list("target_id", flat=True)
     )
+    # the language filter may drop most rows, so read all of them (top-K)
+    rows = list(ranked if codes else ranked[: limit * 2])
     if not rows:
         return []
     exclude: set[int] = set()
@@ -439,6 +479,8 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
             viewer.identity.pk
         ) | _user_dismissed_item_ids(viewer.pk)
     qs = _live_items(Item.objects.filter(pk__in=rows))
+    if codes:
+        qs = qs.filter(Item.q_in_languages(codes))
     by_id = {i.pk: i for i in qs}
     out: list[Item] = []
     for iid in rows:
@@ -532,7 +574,15 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
         tgt: [src for _, src in nlargest(3, heap)] for tgt, heap in contribs.items()
     }
 
-    top = nlargest(top_n, scores.items(), key=lambda t: t[1])
+    codes: list[str] = []
+    if sys.discover_user_languages:
+        pref = Preference.objects.filter(user_id=user_pk).first()
+        codes = pref.catalog_language_codes() if pref else []
+    if codes:
+        ranked = sorted(scores, key=scores.__getitem__, reverse=True)
+        top = [(t, scores[t]) for t in _first_in_languages(ranked, codes, top_n)]
+    else:
+        top = nlargest(top_n, scores.items(), key=lambda t: t[1])
     if not top:
         return []
     target_ids = [t for t, _ in top]
@@ -630,6 +680,16 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
     # filter before cutting to ``limit``, so the rows stored beyond it
     # (reco_user_top_n) fill the places of shelved, dismissed or dead items
     skip = _user_excluded_item_ids(identity.pk) | _user_dismissed_item_ids(viewer.pk)
+    codes = viewer_language_codes(viewer)
+    if codes:
+        # rows stored before the site turned the language filter on; out of
+        # language they count as used up, so a refill replaces them
+        stored = [r.item_id for r in rows if r.item_id not in skip]
+        skip |= set(stored) - set(
+            Item.objects.filter(pk__in=stored)
+            .filter(Item.q_in_languages(codes))
+            .values_list("pk", flat=True)
+        )
     usable = sum(1 for r in rows if r.item_id not in skip)
     # the stored rows ran out because of shelving or dismissing, not because
     # the list is short; a fresh compute skips those and reaches further
