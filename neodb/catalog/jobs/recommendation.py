@@ -4,7 +4,7 @@ from array import array
 from collections import defaultdict
 from collections.abc import Hashable, Iterable, Iterator
 from datetime import timedelta
-from heapq import merge
+from heapq import merge, nlargest
 from itertools import groupby
 from operator import itemgetter
 from typing import NamedTuple
@@ -332,12 +332,16 @@ def _feature_topk(
 class _SimilarityWriter:
     """Replaces every row of a source, in batches of sources.
 
-    Batched transactions keep each commit small, avoid one long-lived
-    transaction across the rebuild, and give readers a consistent view per
-    source. Sources no longer covered are pruned in ``finish``.
+    Each source gets its per-method rows plus ``METHOD_BLENDED`` rows: the
+    top-K of the weighted sum of its method scores per target. Batched
+    transactions keep each commit small, avoid one long-lived transaction
+    across the rebuild, and give readers a consistent view per source.
+    Sources no longer covered are pruned in ``finish``.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, blend_weights: dict[int, float], top_k: int) -> None:
+        self.blend_weights = blend_weights
+        self.top_k = top_k
         self.pending: dict[int, list[ItemSimilarity]] = {}
         self.covered: set[int] = set()
         self.counts: dict[int, int] = defaultdict(int)
@@ -346,14 +350,27 @@ class _SimilarityWriter:
         self, src: int, by_method: dict[int, tuple[np.ndarray, np.ndarray]]
     ) -> None:
         rows: list[ItemSimilarity] = []
+        blended: dict[int, float] = defaultdict(float)
         for method, (targets, scores) in by_method.items():
-            rows.extend(
-                ItemSimilarity(
-                    source_id=src, target_id=int(t), score=float(v), method=method
+            weight = self.blend_weights.get(method, 0.0)
+            for t, v in zip(targets.tolist(), scores.tolist()):
+                rows.append(
+                    ItemSimilarity(source_id=src, target_id=t, score=v, method=method)
                 )
-                for t, v in zip(targets, scores)
-            )
+                if weight:
+                    blended[t] += weight * v
             self.counts[method] += len(targets)
+        top = nlargest(self.top_k, blended.items(), key=itemgetter(1))
+        rows.extend(
+            ItemSimilarity(
+                source_id=src,
+                target_id=t,
+                score=v,
+                method=ItemSimilarity.METHOD_BLENDED,
+            )
+            for t, v in top
+        )
+        self.counts[ItemSimilarity.METHOD_BLENDED] += len(top)
         self.pending[src] = rows
         self.covered.add(src)
         if len(self.pending) >= _WRITE_SOURCE_BATCH:
@@ -395,13 +412,20 @@ def _enabled() -> bool:
 
 @JobManager.register
 class BuildItemSimilarity(BaseJob):
-    """Weekly item-item shelf co-occurrence builder.
+    """Weekly item-item similarity builder.
 
-    Output: top-K rows in ``ItemSimilarity`` per active source item, scored by
-    cosine similarity with shrinkage over weighted marks. Each mark carries
-    ``mark_weight`` (rating and annotations) times ``1/sqrt(n_marks)`` (IDF
-    damping, when enabled, to neutralise mega-shelvers); users are truncated
-    to the most recent ``reco_user_mark_cap`` marks each.
+    Per category it computes four methods and their weighted blend, writing
+    top-K ``ItemSimilarity`` rows per source for each. Serving reads only
+    ``METHOD_BLENDED``, so after deploying this, run
+    ``manage.py recommendation similarity`` once before blended rows exist.
+
+    - shelf: cosine with shrinkage over weighted public marks of active
+      items. Each mark carries ``mark_weight`` (rating and annotations) times
+      ``1/sqrt(n_marks)`` (IDF damping, when enabled, to neutralise
+      mega-shelvers); users are truncated to the most recent
+      ``reco_user_mark_cap`` marks each.
+    - tag, collection, credit: cosine over shared public tags, public
+      collections and creator credits, for every item that has them.
     """
 
     @classmethod
@@ -677,7 +701,15 @@ class BuildItemSimilarity(BaseJob):
         ctypes_by_cat: dict[str, list[int]] = defaultdict(list)
         for ct_id, cat in ctype_to_cat.items():
             ctypes_by_cat[cat].append(ct_id)
-        writer = _SimilarityWriter()
+        writer = _SimilarityWriter(
+            {
+                ItemSimilarity.METHOD_SHELF_COOC: 1.0,
+                ItemSimilarity.METHOD_TAG_COOC: sys.reco_tag_weight,
+                ItemSimilarity.METHOD_COLLECTION_COOC: sys.reco_collection_weight,
+                ItemSimilarity.METHOD_CONTENT: sys.reco_content_weight,
+            },
+            top_k,
+        )
         if top_k > 0:
             for cat, ctypes in ctypes_by_cat.items():
                 cat_items = items_by_cat.get(cat, set())

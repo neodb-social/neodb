@@ -387,7 +387,7 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
     is built from public marks only.
     """
     rows = list(
-        ItemSimilarity.objects.filter(source=item)
+        ItemSimilarity.objects.filter(source=item, method=ItemSimilarity.METHOD_BLENDED)
         .order_by("-score")
         .values_list("target_id", flat=True)[: limit * 2]
     )
@@ -462,9 +462,9 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
 
     # min-heap of the strongest (contribution, seed) pairs per target
     contribs: dict[int, list[tuple[float, int]]] = {}
-    sim_rows = ItemSimilarity.objects.filter(source_id__in=seeds).values_list(
-        "source_id", "target_id", "score"
-    )
+    sim_rows = ItemSimilarity.objects.filter(
+        source_id__in=seeds, method=ItemSimilarity.METHOD_BLENDED
+    ).values_list("source_id", "target_id", "score")
     for src, tgt, score in sim_rows:
         if tgt in excluded or tgt in seed_set:
             continue

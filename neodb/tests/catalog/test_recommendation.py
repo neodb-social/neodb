@@ -843,7 +843,9 @@ class TestSimilarityCosine:
         ]
 
     def _score(self, src, tgt) -> float:
-        return ItemSimilarity.objects.get(source=src, target=tgt).score
+        return ItemSimilarity.objects.get(
+            source=src, target=tgt, method=ItemSimilarity.METHOD_SHELF_COOC
+        ).score
 
     def _pairs(self) -> tuple:
         p, q, x, y = (Edition.objects.create(title=t) for t in "PQXY")
@@ -916,7 +918,10 @@ class TestSeedCombiner:
         _public_mark(self.identity, seed, rating=rating)
         for attr, score in sims.items():
             ItemSimilarity.objects.create(
-                source=seed, target=getattr(self, attr), score=score
+                source=seed,
+                target=getattr(self, attr),
+                score=score,
+                method=ItemSimilarity.METHOD_BLENDED,
             )
         return seed
 
@@ -1074,3 +1079,93 @@ class TestFeatureSimilarity:
         BuildItemSimilarity().run()
         pairs = self._pairs(ItemSimilarity.METHOD_TAG_COOC)
         assert pairs == {(self.b.pk, self.c.pk), (self.c.pk, self.b.pk)}
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestBlendedSimilarity:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_min_source_marks=2,
+            reco_min_target_marks=2,
+            reco_similarity_top_k=10,
+            reco_user_top_n=10,
+            reco_per_user_seed_cap=50,
+            reco_user_idf_dampen=False,
+            reco_similarity_shrinkage=0.0,
+            reco_tag_weight=0.5,
+            reco_collection_weight=0.5,
+            reco_content_weight=0.3,
+        )
+        self.users = [
+            User.register(email=f"bl{i}@t.com", username=f"bl_user{i}").identity
+            for i in range(2)
+        ]
+        self.a, self.b, self.c = (
+            Edition.objects.create(title=f"Blend {t}") for t in "ABC"
+        )
+
+    def _score(self, src, tgt, method: int) -> float | None:
+        row = ItemSimilarity.objects.filter(
+            source=src, target=tgt, method=method
+        ).first()
+        return row.score if row else None
+
+    def test_blend_weights_methods(self):
+        for ident in self.users:
+            _public_mark(ident, self.a, rating=0)
+            _public_mark(ident, self.b, rating=0)
+        for item in (self.a, self.b, self.c):
+            self.users[0].tag_manager.tag_item(item, ["noir"], 0)
+        BuildItemSimilarity().run()
+        shelf = self._score(self.a, self.b, ItemSimilarity.METHOD_SHELF_COOC)
+        tag_ab = self._score(self.a, self.b, ItemSimilarity.METHOD_TAG_COOC)
+        tag_ac = self._score(self.a, self.c, ItemSimilarity.METHOD_TAG_COOC)
+        assert shelf and tag_ab and tag_ac
+        blended_ab = self._score(self.a, self.b, ItemSimilarity.METHOD_BLENDED)
+        blended_ac = self._score(self.a, self.c, ItemSimilarity.METHOD_BLENDED)
+        assert blended_ab == pytest.approx(shelf + 0.5 * tag_ab, rel=1e-5)
+        assert blended_ac == pytest.approx(0.5 * tag_ac, rel=1e-5)
+
+    def test_serving_reads_only_blended_rows(self):
+        ItemSimilarity.objects.create(
+            source=self.a,
+            target=self.b,
+            score=0.9,
+            method=ItemSimilarity.METHOD_SHELF_COOC,
+        )
+        viewer = User.register(email="blv@t.com", username="bl_viewer")
+        _public_mark(viewer.identity, self.a, rating=0)
+        assert similar_items(self.a) == []
+        assert compute_for_user(viewer.pk, viewer.identity.pk) == []
+        ItemSimilarity.objects.create(
+            source=self.a,
+            target=self.c,
+            score=0.4,
+            method=ItemSimilarity.METHOD_BLENDED,
+        )
+        assert [i.pk for i in similar_items(self.a)] == [self.c.pk]
+        rows = compute_for_user(viewer.pk, viewer.identity.pk)
+        assert [r.item_id for r in rows] == [self.c.pk]
+
+    def test_cold_item_gets_credit_neighbours(self):
+        _public_mark(self.users[0], self.a, rating=0)
+        _public_mark(self.users[1], self.b, rating=0)
+        for item in (self.a, self.b):
+            ItemCredit.objects.create(item=item, role="author", name="Same Author")
+        BuildItemSimilarity().run()
+        # one mark each is below the shelf threshold
+        assert not ItemSimilarity.objects.filter(
+            method=ItemSimilarity.METHOD_SHELF_COOC
+        ).exists()
+        assert [i.pk for i in similar_items(self.a)] == [self.b.pk]
+        assert self._score(
+            self.a, self.b, ItemSimilarity.METHOD_BLENDED
+        ) == pytest.approx(0.3, rel=1e-5)
+
+    def test_rebuild_prunes_sources_without_rows(self):
+        self.test_cold_item_gets_credit_neighbours()
+        ItemCredit.objects.filter(item=self.b).delete()
+        BuildItemSimilarity().run()
+        assert not ItemSimilarity.objects.exists()
