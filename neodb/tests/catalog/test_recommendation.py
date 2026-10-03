@@ -6,6 +6,7 @@ from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
 from catalog.apis import _prepare_reco_items
+from catalog.jobs import recommendation as recommendation_job
 from catalog.jobs.recommendation import BuildItemSimilarity, BuildUserRecommendations
 from catalog.models import (
     Edition,
@@ -446,6 +447,8 @@ class TestMergedItemsInTraining:
         assert not set(m) & set(m.values())
 
     def test_merge_into_deleted_item_is_dropped(self):
+        # a second owner so the merged item would be active on its own
+        _public_mark(self.identities[1], self.old)
         Item.objects.filter(pk=self.survivor.pk).update(is_deleted=True)
         assert self.old.pk not in training_rewrite_map()
         BuildItemSimilarity().run()
@@ -819,6 +822,10 @@ class TestSimilarityCosine:
         assert self._score(x, y) == pytest.approx(10 / 15, rel=1e-5)
         scores = list(ItemSimilarity.objects.values_list("score", flat=True))
         assert scores and all(0 <= s < 1 for s in scores)
+
+    def test_batched_weighing_mid_stream(self, monkeypatch):
+        monkeypatch.setattr(recommendation_job, "_WEIGH_OWNER_BATCH", 1)
+        self.test_shrinkage_favours_well_supported_pairs()
 
     def test_review_backed_mark_outweighs_bare_mark(self):
         _set(reco_similarity_shrinkage=0.0)
