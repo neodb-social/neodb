@@ -62,6 +62,14 @@ class Task(TypedModel):
     def __str__(self):
         return self.job_id
 
+    def save(self, *args, **kwargs) -> None:
+        # edited_time is the heartbeat that tells a running task from one whose
+        # worker died, but auto_now is only written when update_fields names it
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None and "edited_time" not in update_fields:
+            kwargs["update_fields"] = [*update_fields, "edited_time"]
+        super().save(*args, **kwargs)
+
     @classmethod
     def pending_tasks(cls, user: User):
         return cls.objects.filter(user=user, state__in=[0, 1])

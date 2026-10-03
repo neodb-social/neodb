@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
+from .data import _running_import
+
 logger = logging.getLogger(__name__)
 
 STEAM_OPENID_URL = "https://steamcommunity.com/openid/login"
@@ -77,5 +79,5 @@ def steam_import_page(request):
     return render(
         request,
         "users/steam_import.html",
-        {"steam_id": steam_id},
+        {"steam_id": steam_id, "running_import": _running_import(request.user)},
     )

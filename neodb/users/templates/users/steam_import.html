@@ -13,13 +13,22 @@
   <body>
     {% include "_header.html" %}
     <main>
-      <div class="grid__main">
+      <div class="grid__main data-page">
         <article>
           <h3>{% trans 'Import from Steam wishlist / library' %}</h3>
+          {% if running_import %}
+            <p class="import-running" role="status">
+              <i class="fa-solid fa-gear fa-spin"></i>
+              {% trans 'An import is still running. Wait for it to finish before you start a new one.' %}
+            </p>
+          {% endif %}
           <p>
             {% trans 'Steam ID' %}: <strong>{{ steam_id }}</strong>
           </p>
-          <form method="post" action="{% url 'users:import_steam' %}">
+          {% trans 'Another import is in progress, starting a new import may cause issues, sure to import?' as confirm_text %}
+          <form method="post"
+                action="{% url 'users:import_steam' %}"
+                {% if running_import %}onsubmit="return confirm('{{ confirm_text|escapejs }}')"{% endif %}>
             {% csrf_token %}
             <input type="hidden" name="steam_id" value="{{ steam_id }}">
             <fieldset>

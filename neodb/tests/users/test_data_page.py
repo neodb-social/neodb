@@ -160,3 +160,31 @@ def test_steam_import_returns_to_its_page(client, user, monkeypatch):
     )
     assert response.url == reverse("users:import_steam")
     assert SteamImporter.latest_task(user) is not None
+
+
+def test_older_running_import_behind_a_finished_one_still_warns(client, user):
+    _task(GoodreadsImporter, user, Task.States.started, minutes_ago=5)
+    _task(GoodreadsImporter, user, Task.States.complete, minutes_ago=1)
+    content = client.get(reverse("users:import_trakt")).content.decode()
+    assert RUNNING_WARNING in content
+
+
+def test_partial_save_refreshes_the_heartbeat(user):
+    task = _task(GoodreadsImporter, user, Task.States.started, minutes_ago=120)
+    before = task.edited_time
+    task.metadata["processed"] = 1
+    task.save(update_fields=["metadata"])
+    task.refresh_from_db()
+    assert task.edited_time > before
+
+
+def test_steam_settings_page_confirms_while_an_import_runs(client, user):
+    session = client.session
+    session["steam_id"] = "1"
+    session.save()
+    url = reverse("users:steam_import_page")
+    assert RUNNING_WARNING not in client.get(url).content.decode()
+    _task(GoodreadsImporter, user, Task.States.started)
+    content = client.get(url).content.decode()
+    assert RUNNING_WARNING in content
+    assert 'onsubmit="return confirm(' in content

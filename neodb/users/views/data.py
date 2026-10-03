@@ -304,24 +304,21 @@ RECENT_ACTIVITY_LIMIT = 5
 IMPORT_STALE_AFTER = datetime.timedelta(hours=1)
 
 
-def _running_import(tasks: list[Task]) -> Task | None:
-    cutoff = timezone.now() - IMPORT_STALE_AFTER
-    for task in tasks:
-        if (
-            task.state in (Task.States.pending, Task.States.started)
-            and task.edited_time > cutoff
-        ):
-            return task
-    return None
-
-
-def _latest_import_tasks(user: User) -> list[Task]:
-    return [
-        task
-        for source in IMPORT_SOURCES
-        for task in (cls.latest_task(user) for cls in source.importers)
-        if task
-    ]
+def _running_import(user: User) -> Task | None:
+    # every active task counts, not just the latest of each type: an older
+    # import can still be running behind a newer one that already finished
+    return (
+        Task.objects.filter(
+            user=user,
+            type__in=[
+                cls._meta.label_lower for s in IMPORT_SOURCES for cls in s.importers
+            ],
+            state__in=[Task.States.pending, Task.States.started],
+            edited_time__gt=timezone.now() - IMPORT_STALE_AFTER,
+        )
+        .order_by("-created_time")
+        .first()
+    )
 
 
 def _import_page(request: AuthedHttpRequest, key: str) -> HttpResponse:
@@ -334,7 +331,7 @@ def _import_page(request: AuthedHttpRequest, key: str) -> HttpResponse:
         {
             "source": source,
             "task": source.latest_task(request.user),
-            "running_import": _running_import(_latest_import_tasks(request.user)),
+            "running_import": _running_import(request.user),
         },
     )
 
