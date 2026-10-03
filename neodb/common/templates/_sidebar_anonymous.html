@@ -3,7 +3,7 @@
 {% load mastodon %}
 {% load thumb %}
 {% load collection %}
-<aside class="grid__aside sidebar">
+<aside class="grid__aside sidebar {% if bottom %}bottom{% endif %}">
   <section>
     {% if site_intro %}
       <div hx-get="{{ site_intro }}" hx-trigger="load" hx-swap="outerHTML">
