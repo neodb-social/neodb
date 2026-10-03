@@ -345,14 +345,11 @@ _LANGUAGE_BATCH = 1000
 
 def _first_in_languages(ranked: list[int], codes: list[str], n: int) -> list[int]:
     """The first ``n`` ids of ``ranked`` whose items are in ``codes``."""
+    wanted = set(codes)
     out: list[int] = []
     for start in range(0, len(ranked), _LANGUAGE_BATCH):
         batch = ranked[start : start + _LANGUAGE_BATCH]
-        matched = set(
-            Item.objects.filter(pk__in=batch)
-            .filter(Item.q_in_languages(codes))
-            .values_list("pk", flat=True)
-        )
+        matched = Item.ids_in_languages(batch, wanted)
         out += [i for i in batch if i in matched]
         if len(out) >= n:
             break
@@ -479,9 +476,8 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
             viewer.identity.pk
         ) | _user_dismissed_item_ids(viewer.pk)
     qs = _live_items(Item.objects.filter(pk__in=rows))
-    if codes:
-        qs = qs.filter(Item.q_in_languages(codes))
-    by_id = {i.pk: i for i in qs}
+    wanted = set(codes)
+    by_id = {i.pk: i for i in qs if not codes or i.in_languages(wanted)}
     out: list[Item] = []
     for iid in rows:
         if iid in exclude:
@@ -685,11 +681,7 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
         # rows stored before the site turned the language filter on; out of
         # language they count as used up, so a refill replaces them
         stored = [r.item_id for r in rows if r.item_id not in skip]
-        skip |= set(stored) - set(
-            Item.objects.filter(pk__in=stored)
-            .filter(Item.q_in_languages(codes))
-            .values_list("pk", flat=True)
-        )
+        skip |= set(stored) - Item.ids_in_languages(stored, set(codes))
     usable = sum(1 for r in rows if r.item_id not in skip)
     # the stored rows ran out because of shelving or dismissing, not because
     # the list is short; a fresh compute skips those and reaches further

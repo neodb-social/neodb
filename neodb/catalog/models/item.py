@@ -763,35 +763,45 @@ class Item(PolymorphicModel):
     def brief_description(self):
         return (str(self.display_description) or "")[:155]
 
-    def in_languages(self, codes: Container[str]) -> bool:
-        """Whether the item suits someone who reads ``codes``.
+    @staticmethod
+    def languages_fit(language: Any, titles: Any, codes: Container[str]) -> bool:
+        """Whether an item with this ``language`` and these localized ``titles``
+        suits someone who reads ``codes``.
 
         An item without a known language suits everyone. Otherwise its own
-        language or one of its localized titles must be in ``codes``.
+        language or one of its non-empty localized titles must be in ``codes``.
         """
-        meta = self.metadata or {}
-        languages = meta.get("language") or []
+        if not language:
+            languages = []
+        elif isinstance(language, list):
+            languages = language
+        else:  # legacy scalar, read as ArrayField.from_json reads it
+            languages = [language]
         if not languages or UNKNOWN_LANGUAGE_CODE in languages:
             return True
         return any(code in codes for code in languages) or any(
-            isinstance(t, dict) and t.get("lang") in codes
-            for t in meta.get("localized_title") or []
+            isinstance(t, dict) and t.get("text") and t.get("lang") in codes
+            for t in titles or []
+        )
+
+    def in_languages(self, codes: Container[str]) -> bool:
+        meta = self.metadata or {}
+        return Item.languages_fit(
+            meta.get("language"), meta.get("localized_title"), codes
         )
 
     @staticmethod
-    def q_in_languages(codes: Iterable[str]) -> Q:
-        """``in_languages`` as a filter on Item rows."""
-        q = (
-            Q(metadata__isnull=True)
-            | Q(metadata__language__isnull=True)
-            | Q(metadata__language=None)
-            | Q(metadata__language=[])
-            | Q(metadata__language__contains=[UNKNOWN_LANGUAGE_CODE])
+    def ids_in_languages(ids: Iterable[int], codes: Container[str]) -> set[int]:
+        """Those of ``ids`` whose items are ``in_languages(codes)``, reading only
+        the two metadata keys the rule needs."""
+        rows = Item.objects.filter(pk__in=ids).values_list(
+            "pk", "metadata__language", "metadata__localized_title"
         )
-        for code in codes:
-            q |= Q(metadata__localized_title__contains=[{"lang": code}])
-            q |= Q(metadata__language__contains=[code])
-        return q
+        return {
+            pk
+            for pk, language, titles in rows
+            if Item.languages_fit(language, titles, codes)
+        }
 
     def to_indexable_titles(self) -> list[str]:
         titles = [t["text"] for t in self.localized_title if t["text"]]

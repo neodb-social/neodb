@@ -53,7 +53,7 @@ def _book(title: str, lang: str, language: list[str] | None = None) -> Edition:
     )
 
 
-def _set_metadata(item: Item, metadata: dict) -> Item:
+def _set_metadata(item: Item, metadata: dict | None) -> Item:
     Item.objects.filter(pk=item.pk).update(metadata=metadata)
     return Item.objects.get(pk=item.pk)
 
@@ -105,26 +105,38 @@ class TestMatching:
                 _book("Null", "de"), {"localized_title": de_title, "language": None}
             ),
             _set_metadata(_book("Leer", "de"), {}),
+            _set_metadata(_book("Kein Metadata", "de"), None),
+            # legacy scalar, read as a one-element list
+            _set_metadata(
+                _book("Scalar", "de"), {"localized_title": de_title, "language": "en"}
+            ),
+            _set_metadata(
+                _book("Scalar leer", "de"),
+                {"localized_title": de_title, "language": ""},
+            ),
         ]
-        misses = [_book("Ein Buch", "de"), _book("Ein Werk", "de", ["de", "fr"])]
-        codes = language_variants(["en", "ja"])
+        misses = [
+            _book("Ein Buch", "de"),
+            _book("Ein Werk", "de", ["de", "fr"]),
+            _set_metadata(
+                _book("Scalar", "de"), {"localized_title": de_title, "language": "de"}
+            ),
+            # an empty title placeholder is not a title in that language
+            _set_metadata(
+                _book("Platzhalter", "de"),
+                {
+                    "localized_title": [*de_title, {"lang": "en", "text": ""}],
+                    "language": ["de"],
+                },
+            ),
+        ]
+        codes = set(language_variants(["en", "ja"]))
         for item in fits:
-            assert item.in_languages(set(codes)), item.metadata
+            assert item.in_languages(codes), item.metadata
         for item in misses:
-            assert not item.in_languages(set(codes)), item.metadata
-        matched = set(
-            Item.objects.filter(pk__in=[i.pk for i in fits + misses])
-            .filter(Item.q_in_languages(codes))
-            .values_list("pk", flat=True)
-        )
+            assert not item.in_languages(codes), item.metadata
+        matched = Item.ids_in_languages([i.pk for i in fits + misses], codes)
         assert matched == {i.pk for i in fits}
-
-    def test_null_metadata_fits_everyone(self):
-        book = _book("Kein Metadata", "de")
-        Item.objects.filter(pk=book.pk).update(metadata=None)
-        assert (
-            Item.objects.filter(pk=book.pk).filter(Item.q_in_languages(["en"])).exists()
-        )
 
     def test_chinese_spoken_language_matches_zh(self):
         film = Movie.objects.create(
