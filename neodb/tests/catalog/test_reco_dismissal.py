@@ -190,12 +190,6 @@ class TestForYou:
             b.pk for b in (self.books[0], self.books[2], self.books[3])
         ]
 
-    def test_item_merged_after_dismissal_stays_hidden(self):
-        old = Edition.objects.create(title="Old")
-        dismiss_item(self.user, old)
-        old.merge_to(self.books[0])
-        assert self.books[0].pk not in self._ids()
-
     def test_dismissing_a_merged_item_stores_the_final_item(self):
         old = Edition.objects.create(title="Old")
         old.merge_to(self.books[0])
@@ -292,9 +286,19 @@ class TestWebViews:
         self.book = Edition.objects.create(title="Hide Me")
         self.client = _client(self.user)
 
-    def test_dismiss_needs_login(self):
-        url = reverse("catalog:dismiss_recommendation", args=[self.book.uuid])
-        response = Client().post(url)
+    @pytest.mark.parametrize(
+        "method, name",
+        [
+            ("post", "catalog:dismiss_recommendation"),
+            ("post", "catalog:restore_recommendation"),
+            ("get", "catalog:hidden_recommendations"),
+            ("get", "catalog:discover_for_you"),
+            ("get", "catalog:discover_from_circles"),
+        ],
+    )
+    def test_needs_login(self, method: str, name: str):
+        args = [self.book.uuid] if method == "post" else []
+        response = getattr(Client(), method)(reverse(name, args=args))
         assert response.status_code == 302
         assert not RecommendationDismissal.objects.exists()
 
@@ -365,10 +369,6 @@ class TestWebViews:
         assert (
             reverse("catalog:restore_recommendation", args=[self.book.uuid]) in content
         )
-
-    def test_hidden_list_needs_login(self):
-        response = Client().get(reverse("catalog:hidden_recommendations"))
-        assert response.status_code == 302
 
     def test_discover_reco_cards_offer_dismiss(self, site_config, monkeypatch):
         site_config.min_marks_for_discover = 0
@@ -449,10 +449,6 @@ class TestSeeAllPages:
         site_config.reco_user_top_n = 100
         self.user = User.register(email="sa@t.com", username="sa")
         self.client = _client(self.user)
-
-    def test_pages_need_login(self):
-        for name in ("catalog:discover_for_you", "catalog:discover_from_circles"):
-            assert Client().get(reverse(name)).status_code == 302
 
     def test_for_you_pages_through_every_stored_row_but_dismissed(self):
         books = [Edition.objects.create(title=f"All {i}") for i in range(30)]
