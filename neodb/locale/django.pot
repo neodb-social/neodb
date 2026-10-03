@@ -4598,6 +4598,14 @@ msgid "Only show items with titles in the preferred languages."
 msgstr ""
 
 #: common/views_manage.py:418
+msgid "Filter by member languages"
+msgstr ""
+
+#: common/views_manage.py:420
+msgid "Let members pick catalog languages in their preferences. Trending, spotlight and For you then show them only items with a title or an original language in those languages. More like this, items from people they follow, and items without a known language are not filtered. With the option above also on, trending and spotlight hold only the preferred languages to begin with."
+msgstr ""
+
+#: common/views_manage.py:418
 msgid "Show local only"
 msgstr ""
 
@@ -8921,6 +8929,14 @@ msgstr ""
 
 #: users/templates/users/preferences.html:187
 msgid "Hide these categories in discovery and search results"
+msgstr ""
+
+#: users/templates/users/preferences.html:202
+msgid "Preferred catalog languages"
+msgstr ""
+
+#: users/templates/users/preferences.html:211
+msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."
 msgstr ""
 
 #: users/templates/users/preferences.html:201
