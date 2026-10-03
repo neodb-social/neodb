@@ -7698,6 +7698,17 @@ msgstr ""
 msgid "You can also re-upload a previously-downloaded matched CSV — the existing <code>link</code> column will be honoured as the default match."
 msgstr ""
 
+#: users/templates/users/import/hardcover.html:21
+#: users/templates/users/import/storygraph.html:18
+msgid "Reading status, star rating and review of each book."
+msgstr ""
+
+#: users/templates/users/import/hardcover.html:22
+#: users/templates/users/import/rym.html:19
+#: users/templates/users/import/storygraph.html:19
+msgid "Rows that you set to skip in the preview."
+msgstr ""
+
 #: users/templates/users/_hardcover_section.html:45
 #: users/templates/users/_rym_section.html:42
 #: users/templates/users/_storygraph_section.html:42
@@ -7708,6 +7719,22 @@ msgstr ""
 #: users/templates/users/_rym_section.html:48
 #: users/templates/users/_storygraph_section.html:48
 msgid "Download previous matches"
+msgstr ""
+
+#: users/templates/users/_import_rules.html:3
+msgid "What is imported"
+msgstr ""
+
+#: users/templates/users/_import_rules.html:8
+msgid "What is skipped"
+msgstr ""
+
+#: users/templates/users/_import_rules.html:14
+msgid "Data you already have"
+msgstr ""
+
+#: users/templates/users/_import_rules.html:20
+msgid "Importing again"
 msgstr ""
 
 #: users/templates/users/_pref_device.html:4
@@ -7777,6 +7804,22 @@ msgstr ""
 
 #: users/templates/users/_rym_section.html:35
 msgid "Albums are matched by title + artist (and year if present) — first against the local catalog, then MusicBrainz, then Spotify. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
+msgstr ""
+
+#: users/templates/users/import/rym.html:18
+msgid "Status, rating and review of each album."
+msgstr ""
+
+#: users/templates/users/import/rym.html:20
+msgid "Existing marks, ratings and reviews are replaced with the values in the preview, also when the status moves back."
+msgstr ""
+
+#: users/templates/users/import/steam.html:5
+msgid "Log in with Steam to confirm your Steam ID."
+msgstr ""
+
+#: users/templates/users/import/steam.html:6
+msgid "Choose what to import on the next page, then start the import."
 msgstr ""
 
 #: users/templates/users/_storygraph_section.html:5
@@ -8268,16 +8311,44 @@ msgstr ""
 msgid "Data management"
 msgstr ""
 
+#: users/templates/users/data.html:19
+msgid "Recent activity"
+msgstr ""
+
 #: users/templates/users/data.html:39
 msgid "Import marks and reviews from Douban"
+msgstr ""
+
+#: users/views/data.py:278
+msgid "Import articles from WordPress"
 msgstr ""
 
 #: users/templates/users/data.html:43
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr ""
 
-#: users/templates/users/data.html:45
-msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href=\"#import-neodb-archive\">Import NeoDB Archive</a> below."
+#: users/templates/users/import/douban.html:11
+#, python-format
+msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href=\"%(neodb_url)s\">Import NeoDB archive</a>."
+msgstr ""
+
+#: users/templates/users/import/douban.html:15
+msgid "Marks, ratings, tags, comments and reviews."
+msgstr ""
+
+#: users/templates/users/import/douban.html:16
+msgid "Depends on the import method below."
+msgstr ""
+
+#: users/templates/users/import/douban.html:17
+#: users/templates/users/import/goodreads.html:17
+#: users/templates/users/import/hardcover.html:24
+#: users/templates/users/import/rym.html:21
+#: users/templates/users/import/steam.html:16
+#: users/templates/users/import/storygraph.html:21
+#: users/templates/users/import/trakt.html:16
+#: users/templates/users/import/wordpress.html:16
+msgid "Safe. Nothing is imported twice."
 msgstr ""
 
 #: users/templates/users/data.html:49 users/templates/users/data.html:272
@@ -8316,6 +8387,16 @@ msgstr ""
 msgid "Want-to-read / currently-reading / read / did-not-finish books and their reviews will be imported."
 msgstr ""
 
+#: users/templates/users/import/goodreads.html:15
+msgid "Books on your own custom shelves."
+msgstr ""
+
+#: users/templates/users/import/goodreads.html:16
+#: users/templates/users/import/hardcover.html:23
+#: users/templates/users/import/storygraph.html:20
+msgid "A status never moves back, for example from complete to wishlist. Changed comments and reviews are updated."
+msgstr ""
+
 #: users/templates/users/data.html:150
 msgid "Import from Letterboxd"
 msgstr ""
@@ -8332,12 +8413,17 @@ msgstr ""
 msgid "The following files in the zip file will be processed: <code>reviews.csv</code> <code>ratings.csv</code> <code>watched.csv</code> <code>watchlist.csv</code> <code>lists/*.csv</code>"
 msgstr ""
 
-#: users/templates/users/data.html:165
-msgid "Exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below"
+#: users/templates/users/import/letterboxd.html:15
+#: users/templates/users/import/trakt.html:15
+msgid "Only forward status changes are imported, for example from wishlist to complete. A mark that is already complete is not changed."
 msgstr ""
 
-#: users/templates/users/data.html:200 users/templates/users/data.html:251
-msgid "Only forward changes(none->to-watch->watched) will be imported."
+#: users/templates/users/import/letterboxd.html:16
+msgid "Marks are safe, but the lists are created again as new collections."
+msgstr ""
+
+#: users/templates/users/data.html:165
+msgid "Exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below"
 msgstr ""
 
 #: users/templates/users/data.html:207
@@ -8377,10 +8463,6 @@ msgstr ""
 msgid "Import as a new collection"
 msgstr ""
 
-#: users/templates/users/data.html:312
-msgid "Select OPML file"
-msgstr ""
-
 #: users/templates/users/data.html:322
 msgid "Import NeoDB archive"
 msgstr ""
@@ -8393,8 +8475,20 @@ msgstr ""
 msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in the same format and is imported here."
 msgstr ""
 
-#: users/templates/users/data.html:333
-msgid "Existing data may be overwritten."
+#: users/templates/users/import/neodb.html:14
+msgid "Marks, ratings, comments, tags, reviews and notes. An NDJSON archive also has collections, articles, and your display name and bio."
+msgstr ""
+
+#: users/templates/users/import/neodb.html:15
+msgid "Posts."
+msgstr ""
+
+#: users/templates/users/import/neodb.html:16
+msgid "A record is updated only when the copy in the archive is newer than yours."
+msgstr ""
+
+#: users/templates/users/import/neodb.html:17
+msgid "Safe for records that did not change. A collection, article or review that was renamed after the export is imported again as a new entry."
 msgstr ""
 
 #: users/templates/users/data.html:343
@@ -8413,20 +8507,40 @@ msgstr ""
 msgid "Error detecting format"
 msgstr ""
 
-#: users/templates/users/data.html:479
-msgid "Export NeoDB archive"
+#: users/templates/users/import/opml.html:5
+msgid "Export your subscriptions from your podcast app as an OPML file."
+msgstr ""
+
+#: users/templates/users/import/opml.html:7
+msgid "Upload the <code>.opml</code> or <code>.xml</code> file below."
+msgstr ""
+
+#: users/templates/users/import/opml.html:12
+msgid "Each podcast in the file, marked as listening or added to a new collection."
+msgstr ""
+
+#: users/templates/users/import/opml.html:13
+msgid "Podcasts that you already marked are not changed."
+msgstr ""
+
+#: users/templates/users/import/opml.html:14
+msgid "Safe when you mark as listening. Each import as a new collection creates another collection."
 msgstr ""
 
 #: users/templates/users/data.html:483
 msgid "Export marks, reviews and notes in CSV"
 msgstr ""
 
+#: users/templates/users/data.html:53
+msgid "Use this to open your data in a spreadsheet."
+msgstr ""
+
 #: users/templates/users/data.html:490
 msgid "Export everything in NDJSON"
 msgstr ""
 
-#: users/templates/users/data.html:497
-msgid "Import and export articles (WordPress)"
+#: users/templates/users/data.html:45
+msgid "Use this to move to another NeoDB server, or to keep a full backup."
 msgstr ""
 
 #: users/templates/users/data.html:500
@@ -8437,12 +8551,32 @@ msgstr ""
 msgid "Article title, body, excerpt, tags, dates and featured image are exchanged. Comments and custom fields are ignored."
 msgstr ""
 
+#: users/templates/users/import/wordpress.html:15
+msgid "An article with the same title and date is skipped."
+msgstr ""
+
 #: users/templates/users/data.html:506
 msgid "The body is converted between Markdown and HTML, so formatting is kept but the text is not character-for-character identical."
 msgstr ""
 
 #: users/templates/users/data.html:513
 msgid "Export articles in WordPress format"
+msgstr ""
+
+#: users/templates/users/data.html:72
+msgid "Social graph"
+msgstr ""
+
+#: users/templates/users/data.html:74
+msgid "Following, followers, mutes and blocks are exported as CSV files on the account page, where you can also move your account."
+msgstr ""
+
+#: users/templates/users/data.html:82
+msgid "Import marks and reviews"
+msgstr ""
+
+#: users/templates/users/data.html:91 users/views/data.py:192
+msgid "Import posts and articles"
 msgstr ""
 
 #: users/templates/users/data.html:520
@@ -8546,6 +8680,11 @@ msgstr ""
 #: users/templates/users/rym_import.html:77
 #: users/templates/users/storygraph_import.html:77
 msgid "Back"
+msgstr ""
+
+#: users/templates/users/import/_base.html:30
+#: users/templates/users/steam_import.html:22
+msgid "An import is still running. Wait for it to finish before you start a new one."
 msgstr ""
 
 #: users/templates/users/login.html:5
@@ -8929,6 +9068,14 @@ msgstr ""
 msgid "Export"
 msgstr ""
 
+#: users/templates/users/data.html:38
+msgid "Export your data"
+msgstr ""
+
+#: users/templates/users/data.html:40
+msgid "NeoDB archive"
+msgstr ""
+
 #: users/templates/users/relationship_list.html:20
 msgid "You may download the list here."
 msgstr ""
@@ -9056,6 +9203,18 @@ msgstr ""
 
 #: users/templates/users/steam_import.html:139
 msgid "To import from Steam, your game details must be visible to public in Steam privacy settings."
+msgstr ""
+
+#: users/templates/users/import/steam.html:13
+msgid "Games in your wishlist and library. The status of a library game is estimated from its play time."
+msgstr ""
+
+#: users/templates/users/import/steam.html:14
+msgid "Games with a status that you do not select, and games on your ignore list."
+msgstr ""
+
+#: users/templates/users/import/steam.html:15
+msgid "A mark that is already complete, or a move back to wishlist, is skipped, unless you allow reverse status changes in the settings."
 msgstr ""
 
 #: users/templates/users/storygraph_import.html:9
