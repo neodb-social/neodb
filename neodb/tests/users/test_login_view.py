@@ -1,9 +1,11 @@
 import json
 import struct
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import pytest
+import requests
 from altcha import Challenge, Payload, Solution, derive_key_pbkdf2, solve_challenge
 from django.test import Client, override_settings
 from django.urls import reverse
@@ -15,12 +17,20 @@ from mastodon.models import (
     Email,
     Mastodon,
     MastodonAccount,
+    MastodonApplication,
     Threads,
 )
 from users import login_proof
 from users.models import User
 
 SECURITY_ERROR = b"Security check failed. Please try again."
+
+
+def _oauth_response(status: int, data: dict[str, object]) -> requests.Response:
+    response = requests.Response()
+    response.status_code = status
+    response._content = json.dumps(data).encode()
+    return response
 
 
 @pytest.fixture
@@ -500,3 +510,213 @@ class TestRegisterBlueskyRecordsPreference:
         assert response.status_code == 200
         user = User.objects.get(username="regmail")
         assert user.preference.bluesky_publish_records is False
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMastodonOAuthCallback:
+    @pytest.fixture(autouse=True)
+    def setup_oauth(self, monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+        monkeypatch.setattr(SiteConfig.system, "enable_login_mastodon", True)
+        monkeypatch.setattr(SiteConfig.system, "registration_captcha_items", 0)
+        self.app = MastodonApplication.objects.create(
+            domain_name="mastodon.online",
+            api_domain="api.mastodon.online",
+            server_version="4.5.0",
+            app_id="1",
+            client_id="oauth-client",
+            client_secret="oauth-secret",
+        )
+        with (
+            patch("mastodon.models.mastodon.post") as self.http_post,
+            patch("mastodon.models.mastodon.get") as self.http_get,
+            patch(
+                "mastodon.models.mastodon.Takahe.fetch_remote_identity"
+            ) as self.fetch,
+            patch.object(User, "sync_accounts_later"),
+        ):
+            self.http_post.return_value = _oauth_response(
+                200, {"access_token": "new-token", "refresh_token": "new-refresh"}
+            )
+            self.http_get.return_value = _oauth_response(
+                200,
+                {
+                    "id": "7",
+                    "username": "oauthuser",
+                    "acct": "oauthuser",
+                    "display_name": "OAuth user",
+                    "url": "https://mastodon.online/@oauthuser",
+                },
+            )
+            yield
+
+    def _prime(
+        self,
+        client: Client,
+        state: str | None = "oauth-state",
+        domain: str | None = "mastodon.online",
+    ) -> None:
+        session = client.session
+        if state is not None:
+            session["mastodon_oauth_state"] = state
+        if domain is not None:
+            session["mastodon_domain"] = domain
+        session.save()
+
+    @pytest.mark.parametrize(
+        ("expected", "actual"),
+        [(None, "oauth-state"), ("oauth-state", None), ("oauth-state", "wrong")],
+    )
+    def test_invalid_state_never_exchanges_code(
+        self, client: Client, expected: str | None, actual: str | None
+    ) -> None:
+        self._prime(client, state=expected)
+        query = {"code": "oauth-code"}
+        if actual is not None:
+            query["state"] = actual
+        response = client.get(reverse("mastodon:oauth"), query)
+        assert response.status_code == 200
+        assert b"Invalid OAuth state" in response.content
+        assert "mastodon_oauth_state" not in client.session
+        self.http_post.assert_not_called()
+        self.http_get.assert_not_called()
+
+    def test_missing_code_never_exchanges_token(self, client: Client) -> None:
+        self._prime(client)
+        response = client.get(reverse("mastodon:oauth"), {"state": "oauth-state"})
+        assert b"Invalid response from Fediverse instance" in response.content
+        self.http_post.assert_not_called()
+
+    def test_missing_domain_rejects_callback(self, client: Client) -> None:
+        self._prime(client, domain=None)
+        response = client.get(
+            reverse("mastodon:oauth"), {"code": "oauth-code", "state": "oauth-state"}
+        )
+        assert b"Invalid cookie data" in response.content
+        self.http_post.assert_not_called()
+
+    def test_unknown_instance_is_bad_request(self, client: Client) -> None:
+        self._prime(client, domain="unknown.example")
+        response = client.get(
+            reverse("mastodon:oauth"), {"code": "oauth-code", "state": "oauth-state"}
+        )
+        assert response.status_code == 400
+        self.http_post.assert_not_called()
+
+    @pytest.mark.parametrize("failure", ["http", "json", "missing_token", "network"])
+    def test_token_failure_does_not_verify_account(
+        self, client: Client, failure: str
+    ) -> None:
+        self._prime(client)
+        if failure == "http":
+            self.http_post.return_value = _oauth_response(401, {"error": "invalid"})
+        elif failure == "json":
+            self.http_post.return_value = _oauth_response(200, {})
+            self.http_post.return_value._content = b"not JSON"
+        elif failure == "missing_token":
+            self.http_post.return_value = _oauth_response(200, {})
+        else:
+            self.http_post.side_effect = requests.Timeout("token timeout")
+        response = client.get(
+            reverse("mastodon:oauth"), {"code": "oauth-code", "state": "oauth-state"}
+        )
+        assert b"Invalid token from Fediverse instance" in response.content
+        self.http_get.assert_not_called()
+        assert "_auth_user_id" not in client.session
+
+    def test_invalid_credentials_do_not_login(self, client: Client) -> None:
+        self._prime(client)
+        self.http_get.return_value = _oauth_response(401, {"error": "revoked"})
+        response = client.get(
+            reverse("mastodon:oauth"), {"code": "oauth-code", "state": "oauth-state"}
+        )
+        assert b"Invalid account data from Fediverse instance" in response.content
+        assert "_auth_user_id" not in client.session
+        self.fetch.assert_not_called()
+
+    def test_existing_account_logs_in_and_refreshes_tokens(
+        self, client: Client
+    ) -> None:
+        user = User.register(username="oauthuser")
+        account = MastodonAccount.objects.create(
+            user=user, domain="mastodon.online", uid="7", handle="old@mastodon.online"
+        )
+        self._prime(client)
+        session = client.session
+        session["next_url"] = reverse("users:info")
+        session.save()
+        response = client.get(
+            reverse("mastodon:oauth"), {"code": "oauth-code", "state": "oauth-state"}
+        )
+        assert response.status_code == 302
+        assert response["Location"] == reverse("users:info")
+        assert client.session["_auth_user_id"] == str(user.pk)
+        assert "next_url" not in client.session
+        assert "mastodon_oauth_state" not in client.session
+        account.refresh_from_db()
+        assert account.access_token == "new-token"
+        assert account.refresh_token == "new-refresh"
+        assert account.account_data["username"] == "oauthuser"
+        assert account.handle == "oauthuser@mastodon.online"
+        assert self.http_post.call_args.args == (
+            "https://api.mastodon.online/oauth/token",
+        )
+        payload = self.http_post.call_args.kwargs["data"]
+        assert payload["code"] == "oauth-code"
+        assert payload["client_id"] == "oauth-client"
+        assert payload["redirect_uri"].endswith(reverse("mastodon:oauth"))
+        assert self.http_get.call_args.kwargs["headers"]["Authorization"] == (
+            "Bearer new-token"
+        )
+
+    def test_new_account_registers_and_callback_cannot_be_replayed(
+        self, client: Client
+    ) -> None:
+        self._prime(client)
+        query = {"code": "oauth-code", "state": "oauth-state"}
+        response = client.get(reverse("mastodon:oauth"), query)
+        assert response.status_code == 302
+        assert response["Location"] == reverse("users:register")
+        verified = MastodonAccount.from_dict(client.session["verified_account"])
+        assert verified is not None
+        assert verified.handle == "oauthuser@mastodon.online"
+        assert verified.access_token == "new-token"
+        self.fetch.assert_called_once_with("oauthuser@mastodon.online")
+        assert not MastodonAccount.objects.filter(uid="7").exists()
+        replay = client.get(reverse("mastodon:oauth"), query)
+        assert b"Invalid OAuth state" in replay.content
+        assert self.http_post.call_count == 1
+        assert self.http_get.call_count == 1
+
+    def test_changed_remote_uid_keeps_existing_link(self, client: Client) -> None:
+        user = User.register(username="uiduser")
+        account = MastodonAccount.objects.create(
+            user=user,
+            domain="mastodon.online",
+            uid="old-id",
+            handle="oauthuser@mastodon.online",
+        )
+        self._prime(client)
+        response = client.get(
+            reverse("mastodon:oauth"), {"code": "oauth-code", "state": "oauth-state"}
+        )
+        assert response.status_code == 302
+        account.refresh_from_db()
+        assert account.uid == "7"
+        assert account.user == user
+        assert MastodonAccount.objects.filter(domain="mastodon.online").count() == 1
+
+    def test_inactive_user_cannot_login(self, client: Client) -> None:
+        user = User.register(username="inactiveoauth")
+        User.objects.filter(pk=user.pk).update(is_active=False)
+        MastodonAccount.objects.create(
+            user=user,
+            domain="mastodon.online",
+            uid="7",
+            handle="oauthuser@mastodon.online",
+        )
+        self._prime(client)
+        response = client.get(
+            reverse("mastodon:oauth"), {"code": "oauth-code", "state": "oauth-state"}
+        )
+        assert b"Invalid user" in response.content
+        assert "_auth_user_id" not in client.session

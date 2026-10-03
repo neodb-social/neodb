@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 
 import pytest
-import requests
 from django.test import Client
 
 from catalog.models import (
@@ -20,8 +19,8 @@ from catalog.models import (
 from users.models import User
 
 
-@pytest.mark.django_db(databases="__all__", transaction=True)
-def test_catalog_item_pages(live_server):
+@pytest.mark.django_db(databases="__all__")
+def test_catalog_item_pages(client: Client) -> None:
     book = Edition.objects.create(title="Web Book")
     movie = Movie.objects.create(title="Web Movie")
     show = TVShow.objects.create(title="Web Show")
@@ -56,31 +55,28 @@ def test_catalog_item_pages(live_server):
         production,
     ]
     for item in items:
-        response = requests.get(f"{live_server.url}{item.url}", timeout=5)
+        response = client.get(item.url, follow=True)
         assert response.status_code == 200
+        assert item.display_title in response.content.decode()
 
 
-@pytest.mark.django_db(databases="__all__", transaction=True)
-def test_catalog_discover(live_server):
-    response = requests.get(f"{live_server.url}/discover/", timeout=5)
+@pytest.mark.django_db(databases="__all__")
+def test_catalog_discover(client: Client) -> None:
+    response = client.get("/discover/", follow=True)
     assert response.status_code == 200
 
     user = User.register(email="searcher@example.com", username="searcher")
     authed_client = Client()
     authed_client.force_login(user, backend="mastodon.auth.OAuth2Backend")
-    auth_cookies = {key: morsel.value for key, morsel in authed_client.cookies.items()}
-    response = requests.get(
-        f"{live_server.url}/discover/", cookies=auth_cookies, timeout=5
-    )
+    response = authed_client.get("/discover/", follow=True)
     assert response.status_code == 200
 
 
-@pytest.mark.django_db(databases="__all__", transaction=True)
-def test_catalog_search(live_server):
+@pytest.mark.django_db(databases="__all__")
+def test_catalog_search(client: Client) -> None:
     user = User.register(email="searcher@example.com", username="searcher")
     authed_client = Client()
     authed_client.force_login(user, backend="mastodon.auth.OAuth2Backend")
-    auth_cookies = {key: morsel.value for key, morsel in authed_client.cookies.items()}
 
     book = Edition.objects.create(
         localized_title=[{"lang": "en", "text": "Searchable Book"}]
@@ -89,26 +85,15 @@ def test_catalog_search(live_server):
         localized_title=[{"lang": "en", "text": "Searchable movie"}]
     )
 
-    response = requests.get(
-        f"{live_server.url}/search?q=Searchable",
-        timeout=5,
-    )
+    response = client.get("/search?q=Searchable", follow=True)
     assert response.status_code == 200
-    assert book.url in response.text
-    assert movie.url in response.text
+    assert book.url in response.content.decode()
+    assert movie.url in response.content.decode()
 
-    response = requests.get(
-        f"{live_server.url}/search?c=book&q=Searchable",
-        cookies=auth_cookies,
-        timeout=5,
-    )
+    response = authed_client.get("/search?c=book&q=Searchable", follow=True)
     assert response.status_code == 200
-    assert book.url in response.text
+    assert book.url in response.content.decode()
 
     # not testing the actual external search, just that the page loads
-    response = requests.get(
-        f"{live_server.url}/search/external?c=book",
-        cookies=auth_cookies,
-        timeout=5,
-    )
+    response = authed_client.get("/search/external?c=book", follow=True)
     assert response.status_code == 200

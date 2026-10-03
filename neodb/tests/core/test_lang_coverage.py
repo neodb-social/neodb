@@ -31,10 +31,9 @@ class TestLocalizeNumber:
             assert localize_number(11) == "\u5341\u4e00"  # ten + one
             assert localize_number(19) == "\u5341\u4e5d"  # ten + nine
 
-    def test_chinese_double_digit(self):
+    def test_chinese_double_digit(self) -> None:
         with translation.override("zh-hans"):
-            result = localize_number(25)
-            assert "\u5341" in result  # should contain "ten"
+            assert localize_number(25) == "二十五"
 
     def test_chinese_out_of_range_negative(self):
         with translation.override("zh-hans"):

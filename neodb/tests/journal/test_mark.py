@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import pytest
 from django.core.cache import cache
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 
 from catalog.models import Edition, IdType, Podcast, PodcastEpisode, TVEpisode
@@ -329,11 +329,8 @@ def test_timeline_bookmark_reflects_viewer_mark(client):
     assert "fa-regular fa-bookmark" in html
 
 
-@pytest.mark.django_db(databases="__all__")
-def test_tag_suggestions_endpoint_is_gone(client):
-    user = User.register(email="gone@example.com", username="goneuser")
-    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
-    with pytest.raises(Exception):
+def test_tag_suggestions_endpoint_is_gone() -> None:
+    with pytest.raises(NoReverseMatch):
         reverse("journal:tag_suggestions")
 
 

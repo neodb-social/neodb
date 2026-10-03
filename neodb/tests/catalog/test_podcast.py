@@ -1,10 +1,23 @@
+from datetime import datetime, timedelta
+from unittest.mock import patch
+
 import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
+from django.utils import timezone
 
 from catalog.common import *
 from catalog.models import *
-from catalog.sites.rss import _episode_duration
+from catalog.jobs.podcast import (
+    COLD_DELAY,
+    FRESH_DELAY,
+    MID_DELAY,
+    PodcastUpdater,
+    _fetch_one,
+    _is_due,
+    _tier_delay,
+)
+from catalog.sites.rss import RSS, _episode_duration
 
 
 @pytest.mark.parametrize(
@@ -167,3 +180,205 @@ class TestPodcastRSSFeed:
         assert len(episode_select_queries) == 0
         # Episode count should be unchanged
         assert PodcastEpisode.objects.filter(program=item).count() == episode_count
+
+
+@pytest.mark.parametrize(
+    ("age", "expected"),
+    [
+        (None, COLD_DELAY),
+        (timedelta(days=-1), FRESH_DELAY),
+        (timedelta(days=30), FRESH_DELAY),
+        (timedelta(days=30, seconds=1), MID_DELAY),
+        (timedelta(days=180), MID_DELAY),
+        (timedelta(days=180, seconds=1), COLD_DELAY),
+    ],
+)
+def test_podcast_polling_tiers(age: timedelta | None, expected: timedelta) -> None:
+    now = timezone.now()
+    published = now - age if age is not None else None
+    assert _tier_delay(published, now) == expected
+
+
+@pytest.mark.parametrize(
+    ("failures", "delay"), [(-1, 2), (0, 2), (1, 4), (6, 128), (10, 128)]
+)
+def test_podcast_backoff_boundary(failures: int, delay: int) -> None:
+    now = timezone.now()
+    podcast = Podcast(feed_consecutive_failures=failures)
+    published = now - timedelta(days=1)
+    assert _is_due(podcast, published, now)
+    podcast.feed_last_fetched_at = now - timedelta(hours=delay) + timedelta(seconds=1)
+    assert not _is_due(podcast, published, now)
+    podcast.feed_last_fetched_at = now - timedelta(hours=delay)
+    assert _is_due(podcast, published, now)
+
+
+def test_podcast_fetch_closes_thread_connections_on_failure() -> None:
+    podcast = Podcast(
+        primary_lookup_id_type=IdType.RSS, primary_lookup_id_value="feed.example/rss"
+    )
+    with (
+        patch.object(
+            RSS, "fetch_feed_with_metadata", side_effect=ValueError("bad feed")
+        ),
+        patch("catalog.jobs.podcast.connections.close_all") as close,
+    ):
+        with pytest.raises(ValueError, match="bad feed"):
+            _fetch_one(podcast)
+    close.assert_called_once()
+
+
+@pytest.mark.django_db(databases="__all__", transaction=True)
+class TestPodcastUpdater:
+    def _podcast(self, name: str = "update", **metadata: object) -> Podcast:
+        return Podcast.objects.create(
+            title=name,
+            primary_lookup_id_type=IdType.RSS,
+            primary_lookup_id_value=f"feed.example/{name}.xml",
+            **metadata,
+        )
+
+    def _feed(self, now: datetime) -> dict[str, object]:
+        return {
+            "episodes": [
+                {
+                    "guid": "new-episode",
+                    "title": "New episode",
+                    "published": now.timestamp(),
+                    "enclosures": [{"url": "https://feed.example/episode.mp3"}],
+                }
+            ]
+        }
+
+    def test_empty_catalog_never_fetches(self) -> None:
+        with patch.object(RSS, "fetch_feed_with_metadata") as fetch:
+            PodcastUpdater().run()
+        fetch.assert_not_called()
+        assert PodcastUpdater.get_interval() == timedelta(hours=2)
+
+    def test_success_inserts_episodes_and_resets_failures(self) -> None:
+        now = timezone.now()
+        podcast = self._podcast(
+            feed_etag="old-etag",
+            feed_last_modified="old-modified",
+            feed_consecutive_failures=3,
+        )
+        with patch.object(
+            RSS,
+            "fetch_feed_with_metadata",
+            return_value=(self._feed(now), "new-etag", "new-modified", 200),
+        ) as fetch:
+            PodcastUpdater().run()
+        fetch.assert_called_once_with(podcast.feed_url, "old-etag", "old-modified")
+        podcast.refresh_from_db()
+        assert podcast.feed_etag == "new-etag"
+        assert podcast.feed_last_modified == "new-modified"
+        assert podcast.feed_consecutive_failures == 0
+        assert podcast.feed_last_fetched_at is not None
+        episode = podcast.episodes.get()
+        assert episode.guid == "new-episode"
+        assert episode.title == "New episode"
+        assert episode.media_url == "https://feed.example/episode.mp3"
+        with patch.object(RSS, "fetch_feed_with_metadata") as repeat_fetch:
+            PodcastUpdater().run()
+        repeat_fetch.assert_not_called()
+        assert podcast.episodes.count() == 1
+
+    @pytest.mark.parametrize(
+        ("etag", "modified"), [("", ""), ("new-etag", "new-modified")]
+    )
+    def test_not_modified_keeps_episodes_and_resets_failures(
+        self, etag: str, modified: str
+    ) -> None:
+        podcast = self._podcast(
+            feed_etag="old-etag",
+            feed_last_modified="old-modified",
+            feed_consecutive_failures=2,
+        )
+        episode = PodcastEpisode.objects.create(
+            program=podcast,
+            guid="existing-episode",
+            title="Existing episode",
+            pub_date=timezone.now(),
+        )
+        with (
+            patch.object(
+                RSS,
+                "fetch_feed_with_metadata",
+                return_value=(None, etag, modified, 304),
+            ),
+            patch.object(RSS, "update_episodes_from_feed") as update,
+        ):
+            PodcastUpdater().run()
+        update.assert_not_called()
+        podcast.refresh_from_db()
+        assert podcast.feed_etag == (etag or "old-etag")
+        assert podcast.feed_last_modified == (modified or "old-modified")
+        assert podcast.feed_consecutive_failures == 0
+        assert podcast.feed_last_fetched_at is not None
+        kept = podcast.episodes.get()
+        assert kept.pk == episode.pk
+        assert kept.title == "Existing episode"
+
+    @pytest.mark.parametrize("status", [0, 404, 503])
+    def test_fetch_failure_preserves_validators_and_increments_backoff(
+        self, status: int
+    ) -> None:
+        podcast = self._podcast(
+            feed_etag="old-etag",
+            feed_last_modified="old-modified",
+            feed_consecutive_failures=2,
+        )
+        with patch.object(
+            RSS, "fetch_feed_with_metadata", return_value=(None, "", "", status)
+        ):
+            PodcastUpdater().run()
+        podcast.refresh_from_db()
+        assert podcast.feed_etag == "old-etag"
+        assert podcast.feed_last_modified == "old-modified"
+        assert podcast.feed_consecutive_failures == 3
+        assert podcast.feed_last_fetched_at is not None
+        assert not podcast.episodes.exists()
+
+    def test_episode_write_failure_is_retriable(self) -> None:
+        podcast = self._podcast(feed_etag="old-etag")
+        with (
+            patch.object(
+                RSS,
+                "fetch_feed_with_metadata",
+                return_value=(self._feed(timezone.now()), "new-etag", "", 200),
+            ),
+            patch.object(
+                RSS, "update_episodes_from_feed", side_effect=ValueError("bad episode")
+            ),
+        ):
+            PodcastUpdater().run()
+        podcast.refresh_from_db()
+        assert podcast.feed_etag == "old-etag"
+        assert podcast.feed_consecutive_failures == 1
+        assert podcast.feed_last_fetched_at is not None
+
+    def test_only_due_rss_originals_are_fetched(self) -> None:
+        due = self._podcast("due")
+        recent = self._podcast("recent", feed_last_fetched_at=timezone.now())
+        PodcastEpisode.objects.create(
+            program=recent, guid="recent", title="Recent", pub_date=timezone.now()
+        )
+        deleted = self._podcast("deleted")
+        merged = self._podcast("merged")
+        non_rss = self._podcast("non-rss")
+        no_feed = self._podcast("no-feed")
+        Podcast.objects.filter(pk=deleted.pk).update(is_deleted=True)
+        Podcast.objects.filter(pk=merged.pk).update(merged_to_item=due)
+        Podcast.objects.filter(pk=non_rss.pk).update(
+            primary_lookup_id_type=IdType.ApplePodcast
+        )
+        Podcast.objects.filter(pk=no_feed.pk).update(primary_lookup_id_value=None)
+        with patch.object(
+            RSS, "fetch_feed_with_metadata", return_value=(None, "", "", 304)
+        ) as fetch:
+            PodcastUpdater().run()
+        fetch.assert_called_once_with(due.feed_url, "", "")
+        for podcast in (deleted, merged, non_rss, no_feed):
+            podcast.refresh_from_db()
+            assert podcast.feed_last_fetched_at is None

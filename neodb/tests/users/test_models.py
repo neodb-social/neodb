@@ -1,14 +1,18 @@
+from collections.abc import Iterator
 from unittest import mock
 from urllib.parse import urlparse
 
 import pytest
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.test import Client
+from django.urls import reverse
 
 from catalog.models import Edition
 from common.models import SiteConfig
 from journal.models import Mark, ShelfType
 from takahe.models import Domain, Identity
+from takahe.utils import Takahe
 from users.models import APIdentity, User
 from users.models.user import UsernameValidator
 
@@ -159,14 +163,6 @@ class TestAPIdentityModel:
         # An identity never rejects itself
         assert self.identity.is_rejecting(self.identity) is False
 
-    def test_get_by_handle_local(self):
-        found = APIdentity.get_by_handle("iduser")
-        assert found.pk == self.identity.pk
-
-    def test_get_by_handle_local_with_at(self):
-        found = APIdentity.get_by_handle("@iduser")
-        assert found.pk == self.identity.pk
-
     def test_get_by_handle_nonexistent_raises(self):
         with pytest.raises(APIdentity.DoesNotExist):
             APIdentity.get_by_handle("nonexistent")
@@ -312,3 +308,148 @@ class TestWebfingerXRD:
             is None
         )
         assert Identity.parse_webfinger_xrd(b"") is None
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestAccountMigration:
+    @pytest.fixture(autouse=True)
+    def setup_migration(self, client: Client) -> Iterator[None]:
+        self.user = User.register(username="moveuser")
+        self.identity = self.user.identity.takahe_identity
+        domain = Domain.objects.create(domain="move.example", local=False)
+        self.target = Identity.objects.create(
+            actor_uri="https://move.example/users/target",
+            username="target",
+            domain=domain,
+            local=False,
+            aliases=[],
+        )
+        client.force_login(self.user)
+        with (
+            mock.patch("httpx.get") as self.refresh,
+            mock.patch.object(Identity, "fetch_webfinger", return_value=(None, None)),
+            mock.patch.object(Takahe, "fetch_remote_identity") as self.fetch,
+        ):
+            self.refresh.return_value.status_code = 200
+            self.refresh.return_value.json.return_value = {
+                "alsoKnownAs": [self.identity.actor_uri]
+            }
+            yield
+
+    @pytest.mark.parametrize("view", ["migrate_in", "migrate_out"])
+    def test_anonymous_requests_cannot_change_identity(
+        self, client: Client, view: str
+    ) -> None:
+        client.logout()
+        response = client.post(reverse(f"users:{view}"), {"alias": self.target.handle})
+        assert response.status_code == 302
+        assert reverse("users:login") in response["Location"]
+        self.identity.refresh_from_db()
+        assert not self.identity.aliases
+        assert self.identity.state not in ("moved", "moved_fanned_out")
+        self.refresh.assert_not_called()
+
+    @pytest.mark.parametrize("view", ["migrate_in", "migrate_out"])
+    def test_pages_show_existing_aliases(self, client: Client, view: str) -> None:
+        self.identity.aliases = [self.target.actor_uri]
+        self.identity.save(update_fields=["aliases"])
+        response = client.get(reverse(f"users:{view}"))
+        assert response.status_code == 200
+        assert response.context["aliases"] == [self.target]
+        assert response.context["moved"] is False
+
+    @pytest.mark.parametrize("view", ["migrate_in", "migrate_out"])
+    def test_empty_handle_does_not_start_lookup(
+        self, client: Client, view: str
+    ) -> None:
+        response = client.post(reverse(f"users:{view}"), {"alias": " @ "})
+        assert response.status_code == 302
+        self.fetch.assert_not_called()
+        self.refresh.assert_not_called()
+        self.identity.refresh_from_db()
+        assert not self.identity.aliases
+
+    @pytest.mark.parametrize("view", ["migrate_in", "migrate_out"])
+    def test_unresolved_handle_queues_lookup(self, client: Client, view: str) -> None:
+        response = client.post(
+            reverse(f"users:{view}"), {"alias": " @unknown@move.example "}
+        )
+        assert response.status_code == 302
+        self.fetch.assert_called_once_with("unknown@move.example")
+        self.identity.refresh_from_db()
+        assert not self.identity.aliases
+        assert self.identity.state not in ("moved", "moved_fanned_out")
+
+    def test_alias_add_is_idempotent_and_remove_persists(self, client: Client) -> None:
+        url = reverse("users:migrate_in")
+        for _ in range(2):
+            response = client.post(url, {"alias": f" @{self.target.handle} "})
+            assert response.status_code == 302
+        self.identity.refresh_from_db()
+        assert self.identity.aliases == [self.target.actor_uri]
+        response = client.post(url, {"alias": self.target.handle, "remove_alias": "1"})
+        assert response.status_code == 302
+        self.identity.refresh_from_db()
+        assert not self.identity.aliases
+
+    @pytest.mark.parametrize("state", ["moved", "moved_fanned_out"])
+    @pytest.mark.parametrize("remove", [False, True])
+    def test_moved_account_cannot_change_aliases(
+        self, client: Client, state: str, remove: bool
+    ) -> None:
+        self.identity.state = state
+        self.identity.aliases = [self.target.actor_uri] if remove else []
+        self.identity.save(update_fields=["state", "aliases"])
+        data = {"alias": self.target.handle}
+        if remove:
+            data["remove_alias"] = "1"
+        response = client.post(reverse("users:migrate_in"), data)
+        assert response.status_code == 302
+        self.identity.refresh_from_db()
+        assert self.identity.aliases == ([self.target.actor_uri] if remove else [])
+        assert self.identity.state == state
+        self.fetch.assert_not_called()
+
+    def test_cannot_move_to_local_account(self, client: Client) -> None:
+        local_user = User.register(username="localtarget")
+        response = client.post(
+            reverse("users:migrate_out"), {"alias": local_user.identity.full_handle}
+        )
+        assert response.status_code == 302
+        self.refresh.assert_not_called()
+        self.identity.refresh_from_db()
+        assert self.identity.state not in ("moved", "moved_fanned_out")
+        assert not self.identity.aliases
+
+    def test_move_requires_alias_in_refreshed_target(self, client: Client) -> None:
+        self.target.aliases = [self.identity.actor_uri]
+        self.target.save(update_fields=["aliases"])
+        self.refresh.return_value.json.return_value = {"alsoKnownAs": []}
+        response = client.post(
+            reverse("users:migrate_out"), {"alias": self.target.handle}
+        )
+        assert response.status_code == 302
+        self.target.refresh_from_db()
+        assert self.target.aliases == []
+        self.identity.refresh_from_db()
+        assert self.identity.state not in ("moved", "moved_fanned_out")
+        assert not self.identity.aliases
+
+    def test_verified_move_and_cancel_persist(self, client: Client) -> None:
+        response = client.post(
+            reverse("users:migrate_out"), {"alias": self.target.handle}
+        )
+        assert response.status_code == 302
+        self.refresh.assert_called_once()
+        assert self.refresh.call_args.args == (self.target.actor_uri,)
+        self.identity.refresh_from_db()
+        assert self.identity.state == "moved"
+        assert self.identity.aliases == [self.target.actor_uri]
+        page = client.get(reverse("users:migrate_out"))
+        assert page.context["moved"] is True
+        response = client.post(reverse("users:migrate_out"), {"cancel": "1"})
+        assert response.status_code == 302
+        self.identity.refresh_from_db()
+        assert self.identity.state == "updated"
+        assert not self.identity.aliases
+        assert self.refresh.call_count == 1

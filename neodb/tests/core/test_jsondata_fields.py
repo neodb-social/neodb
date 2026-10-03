@@ -1,5 +1,5 @@
 import pickle
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from datetime import timezone as dt_tz
 
 import pytest
@@ -32,8 +32,8 @@ class TestEncryptDecrypt:
         decrypted = decrypt_str(encrypted)
         assert decrypted == ""
 
-    def test_unicode_roundtrip(self):
-        original = "Hello, multi-language text"
+    def test_unicode_roundtrip(self) -> None:
+        original = "你好，世界！ café 日本語"
         encrypted = encrypt_str(original)
         decrypted = decrypt_str(encrypted)
         assert decrypted == original
@@ -109,38 +109,31 @@ class TestDateTimeField:
     def setup_method(self):
         self.field = DateTimeField()
 
-    def test_to_json_with_aware_datetime(self):
-        dt = timezone.now()
-        result = self.field.to_json(dt)
-        assert result is not None
-        assert "T" in result
+    def test_to_json_with_aware_datetime(self) -> None:
+        dt = datetime(2024, 1, 15, 12, 30, 45, 123456, dt_tz(timedelta(hours=5)))
+        assert self.field.to_json(dt) == "2024-01-15T12:30:45.123456+05:00"
 
-    def test_to_json_with_naive_datetime(self):
+    def test_to_json_with_naive_datetime(self) -> None:
         dt = datetime(2024, 1, 15, 12, 30)
-        result = self.field.to_json(dt)
-        assert result is not None
-        # should have made it aware
-        assert "+" in result or "Z" in result
+        with timezone.override(dt_tz(timedelta(hours=8))):
+            assert self.field.to_json(dt) == "2024-01-15T12:30:00+08:00"
 
-    def test_to_json_with_date(self):
+    def test_to_json_with_date(self) -> None:
         d = date(2024, 1, 15)
-        result = self.field.to_json(d)
-        assert result is not None
-        # date should be converted to datetime
-        assert "T" in result
+        with timezone.override(dt_tz.utc):
+            assert self.field.to_json(d) == "2024-01-15T00:00:00+00:00"
 
-    def test_to_json_with_valid_string(self):
-        result = self.field.to_json("2024-01-15")
-        assert result is not None
+    def test_to_json_with_valid_string(self) -> None:
+        with timezone.override(dt_tz.utc):
+            assert self.field.to_json("2024-01-15") == "2024-01-15T00:00:00+00:00"
 
     def test_to_json_with_invalid_string(self):
         with pytest.raises(ValueError, match="invalid datetime format"):
             self.field.to_json("not-a-date")
 
-    def test_from_json_with_value(self):
+    def test_from_json_with_value(self) -> None:
         result = self.field.from_json("2024-01-15T12:30:00+00:00")
-        assert isinstance(result, datetime)
-        assert result.year == 2024
+        assert result == datetime(2024, 1, 15, 12, 30, tzinfo=dt_tz.utc)
 
     def test_from_json_with_none(self):
         result = self.field.from_json(None)
@@ -155,26 +148,22 @@ class TestTimeField:
     def setup_method(self):
         self.field = TimeField()
 
-    def test_to_json_with_aware_time(self):
+    def test_to_json_with_aware_time(self) -> None:
         t = time(12, 30, 0, tzinfo=dt_tz.utc)
-        result = self.field.to_json(t)
-        assert result is not None
-        assert "12:30" in result
+        assert self.field.to_json(t) == "12:30:00+00:00"
 
-    def test_to_json_with_naive_time(self):
+    def test_to_json_with_naive_time(self) -> None:
         t = time(12, 30, 0)
-        result = self.field.to_json(t)
-        assert result is not None
+        with timezone.override(dt_tz(timedelta(hours=8))):
+            assert self.field.to_json(t) == "12:30:00+08:00"
 
     def test_to_json_with_none(self):
         result = self.field.to_json(None)
         assert result is None
 
-    def test_from_json_with_value(self):
+    def test_from_json_with_value(self) -> None:
         result = self.field.from_json("12:30:00")
-        assert isinstance(result, time)
-        assert result.hour == 12
-        assert result.minute == 30
+        assert result == time(12, 30)
 
     def test_from_json_with_none(self):
         result = self.field.from_json(None)
