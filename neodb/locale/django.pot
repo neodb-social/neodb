@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 08:20-0400\n"
+"POT-Creation-Date: 2026-10-03 08:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1368,7 +1368,7 @@ msgid "Write a review"
 msgstr ""
 
 #: catalog/templates/_item_similar.html:13
-msgid "Similar items"
+msgid "More like this"
 msgstr ""
 
 #: catalog/templates/_item_user_mark_history.html:25
@@ -1425,12 +1425,12 @@ msgid "Mark history"
 msgstr ""
 
 #: catalog/templates/_reco_dismissed_body.html:5
-#: catalog/templates/_reco_dismissed_row.html:4
+#: catalog/templates/_reco_dismissed_row.html:12
 msgid "Hidden from recommendations."
 msgstr ""
 
 #: catalog/templates/_reco_dismissed_body.html:10
-#: catalog/templates/_reco_dismissed_row.html:9
+#: catalog/templates/_reco_dismissed_row.html:8
 msgid "Undo"
 msgstr ""
 
@@ -2544,11 +2544,11 @@ msgstr ""
 msgid "This edition will be unlinked from the following work"
 msgstr ""
 
-#: catalog/views/recommendation.py:68
+#: catalog/views/recommendation.py:66
 msgid "Hidden recommendations"
 msgstr ""
 
-#: catalog/views/recommendation.py:69
+#: catalog/views/recommendation.py:67
 msgid "These items are not recommended to you. Restore one to let it come back."
 msgstr ""
 

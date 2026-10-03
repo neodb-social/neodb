@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 08:20-0400\n"
+"POT-Creation-Date: 2026-10-03 08:34-0400\n"
 "PO-Revision-Date: 2026-09-14 23:57+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1365,8 +1365,8 @@ msgid "Write a review"
 msgstr "撰写评论"
 
 #: catalog/templates/_item_similar.html:13
-msgid "Similar items"
-msgstr "相似条目"
+msgid "More like this"
+msgstr "更多类似内容"
 
 #: catalog/templates/_item_user_mark_history.html:25
 msgid "No history."
@@ -1422,12 +1422,12 @@ msgid "Mark history"
 msgstr "标记历史"
 
 #: catalog/templates/_reco_dismissed_body.html:5
-#: catalog/templates/_reco_dismissed_row.html:4
+#: catalog/templates/_reco_dismissed_row.html:12
 msgid "Hidden from recommendations."
 msgstr "已从推荐中隐藏。"
 
 #: catalog/templates/_reco_dismissed_body.html:10
-#: catalog/templates/_reco_dismissed_row.html:9
+#: catalog/templates/_reco_dismissed_row.html:8
 msgid "Undo"
 msgstr "撤销"
 
@@ -2541,11 +2541,11 @@ msgstr "确定取消关联吗？"
 msgid "This edition will be unlinked from the following work"
 msgstr "这个图书版本将与以下作品取消关联"
 
-#: catalog/views/recommendation.py:68
+#: catalog/views/recommendation.py:66
 msgid "Hidden recommendations"
 msgstr "已隐藏的推荐"
 
-#: catalog/views/recommendation.py:69
+#: catalog/views/recommendation.py:67
 msgid "These items are not recommended to you. Restore one to let it come back."
 msgstr "这些条目不会再推荐给你。恢复后它们会重新出现在推荐中。"
 
