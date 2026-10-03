@@ -880,8 +880,6 @@ def dismiss_recommendation_api(request, item_uuid: str):
     Repeating the call is harmless. A merged item is stored as the item it
     was merged into.
     """
-    if not request.user.is_authenticated:
-        return Status(401, {"message": "Login required"})
     item = Item.get_by_url(item_uuid)
     if not item or item.is_deleted:
         return Status(404, {"message": "Item not found"})
@@ -896,8 +894,6 @@ def dismiss_recommendation_api(request, item_uuid: str):
     tags=["recommendation"],
 )
 def restore_recommendation_api(request, item_uuid: str):
-    if not request.user.is_authenticated:
-        return Status(401, {"message": "Login required"})
     item = Item.get_by_url(item_uuid)
     if not item:
         return Status(404, {"message": "Item not found"})

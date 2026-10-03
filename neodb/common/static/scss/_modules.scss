@@ -452,9 +452,11 @@ a:hover .dc-cover img {
 }
 
 // progress badge, a link on the owner's own shelf; same scrim look as the
-// rating badge, in the opposite corner of the cover
+// rating badge, in the opposite corner of the cover. The recommendation
+// dismiss button wears the same scrim.
 .dc-progress-badge,
-a.dc-progress-badge {
+a.dc-progress-badge,
+.dc-card-dismiss {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
@@ -478,22 +480,15 @@ a.dc-progress-badge {
 
 // hide / restore a recommended card; shown on hover where there is one
 .dc-card-dismiss {
-  position: absolute;
   top: 0.4rem;
   right: 0.4rem;
-  z-index: 1;
   display: grid;
   place-items: center;
   width: 1.75rem;
   height: 1.75rem;
-  margin: 0;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--pico-contrast-background) 80%, transparent);
-  color: var(--pico-contrast-inverse);
-  font-size: var(--dc-fs-xs);
-  backdrop-filter: blur(4px);
   opacity: 0;
   transition: opacity 0.15s ease;
 
@@ -504,11 +499,6 @@ a.dc-progress-badge {
 
   @media (hover: none) {
     opacity: 1;
-  }
-
-  &:hover {
-    color: var(--pico-contrast-inverse);
-    background: var(--pico-primary-background);
   }
 }
 

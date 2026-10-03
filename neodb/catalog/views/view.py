@@ -1,10 +1,17 @@
 from functools import partial
-from typing import Callable
+from typing import Callable, Sequence
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.db.models import Count, F, Q, Window, prefetch_related_objects
+from django.db.models import (
+    Count,
+    F,
+    Q,
+    QuerySet,
+    Window,
+    prefetch_related_objects,
+)
 from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -701,13 +708,22 @@ def prepare_list_items(request, items: list[Item]) -> None:
 
 
 def _discover_list_page(
-    request, items: list[Item], title: str, subtitle: str = "", **extra
+    request,
+    items: Sequence | QuerySet,
+    title: str,
+    subtitle: str = "",
+    to_items: Callable[..., list[Item]] = list,
+    **extra,
 ):
-    """One page of ``items`` as search-style rows, for the see-all links."""
+    """One page of ``items`` as search-style rows, for the see-all links.
+
+    ``to_items`` turns the page's slice into items, so a queryset of ids
+    loads only the page it shows.
+    """
     paginator = CustomPaginator(items, request)
     page_number = request.GET.get("page", default=1)
     page = paginator.get_page(page_number)
-    page_items = list(page.object_list)
+    page_items = to_items(page.object_list)
     prepare_list_items(request, page_items)
     return render(
         request,
@@ -979,34 +995,21 @@ def discover_category(request, category: str):
     )
 
 
-def _reco_list_page(request, items: list[Item], title: str, subtitle: str):
+@login_required
+def discover_reco(request, kind: str):
+    """Every item one of the personal discover rows draws from."""
+    items = []
+    if kind == "for_you":
+        title, subtitle = _("For you"), _("Because of what is on your shelf.")
+        if request.user.preference.show_recommendations(kind):
+            items = for_you(request.user, limit=SiteConfig.system.reco_user_top_n)
+    else:
+        title = _("From people you follow")
+        subtitle = _("Marked recently by people you follow.")
+        if request.user.preference.show_recommendations(kind):
+            items = from_your_circles(request.user, limit=CIRCLES_PAGE_SIZE)
     items = _in_visible_categories(items, _visible_category_values(request))
     return _discover_list_page(request, items, title, subtitle, reco_dismiss=True)
-
-
-@login_required
-def discover_for_you(request):
-    """Every personal recommendation the discover row draws from."""
-    items = []
-    if request.user.preference.show_recommendations("for_you"):
-        items = for_you(request.user, limit=SiteConfig.system.reco_user_top_n)
-    return _reco_list_page(
-        request, items, _("For you"), _("Because of what is on your shelf.")
-    )
-
-
-@login_required
-def discover_from_circles(request):
-    """The discover row of items marked by people the viewer follows."""
-    items = []
-    if request.user.preference.show_recommendations("from_circles"):
-        items = from_your_circles(request.user, limit=CIRCLES_PAGE_SIZE)
-    return _reco_list_page(
-        request,
-        items,
-        _("From people you follow"),
-        _("Marked recently by people you follow."),
-    )
 
 
 def discover_original_podcasts(request):
