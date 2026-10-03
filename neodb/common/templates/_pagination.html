@@ -1,22 +1,48 @@
-<div class="pagination">
-  {% if pagination %}
-    {% if pagination.has_prev %}
-      <a href="?{{ pagination.query_string }}page=1" class="s">«</a>
-      <a href="?{{ pagination.query_string }}page={{ pagination.previous_page }}"
-         class="prev">‹</a>
-    {% endif %}
-    {% for page in pagination.page_range %}
-      {% if page == pagination.current_page %}
-        <a href="?{{ pagination.query_string }}page={{ page }}" class="current">{{ page }}</a>
+{% load i18n %}
+{% if pagination and pagination.last_page > 1 %}
+  <nav class="pagination" aria-label="{% translate 'Pagination' %}">
+    <div>
+      {% if pagination.previous_page %}
+        <a href="?{{ pagination.query_string }}page={{ pagination.previous_page }}"
+           class="step"
+           rel="prev"
+           aria-label="{% translate 'Previous page' %}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>{% translate 'Previous' %}</span></a>
       {% else %}
-        <a href="?{{ pagination.query_string }}page={{ page }}">{{ page }}</a>
+        <a class="step"
+           aria-disabled="true"
+           aria-label="{% translate 'Previous page' %}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i><span>{% translate 'Previous' %}</span></a>
       {% endif %}
-    {% endfor %}
-    {% if pagination.has_next %}
-      <a href="?{{ pagination.query_string }}page={{ pagination.next_page }}"
-         class="next">›</a>
-      <a href="?{{ pagination.query_string }}page={{ pagination.last_page }}"
-         class="s">»</a>
-    {% endif %}
-  {% endif %}
-</div>
+      {% if pagination.start_page > 1 %}
+        <a href="?{{ pagination.query_string }}page=1" class="num">1</a>
+        {% if pagination.start_page > 2 %}<span class="gap" aria-hidden="true">…</span>{% endif %}
+      {% endif %}
+      {% for page in pagination.page_range %}
+        {% if page == pagination.current_page %}
+          <span class="num" aria-current="page">{{ page }}</span>
+        {% else %}
+          <a href="?{{ pagination.query_string }}page={{ page }}" class="num">{{ page }}</a>
+        {% endif %}
+      {% endfor %}
+      {% if pagination.end_page < pagination.last_page %}
+        {% if pagination.end_page < pagination.last_page|add:"-1" %}
+          <span class="gap" aria-hidden="true">…</span>
+        {% endif %}
+        <a href="?{{ pagination.query_string }}page={{ pagination.last_page }}"
+           class="num">{{ pagination.last_page }}</a>
+      {% endif %}
+      <span class="count">
+        {% blocktranslate with current=pagination.current_page total=pagination.last_page %}{{ current }} of {{ total }}{% endblocktranslate %}
+      </span>
+      {% if pagination.next_page %}
+        <a href="?{{ pagination.query_string }}page={{ pagination.next_page }}"
+           class="step"
+           rel="next"
+           aria-label="{% translate 'Next page' %}"><span>{% translate 'Next' %}</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+      {% else %}
+        <a class="step"
+           aria-disabled="true"
+           aria-label="{% translate 'Next page' %}"><span>{% translate 'Next' %}</span><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+      {% endif %}
+    </div>
+  </nav>
+{% endif %}

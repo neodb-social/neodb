@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 10:27-0400\n"
+"POT-Creation-Date: 2026-10-03 13:19-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4126,6 +4126,33 @@ msgstr ""
 
 #: common/templates/_layout_editor.html:46
 msgid "Move down"
+msgstr ""
+
+#: common/templates/_pagination.html:3
+msgid "Pagination"
+msgstr ""
+
+#: common/templates/_pagination.html:9 common/templates/_pagination.html:13
+msgid "Previous page"
+msgstr ""
+
+#: common/templates/_pagination.html:9 common/templates/_pagination.html:13
+msgid "Previous"
+msgstr ""
+
+#: common/templates/_pagination.html:34
+#, python-format
+msgid "%(current)s of %(total)s"
+msgstr ""
+
+#: common/templates/_pagination.html:40 common/templates/_pagination.html:44
+msgid "Next page"
+msgstr ""
+
+#: common/templates/_pagination.html:40 common/templates/_pagination.html:44
+#: users/templates/users/rym_import.html:64
+#: users/templates/users/storygraph_import.html:64
+msgid "Next"
 msgstr ""
 
 #: common/templates/_sidebar.html:59
@@ -8857,11 +8884,6 @@ msgstr ""
 #: users/templates/users/rym_import.html:60
 #: users/templates/users/storygraph_import.html:60
 msgid "Prev"
-msgstr ""
-
-#: users/templates/users/rym_import.html:64
-#: users/templates/users/storygraph_import.html:64
-msgid "Next"
 msgstr ""
 
 #: users/templates/users/rym_import.html:84

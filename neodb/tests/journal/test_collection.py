@@ -785,10 +785,12 @@ class TestCollectionFilterView:
         assert 'name="category"' not in content
         assert 'name="status"' in content
 
-    def test_filter_survives_pagination_links(self):
+    def test_filter_survives_pagination_links(self, monkeypatch):
+        monkeypatch.setattr("common.utils.ITEMS_PER_PAGE_OPTIONS", [1])
+        self.collection.append_item(Edition.objects.create(title="Second Book"))
         response = self._login().get(self.url, {"category": "book", "per_page": "1"})
         assert response.status_code == 200
-        assert "category=book" in response.content.decode()
+        assert "category=book&amp;per_page=1&amp;page=2" in response.content.decode()
 
 
 @pytest.mark.django_db(databases="__all__")

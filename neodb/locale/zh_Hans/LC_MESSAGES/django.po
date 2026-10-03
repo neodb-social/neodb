@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 10:27-0400\n"
+"POT-Creation-Date: 2026-10-03 13:19-0400\n"
 "PO-Revision-Date: 2026-09-14 23:57+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -4124,6 +4124,33 @@ msgstr "上移"
 #: common/templates/_layout_editor.html:46
 msgid "Move down"
 msgstr "下移"
+
+#: common/templates/_pagination.html:3
+msgid "Pagination"
+msgstr "分页"
+
+#: common/templates/_pagination.html:9 common/templates/_pagination.html:13
+msgid "Previous page"
+msgstr "上一页"
+
+#: common/templates/_pagination.html:9 common/templates/_pagination.html:13
+msgid "Previous"
+msgstr "上一页"
+
+#: common/templates/_pagination.html:34
+#, python-format
+msgid "%(current)s of %(total)s"
+msgstr "%(current)s / %(total)s"
+
+#: common/templates/_pagination.html:40 common/templates/_pagination.html:44
+msgid "Next page"
+msgstr "下一页"
+
+#: common/templates/_pagination.html:40 common/templates/_pagination.html:44
+#: users/templates/users/rym_import.html:64
+#: users/templates/users/storygraph_import.html:64
+msgid "Next"
+msgstr "下一页"
 
 #: common/templates/_sidebar.html:59
 #: users/templates/users/profile_actions.html:36
@@ -8969,11 +8996,6 @@ msgstr "标记"
 #: users/templates/users/storygraph_import.html:60
 msgid "Prev"
 msgstr "上一页"
-
-#: users/templates/users/rym_import.html:64
-#: users/templates/users/storygraph_import.html:64
-msgid "Next"
-msgstr "下一页"
 
 #: users/templates/users/rym_import.html:84
 #: users/templates/users/storygraph_import.html:84
