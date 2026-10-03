@@ -3,7 +3,11 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
+from typing import Any
+
 from common.forms import PreviewImageInput
+from common.models.lang import LOCALE_CHOICES
+from users.models import User
 
 from .models import *
 
@@ -11,6 +15,43 @@ from .models import *
 COMMENT_TIPS = _(
     "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
 )
+
+
+def _post_language_choices() -> list[tuple[str, Any]]:
+    # LOCALE_CHOICES is rebuilt in place on a SiteConfig change; a list given to
+    # the field directly would be copied at import time
+    return LOCALE_CHOICES
+
+
+class PostLanguageField(forms.ChoiceField):
+    """Language of the post a piece publishes.
+
+    A form without this field in its POST cleans to None, which keeps the
+    language of the existing post; "x" (unknown) cleans to "".
+    """
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(
+            choices=_post_language_choices,
+            required=False,
+            label=_("Language"),
+            widget=forms.Select(attrs={"aria-label": _("Language")}),
+            **kwargs,
+        )
+
+    def clean(self, value: Any) -> str | None:
+        value = super().clean(value)
+        if not value:
+            return None
+        return "" if value == "x" else value
+
+
+def post_language_initial(user: User, piece: Piece | None = None) -> str:
+    post = piece.latest_post if piece else None
+    return (post.language if post else user.macrolanguage) or "x"
+
+
+VISIBILITY_WIDGET_ATTRS = {"aria-label": _("Visibility")}
 
 
 class ReviewForm(forms.ModelForm):
@@ -58,8 +99,9 @@ class ReviewForm(forms.ModelForm):
         initial=0,
         coerce=int,
         choices=VisibilityType.choices,
-        widget=forms.RadioSelect,
+        widget=forms.Select(attrs=VISIBILITY_WIDGET_ATTRS),
     )
+    language = PostLanguageField()
 
 
 class ArticleForm(forms.ModelForm):
@@ -133,8 +175,9 @@ class ArticleForm(forms.ModelForm):
         initial=0,
         coerce=int,
         choices=VisibilityType.choices,
-        widget=forms.RadioSelect,
+        widget=forms.Select(attrs=VISIBILITY_WIDGET_ATTRS),
     )
+    language = PostLanguageField()
 
 
 COLLABORATIVE_CHOICES = [
@@ -215,8 +258,9 @@ class MarkForm(forms.Form):
         initial=0,
         coerce=int,
         choices=VisibilityType.choices,
-        widget=forms.RadioSelect,
+        widget=forms.Select(attrs=VISIBILITY_WIDGET_ATTRS),
     )
+    language = PostLanguageField()
     share_to_mastodon = forms.BooleanField(
         label=_("Crosspost"),
         help_text=_("Crosspost to your connected social networks"),
@@ -277,8 +321,9 @@ class CommentForm(forms.Form):
         initial=0,
         coerce=int,
         choices=VisibilityType.choices,
-        widget=forms.RadioSelect,
+        widget=forms.Select(attrs=VISIBILITY_WIDGET_ATTRS),
     )
+    language = PostLanguageField()
     share_to_mastodon = forms.BooleanField(
         label=_("Crosspost"),
         help_text=_("Crosspost to your connected social networks"),

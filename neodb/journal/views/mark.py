@@ -15,7 +15,7 @@ from common.models.lang import translate
 from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
-from ..forms import CommentForm, MarkForm
+from ..forms import CommentForm, MarkForm, post_language_initial
 from ..models import Comment, Mark, ShelfManager, ShelfType
 from .common import render_list, render_relogin
 from common.validators import get_safe_referer_url
@@ -166,6 +166,10 @@ def mark(request: AuthedHttpRequest, item_uuid):
                 "form": MarkForm(
                     initial={
                         "text": mark.comment_text or "",
+                        "visibility": mark.visibility,
+                        "language": post_language_initial(
+                            request.user, mark.shelfmember
+                        ),
                         "share_to_mastodon": request.user.preference.mastodon_default_repost,
                     }
                 ),
@@ -196,6 +200,7 @@ def mark(request: AuthedHttpRequest, item_uuid):
                         share_to_mastodon=data["share_to_mastodon"],
                         created_time=data["mark_date_parsed"],
                         application_id=getattr(request, "application_id", None),
+                        language=data["language"],
                     )
                 except PermissionDenied:
                     logger.warning(f"post to mastodon error 401 {request.user}")
@@ -262,6 +267,7 @@ def comment(request: AuthedHttpRequest, item_uuid):
                     initial={
                         "text": comment.text if comment else "",
                         "visibility": comment.visibility if comment else 0,
+                        "language": post_language_initial(request.user, comment),
                         "share_to_mastodon": request.user.preference.mastodon_default_repost,
                     }
                 ),
@@ -299,6 +305,7 @@ def comment(request: AuthedHttpRequest, item_uuid):
             owner=request.user.identity, item=item, defaults=d
         )[0]
         update_mode = 1 if delete_existing_post else 0
+        comment.language_when_save = form.cleaned_data["language"]
         comment.sync_to_timeline(update_mode)
         if share_to_mastodon:
             comment.sync_to_social_accounts(update_mode)

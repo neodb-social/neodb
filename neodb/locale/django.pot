@@ -6511,6 +6511,10 @@ msgstr ""
 msgid "Change mark date"
 msgstr ""
 
+#: journal/templates/mark.html:101
+msgid "Mark date"
+msgstr ""
+
 #: journal/templates/mark.html:152
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr ""

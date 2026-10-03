@@ -402,7 +402,7 @@ def post_edit(request: AuthedHttpRequest, post_id: int):
                 "sensitive": post.sensitive,
                 "visibility": Takahe.visibility_t2n(post.visibility),
                 "languages": LOCALE_CHOICES,
-                "user_language": post.language or request.user.language,
+                "user_language": post.language or "x",
             },
         )
 

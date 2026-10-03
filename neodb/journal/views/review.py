@@ -105,12 +105,14 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
     if review and not review.is_editable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))
     if request.method == "GET":
+        language = post_language_initial(request.user, review)
         form = (
-            ReviewForm(instance=review)
+            ReviewForm(instance=review, initial={"language": language})
             if review
             else ReviewForm(
                 initial={
                     "item": item.pk,
+                    "language": language,
                     "share_to_mastodon": request.user.preference.mastodon_default_repost,
                 }
             )
@@ -149,6 +151,7 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
                 form.cleaned_data["visibility"],
                 mark_date,
                 form.cleaned_data["share_to_mastodon"],
+                language=form.cleaned_data["language"],
             )
             if not review:
                 raise BadRequest(_("Invalid parameter"))

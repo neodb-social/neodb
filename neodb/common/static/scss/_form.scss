@@ -134,7 +134,7 @@
 }
 
 // Visibility and collaborator radios read as one row of choices, not a list.
-#id_visibility,
+#id_visibility:not(select),
 #id_visibility li,
 #id_collaborative li {
   padding-left: 0;

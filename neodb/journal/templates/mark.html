@@ -71,68 +71,38 @@
                    autocomplete="off">
           </div>
         </div>
-        <div class="grid scroll-x">
-          <div>
-            <fieldset>
-              <input type="radio"
-                     name="visibility"
-                     value="0"
-                     required
-                     id="id_visibility_0"
-                     {% if mark.visibility == 0 %}checked{% endif %}>
-              <label for="id_visibility_0">{% trans "Public" %}</label>
-              <input type="radio"
-                     name="visibility"
-                     value="1"
-                     required
-                     id="id_visibility_1"
-                     {% if mark.visibility == 1 %}checked{% endif %}>
-              <label for="id_visibility_1">{% trans "Followers Only" %}</label>
-              <input type="radio"
-                     name="visibility"
-                     value="2"
-                     required
-                     id="id_visibility_2"
-                     {% if mark.visibility == 2 %}checked{% endif %}>
-              <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
-            </fieldset>
+        <div class="post-options">
+          <div role="group">
+            {{ form.visibility }}
+            {{ form.language }}
           </div>
-          <div>
-            <fieldset>
-              {% if request.user.mastodon or request.user.threads or request.user.bluesky %}
-                <label for="{{ form.share_to_mastodon.id_for_label }}"
-                       title="{{ form.share_to_mastodon.help_text }}">
-                  {{ form.share_to_mastodon }}
-                  {{ form.share_to_mastodon.label }}
-                </label>
-              {% endif %}
-            </fieldset>
-          </div>
+          {% if request.user.mastodon or request.user.threads or request.user.bluesky %}
+            <label for="{{ form.share_to_mastodon.id_for_label }}"
+                   title="{{ form.share_to_mastodon.help_text }}">
+              {{ form.share_to_mastodon }}
+              {{ form.share_to_mastodon.label }}
+            </label>
+          {% endif %}
         </div>
-        <div class="grid">
-          <div>
-            <div>
-              <input role="switch"
-                     _="on click toggle .invisible on #mark_date  "
-                     type="checkbox"
-                     name="mark_anotherday"
-                     value="1"
-                     id="mark_anotherday">
-              <label for="mark_anotherday">{% trans "Change mark date" %}</label>
-              <input class="invisible"
-                     type="date"
-                     name="mark_date"
-                     id="mark_date"
-                     min="1900-01-01"
-                     max="{{ date_today }}"
-                     value="{{ date_today }}">
-            </div>
-          </div>
-          <div>
-            <fieldset>
-              <input type="submit" value="{% trans "Save" %}">
-            </fieldset>
-          </div>
+        <div class="post-options">
+          <label for="mark_anotherday">
+            <input role="switch"
+                   _="on click toggle @hidden on #mark_date"
+                   type="checkbox"
+                   name="mark_anotherday"
+                   value="1"
+                   id="mark_anotherday">
+            {% trans "Change mark date" %}
+          </label>
+          <input hidden
+                 type="date"
+                 name="mark_date"
+                 id="mark_date"
+                 aria-label="{% trans "Mark date" %}"
+                 min="1900-01-01"
+                 max="{{ date_today }}"
+                 value="{{ date_today }}">
+          <input type="submit" value="{% trans "Save" %}">
         </div>
         <div id="mark-form-error"></div>
       </form>

@@ -43,22 +43,21 @@
         <div id="note-only-fields" {% if mode == "progress" %}hidden{% endif %}>
           {{ form.content }}
           {{ form.title }}
-          <div>{{ form.visibility }}</div>
-          <div class="grid">
-            {% if can_update_progress %}
-              <div>
-                <label for="{{ form.update_progress.id_for_label }}">
-                  {{ form.update_progress }} {{ form.update_progress.label }}
-                </label>
-              </div>
-            {% endif %}
-            <div>
-              <label for="{{ form.share_to_mastodon.id_for_label }}"
-                     title="{{ form.share_to_mastodon.help_text }}">
-                {{ form.share_to_mastodon }}
-                {{ form.share_to_mastodon.label }}
-              </label>
+          <div class="post-options">
+            <div role="group">
+              {{ form.visibility }}
+              {{ form.language }}
             </div>
+            {% if can_update_progress %}
+              <label for="{{ form.update_progress.id_for_label }}">
+                {{ form.update_progress }} {{ form.update_progress.label }}
+              </label>
+            {% endif %}
+            <label for="{{ form.share_to_mastodon.id_for_label }}"
+                   title="{{ form.share_to_mastodon.help_text }}">
+              {{ form.share_to_mastodon }}
+              {{ form.share_to_mastodon.label }}
+            </label>
           </div>
         </div>
         <div class="note-edit-buttons">

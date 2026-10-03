@@ -6520,6 +6520,10 @@ msgstr "回车增加标签"
 msgid "Change mark date"
 msgstr "指定标记日期"
 
+#: journal/templates/mark.html:101
+msgid "Mark date"
+msgstr "标记日期"
+
 #: journal/templates/mark.html:152
 msgid "Sure to delete mark, comment and tags for this item?"
 msgstr "确认删除这条标记、短评和标签？"
