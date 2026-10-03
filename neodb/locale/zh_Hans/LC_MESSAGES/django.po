@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 07:41-0400\n"
+"POT-Creation-Date: 2026-10-03 08:20-0400\n"
 "PO-Revision-Date: 2026-09-14 23:57+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1173,7 +1173,7 @@ msgstr "成员创建的收藏单，按最近更新排序。"
 #: catalog/templates/_discover_collections.html:12
 #: catalog/templates/_discover_shelf.html:14
 #: catalog/templates/_discover_spotlight.html:13
-#: catalog/templates/discover.html:194 catalog/templates/discover.html:221
+#: catalog/templates/discover.html:196 catalog/templates/discover.html:225
 #: journal/templates/profile.html:75 journal/templates/profile_items.html:16
 msgid "Scroll left"
 msgstr "向左滚动"
@@ -1181,7 +1181,7 @@ msgstr "向左滚动"
 #: catalog/templates/_discover_collections.html:18
 #: catalog/templates/_discover_shelf.html:20
 #: catalog/templates/_discover_spotlight.html:19
-#: catalog/templates/discover.html:200 catalog/templates/discover.html:227
+#: catalog/templates/discover.html:202 catalog/templates/discover.html:231
 #: journal/templates/profile.html:81 journal/templates/profile_items.html:22
 msgid "Scroll right"
 msgstr "向右滚动"
@@ -1212,6 +1212,7 @@ msgid_plural "%(counter)s recent episodes"
 msgstr[0] "%(counter)s 期近期节目"
 
 #: catalog/templates/_discover_shelf.html:11
+#: catalog/templates/discover.html:193 catalog/templates/discover.html:222
 msgid "See all"
 msgstr "查看全部"
 
@@ -1310,11 +1311,13 @@ msgstr "设置进度"
 
 #: catalog/templates/_item_cover_card_body.html:56
 #: catalog/templates/_item_cover_card_body.html:57
+#: journal/templates/_list_item.html:36
 msgid "Not interested"
 msgstr "不感兴趣"
 
 #: catalog/templates/_item_cover_card_body.html:66
 #: catalog/templates/_item_cover_card_body.html:67
+#: journal/templates/_list_item.html:46
 msgid "Show in recommendations again"
 msgstr "重新显示在推荐中"
 
@@ -1419,10 +1422,12 @@ msgid "Mark history"
 msgstr "标记历史"
 
 #: catalog/templates/_reco_dismissed_body.html:5
+#: catalog/templates/_reco_dismissed_row.html:4
 msgid "Hidden from recommendations."
 msgstr "已从推荐中隐藏。"
 
 #: catalog/templates/_reco_dismissed_body.html:10
+#: catalog/templates/_reco_dismissed_row.html:9
 msgid "Undo"
 msgstr "撤销"
 
@@ -2042,7 +2047,8 @@ msgid "All"
 msgstr "全部"
 
 #: catalog/templates/discover.html:153 catalog/templates/discover.html:184
-#: catalog/templates/discover.html:189 catalog/templates/discover.html:242
+#: catalog/templates/discover.html:189 catalog/templates/discover.html:246
+#: catalog/views/view.py:994
 msgid "For you"
 msgstr "为你推荐"
 
@@ -2056,49 +2062,35 @@ msgstr "帖文"
 msgid "Originals"
 msgstr "原创播客"
 
-#: catalog/templates/discover.html:190
+#: catalog/templates/discover.html:190 catalog/views/view.py:994
 msgid "Because of what is on your shelf."
 msgstr "根据你书架上的作品推荐。"
 
-#: catalog/templates/discover.html:216
+#: catalog/templates/discover.html:218 catalog/views/view.py:1007
 msgid "From people you follow"
 msgstr "来自你关注的人"
 
-#: catalog/templates/discover.html:217
+#: catalog/templates/discover.html:219 catalog/views/view.py:1008
 msgid "Marked recently by people you follow."
 msgstr "你关注的人最近标记的作品。"
 
-#: catalog/templates/discover.html:243
+#: catalog/templates/discover.html:247
 msgid "Recommendations appear here once you mark a few things or follow people."
 msgstr "标记几个作品或关注一些人之后，推荐会出现在这里。"
 
-#: catalog/templates/discover.html:252 catalog/templates/discover.html:255
+#: catalog/templates/discover.html:256 catalog/templates/discover.html:259
 msgid "What people are saying"
 msgstr "大家在说什么"
 
-#: catalog/templates/discover.html:256
+#: catalog/templates/discover.html:260
 msgid "Public marks, comments and reviews from around the Fediverse."
 msgstr "来自联邦宇宙各处的公开标记、短评和评论。"
 
-#: catalog/templates/discover.html:260
+#: catalog/templates/discover.html:264
 msgid "Open the feed"
 msgstr "打开动态"
 
-#: catalog/templates/discover_category.html:10
-#: catalog/templates/discover_category.html:19
-#, python-format
-msgid "Trending in %(category)s"
-msgstr "热门%(category)s"
-
-#: catalog/templates/discover_category.html:20
-msgid "Most marked across the Fediverse recently. Refreshed every hour."
-msgstr "最近联邦宇宙中被标记最多的作品，每小时更新。"
-
-#: catalog/templates/discover_category.html:22
-msgid "Back to Explore"
-msgstr "返回发现"
-
-#: catalog/templates/discover_category.html:28
+#: catalog/templates/discover_list.html:29
 #: catalog/templates/discover_original_podcasts.html:25
 #: catalog/templates/item_base.html:266
 #: catalog/templates/item_mark_list.html:71
@@ -2176,23 +2168,6 @@ msgstr "正在从%(site_label)s获取"
 #: users/templates/users/fetch_identity_pending.html:29
 msgid "System busy, please try again in a minute."
 msgstr "系统繁忙，请稍等几秒钟再搜索。"
-
-#: catalog/templates/hidden_recommendations.html:9
-#: catalog/templates/hidden_recommendations.html:16
-msgid "Hidden recommendations"
-msgstr "已隐藏的推荐"
-
-#: catalog/templates/hidden_recommendations.html:17
-msgid "These items are not recommended to you. Restore one to let it come back."
-msgstr "这些条目不会再推荐给你。恢复后它们会重新出现在推荐中。"
-
-#: catalog/templates/hidden_recommendations.html:19
-msgid "Back to preferences"
-msgstr "返回设置"
-
-#: catalog/templates/hidden_recommendations.html:25
-msgid "Nothing hidden."
-msgstr "没有隐藏的条目。"
 
 #: catalog/templates/item_base.html:80
 msgid "Select one of the seasons to comment"
@@ -2566,6 +2541,14 @@ msgstr "确定取消关联吗？"
 msgid "This edition will be unlinked from the following work"
 msgstr "这个图书版本将与以下作品取消关联"
 
+#: catalog/views/recommendation.py:68
+msgid "Hidden recommendations"
+msgstr "已隐藏的推荐"
+
+#: catalog/views/recommendation.py:69
+msgid "These items are not recommended to you. Restore one to let it come back."
+msgstr "这些条目不会再推荐给你。恢复后它们会重新出现在推荐中。"
+
 #: catalog/views/search.py:113 catalog/views/search.py:205
 msgid "the internet"
 msgstr "互联网"
@@ -2612,22 +2595,31 @@ msgstr "创作者已验证。"
 msgid "Creator verification removed."
 msgstr "创作者验证已移除。"
 
-#: catalog/views/view.py:96 catalog/views/view.py:121
+#: catalog/views/view.py:97 catalog/views/view.py:122
 msgid "Item not found"
 msgstr "条目不存在"
 
-#: catalog/views/view.py:100 catalog/views/view.py:129
-#: catalog/views/view.py:212
+#: catalog/views/view.py:101 catalog/views/view.py:130
+#: catalog/views/view.py:213
 msgid "Item no longer exists"
 msgstr "条目已不存在"
 
-#: catalog/views/view.py:209
+#: catalog/views/view.py:210
 msgid "Invalid role"
 msgstr "无效职务或角色。"
 
-#: catalog/views/view.py:927
+#: catalog/views/view.py:973
 msgid "Category not found"
 msgstr "分类不存在"
+
+#: catalog/views/view.py:977
+#, python-format
+msgid "Trending in %(category)s"
+msgstr "热门%(category)s"
+
+#: catalog/views/view.py:978
+msgid "Most marked across the Fediverse recently. Refreshed every hour."
+msgstr "最近联邦宇宙中被标记最多的作品，每小时更新。"
 
 #: common/models/game_platform.py:30
 msgctxt "platform"
@@ -6197,18 +6189,18 @@ msgstr "移动到底部"
 msgid "Remove from collection"
 msgstr "从收藏单中移除"
 
-#: journal/templates/_list_item.html:43
+#: journal/templates/_list_item.html:64
 #: journal/templates/collection_update_item_note_ok.html:3
 msgid "Update note"
 msgstr "修改备注"
 
-#: journal/templates/_list_item.html:71 journal/templates/article.html:116
+#: journal/templates/_list_item.html:92 journal/templates/article.html:116
 #: journal/templates/review_edit.html:11
 #: journal/templates/user_review_list.html:7
 msgid "Review"
 msgstr "评论"
 
-#: journal/templates/_list_item.html:91
+#: journal/templates/_list_item.html:112
 #, python-format
 msgid "%(dups)s item(s) are from the same work or have the same identifier, click here to display:"
 msgstr "还有 %(dups)s 个属于同一作品或可能重复的条目，点击显示："

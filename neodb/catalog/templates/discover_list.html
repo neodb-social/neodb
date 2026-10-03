@@ -1,0 +1,37 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="content-page">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ title }}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        <h5>
+          {{ title }}
+          <small>({{ total }})</small>
+        </h5>
+        {% if subtitle %}
+          <p>
+            <small>{{ subtitle }}</small>
+          </p>
+        {% endif %}
+        <div class="item-card-list">
+          {% for item in items %}
+            {% include "_list_item.html" with item=item %}
+          {% empty %}
+            <div>{% trans "Nothing so far." %}</div>
+          {% endfor %}
+        </div>
+        {% include "_pagination.html" %}
+      </div>
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

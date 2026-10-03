@@ -304,6 +304,12 @@ urlpatterns = [
         discover_original_podcasts,
         name="discover_original_podcasts",
     ),
+    path("discover/for-you/", discover_for_you, name="discover_for_you"),
+    path(
+        "discover/following/",
+        discover_from_circles,
+        name="discover_from_circles",
+    ),
     path(
         "discover/<str:category>/",
         discover_category,

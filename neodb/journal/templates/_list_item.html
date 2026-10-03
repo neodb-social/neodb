@@ -31,6 +31,27 @@
     {% elif request.user.is_authenticated and item.class_name != "collection" %}
       {% include "action_mark_item.html" with item=item mark=mark %}
     {% endif %}
+    {% if reco_dismiss %}
+      <span>
+        <a title="{% trans "Not interested" %}"
+           hx-post="{% url 'catalog:dismiss_recommendation' item.uuid %}"
+           hx-vals='{"layout": "list"}'
+           hx-target="closest article"
+           hx-swap="outerHTML">
+          <i class="fa-solid fa-eye-slash"></i>
+        </a>
+      </span>
+    {% elif reco_restore %}
+      <span>
+        <a title="{% trans "Show in recommendations again" %}"
+           hx-post="{% url 'catalog:restore_recommendation' item.uuid %}"
+           hx-vals='{"remove": "1"}'
+           hx-target="closest article"
+           hx-swap="outerHTML">
+          <i class="fa-solid fa-rotate-left"></i>
+        </a>
+      </span>
+    {% endif %}
   </span>
   {% include "_item_card.html" with item=item %}
   {% if collection_edit or collection_member.note or mark.shelf or mark.review or mark.tags %}

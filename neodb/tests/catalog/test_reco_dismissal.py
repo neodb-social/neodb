@@ -319,6 +319,17 @@ class TestWebViews:
         assert "Hide Me" in content
         assert 'class="dc-card-dismiss"' in content
 
+    def test_list_layout_dismiss_and_undo_swap_rows(self):
+        dismiss = reverse("catalog:dismiss_recommendation", args=[self.book.uuid])
+        restore = reverse("catalog:restore_recommendation", args=[self.book.uuid])
+        row = self.client.post(dismiss, {"layout": "list"}).content.decode()
+        assert '<article class="item-card">' in row
+        assert restore in row
+        row = self.client.post(restore, {"layout": "list"}).content.decode()
+        assert not RecommendationDismissal.objects.exists()
+        assert 'class="entity-sort item-card"' in row
+        assert dismiss in row
+
     def test_restore_from_list_removes_the_card(self):
         dismiss_item(self.user, self.book)
         url = reverse("catalog:restore_recommendation", args=[self.book.uuid])
@@ -354,6 +365,7 @@ class TestWebViews:
         )
         content = self.client.get("/discover/").content.decode()
         assert 'id="for_you"' in content
+        assert reverse("catalog:discover_for_you") in content
         for b in books:
             assert reverse("catalog:dismiss_recommendation", args=[b.uuid]) in content
 
@@ -403,3 +415,62 @@ class TestApi:
         )
         data = client.get("/api/me/recommendations", headers=self.auth).json()["data"]
         assert [d["uuid"] for d in data] == [books[1].uuid, books[2].uuid]
+
+
+class TestSeeAllPages:
+    @pytest.fixture(autouse=True)
+    def setup(self, site_config):
+        site_config.reco_user_top_n = 100
+        self.user = User.register(email="sa@t.com", username="sa")
+        self.client = _client(self.user)
+
+    def test_pages_need_login(self):
+        for name in ("catalog:discover_for_you", "catalog:discover_from_circles"):
+            assert Client().get(reverse(name)).status_code == 302
+
+    def test_for_you_pages_through_every_stored_row_but_dismissed(self):
+        books = [Edition.objects.create(title=f"All {i}") for i in range(30)]
+        _cached_rows(self.user, books)
+        dismiss_item(self.user, books[0])
+        url = reverse("catalog:discover_for_you")
+        first = self.client.get(url).content.decode()
+        second = self.client.get(url + "?page=2").content.decode()
+        assert first.count('class="entity-sort item-card"') == 20
+        assert second.count('class="entity-sort item-card"') == 9
+        for b in books[1:]:
+            dismiss = reverse("catalog:dismiss_recommendation", args=[b.uuid])
+            assert dismiss in first or dismiss in second
+        assert books[0].uuid not in first + second
+
+    def test_trending_page_lists_the_cached_shelf(self, monkeypatch):
+        books = [Edition.objects.create(title=f"Trend {i}") for i in range(3)]
+        monkeypatch.setattr(
+            "catalog.views.view.cache.get",
+            lambda key, default=None: books if key == "trending_book" else default,
+        )
+        content = self.client.get(
+            reverse("catalog:discover_category", args=["book"])
+        ).content.decode()
+        for b in books:
+            assert b.url in content
+        assert "/dismiss" not in content
+
+    def test_from_circles_lists_followee_marks(self):
+        friend = User.register(email="sa2@t.com", username="sa2")
+        self.user.identity.follow(friend.identity, True)
+        books = [Edition.objects.create(title=f"Circle {i}") for i in range(2)]
+        for b in books:
+            _public_mark(friend.identity, b)
+        content = self.client.get(
+            reverse("catalog:discover_from_circles")
+        ).content.decode()
+        for b in books:
+            assert reverse("catalog:dismiss_recommendation", args=[b.uuid]) in content
+
+    def test_opted_out_member_sees_nothing(self):
+        _cached_rows(self.user, [Edition.objects.create(title="Opted Out")])
+        self.user.preference.disable_recommendations = True
+        self.user.preference.save(update_fields=["disable_recommendations"])
+        content = self.client.get(reverse("catalog:discover_for_you")).content.decode()
+        assert "Opted Out" not in content
+        assert "Nothing so far." in content

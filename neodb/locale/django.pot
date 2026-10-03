@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 07:41-0400\n"
+"POT-Creation-Date: 2026-10-03 08:20-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1174,7 +1174,7 @@ msgstr ""
 #: catalog/templates/_discover_collections.html:12
 #: catalog/templates/_discover_shelf.html:14
 #: catalog/templates/_discover_spotlight.html:13
-#: catalog/templates/discover.html:194 catalog/templates/discover.html:221
+#: catalog/templates/discover.html:196 catalog/templates/discover.html:225
 #: journal/templates/profile.html:75 journal/templates/profile_items.html:16
 msgid "Scroll left"
 msgstr ""
@@ -1182,7 +1182,7 @@ msgstr ""
 #: catalog/templates/_discover_collections.html:18
 #: catalog/templates/_discover_shelf.html:20
 #: catalog/templates/_discover_spotlight.html:19
-#: catalog/templates/discover.html:200 catalog/templates/discover.html:227
+#: catalog/templates/discover.html:202 catalog/templates/discover.html:231
 #: journal/templates/profile.html:81 journal/templates/profile_items.html:22
 msgid "Scroll right"
 msgstr ""
@@ -1214,6 +1214,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: catalog/templates/_discover_shelf.html:11
+#: catalog/templates/discover.html:193 catalog/templates/discover.html:222
 msgid "See all"
 msgstr ""
 
@@ -1313,11 +1314,13 @@ msgstr ""
 
 #: catalog/templates/_item_cover_card_body.html:56
 #: catalog/templates/_item_cover_card_body.html:57
+#: journal/templates/_list_item.html:36
 msgid "Not interested"
 msgstr ""
 
 #: catalog/templates/_item_cover_card_body.html:66
 #: catalog/templates/_item_cover_card_body.html:67
+#: journal/templates/_list_item.html:46
 msgid "Show in recommendations again"
 msgstr ""
 
@@ -1422,10 +1425,12 @@ msgid "Mark history"
 msgstr ""
 
 #: catalog/templates/_reco_dismissed_body.html:5
+#: catalog/templates/_reco_dismissed_row.html:4
 msgid "Hidden from recommendations."
 msgstr ""
 
 #: catalog/templates/_reco_dismissed_body.html:10
+#: catalog/templates/_reco_dismissed_row.html:9
 msgid "Undo"
 msgstr ""
 
@@ -2045,7 +2050,8 @@ msgid "All"
 msgstr ""
 
 #: catalog/templates/discover.html:153 catalog/templates/discover.html:184
-#: catalog/templates/discover.html:189 catalog/templates/discover.html:242
+#: catalog/templates/discover.html:189 catalog/templates/discover.html:246
+#: catalog/views/view.py:994
 msgid "For you"
 msgstr ""
 
@@ -2059,49 +2065,35 @@ msgstr ""
 msgid "Originals"
 msgstr ""
 
-#: catalog/templates/discover.html:190
+#: catalog/templates/discover.html:190 catalog/views/view.py:994
 msgid "Because of what is on your shelf."
 msgstr ""
 
-#: catalog/templates/discover.html:216
+#: catalog/templates/discover.html:218 catalog/views/view.py:1007
 msgid "From people you follow"
 msgstr ""
 
-#: catalog/templates/discover.html:217
+#: catalog/templates/discover.html:219 catalog/views/view.py:1008
 msgid "Marked recently by people you follow."
 msgstr ""
 
-#: catalog/templates/discover.html:243
+#: catalog/templates/discover.html:247
 msgid "Recommendations appear here once you mark a few things or follow people."
 msgstr ""
 
-#: catalog/templates/discover.html:252 catalog/templates/discover.html:255
+#: catalog/templates/discover.html:256 catalog/templates/discover.html:259
 msgid "What people are saying"
 msgstr ""
 
-#: catalog/templates/discover.html:256
+#: catalog/templates/discover.html:260
 msgid "Public marks, comments and reviews from around the Fediverse."
 msgstr ""
 
-#: catalog/templates/discover.html:260
+#: catalog/templates/discover.html:264
 msgid "Open the feed"
 msgstr ""
 
-#: catalog/templates/discover_category.html:10
-#: catalog/templates/discover_category.html:19
-#, python-format
-msgid "Trending in %(category)s"
-msgstr ""
-
-#: catalog/templates/discover_category.html:20
-msgid "Most marked across the Fediverse recently. Refreshed every hour."
-msgstr ""
-
-#: catalog/templates/discover_category.html:22
-msgid "Back to Explore"
-msgstr ""
-
-#: catalog/templates/discover_category.html:28
+#: catalog/templates/discover_list.html:29
 #: catalog/templates/discover_original_podcasts.html:25
 #: catalog/templates/item_base.html:266
 #: catalog/templates/item_mark_list.html:71
@@ -2178,23 +2170,6 @@ msgstr ""
 #: catalog/templates/fetch_pending.html:29
 #: users/templates/users/fetch_identity_pending.html:29
 msgid "System busy, please try again in a minute."
-msgstr ""
-
-#: catalog/templates/hidden_recommendations.html:9
-#: catalog/templates/hidden_recommendations.html:16
-msgid "Hidden recommendations"
-msgstr ""
-
-#: catalog/templates/hidden_recommendations.html:17
-msgid "These items are not recommended to you. Restore one to let it come back."
-msgstr ""
-
-#: catalog/templates/hidden_recommendations.html:19
-msgid "Back to preferences"
-msgstr ""
-
-#: catalog/templates/hidden_recommendations.html:25
-msgid "Nothing hidden."
 msgstr ""
 
 #: catalog/templates/item_base.html:80
@@ -2569,6 +2544,14 @@ msgstr ""
 msgid "This edition will be unlinked from the following work"
 msgstr ""
 
+#: catalog/views/recommendation.py:68
+msgid "Hidden recommendations"
+msgstr ""
+
+#: catalog/views/recommendation.py:69
+msgid "These items are not recommended to you. Restore one to let it come back."
+msgstr ""
+
 #: catalog/views/search.py:113 catalog/views/search.py:205
 msgid "the internet"
 msgstr ""
@@ -2615,21 +2598,30 @@ msgstr ""
 msgid "Creator verification removed."
 msgstr ""
 
-#: catalog/views/view.py:96 catalog/views/view.py:121
+#: catalog/views/view.py:97 catalog/views/view.py:122
 msgid "Item not found"
 msgstr ""
 
-#: catalog/views/view.py:100 catalog/views/view.py:129
-#: catalog/views/view.py:212
+#: catalog/views/view.py:101 catalog/views/view.py:130
+#: catalog/views/view.py:213
 msgid "Item no longer exists"
 msgstr ""
 
-#: catalog/views/view.py:209
+#: catalog/views/view.py:210
 msgid "Invalid role"
 msgstr ""
 
-#: catalog/views/view.py:927
+#: catalog/views/view.py:973
 msgid "Category not found"
+msgstr ""
+
+#: catalog/views/view.py:977
+#, python-format
+msgid "Trending in %(category)s"
+msgstr ""
+
+#: catalog/views/view.py:978
+msgid "Most marked across the Fediverse recently. Refreshed every hour."
 msgstr ""
 
 #: common/models/game_platform.py:30
@@ -6188,18 +6180,18 @@ msgstr ""
 msgid "Remove from collection"
 msgstr ""
 
-#: journal/templates/_list_item.html:43
+#: journal/templates/_list_item.html:64
 #: journal/templates/collection_update_item_note_ok.html:3
 msgid "Update note"
 msgstr ""
 
-#: journal/templates/_list_item.html:71 journal/templates/article.html:116
+#: journal/templates/_list_item.html:92 journal/templates/article.html:116
 #: journal/templates/review_edit.html:11
 #: journal/templates/user_review_list.html:7
 msgid "Review"
 msgstr ""
 
-#: journal/templates/_list_item.html:91
+#: journal/templates/_list_item.html:112
 #, python-format
 msgid "%(dups)s item(s) are from the same work or have the same identifier, click here to display:"
 msgstr ""

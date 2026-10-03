@@ -189,6 +189,8 @@
                 <h2>{% trans "For you" %}</h2>
                 <span class="dc-sub">{% trans "Because of what is on your shelf." %}</span>
                 <span class="action">
+                  <a class="dc-more"
+                     href="{% url 'catalog:discover_for_you' %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
                   <button class="dc-nav dc-scroll"
                           type="button"
                           aria-label="{% trans 'Scroll left' %}"
@@ -216,6 +218,8 @@
                 <h2>{% trans "From people you follow" %}</h2>
                 <span class="dc-sub">{% trans "Marked recently by people you follow." %}</span>
                 <span class="action">
+                  <a class="dc-more"
+                     href="{% url 'catalog:discover_from_circles' %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
                   <button class="dc-nav dc-scroll"
                           type="button"
                           aria-label="{% trans 'Scroll left' %}"
