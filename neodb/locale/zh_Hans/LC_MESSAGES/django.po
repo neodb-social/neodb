@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 07:10-0400\n"
+"POT-Creation-Date: 2026-10-03 07:41-0400\n"
 "PO-Revision-Date: 2026-09-14 23:57+0000\n"
 "Last-Translator: Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/projects/neodb/neodb/zh_Hans/>\n"
@@ -1539,7 +1539,7 @@ msgstr "选择一张图片用作此条目的封面。"
 #: journal/templates/review_edit.html:38 journal/templates/tag_edit.html:51
 #: users/templates/users/_pref_device.html:37
 #: users/templates/users/account.html:38 users/templates/users/account.html:67
-#: users/templates/users/preferences.html:242
+#: users/templates/users/preferences.html:244
 msgid "Save"
 msgstr "保存"
 
@@ -2179,7 +2179,6 @@ msgstr "系统繁忙，请稍等几秒钟再搜索。"
 
 #: catalog/templates/hidden_recommendations.html:9
 #: catalog/templates/hidden_recommendations.html:16
-#: users/templates/users/preferences.html:239
 msgid "Hidden recommendations"
 msgstr "已隐藏的推荐"
 
@@ -8806,6 +8805,10 @@ msgstr "不向我展示条目推荐"
 #: users/templates/users/preferences.html:237
 msgid "Recommendations are generated only from public marks, processed in batch on this server. Your private and follower-only marks are never used as a signal for anyone, and we never share your data with third parties for this feature. When you share marks publicly and keep your profile discoverable, your marks help others here and across the Fediverse find things they might enjoy -- that voluntary contribution is what makes the feature work for everyone. If you'd rather not contribute, uncheck \"Include profile, marks and posts in discovery\" on your account page; this setting is published over ActivityPub, so other servers will also stop including you in their discovery features."
 msgstr "推荐仅基于公开标记在本服务器批量计算生成。你的私密标记与仅关注者可见的标记不会被用作任何人的推荐信号；本功能也不会与任何第三方共享你的数据。当你公开分享标记并保持个人资料可被发现时，你的标记会帮助本服务器与联邦宇宙中的其他人发现他们可能喜欢的内容——正是这种自愿的分享让本功能对每个人都有价值。如果你不希望参与贡献，请在账户页面取消勾选「允许个人资料、标记和帖文包含在发现中」；该设置会通过 ActivityPub 发布，其他服务器也会据此将你排除在他们的发现功能之外。"
+
+#: users/templates/users/preferences.html:240
+msgid "View hidden recommendations"
+msgstr "查看已隐藏的推荐"
 
 #: users/templates/users/profile_actions.html:12
 msgid "Click to unblock"
