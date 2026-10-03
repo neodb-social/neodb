@@ -113,6 +113,8 @@
   top: 0;
   white-space: nowrap;
   overflow: hidden;
+  // clip only the width; a vertical clip cuts the tips off the filled stars
+  overflow: clip visible;
 }
 
 .rating-star>div:before {

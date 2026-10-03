@@ -26,99 +26,70 @@
             action="{% if edit_post %}{% url 'journal:post_edit' edit_post.pk %}{% else %}{% url 'journal:post_compose' %}{% endif %}"
             enctype="multipart/form-data">
         {% csrf_token %}
-        <div>
-          <fieldset>
-            <textarea name="content"
-                      rows="5"
-                      autofocus
-                      required
-                      placeholder="{% if reply_to %}@{{ reply_to }}{% else %}{% trans "Content" %}{% endif %}"
-                      id="id_content">{{ content|default:"" }}</textarea>
-          </fieldset>
-        </div>
-        <div class="grid">
-          <div>
-            <select name="language" id="id_language">
+        <input type="hidden"
+               name="sensitive"
+               value="{% if sensitive %}1{% endif %}"
+               id="id_sensitive">
+        <fieldset id="post-subject-row" {% if not sensitive %}hidden{% endif %}>
+          <input type="text"
+                 name="subject"
+                 placeholder="{% trans 'Content warning' %}"
+                 aria-label="{% trans 'Content warning' %}"
+                 value="{{ subject|default:'' }}"
+                 id="id_subject">
+        </fieldset>
+        <fieldset>
+          <textarea name="content"
+                    rows="5"
+                    autofocus
+                    required
+                    placeholder="{% if reply_to %}@{{ reply_to }}{% else %}{% trans "Content" %}{% endif %}"
+                    id="id_content">{{ content|default:"" }}</textarea>
+        </fieldset>
+        {% if not edit_post %}
+          <input type="hidden" name="reply_to" value="{{ reply_to | default:'' }}">
+          <div id="image-attachments"></div>
+        {% endif %}
+        <div class="post-options">
+          <div role="group">
+            {% if not edit_post %}
+              <select name="visibility"
+                      id="id_visibility"
+                      aria-label="{% trans "Visibility" %}">
+                <option value="0" {% if visibility == 0 %}selected{% endif %}>{% trans "Public" %}</option>
+                <option value="1" {% if visibility == 1 %}selected{% endif %}>{% trans "Followers Only" %}</option>
+                <option value="2" {% if visibility == 2 %}selected{% endif %}>{% trans "Mentioned Only" %}</option>
+              </select>
+            {% endif %}
+            <select name="language" id="id_language" aria-label="{% trans "Language" %}">
               {% for lang_code, lang_name in languages %}
                 <option value="{{ lang_code }}"
                         {% if user_language == lang_code %}selected{% endif %}>{{ lang_name }}</option>
               {% endfor %}
             </select>
           </div>
-          <div>
-            {% if not edit_post %}
-              <fieldset class="compose-row">
-                <input type="radio"
-                       name="visibility"
-                       value="0"
-                       required
-                       {% if visibility == 0 %}checked{% endif %}
-                       id="id_visibility_0"
-                       checked>
-                <label for="id_visibility_0">{% trans "Public" %}</label>
-                <input type="radio"
-                       name="visibility"
-                       value="1"
-                       required
-                       {% if visibility == 1 %}checked{% endif %}
-                       id="id_visibility_1">
-                <label for="id_visibility_1">{% trans "Followers Only" %}</label>
-                <input type="radio"
-                       name="visibility"
-                       value="2"
-                       required
-                       {% if visibility == 2 %}checked{% endif %}
-                       id="id_visibility_2">
-                <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
-              </fieldset>
-            {% endif %}
-          </div>
-        </div>
-        <div>
-          <fieldset class="compose-row compose-row--last">
-            <label for="id_sensitive">
-              <input type="checkbox"
-                     name="sensitive"
-                     value="1"
-                     id="id_sensitive"
-                     {% if sensitive %}checked{% endif %}
-                     _="on change set #post-subject-row.hidden to not me.checked then if not me.checked set #id_subject.value to '' end">
-              {% trans "Mark as sensitive" %}
-            </label>
-          </fieldset>
-          <fieldset id="post-subject-row"
-                    class="compose-row--flush"
-                    {% if not sensitive %}hidden{% endif %}>
-            <input type="text"
-                   name="subject"
-                   placeholder="{% trans 'Content warning' %}"
-                   value="{{ subject|default:'' }}"
-                   id="id_subject">
-          </fieldset>
-        </div>
-        <div>
-          <div>
-            <fieldset>
-              <input type="submit"
-                     value="{% if edit_post %}{% trans "Save" %}{% else %}{% trans "Publish" %}{% endif %}">
-            </fieldset>
-          </div>
-        </div>
-        {% if not edit_post %}
-          <input type="hidden" name="reply_to" value="{{ reply_to | default:'' }}">
-          <div>
+          {% if not edit_post %}
             <button type="button"
                     id="add-image-btn"
-                    class="secondary"
+                    class="secondary outline"
+                    title="{% trans "Add image" %}"
+                    aria-label="{% trans "Add image" %}"
                     _="on click call addImageField()"
                     {% if image_count >= 4 %}disabled{% endif %}>
-              <i class="fa-regular fa-image"></i> {% trans "Add image" %}
+              <i class="fa-regular fa-image"></i>
             </button>
-          </div>
-          <div id="image-attachments">
-            <!-- Image attachment fields will be added here dynamically -->
-          </div>
-        {% endif %}
+          {% endif %}
+          <button type="button"
+                  class="secondary outline"
+                  title="{% trans "Content warning" %}"
+                  aria-label="{% trans "Content warning" %}"
+                  aria-pressed="{% if sensitive %}true{% else %}false{% endif %}"
+                  _="on click if @aria-pressed is 'true' set @aria-pressed to 'false' then set #id_sensitive.value to '' then set #id_subject.value to '' then set #post-subject-row.hidden to true else set @aria-pressed to 'true' then set #id_sensitive.value to '1' then set #post-subject-row.hidden to false then call #id_subject.focus() end">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </button>
+          <input type="submit"
+                 value="{% if edit_post %}{% trans "Save" %}{% else %}{% trans "Publish" %}{% endif %}">
+        </div>
       </form>
     </div>
   </article>
@@ -197,6 +168,7 @@
 
     imageDiv.appendChild(containerDiv);
     attachmentsDiv.appendChild(imageDiv);
+    fileInput.click();
 
     imageCount++;
 

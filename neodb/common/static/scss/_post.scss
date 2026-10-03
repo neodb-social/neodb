@@ -424,15 +424,63 @@ section.activity.post>section.replies {
   color: var(--pico-muted-color);
 }
 
-// Spacing between the rows of options in the compose form.
-.compose-row {
-  margin-top: 0.6em;
+// Visibility and language selects, toggles and the submit button share one
+// row that wraps on a narrow screen instead of stacking like .grid.
+.post-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 1em;
+  margin-bottom: var(--pico-spacing);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  > *,
+  > :is(input, select, button) {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  > [role="group"] {
+    flex: 0 1 24em;
+    width: auto;
+    min-width: 0;
+
+    select {
+      min-width: 0;
+      margin-bottom: 0;
+      text-overflow: ellipsis;
+    }
+  }
+
+  > button,
+  > [type="date"] {
+    width: auto;
+  }
+
+  > button[aria-pressed="true"] {
+    background-color: var(--pico-secondary-background);
+    color: var(--pico-secondary-inverse);
+  }
+
+  > [type="submit"] {
+    width: auto;
+    margin-left: auto;
+  }
 }
 
-.compose-row--last {
-  margin-bottom: 0;
+// The selects and the submit button split the row in half; on a phone each
+// takes a full line.
+.post-options--halves {
+  > [role="group"],
+  > [type="submit"] {
+    flex: 1 1 14em;
+    margin-left: 0;
+  }
 }
 
-.compose-row--flush {
-  margin-top: 0;
+#image-attachments .image-attachment {
+  margin-bottom: 0.5em;
 }

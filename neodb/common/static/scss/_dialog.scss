@@ -91,6 +91,10 @@ dialog {
       input[type="submit"] {
         margin-top: 1em;
       }
+
+      .post-options > input[type="submit"] {
+        margin-top: 0;
+      }
     }
   }
 
@@ -112,10 +116,6 @@ dialog {
   dialog {
     .rating-editor {
       font-size: 250%;
-    }
-
-    div.grid:has(.rating-editor) {
-      gap: 0;
     }
   }
 }

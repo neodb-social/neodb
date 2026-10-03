@@ -53,12 +53,14 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
         if article:
             initial = {
                 "tags": ", ".join(article.normalized_tags),
+                "language": article.language or "x",
                 "share_to_mastodon": False,
             }
             form = ArticleForm(instance=article, initial=initial)
         else:
             form = ArticleForm(
                 initial={
+                    "language": request.user.language,
                     "share_to_mastodon": (
                         request.user.preference.mastodon_default_repost
                         if request.user.is_authenticated
@@ -94,6 +96,9 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
     # Image-src sanitization now lives in Article.update_local_article so all
     # local-author entry points share it; no need to sanitize here.
     tags = _parse_tags(form.cleaned_data.get("tags", ""))
+    language = form.cleaned_data["language"]
+    if language is None:
+        language = article.language if article else request.user.language
     article = Article.update_local_article(
         owner=request.user.identity,
         title=form.cleaned_data["title"],
@@ -101,7 +106,7 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
         summary=form.cleaned_data.get("summary", "") or "",
         sensitive=bool(form.cleaned_data.get("sensitive", False)),
         visibility=form.cleaned_data["visibility"],
-        language=request.user.language or "",
+        language=language or "",
         tags=tags,
         article=article,
         share_to_mastodon=bool(form.cleaned_data.get("share_to_mastodon", False)),

@@ -5,6 +5,11 @@
     margin-inline-end: .1em;
   }
 
+  // the fieldset already spaces the row; a field margin would double it
+  fieldset > :is(input, textarea) {
+    margin-bottom: 0;
+  }
+
   .mark-form-error {
     color: var(--pico-del-color);
     margin-bottom: var(--pico-spacing);
@@ -38,6 +43,65 @@
   >div:last-child {
     margin-top: calc(-0.3rem * var(--pico-line-height));
     text-align: center;
+  }
+}
+
+// The status buttons share the row equally and the stars keep their width;
+// on a narrow screen the stars wrap to a centered line of their own.
+.mark-status-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 1em;
+  margin-bottom: var(--pico-spacing);
+
+  >div:first-child {
+    flex: 1 1 20em;
+  }
+
+  >div:last-child {
+    margin-inline: auto;
+  }
+
+  [role="group"] {
+    margin-bottom: 0;
+  }
+
+  .status-selector {
+    flex: 1 1 0;
+    min-width: max-content;
+    padding-inline: 0.5em;
+    white-space: nowrap;
+  }
+
+  .rating-editor {
+    position: relative;
+    // the FontAwesome star sits high in its em box
+    top: 0.06em;
+    padding-bottom: 0;
+    line-height: 1;
+  }
+
+  .rating-editor:not(.hidden) {
+    display: inline-flex;
+  }
+
+  .rating-star,
+  .rating-star:before,
+  .rating-star>div:before {
+    line-height: 1;
+    vertical-align: top;
+  }
+}
+
+@media (max-width: 576px) {
+  .mark-status-line .status-selector {
+    min-width: min-content;
+    padding-inline: 0.25em;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+    line-height: 1.2;
   }
 }
 
@@ -177,13 +241,4 @@
 .tag-input__suggestion--active {
   background: var(--pico-primary-focus, var(--pico-muted-border-color)) !important;
   color: var(--pico-form-element-color, var(--pico-contrast)) !important;
-}
-
-form {
-  .controls {
-    color-scheme: light;
-    color: #2c3e50;
-    background: #fff;
-    margin-bottom: var(--pico-spacing);
-  }
 }

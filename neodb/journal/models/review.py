@@ -268,6 +268,7 @@ class Review(Content):
         created_time=None,
         share_to_mastodon: bool = False,
         application_id: int | None = None,
+        language: str | None = None,
     ):
         review = Review.objects.filter(owner=owner, item=item).first()
         if title is None:
@@ -294,6 +295,7 @@ class Review(Content):
                 setattr(review, name, value)
         review.crosspost_when_save = share_to_mastodon
         review.application_id_when_save = application_id
+        review.language_when_save = language
         review.save()
         # see Article.update_local_article: local-author path only
         link_attachments_to_piece(review, review.body or "")

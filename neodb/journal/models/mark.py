@@ -445,11 +445,13 @@ class Mark:
         application_id: int | None,
         shelf_type: ShelfType,
         created: bool,
+        language: str | None = None,
     ):
         # publish a new or updated ActivityPub post
         shelfmember = self.shelfmember
         assert shelfmember is not None
         shelfmember.application_id_when_save = application_id
+        shelfmember.language_when_save = language
         post = shelfmember.sync_to_timeline(update_mode)
         if share_to_mastodon:
             shelfmember.sync_to_social_accounts(update_mode)
@@ -576,6 +578,7 @@ class Mark:
         created_time: datetime | None = None,
         share_to_mastodon: bool = False,
         application_id: int | None = None,
+        language: str | None = None,
     ):
         """change shelf, comment or rating"""
         if created_time and created_time >= timezone.now():
@@ -589,6 +592,10 @@ class Mark:
         if shelf_type is None:
             self._handle_shelf_removal()
             return
+
+        # a shelf change starts a new post, which keeps the comment's language
+        if language is None and self.shelfmember and self.shelfmember.latest_post:
+            language = self.shelfmember.latest_post.language
 
         shelfmember_changed, update_mode, log_entry = self._update_shelf_member(
             shelf_type,
@@ -611,6 +618,7 @@ class Mark:
             application_id,
             shelf_type,
             created=last_shelf_type is None,
+            language=language,
         )
 
     def delete(self, keep_tags=False):

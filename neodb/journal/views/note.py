@@ -13,6 +13,7 @@ from common.sentry import record_activity
 from common.validators import get_safe_referer_url
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
+from ..forms import VISIBILITY_WIDGET_ATTRS, PostLanguageField, post_language_initial
 from ..models import Mark, Note, ShelfType
 from ..models.common import VisibilityType
 
@@ -31,8 +32,9 @@ class NoteForm(NeoModelForm):
         initial=0,
         coerce=int,
         choices=VisibilityType.choices,
-        widget=forms.RadioSelect,
+        widget=forms.Select(attrs=VISIBILITY_WIDGET_ATTRS),
     )
+    language = PostLanguageField()
     share_to_mastodon = forms.BooleanField(
         label=_("Crosspost"),
         help_text=_("Crosspost to your connected social networks"),
@@ -116,7 +118,12 @@ def note_edit(
     else:
         mode = "note"
 
-    initial = {"uuid": note_uuid, "mode": mode, "share_to_mastodon": False}
+    initial = {
+        "uuid": note_uuid,
+        "mode": mode,
+        "share_to_mastodon": False,
+        "language": post_language_initial(request.user, note),
+    }
     if not note:
         initial.update(
             {
@@ -179,6 +186,7 @@ def note_edit(
     try:
         with transaction.atomic():
             form.instance.crosspost_when_save = form.cleaned_data["share_to_mastodon"]
+            form.instance.language_when_save = form.cleaned_data["language"]
             note = form.save()
             if form.cleaned_data["update_progress"]:
                 mark.set_progress(

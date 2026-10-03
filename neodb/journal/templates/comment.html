@@ -19,23 +19,18 @@
       <form action="{% url 'journal:comment' item.uuid %}" method="post">
         {% csrf_token %}
         {{ form.text }}
-        <div class="grid">
-          <div>
-            <fieldset>
-              {{ form.visibility }}
-            </fieldset>
+        <div class="post-options">
+          <div role="group">
+            {{ form.visibility }}
+            {{ form.language }}
           </div>
-          <div>
-            <fieldset>
-              {% if request.user.mastodon %}
-                <label for="{{ form.share_to_mastodon.id_for_label }}"
-                       title="{{ form.share_to_mastodon.help_text }}">
-                  {{ form.share_to_mastodon }}
-                  {{ form.share_to_mastodon.label }}
-                </label>
-              {% endif %}
-            </fieldset>
-          </div>
+          {% if request.user.mastodon %}
+            <label for="{{ form.share_to_mastodon.id_for_label }}"
+                   title="{{ form.share_to_mastodon.help_text }}">
+              {{ form.share_to_mastodon }}
+              {{ form.share_to_mastodon.label }}
+            </label>
+          {% endif %}
         </div>
         <div>
           <input type="submit" class="button float-right" value="{% trans "Save" %}">

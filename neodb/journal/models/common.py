@@ -174,6 +174,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     crosspost_when_save: bool = False
     index_when_save: bool = False
     application_id_when_save: int | None = None
+    # None keeps the language of the existing post; "" means unknown
+    language_when_save: str | None = None
     # event type sent to user webhooks; None disables webhook dispatch
     webhook_event: str | None = None
     # API response schema per concrete class, used to serialize webhook
@@ -1137,6 +1139,9 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         user = self.owner.user
         v = Takahe.visibility_n2t(self.visibility, user.preference.post_public_mode)
         existing_post = self.latest_post
+        language = self.language_when_save
+        if language is None:
+            language = existing_post.language if existing_post else user.macrolanguage
         if existing_post:
             if (
                 existing_post.state in ["deleted", "deleted_fanned_out"]
@@ -1153,7 +1158,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             "post_time": self.created_time,  # subclass must have this
             "edit_time": self.edited_time,  # subclass must have this
             "data": self.get_ap_data(),
-            "language": user.macrolanguage,
+            "language": language,
             "application_id": self.application_id_when_save,
         }
         params.update(self.to_post_params())
