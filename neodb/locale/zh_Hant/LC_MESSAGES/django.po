@@ -421,10 +421,8 @@ msgid "Readmoo Book"
 msgstr "讀墨圖書"
 
 #: catalog/models/common.py:98
-#, fuzzy
-#| msgid "Catalog"
 msgid "BnF Catalogue"
-msgstr "目錄"
+msgstr "法國國家圖書館目錄"
 
 #: catalog/models/common.py:100
 msgid "Spotify Album"
@@ -515,34 +513,24 @@ msgid "MyAnimeList Manga"
 msgstr "MyAnimeList漫畫"
 
 #: catalog/models/common.py:146
-#, fuzzy
-#| msgid "TV Series"
 msgid "TheTVDB Series"
-msgstr "電視劇集"
+msgstr "TheTVDB電視劇集"
 
 #: catalog/models/common.py:147
-#, fuzzy
-#| msgid "TV Season"
 msgid "TheTVDB Season"
-msgstr "電視分季"
+msgstr "TheTVDB電視分季"
 
 #: catalog/models/common.py:148
-#, fuzzy
-#| msgid "TV Episode"
 msgid "TheTVDB Episode"
-msgstr "電視單集"
+msgstr "TheTVDB電視單集"
 
 #: catalog/models/common.py:149
-#, fuzzy
-#| msgid "TMDB Movie"
 msgid "TheTVDB Movie"
-msgstr "TMDB電影"
+msgstr "TheTVDB電影"
 
 #: catalog/models/common.py:150
-#, fuzzy
-#| msgid "TMDB Person"
 msgid "TheTVDB Person"
-msgstr "TMDB人物"
+msgstr "TheTVDB人物"
 
 #: catalog/models/common.py:172
 msgid "Edition"
@@ -1204,16 +1192,12 @@ msgid "Fediverse originals"
 msgstr "聯邦宇宙原創"
 
 #: catalog/templates/_discover_originals.html:12
-#, fuzzy
-#| msgid "Podcasts whose creators verified themselves here. Play right on this page."
 msgid "Podcasts by creators on the Fediverse. Play right on this page."
-msgstr "創作者已在本站完成驗證的播客，可直接在此播放。"
+msgstr "聯邦宇宙創作者的播客，可直接在此播放。"
 
 #: catalog/templates/_discover_originals.html:15
-#, fuzzy
-#| msgid "All verified shows"
 msgid "All original shows"
-msgstr "全部已驗證播客"
+msgstr "全部原創播客"
 
 #: catalog/templates/_discover_originals.html:32
 #: catalog/templates/_item_card_metadata_podcast.html:15
@@ -1328,10 +1312,8 @@ msgstr "設定進度"
 #: catalog/templates/_item_cover_card_body.html:56
 #: catalog/templates/_item_cover_card_body.html:57
 #: journal/templates/_list_item.html:36
-#, fuzzy
-#| msgid "Not rated"
 msgid "Not interested"
-msgstr "未評分"
+msgstr "不感興趣"
 
 #: catalog/templates/_item_credits_list.html:9
 msgid "Linked to a person page"
@@ -1435,10 +1417,8 @@ msgstr "標記歷史"
 
 #: catalog/templates/_reco_dismissed_body.html:5
 #: catalog/templates/_reco_dismissed_row.html:12
-#, fuzzy
-#| msgid "Enable recommendations"
 msgid "Hidden from recommendations."
-msgstr "啟用推薦"
+msgstr "已從推薦中隱藏。"
 
 #: catalog/templates/_reco_dismissed_body.html:10
 #: catalog/templates/_reco_dismissed_row.html:8
@@ -2556,10 +2536,8 @@ msgid "This edition will be unlinked from the following work"
 msgstr "這個圖書版本將與以下作品取消關聯"
 
 #: catalog/views/recommendation.py:58
-#, fuzzy
-#| msgid "Enable recommendations"
 msgid "Hidden recommendations"
-msgstr "啟用推薦"
+msgstr "已隱藏的推薦"
 
 #: catalog/views/recommendation.py:59
 msgid "These items are not recommended to you. Restore one to let it come back."
@@ -4148,18 +4126,14 @@ msgid "Move down"
 msgstr "下移"
 
 #: common/templates/_pagination.html:3
-#, fuzzy
-#| msgid "Translation"
 msgid "Pagination"
-msgstr "翻譯"
+msgstr "分頁"
 
 #: common/templates/_pagination.html:9 common/templates/_pagination.html:13
 msgid "Previous page"
 msgstr ""
 
 #: common/templates/_pagination.html:9 common/templates/_pagination.html:13
-#, fuzzy
-#| msgid "Prev"
 msgid "Previous"
 msgstr "上一頁"
 
@@ -4169,8 +4143,6 @@ msgid "%(current)s of %(total)s"
 msgstr ""
 
 #: common/templates/_pagination.html:38 common/templates/_pagination.html:42
-#, fuzzy
-#| msgid "Next"
 msgid "Next page"
 msgstr "下一頁"
 
@@ -4200,10 +4172,8 @@ msgid "Recent podcast episodes"
 msgstr "近期播客節目"
 
 #: common/templates/_sidebar.html:149
-#, fuzzy
-#| msgid "start reading"
 msgid "Currently reading"
-msgstr "在讀"
+msgstr "正在閱讀"
 
 #: common/templates/_sidebar.html:163 journal/forms.py:212
 #: journal/templates/user_tag_list.html:13
@@ -4646,10 +4616,8 @@ msgid "Only show items with titles in the preferred languages."
 msgstr "僅顯示標題為偏好語言的條目。"
 
 #: common/views_manage.py:418
-#, fuzzy
-#| msgid "Filter by preferred languages"
 msgid "Filter by member languages"
-msgstr "按偏好語言過濾"
+msgstr "按成員語言過濾"
 
 #: common/views_manage.py:420
 msgid "Let members pick catalog languages in their preferences. Trending, spotlight and For you then show them only items with a title or an original language in those languages. More like this, items from people they follow, and items without a known language are not filtered. With the option above also on, trending and spotlight hold only the preferred languages to begin with."
@@ -4688,10 +4656,8 @@ msgid "Show a shelf of recent episodes from podcasts with a verified creator on 
 msgstr "在發現頁顯示一個書架，展示擁有已驗證創作者的播客的最新單集。"
 
 #: common/views_manage.py:439
-#, fuzzy
-#| msgid "Include profile, marks and posts in discovery"
 msgid "Include fediverse posts in trends"
-msgstr "在發現中包含個人資料、標記和貼子"
+msgstr "在熱門中包含聯邦宇宙貼文"
 
 #: common/views_manage.py:441
 msgid "Add popular public posts from this and other servers to the trending posts API, ranked by recent likes and boosts seen by this site."
@@ -4814,70 +4780,56 @@ msgid "Look back N days when finding items recently marked by people the viewer 
 msgstr "回溯 N 天，查找瀏覽者關注的使用者最近標記過的條目。"
 
 #: common/views_manage.py:594
-#, fuzzy
-#| msgid "Similarity builder"
 msgid "Similarity shrinkage"
-msgstr "相似度構建器"
+msgstr "相似度收縮"
 
 #: common/views_manage.py:596
 msgid "Item pairs shared by fewer users than this score lower. 0 turns it off."
 msgstr ""
 
 #: common/views_manage.py:602
-#, fuzzy
-#| msgid "Rating"
 msgid "Rating weight"
-msgstr "評分"
+msgstr "評分權重"
 
 #: common/views_manage.py:604
 msgid "How much a rating above or below the user's own average raises or lowers the weight of a mark. 0 ignores ratings."
 msgstr ""
 
 #: common/views_manage.py:611
-#, fuzzy
-#| msgid "Reviews"
 msgid "Review boost"
-msgstr "評論"
+msgstr "評論加成"
 
 #: common/views_manage.py:613
 msgid "Extra weight for a mark when its owner also wrote a public review of the item."
 msgstr ""
 
 #: common/views_manage.py:620
-#, fuzzy
-#| msgid "My comment and tags"
 msgid "Comment and note boost"
-msgstr "我的短評和標籤"
+msgstr "短評和筆記加成"
 
 #: common/views_manage.py:622
 msgid "Extra weight for a mark for each of a public comment and a public note by its owner on the item. A mark weighs at most twice a plain mark."
 msgstr ""
 
 #: common/views_manage.py:630
-#, fuzzy
-#| msgid "Featured tag"
 msgid "Feature item cap"
-msgstr "置頂標籤"
+msgstr "特徵條目上限"
 
 #: common/views_manage.py:632
 msgid "Tags, collections and credits shared by more items than this are too broad to link items and are ignored."
 msgstr ""
 
 #: common/views_manage.py:638
-#, fuzzy
-#| msgid "Tag list"
 msgid "Tag weight"
-msgstr "標籤列表"
+msgstr "標籤權重"
 
 #: common/views_manage.py:640
 msgid "Weight of shared public tags in similar items, relative to shared marks at 1."
 msgstr ""
 
 #: common/views_manage.py:646
-#, fuzzy
-#| msgid "Collection"
 msgid "Collection weight"
-msgstr "收藏單"
+msgstr "收藏單權重"
 
 #: common/views_manage.py:648
 msgid "Weight of shared public collections in similar items, relative to shared marks at 1."
@@ -4904,10 +4856,8 @@ msgid "Mark weights"
 msgstr ""
 
 #: common/views_manage.py:680
-#, fuzzy
-#| msgid "original title"
 msgid "Signal blend"
-msgstr "原名"
+msgstr "訊號混合"
 
 #: common/views_manage.py:685
 msgid "Personalisation"
@@ -4958,10 +4908,8 @@ msgid "Marks an item needs before the captcha treats it as well known enough to 
 msgstr "一個條目需要多少標記，驗證才認為它足夠知名、可被辨認。此類條目過少的分類會改為從全部條目中選取。"
 
 #: common/views_manage.py:746
-#, fuzzy
-#| msgid "Registration captcha items"
 msgid "Registration captcha for email only"
-msgstr "註冊驗證封面數量"
+msgstr "註冊驗證僅用於電子郵件註冊"
 
 #: common/views_manage.py:748
 msgid "Show the captcha only to people who register with an email address. Mastodon, Bluesky and Threads sign-ups already passed an external login and skip it. Has no effect while captcha items is 0."
@@ -5162,10 +5110,8 @@ msgid "Client ID of an app registered at https://myanimelist.net/apiconfig. MyAn
 msgstr "在 https://myanimelist.net/apiconfig 註冊應用後獲得的客戶端 ID。留空則停用 MyAnimeList。"
 
 #: common/views_manage.py:935
-#, fuzzy
-#| msgid "TMDB API key"
 msgid "TheTVDB API key"
-msgstr "TMDB API 金鑰"
+msgstr "TheTVDB API 金鑰"
 
 #: common/views_manage.py:937
 msgid "Project API key from https://thetvdb.com/api-information. TheTVDB is disabled when empty."
@@ -6285,10 +6231,8 @@ msgid "Remove from collection"
 msgstr "從收藏單中移除"
 
 #: journal/templates/_list_item.html:46
-#, fuzzy
-#| msgid "Enable recommendations"
 msgid "Show in recommendations again"
-msgstr "啟用推薦"
+msgstr "重新顯示在推薦中"
 
 #: journal/templates/_list_item.html:64
 #: journal/templates/collection_update_item_note_ok.html:3
@@ -6596,10 +6540,8 @@ msgid "Change mark date"
 msgstr "指定標記日期"
 
 #: journal/templates/mark.html:101
-#, fuzzy
-#| msgid "Change mark date"
 msgid "Mark date"
-msgstr "指定標記日期"
+msgstr "標記日期"
 
 #: journal/templates/mark.html:152
 msgid "Sure to delete mark, comment and tags for this item?"
@@ -7834,10 +7776,8 @@ msgstr "(跳過)"
 
 #: users/templates/users/_hardcover_section.html:5
 #: users/templates/users/_hardcover_section.html:23
-#, fuzzy
-#| msgid "Import from Trakt"
 msgid "Import from Hardcover"
-msgstr "匯入Trakt標記"
+msgstr "從Hardcover匯入"
 
 #: users/templates/users/_hardcover_section.html:11
 #: users/templates/users/_rym_section.html:11
@@ -7846,10 +7786,8 @@ msgid "Review pending matches"
 msgstr "審閱待處理的匹配"
 
 #: users/templates/users/_hardcover_section.html:17
-#, fuzzy
-#| msgid "Cancel the StoryGraph import? Progress will be discarded."
 msgid "Cancel the Hardcover import? Progress will be discarded."
-msgstr "取消 StoryGraph 匯入？進度將被丟棄。"
+msgstr "取消 Hardcover 匯入？進度將被丟棄。"
 
 #: users/templates/users/_hardcover_section.html:18
 #: users/templates/users/_rym_section.html:18
@@ -7858,10 +7796,8 @@ msgid "Cancel import"
 msgstr "取消匯入"
 
 #: users/templates/users/_hardcover_section.html:31
-#, fuzzy
-#| msgid "On StoryGraph, click <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> to download your library as a CSV file."
 msgid "On Hardcover, open <a href=\"https://hardcover.app/account/exports\" target=\"_blank\" rel=\"noopener\"><b>Export your data</b></a> in your account settings, then generate and download a CSV export."
-msgstr "在 StoryGraph，點擊 <a href=\"https://app.thestorygraph.com/user-export\" target=\"_blank\" rel=\"noopener\"><b>Export your library</b></a> 將書庫下載為 CSV 檔案。"
+msgstr "在 Hardcover 帳號設定中開啟 <a href=\"https://hardcover.app/account/exports\" target=\"_blank\" rel=\"noopener\"><b>Export your data</b></a>，產生並下載 CSV 匯出檔案。"
 
 #: users/templates/users/_hardcover_section.html:33
 #: users/templates/users/_rym_section.html:33
@@ -7870,10 +7806,8 @@ msgid "Upload the downloaded CSV file below."
 msgstr "在下方上傳下載到的 CSV 檔案。"
 
 #: users/templates/users/_hardcover_section.html:35
-#, fuzzy
-#| msgid "Books are matched by ISBN — first against the local catalog, then Google Books and OpenLibrary — with a title + author search as fallback. After auto-matching, you'll preview the matches in a table, edit any link or shelf status, and confirm the import."
 msgid "Books are matched by ISBN or ASIN against the local catalog, then by ISBN on Google Books and OpenLibrary, with a title and author search as fallback. After auto-matching, you can preview the matches in a table, edit any link or shelf status, and confirm the import."
-msgstr "圖書將按 ISBN 進行匹配——優先查詢本地條目庫，然後是 Google Books 和 OpenLibrary——如無結果則按標題加作者搜尋。自動匹配完成後，可以在表格中預覽匹配結果，編輯連結或標記狀態，再確認匯入。"
+msgstr "圖書將按 ISBN 或 ASIN 在本地條目庫中匹配，然後按 ISBN 查詢 Google Books 和 OpenLibrary，如無結果則按標題加作者搜尋。自動匹配完成後，可以在表格中預覽匹配結果，編輯連結或標記狀態，再確認匯入。"
 
 #: users/templates/users/_hardcover_section.html:38
 msgid "Each book keeps its privacy setting from Hardcover: public books are imported as public, followers-only books as followers only, and private books as mentioned only."
@@ -7909,10 +7843,8 @@ msgid "Download previous matches"
 msgstr "下載先前的匹配"
 
 #: users/templates/users/_import_rules.html:3
-#, fuzzy
-#| msgid "Data import"
 msgid "What is imported"
-msgstr "資料匯入"
+msgstr "匯入內容"
 
 #: users/templates/users/_import_rules.html:8
 msgid "What is skipped"
@@ -7923,10 +7855,8 @@ msgid "Data you already have"
 msgstr ""
 
 #: users/templates/users/_import_rules.html:20
-#, fuzzy
-#| msgid "Login again"
 msgid "Importing again"
-msgstr "重新登入"
+msgstr "重複匯入"
 
 #: users/templates/users/_pref_device.html:4
 msgid "Settings for current device"
@@ -8361,10 +8291,8 @@ msgid "Once deleted, account data cannot be recovered. Sure to proceed?"
 msgstr "帳號資料一旦刪除後將無法恢復，確定繼續嗎？"
 
 #: users/templates/users/account.html:518
-#, fuzzy
-#| msgid "Enter full <code>username@instance.social</code> or <code>email@domain.com</code> to confirm deletion."
 msgid "Enter your full handle, e.g. <code>username@instance.social</code>, <code>email@domain.com</code> or <code>username.bsky.social</code>, to confirm deletion."
-msgstr "輸入完整的登入用 <code>使用者名稱@實例名</code> 或 <code>電子郵件地址</code> 以確認刪除"
+msgstr "輸入完整的登入標識以確認刪除，如 <code>使用者名稱@實例名</code>、<code>電子郵件地址</code> 或 <code>使用者名稱.bsky.social</code>。"
 
 #: users/templates/users/account.html:528
 msgid "Once deleted, account data cannot be recovered."
@@ -8512,20 +8440,17 @@ msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr "匯入豆瓣標記和評論"
 
 #: users/views/data.py:278
-#, fuzzy
-#| msgid "Export articles in WordPress format"
 msgid "Import articles from WordPress"
-msgstr "以 WordPress 格式匯出文章"
+msgstr "從 WordPress 匯入文章"
 
 #: users/templates/users/data.html:43
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
 msgstr "在<a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">豆伴(豆墳)</a>匯出時勾選<mark>書影音遊劇</mark>和<mark>評論</mark>。<br>選擇從豆伴(豆墳)匯出的<code>.xlsx</code>檔案"
 
 #: users/templates/users/import/douban.html:11
-#, fuzzy, python-format
-#| msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href=\"#import-neodb-archive\">Import NeoDB Archive</a> below."
+#, python-format
 msgid "A Douban archive exported by <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">Doubak</a> is in NeoDB's own NDJSON format instead; upload it under <a href=\"%(neodb_url)s\">Import NeoDB archive</a>."
-msgstr "由 <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">豆備 Doubak</a> 匯出的豆瓣檔案是 NeoDB 自己的 NDJSON 格式，請用下方的<a href=\"#import-neodb-archive\">匯入NeoDB備份</a>上傳。"
+msgstr "由 <a href=\"https://doubak.com\" target=\"_blank\" rel=\"noopener\">豆備 Doubak</a> 匯出的豆瓣檔案是 NeoDB 自己的 NDJSON 格式，請在<a href=\"%(neodb_url)s\">匯入NeoDB備份</a>中上傳。"
 
 #: users/templates/users/import/douban.html:15
 msgid "Marks, ratings, tags, comments and reviews."
@@ -8675,10 +8600,8 @@ msgid "Marks, ratings, comments, tags, reviews and notes. An NDJSON archive also
 msgstr ""
 
 #: users/templates/users/import/neodb.html:15
-#, fuzzy
-#| msgid "Posts"
 msgid "Posts."
-msgstr "貼文"
+msgstr "貼文。"
 
 #: users/templates/users/import/neodb.html:16
 msgid "A record is updated only when the copy in the archive is newer than yours."
@@ -8709,10 +8632,8 @@ msgid "Export your subscriptions from your podcast app as an OPML file."
 msgstr ""
 
 #: users/templates/users/import/opml.html:7
-#, fuzzy
-#| msgid "Upload the downloaded <code>.zip</code> file below, do not unzip."
 msgid "Upload the <code>.opml</code> or <code>.xml</code> file below."
-msgstr "上傳下載的<code>.zip</code>檔案，無需解壓。"
+msgstr "在下方上傳 <code>.opml</code> 或 <code>.xml</code> 檔案。"
 
 #: users/templates/users/import/opml.html:12
 msgid "Each podcast in the file, marked as listening or added to a new collection."
@@ -8771,16 +8692,12 @@ msgid "Following, followers, mutes and blocks are exported as CSV files on the a
 msgstr ""
 
 #: users/templates/users/data.html:82
-#, fuzzy
-#| msgid "Import marks and reviews from Douban"
 msgid "Import marks and reviews"
-msgstr "匯入豆瓣標記和評論"
+msgstr "匯入標記和評論"
 
 #: users/templates/users/data.html:91 users/views/data.py:192
-#, fuzzy
-#| msgid "wrote an article"
 msgid "Import posts and articles"
-msgstr "寫了文章"
+msgstr "匯入貼文和文章"
 
 #: users/templates/users/data.html:520
 msgid "In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download an <code>.xml</code> file, then upload it below."
@@ -8837,10 +8754,8 @@ msgstr "正在搜尋聯邦宇宙"
 
 #: users/templates/users/hardcover_import.html:9
 #: users/templates/users/hardcover_import.html:26
-#, fuzzy
-#| msgid "Review pending matches"
 msgid "Review Hardcover matches"
-msgstr "審閱待處理的匹配"
+msgstr "審閱 Hardcover 匹配結果"
 
 #: users/templates/users/hardcover_import.html:28
 #: users/templates/users/rym_import.html:28
@@ -9132,10 +9047,8 @@ msgid "Hide these categories in discovery and search results"
 msgstr "發現和搜尋時不顯示以下類型"
 
 #: users/templates/users/preferences.html:202
-#, fuzzy
-#| msgid "Preferred languages"
 msgid "Preferred catalog languages"
-msgstr "主要語言"
+msgstr "偏好的條目語言"
 
 #: users/templates/users/preferences.html:211
 msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."
@@ -9166,10 +9079,8 @@ msgid "Recommendations are generated only from public marks, processed in batch 
 msgstr "推薦僅基於公開標記在本伺服器批次計算生成。你的私密標記與僅關注者可見的標記不會被用作任何人的推薦信號；本功能也不會與任何第三方共享你的資料。當你公開分享標記並保持個人資料可被發現時，你的標記會幫助本伺服器與聯邦宇宙中的其他人發現他們可能喜歡的內容——正是這種自願的分享讓本功能對每個人都有價值。如果你不希望參與貢獻，請在帳號頁面取消勾選「允許個人資料、標記和貼文包含在發現中」；該設定會透過 ActivityPub 發佈，其他伺服器也會據此將你排除在他們的發現功能之外。"
 
 #: users/templates/users/preferences.html:240
-#, fuzzy
-#| msgid "Enable recommendations"
 msgid "View hidden recommendations"
-msgstr "啟用推薦"
+msgstr "查看已隱藏的推薦"
 
 #: users/templates/users/profile_actions.html:12
 msgid "Click to unblock"
@@ -9293,10 +9204,8 @@ msgid "Export your data"
 msgstr ""
 
 #: users/templates/users/data.html:40
-#, fuzzy
-#| msgid "Import NeoDB archive"
 msgid "NeoDB archive"
-msgstr "匯入NeoDB備份"
+msgstr "NeoDB 備份"
 
 #: users/templates/users/relationship_list.html:20
 msgid "You may download the list here."
@@ -9630,10 +9539,8 @@ msgid "No StoryGraph import to preview."
 msgstr "暫無可預覽的 StoryGraph 匯入任務。"
 
 #: users/views/data.py:1103
-#, fuzzy
-#| msgid "No StoryGraph import to preview."
 msgid "No Hardcover import to preview."
-msgstr "暫無可預覽的 StoryGraph 匯入任務。"
+msgstr "暫無可預覽的 Hardcover 匯入任務。"
 
 #: users/views/data.py:1422
 msgid "Name is required."

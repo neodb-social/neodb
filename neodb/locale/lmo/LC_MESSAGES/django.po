@@ -179,7 +179,6 @@ msgid "Douban"
 msgstr ""
 
 #: catalog/models/common.py:28 catalog/models/common.py:83
-#, fuzzy
 msgid "Goodreads"
 msgstr "Goodreads"
 
@@ -203,7 +202,6 @@ msgstr ""
 #: catalog/models/common.py:33 catalog/models/common.py:78
 #: catalog/templates/movie.html:41 catalog/templates/people.html:39
 #: catalog/templates/tvseason.html:58 catalog/templates/tvshow.html:53
-#, fuzzy
 msgid "IMDb"
 msgstr "IMDb"
 
@@ -460,9 +458,8 @@ msgid "Douban Personage"
 msgstr ""
 
 #: catalog/models/common.py:111
-#, fuzzy
 msgid "Goodreads Author"
-msgstr "Goodreads"
+msgstr "Autor de Goodreads"
 
 #: catalog/models/common.py:112
 msgid "Spotify Artist"
@@ -7670,9 +7667,8 @@ msgstr ""
 
 #: users/templates/users/_hardcover_section.html:5
 #: users/templates/users/_hardcover_section.html:23
-#, fuzzy
 msgid "Import from Hardcover"
-msgstr "Goodreads"
+msgstr "Importà de Hardcover"
 
 #: users/templates/users/_hardcover_section.html:11
 #: users/templates/users/_rym_section.html:11
@@ -8336,9 +8332,8 @@ msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr ""
 
 #: users/views/data.py:278
-#, fuzzy
 msgid "Import articles from WordPress"
-msgstr "Goodreads"
+msgstr "Importà i articol de WordPress"
 
 #: users/templates/users/data.html:43
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
@@ -8389,9 +8384,8 @@ msgid "Import in progress, please wait"
 msgstr ""
 
 #: users/templates/users/data.html:96
-#, fuzzy
 msgid "Import from Goodreads"
-msgstr "Goodreads"
+msgstr "Importà de Goodreads"
 
 #: users/templates/users/data.html:102
 msgid "On Goodreads, click <a href=\"https://www.goodreads.com/review/import\" target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> to download your library as a CSV file."

@@ -242,7 +242,6 @@ msgid "Apple Podcast"
 msgstr "Apple Podcast"
 
 #: catalog/models/common.py:43
-#, fuzzy
 msgid "RSS"
 msgstr "RSS"
 
@@ -251,12 +250,10 @@ msgid "Discogs"
 msgstr "Discogs"
 
 #: catalog/models/common.py:45 catalog/models/common.py:122
-#, fuzzy
 msgid "Apple Music"
 msgstr "Apple Music"
 
 #: catalog/models/common.py:46 catalog/models/common.py:124
-#, fuzzy
 msgid "Fediverse"
 msgstr "Fediverse"
 
@@ -453,10 +450,8 @@ msgid "MusicBrainz Release"
 msgstr ""
 
 #: catalog/models/common.py:109
-#, fuzzy
-#| msgid "MusicBrainz"
 msgid "MusicBrainz Artist"
-msgstr "MusicBrainz"
+msgstr "Исполнитель MusicBrainz"
 
 #: catalog/models/common.py:110
 msgid "Douban Personage"
@@ -475,10 +470,8 @@ msgid "TMDB Person"
 msgstr ""
 
 #: catalog/models/common.py:114
-#, fuzzy
-#| msgid "Open Library"
 msgid "Open Library Author"
-msgstr "Open Library"
+msgstr "Автор Open Library"
 
 #: catalog/models/common.py:115
 msgid "IGDB Company"
@@ -950,10 +943,8 @@ msgid "Translator"
 msgstr ""
 
 #: catalog/models/people.py:41
-#, fuzzy
-#| msgid "performer"
 msgid "Performer"
-msgstr "исполнитель"
+msgstr "Исполнитель"
 
 #: catalog/models/people.py:42
 msgid "Actor"
@@ -964,10 +955,8 @@ msgid "Director"
 msgstr ""
 
 #: catalog/models/people.py:44
-#, fuzzy
-#| msgid "composer"
 msgid "Composer"
-msgstr "композитор"
+msgstr "Композитор"
 
 #: catalog/models/people.py:45
 msgid "Artist"
@@ -990,16 +979,12 @@ msgid "Designer"
 msgstr ""
 
 #: catalog/models/people.py:50
-#, fuzzy
-#| msgid "choreographer"
 msgid "Choreographer"
-msgstr "хореограф"
+msgstr "Хореограф"
 
 #: catalog/models/people.py:51
-#, fuzzy
-#| msgid "original name"
 msgid "Original Creator"
-msgstr "оригинальное название"
+msgstr "Автор оригинала"
 
 #: catalog/models/people.py:52
 msgid "Producer"
@@ -1231,10 +1216,8 @@ msgstr[2] ""
 
 #: catalog/templates/_discover_shelf.html:11
 #: catalog/templates/discover.html:193 catalog/templates/discover.html:222
-#, fuzzy
-#| msgid "Fetch all"
 msgid "See all"
-msgstr "Скачать всё"
+msgstr "Показать все"
 
 #: catalog/templates/_discover_spotlight.html:6
 #: catalog/templates/_discover_spotlight.html:8
@@ -1328,10 +1311,8 @@ msgstr ""
 
 #: catalog/templates/_item_cover_card_body.html:35
 #: catalog/templates/_item_user_pieces.html:77
-#, fuzzy
-#| msgid "Sync in progress."
 msgid "Set progress"
-msgstr "Синхронизация в процессе."
+msgstr "Указать прогресс"
 
 #: catalog/templates/_item_cover_card_body.html:56
 #: catalog/templates/_item_cover_card_body.html:57
@@ -1407,16 +1388,12 @@ msgid "My comment and tags"
 msgstr "мой комментарий и теги"
 
 #: catalog/templates/_item_user_pieces.html:61
-#, fuzzy
-#| msgid "Sync in progress."
 msgid "My notes and progress"
-msgstr "Синхронизация в процессе."
+msgstr "Мои заметки и прогресс"
 
 #: catalog/templates/_item_user_pieces.html:68
-#, fuzzy
-#| msgid "my notes"
 msgid "Add note"
-msgstr "мои заметки"
+msgstr "Добавить заметку"
 
 #: catalog/templates/_item_user_pieces.html:95
 #: catalog/templates/_sidebar_edit.html:8
@@ -1826,10 +1803,8 @@ msgid "I have updated my feed's description or website as described above."
 msgstr ""
 
 #: catalog/templates/_verify_status.html:43
-#, fuzzy
-#| msgid "Fetch again"
 msgid "Try again"
-msgstr "Скачать ещё раз"
+msgstr "Попробовать снова"
 
 #: catalog/templates/_verify_status.html:57
 msgid "Start verification"
@@ -1856,10 +1831,8 @@ msgid "album media"
 msgstr ""
 
 #: catalog/templates/album.html:58
-#, fuzzy
-#| msgid "tracks"
 msgid "Tracks"
-msgstr "треки"
+msgstr "Треки"
 
 #: catalog/templates/album.html:62
 msgid "Play this album"
@@ -1929,10 +1902,8 @@ msgid "NeoDB does not re-check this periodically at the moment, but we recommend
 msgstr ""
 
 #: catalog/templates/catalog_verify.html:72
-#, fuzzy
-#| msgid "Verified successfully."
 msgid "Verified creators"
-msgstr "Проверка прошла успешно."
+msgstr "Подтверждённые авторы"
 
 #: catalog/templates/catalog_verify.html:82
 msgid "Sure to remove this creator verification?"
@@ -2049,20 +2020,16 @@ msgid "See posts"
 msgstr ""
 
 #: catalog/templates/discover.html:137
-#, fuzzy
-#| msgid "No history."
 msgid "Bring your history"
-msgstr "нет истории."
+msgstr "Перенесите свою историю"
 
 #: catalog/templates/discover.html:138
 msgid "Import from Douban, Goodreads, Letterboxd, Steam, Trakt or a podcast OPML file."
 msgstr ""
 
 #: catalog/templates/discover.html:139
-#, fuzzy
-#| msgid "Open Library"
 msgid "Open importers"
-msgstr "Open Library"
+msgstr "Открыть инструменты импорта"
 
 #: catalog/templates/discover.html:146
 msgid "Sections"
@@ -2091,10 +2058,8 @@ msgid "Posts"
 msgstr ""
 
 #: catalog/templates/discover.html:175
-#, fuzzy
-#| msgid "original name"
 msgid "Originals"
-msgstr "оригинальное название"
+msgstr "Оригинальные"
 
 #: catalog/templates/discover.html:190 catalog/views/view.py:1003
 msgid "Because of what is on your shelf."
@@ -2150,10 +2115,8 @@ msgstr ""
 
 #: catalog/templates/discover_original_podcasts.html:10
 #: catalog/templates/discover_original_podcasts.html:18
-#, fuzzy
-#| msgid "original name"
 msgid "Original podcasts"
-msgstr "оригинальное название"
+msgstr "Оригинальные подкасты"
 
 #: catalog/templates/edition.html:38
 msgid "publication date"
@@ -2192,10 +2155,8 @@ msgid "Get the data from %(site_label)s and add it to the catalog?"
 msgstr ""
 
 #: catalog/templates/fetch_confirm.html:31
-#, fuzzy
-#| msgid "Fetch all"
 msgid "Fetch"
-msgstr "Скачать всё"
+msgstr "Загрузить"
 
 #: catalog/templates/fetch_pending.html:22
 #, python-format
@@ -2302,10 +2263,8 @@ msgid "died"
 msgstr ""
 
 #: catalog/templates/people_works.html:56
-#, fuzzy
-#| msgid "composer"
 msgid "complete"
-msgstr "композитор"
+msgstr "завершено"
 
 #: catalog/templates/people_works.html:60
 #: journal/templates/_sidebar_collection_filter.html:17
@@ -2314,10 +2273,8 @@ msgstr ""
 
 #: catalog/templates/people_works.html:62
 #: journal/templates/_sidebar_collection_filter.html:18
-#, fuzzy
-#| msgid "Sync in progress."
 msgid "In progress"
-msgstr "Синхронизация в процессе."
+msgstr "В процессе"
 
 #: catalog/templates/podcast.html:13 common/templates/_sidebar.html:51
 msgid "verified creator"
@@ -2480,20 +2437,16 @@ msgid "Insufficient permission"
 msgstr ""
 
 #: catalog/views/edit.py:342
-#, fuzzy
-#| msgid "This item has been deleted."
 msgid "Item is not deleted"
-msgstr "Этот элемент был удален."
+msgstr "Элемент не удалён"
 
 #: catalog/views/edit.py:385
 msgid "Switching may remove some metadata."
 msgstr ""
 
 #: catalog/views/edit.py:391
-#, fuzzy
-#| msgid "The following items are merged into this item"
 msgid "The following seasons will be detached from this show"
-msgstr "Следующие элементы включены в этот элемент"
+msgstr "Следующие сезоны будут отвязаны от этого сериала"
 
 #: catalog/views/edit.py:396
 msgid "Links to IMDB and TMDB will be removed."
@@ -2508,10 +2461,8 @@ msgid "Are you sure to remove the link to this site?"
 msgstr ""
 
 #: catalog/views/edit.py:453
-#, fuzzy
-#| msgid "You may not be able to undo this operation, sure to remove?"
 msgid "You may not be able to undo this operation."
-msgstr "Возможно, вы не сможете отменить эту операцию, уверены, что хотите продолжить?"
+msgstr "Возможно, вы не сможете отменить эту операцию."
 
 #: catalog/views/edit.py:479
 msgid "Current parent item"
@@ -2640,10 +2591,8 @@ msgid "Creator verified."
 msgstr ""
 
 #: catalog/views/verify.py:217
-#, fuzzy
-#| msgid "Please enter the verification code you received."
 msgid "Creator verification removed."
-msgstr "Пожалуйста, введите полученный проверочный код."
+msgstr "Подтверждение автора снято."
 
 #: catalog/views/view.py:104 catalog/views/view.py:129
 msgid "Item not found"
@@ -2655,10 +2604,8 @@ msgid "Item no longer exists"
 msgstr ""
 
 #: catalog/views/view.py:217
-#, fuzzy
-#| msgid "Invalid file."
 msgid "Invalid role"
-msgstr "Некорректный файл."
+msgstr "Недопустимая роль"
 
 #: catalog/views/view.py:989
 msgid "Category not found"
@@ -2754,11 +2701,9 @@ msgid "Family"
 msgstr ""
 
 #: common/models/genre.py:34
-#, fuzzy
-#| msgid "no history."
 msgctxt "genre"
 msgid "History"
-msgstr "нет истории."
+msgstr "История"
 
 #: common/models/genre.py:35
 msgctxt "genre"
@@ -2781,16 +2726,14 @@ msgid "Crime"
 msgstr ""
 
 #: common/models/genre.py:39
-#, fuzzy
 msgctxt "genre"
 msgid "Sports"
-msgstr "экспорт"
+msgstr "Спорт"
 
 #: common/models/genre.py:40
-#, fuzzy
 msgctxt "genre"
 msgid "Music"
-msgstr "Apple Music"
+msgstr "Музыка"
 
 #: common/models/genre.py:42
 msgctxt "genre"
@@ -2798,11 +2741,9 @@ msgid "Film Noir"
 msgstr ""
 
 #: common/models/genre.py:43
-#, fuzzy
-#| msgid "MusicBrainz"
 msgctxt "genre"
 msgid "Musical"
-msgstr "MusicBrainz"
+msgstr "Мюзикл"
 
 #: common/models/genre.py:44
 msgctxt "genre"
@@ -2940,10 +2881,9 @@ msgid "Latin"
 msgstr ""
 
 #: common/models/genre.py:72
-#, fuzzy
 msgctxt "genre"
 msgid "World Music"
-msgstr "Apple Music"
+msgstr "Мировая музыка"
 
 #: common/models/genre.py:73
 msgctxt "genre"
@@ -2981,11 +2921,9 @@ msgid "Gospel"
 msgstr ""
 
 #: common/models/genre.py:80
-#, fuzzy
-#| msgid "tracks"
 msgctxt "genre"
 msgid "Soundtrack"
-msgstr "треки"
+msgstr "Саундтрек"
 
 #: common/models/genre.py:81
 msgctxt "genre"
@@ -3023,11 +2961,9 @@ msgid "Puzzle"
 msgstr ""
 
 #: common/models/genre.py:89
-#, fuzzy
-#| msgid "platform"
 msgctxt "genre"
 msgid "Platformer"
-msgstr "платформа"
+msgstr "Платформер"
 
 #: common/models/genre.py:90
 msgctxt "genre"
@@ -3150,11 +3086,9 @@ msgid "Education"
 msgstr ""
 
 #: common/models/genre.py:116
-#, fuzzy
-#| msgid "region"
 msgctxt "genre"
 msgid "Religion"
-msgstr "регион"
+msgstr "Религия"
 
 #: common/models/genre.py:117
 msgctxt "genre"
@@ -3938,18 +3872,14 @@ msgid "EP"
 msgstr ""
 
 #: common/models/music_format.py:21
-#, fuzzy
-#| msgid "optional"
 msgctxt "album_type"
 msgid "Compilation"
-msgstr "опционально"
+msgstr "Сборник"
 
 #: common/models/music_format.py:22
-#, fuzzy
-#| msgid "tracks"
 msgctxt "album_type"
 msgid "Soundtrack"
-msgstr "треки"
+msgstr "Саундтрек"
 
 #: common/models/music_format.py:23
 msgctxt "album_type"
@@ -3992,11 +3922,9 @@ msgid "Audio Drama"
 msgstr ""
 
 #: common/models/music_format.py:31
-#, fuzzy
-#| msgid "write a review"
 msgctxt "album_type"
 msgid "Interview"
-msgstr "написать обзор"
+msgstr "Интервью"
 
 #: common/models/music_format.py:32
 msgctxt "album_type"
@@ -4531,10 +4459,8 @@ msgid "Recommendations"
 msgstr ""
 
 #: common/views_manage.py:38
-#, fuzzy
-#| msgid "Accept"
 msgid "Access"
-msgstr "Принять"
+msgstr "Доступ"
 
 #: common/views_manage.py:39 common/views_manage.py:878
 msgid "Federation"
@@ -4562,18 +4488,14 @@ msgid "Environment"
 msgstr ""
 
 #: common/views_manage.py:281
-#, fuzzy
-#| msgid "Invalid file."
 msgid "Invalid value."
-msgstr "Некорректный файл."
+msgstr "Недопустимое значение."
 
 #: common/views_manage.py:285
 msgid "Invalid configuration. Please check your input."
 msgstr ""
 
 #: common/views_manage.py:290
-#, fuzzy
-#| msgid "Settings saved."
 msgid "Settings have been saved."
 msgstr "Настройки сохранены."
 
@@ -4866,10 +4788,8 @@ msgid "Extra weight for a mark when its owner also wrote a public review of the 
 msgstr ""
 
 #: common/views_manage.py:620
-#, fuzzy
-#| msgid "My comment and tags"
 msgid "Comment and note boost"
-msgstr "мой комментарий и теги"
+msgstr "Надбавка за комментарий и заметку"
 
 #: common/views_manage.py:622
 msgid "Extra weight for a mark for each of a public comment and a public note by its owner on the item. A mark weighs at most twice a plain mark."
@@ -4892,10 +4812,8 @@ msgid "Weight of shared public tags in similar items, relative to shared marks a
 msgstr ""
 
 #: common/views_manage.py:646
-#, fuzzy
-#| msgid "My collection"
 msgid "Collection weight"
-msgstr "моя коллекция"
+msgstr "Вес коллекций"
 
 #: common/views_manage.py:648
 msgid "Weight of shared public collections in similar items, relative to shared marks at 1."
@@ -4974,10 +4892,8 @@ msgid "Marks an item needs before the captcha treats it as well known enough to 
 msgstr ""
 
 #: common/views_manage.py:746
-#, fuzzy
-#| msgid "Registration is for invitation only"
 msgid "Registration captcha for email only"
-msgstr "Регистрация только по приглашению"
+msgstr "Капча при регистрации только по email"
 
 #: common/views_manage.py:748
 msgid "Show the captcha only to people who register with an email address. Mastodon, Bluesky and Threads sign-ups already passed an external login and skip it. Has no effect while captcha items is 0."
@@ -5028,10 +4944,8 @@ msgid "Show the Mastodon archive import on the data page. Imported posts become 
 msgstr ""
 
 #: common/views_manage.py:788
-#, fuzzy
-#| msgid "language"
 msgid "Default language"
-msgstr "язык"
+msgstr "Язык по умолчанию"
 
 #: common/views_manage.py:791
 msgid "Interface language for visitors and for users who have not chosen one themselves."
@@ -5144,10 +5058,8 @@ msgid "https://developers.google.com/books/"
 msgstr ""
 
 #: common/views_manage.py:908
-#, fuzzy
-#| msgid "Discogs"
 msgid "Discogs API key"
-msgstr "Discogs"
+msgstr "API-ключ Discogs"
 
 #: common/views_manage.py:910
 msgid "Personal access token from https://www.discogs.com/settings/developers"
@@ -5182,10 +5094,8 @@ msgid "Client ID of an app registered at https://myanimelist.net/apiconfig. MyAn
 msgstr ""
 
 #: common/views_manage.py:935
-#, fuzzy
-#| msgid "Discogs"
 msgid "TheTVDB API key"
-msgstr "Discogs"
+msgstr "API-ключ TheTVDB"
 
 #: common/views_manage.py:937
 msgid "Project API key from https://thetvdb.com/api-information. TheTVDB is disabled when empty."
@@ -5398,10 +5308,8 @@ msgid "Domains"
 msgstr ""
 
 #: common/views_manage.py:1144
-#, fuzzy
-#| msgid "optional"
 msgid "Operational"
-msgstr "опционально"
+msgstr "Эксплуатация"
 
 #: common/views_manage.py:1161
 msgid "Movie genres"
@@ -5536,10 +5444,8 @@ msgid "Featured image (optional)"
 msgstr ""
 
 #: journal/forms.py:82 journal/forms.py:88 journal/forms.py:89
-#, fuzzy
-#| msgid "optional"
 msgid "Summary (optional)"
-msgstr "опционально"
+msgstr "Краткое содержание (необязательно)"
 
 #: journal/forms.py:105 journal/forms.py:110 journal/forms.py:111
 msgid "Tags (comma separated)"
@@ -5784,10 +5690,8 @@ msgid "Progress must be 500 characters or fewer."
 msgstr ""
 
 #: journal/models/mark.py:488
-#, fuzzy
-#| msgid "Sync in progress."
 msgid "Invalid progress type."
-msgstr "Синхронизация в процессе."
+msgstr "Недопустимый тип прогресса."
 
 #: journal/models/mark.py:490
 msgid "Invalid progress type for this item."
@@ -6510,16 +6414,12 @@ msgid "Create a new collection"
 msgstr ""
 
 #: journal/templates/article.html:97 social/templates/_event_post.html:79
-#, fuzzy
-#| msgid "write a review"
 msgid "wrote a review"
-msgstr "написать обзор"
+msgstr "написал(а) обзор"
 
 #: journal/templates/article.html:99 social/templates/_event_post.html:81
-#, fuzzy
-#| msgid "write a review"
 msgid "wrote an article"
-msgstr "написать обзор"
+msgstr "написал(а) статью"
 
 #: journal/templates/article.html:128
 msgid "This article may contain sensitive content. Click to reveal."
@@ -6535,10 +6435,8 @@ msgstr ""
 
 #: journal/templates/article_edit.html:15
 #: journal/templates/profile_articles.html:12
-#, fuzzy
-#| msgid "composer"
 msgid "Compose article"
-msgstr "композитор"
+msgstr "Написать статью"
 
 #: journal/templates/calendar_data.html:8
 msgid "JAN"
@@ -6596,10 +6494,8 @@ msgid "Share"
 msgstr ""
 
 #: journal/templates/collection.html:87
-#, fuzzy
-#| msgid "my collection"
 msgid "created a collection"
-msgstr "моя коллекция"
+msgstr "создал(а) коллекцию"
 
 #: journal/templates/collection.html:154
 msgid "Query"
@@ -6701,10 +6597,8 @@ msgid "Note"
 msgstr ""
 
 #: journal/templates/note.html:21
-#, fuzzy
-#| msgid "Sync in progress."
 msgid "Note and progress"
-msgstr "Синхронизация в процессе."
+msgstr "Заметка и прогресс"
 
 #: journal/templates/note.html:29
 msgid "Note with empty content will be deleted, sure to continue?"
@@ -6808,10 +6702,8 @@ msgid "Organizations"
 msgstr ""
 
 #: journal/templates/profile_items.html:10
-#, fuzzy
-#| msgid "my collection"
 msgid "Create collection"
-msgstr "моя коллекция"
+msgstr "Создать коллекцию"
 
 #: journal/templates/replies.html:8
 msgid "Replies"
@@ -6842,13 +6734,12 @@ msgid "Delete this tag"
 msgstr ""
 
 #: journal/templates/user_article_list.html:26
-#, fuzzy, python-format
-#| msgid "write a review"
+#, python-format
 msgid "%(counter)s article"
 msgid_plural "%(counter)s articles"
-msgstr[0] "написать обзор"
-msgstr[1] "написать обзор"
-msgstr[2] "написать обзор"
+msgstr[0] "%(counter)s статья"
+msgstr[1] "%(counter)s статьи"
+msgstr[2] "%(counter)s статей"
 
 #: journal/templates/user_article_list.html:31
 #, python-format
@@ -6876,10 +6767,8 @@ msgid "You have no articles yet. An article is a long text that you write here a
 msgstr ""
 
 #: journal/templates/user_article_list.html:120
-#, fuzzy
-#| msgid "write a review"
 msgid "Write an article"
-msgstr "написать обзор"
+msgstr "Написать статью"
 
 #: journal/templates/user_article_list.html:125
 #, python-format
@@ -7005,10 +6894,8 @@ msgstr ""
 
 #: journal/views/mark.py:224 journal/views/mark.py:226
 #: journal/views/mark.py:280
-#, fuzzy
-#| msgid "Invalid file."
 msgid "Invalid input"
-msgstr "Некорректный файл."
+msgstr "Недопустимый ввод"
 
 #: journal/views/note.py:22
 msgid "Progress"
@@ -7219,10 +7106,8 @@ msgstr ""
 #: mastodon/views/bluesky.py:53 mastodon/views/email.py:35
 #: mastodon/views/mastodon.py:36 mastodon/views/threads.py:31
 #: users/templates/users/login.html:6 users/views/webauthn.py:142
-#, fuzzy
-#| msgid "Export file expired. Please export again."
 msgid "Security check failed. Please try again."
-msgstr "Экспорт файла истёк. Пожалуйста, экспортируйте снова."
+msgstr "Проверка безопасности не пройдена. Пожалуйста, попробуйте ещё раз."
 
 #: mastodon/views/bluesky.py:60 mastodon/views/email.py:74
 msgid "Too many attempts, please try again later."
@@ -7592,20 +7477,16 @@ msgid "Feeds"
 msgstr ""
 
 #: social/templates/feed.html:45 social/templates/feed.html:47
-#, fuzzy
-#| msgid "Write a review"
 msgid "Marks and reviews"
-msgstr "написать обзор"
+msgstr "Отметки и обзоры"
 
 #: social/templates/feed.html:53 social/templates/feed.html:55
 msgid "Local"
 msgstr ""
 
 #: social/templates/feed.html:62 social/templates/feed.html:64
-#, fuzzy
-#| msgid "WorldCat"
 msgid "World"
-msgstr "WorldCat"
+msgstr "Весь мир"
 
 #: social/templates/feed_events.html:27
 msgid "No matching activities."
@@ -7644,10 +7525,8 @@ msgid "Follows"
 msgstr ""
 
 #: social/templates/post_question.html:6
-#, fuzzy
-#| msgid "optional"
 msgid "Poll options"
-msgstr "опционально"
+msgstr "Варианты ответа"
 
 #: social/templates/post_question.html:21
 msgid "Poll has ended."
@@ -7740,10 +7619,8 @@ msgid "A user with that username already exists."
 msgstr ""
 
 #: users/models/user.py:414
-#, fuzzy
-#| msgid "This username is already in use."
 msgid "This username is already taken."
-msgstr "Это имя пользователя уже используется."
+msgstr "Это имя пользователя уже занято."
 
 #: users/models/webauthn.py:15
 msgid "credential ID"
@@ -7770,10 +7647,8 @@ msgid "last used"
 msgstr ""
 
 #: users/templates/users/_crosspost_row.html:5
-#, fuzzy
-#| msgid "Verified successfully."
 msgid "Crossposted successfully."
-msgstr "Проверка прошла успешно."
+msgstr "Кросспост выполнен успешно."
 
 #: users/templates/users/_crosspost_row.html:41
 msgid "Re-authorize"
@@ -8404,10 +8279,8 @@ msgid "Put every cover into the row it belongs to. Drag it, or select a cover an
 msgstr ""
 
 #: users/templates/users/captcha.html:38 users/templates/users/captcha.html:40
-#, fuzzy
-#| msgid "cover"
 msgid "Item cover"
-msgstr "обложка"
+msgstr "Обложка элемента"
 
 #: users/templates/users/captcha.html:56
 #, python-format
@@ -8727,16 +8600,12 @@ msgid "Following, followers, mutes and blocks are exported as CSV files on the a
 msgstr ""
 
 #: users/templates/users/data.html:82
-#, fuzzy
-#| msgid "Write a review"
 msgid "Import marks and reviews"
-msgstr "написать обзор"
+msgstr "Импорт отметок и обзоров"
 
 #: users/templates/users/data.html:91 users/views/data.py:192
-#, fuzzy
-#| msgid "write a review"
 msgid "Import posts and articles"
-msgstr "написать обзор"
+msgstr "Импорт постов и статей"
 
 #: users/templates/users/data.html:520
 msgid "In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download an <code>.xml</code> file, then upload it below."
@@ -8941,10 +8810,8 @@ msgid "To move another account to this one, first add it as an alias here, and t
 msgstr ""
 
 #: users/templates/users/migrate_in.html:27
-#, fuzzy
-#| msgid "Account mismatch."
 msgid "Account to alias"
-msgstr "Несоответствие аккаунта."
+msgstr "Аккаунт для псевдонима"
 
 #: users/templates/users/migrate_in.html:35
 msgid "Add alias"
@@ -8973,10 +8840,8 @@ msgid "Migration in progress"
 msgstr ""
 
 #: users/templates/users/migrate_out.html:22
-#, fuzzy
-#| msgid "Account is being deleted."
 msgid "Your account is being migrated to:"
-msgstr "Аккаунт удаляется."
+msgstr "Ваш аккаунт переносится в:"
 
 #: users/templates/users/migrate_out.html:30
 msgid "Are you sure you want to cancel the migration?"
@@ -9087,10 +8952,8 @@ msgid "Hide these categories in discovery and search results"
 msgstr ""
 
 #: users/templates/users/preferences.html:202
-#, fuzzy
-#| msgid "language"
 msgid "Preferred catalog languages"
-msgstr "язык"
+msgstr "Предпочитаемые языки каталога"
 
 #: users/templates/users/preferences.html:211
 msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."
@@ -9238,9 +9101,8 @@ msgid "Cut the sh*t and get me in!"
 msgstr ""
 
 #: users/templates/users/relationship_list.html:16
-#, fuzzy
 msgid "Export"
-msgstr "экспорт"
+msgstr "Экспорт"
 
 #: users/templates/users/data.html:38
 msgid "Export your data"
@@ -9251,9 +9113,8 @@ msgid "NeoDB archive"
 msgstr ""
 
 #: users/templates/users/relationship_list.html:20
-#, fuzzy
 msgid "You may download the list here."
-msgstr "Вы можете скачать список здесь."
+msgstr "Здесь вы можете скачать список."
 
 #: users/templates/users/rym_import.html:9
 #: users/templates/users/rym_import.html:26
@@ -9539,10 +9400,8 @@ msgid "Settings saved."
 msgstr "Настройки сохранены."
 
 #: users/views/data.py:547
-#, fuzzy
-#| msgid "Account is being deleted."
 msgid "Account no longer linked."
-msgstr "Аккаунт удаляется."
+msgstr "Аккаунт больше не привязан."
 
 #: users/views/data.py:550
 msgid "Content is no longer public."
@@ -9574,10 +9433,8 @@ msgid "Starting import..."
 msgstr ""
 
 #: users/views/data.py:811 users/views/data.py:1014 users/views/data.py:1210
-#, fuzzy
-#| msgid "Export file not available."
 msgid "No matched file available."
-msgstr "Экспортируемый файл недоступен."
+msgstr "Нет подходящего файла."
 
 #: users/views/data.py:905
 msgid "No StoryGraph import to preview."
@@ -9588,10 +9445,8 @@ msgid "No Hardcover import to preview."
 msgstr ""
 
 #: users/views/data.py:1422
-#, fuzzy
-#| msgid "Valid username required"
 msgid "Name is required."
-msgstr "Требуется корректное имя пользователя"
+msgstr "Требуется имя."
 
 #: users/views/data.py:1446
 msgid "Application access has been revoked."
@@ -9671,10 +9526,8 @@ msgid "Passkey not recognized"
 msgstr ""
 
 #: users/views/webauthn.py:197
-#, fuzzy
-#| msgid "Account is being deleted."
 msgid "Account is inactive"
-msgstr "Аккаунт удаляется."
+msgstr "Аккаунт неактивен"
 
 #: users/views/webauthn.py:214
 msgid "Passkey verification failed"
@@ -9685,7 +9538,5 @@ msgid "Passkey not found"
 msgstr ""
 
 #: users/views/webauthn.py:260
-#, fuzzy
-#| msgid "Valid username required"
 msgid "Name is required"
-msgstr "Требуется корректное имя пользователя"
+msgstr "Требуется имя"

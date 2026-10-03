@@ -60,12 +60,10 @@ msgid "Traditional Chinese"
 msgstr "چینی سنتی"
 
 #: catalog/forms.py:35 catalog/models/item.py:423
-#, fuzzy
 msgid "Primary ID Type"
 msgstr "نوع شناسهٔ اصلی"
 
 #: catalog/forms.py:40 catalog/models/item.py:426
-#, fuzzy
 msgid "Primary ID Value"
 msgstr "مقدار شناسهٔ اصلی"
 
@@ -92,7 +90,6 @@ msgid "Hardcover"
 msgstr "جلد سخت"
 
 #: catalog/models/book.py:181
-#, fuzzy
 msgid "eBook"
 msgstr "کتاب الکترونیکی"
 
@@ -132,9 +129,8 @@ msgid "translator"
 msgstr "ترجمه‌کننده"
 
 #: catalog/models/book.py:296 catalog/templates/edition.html:25
-#, fuzzy
 msgid "book format"
-msgstr "قالب‌ کتاب"
+msgstr "قالب کتاب"
 
 #: catalog/models/book.py:303 catalog/models/game.py:135
 #: catalog/models/item.py:244 catalog/models/music.py:142
@@ -191,9 +187,8 @@ msgid "Google Books"
 msgstr "کتاب‌های گوگل"
 
 #: catalog/models/common.py:30
-#, fuzzy
 msgid "BooksTW"
-msgstr "کتاب‌های TW"
+msgstr "BooksTW"
 
 #: catalog/models/common.py:31 catalog/models/common.py:95
 #: catalog/models/common.py:97
@@ -295,19 +290,16 @@ msgid "WorldCat"
 msgstr ""
 
 #: catalog/models/common.py:55 catalog/models/common.py:131
-#, fuzzy
-#| msgid "Game"
 msgid "MobyGames"
-msgstr "بازی"
+msgstr "MobyGames"
 
 #: catalog/models/common.py:56 catalog/models/common.py:132
 msgid "StoryGraph"
 msgstr ""
 
 #: catalog/models/common.py:57 catalog/models/common.py:123
-#, fuzzy
 msgid "YouTube Music"
-msgstr "آهنگ دوبان"
+msgstr "YouTube Music"
 
 #: catalog/models/common.py:58
 msgid "RateYourMusic"
@@ -370,9 +362,8 @@ msgid "OCLC Number"
 msgstr ""
 
 #: catalog/models/common.py:77
-#, fuzzy
 msgid "RSS Feed URL"
-msgstr "نشانی خوراک‌وب"
+msgstr "نشانی خوراک RSS"
 
 #: catalog/models/common.py:79
 msgid "TMDB TV Series"
@@ -403,17 +394,14 @@ msgid "Douban Book Work"
 msgstr ""
 
 #: catalog/models/common.py:88
-#, fuzzy
 msgid "Douban Movie"
 msgstr "فیلم دوبان"
 
 #: catalog/models/common.py:89
-#, fuzzy
 msgid "Douban Music"
-msgstr "آهنگ دوبان"
+msgstr "موسیقی دوبان"
 
 #: catalog/models/common.py:90
-#, fuzzy
 msgid "Douban Game"
 msgstr "بازی دوبان"
 
@@ -430,7 +418,6 @@ msgid "BooksTW Book"
 msgstr "کتابهای کتاب تلویزیون"
 
 #: catalog/models/common.py:94
-#, fuzzy
 msgid "Readmoo Book"
 msgstr "کتاب Readmoo"
 
@@ -439,7 +426,6 @@ msgid "BnF Catalogue"
 msgstr ""
 
 #: catalog/models/common.py:100
-#, fuzzy
 msgid "Spotify Album"
 msgstr "آلبوم اسپاتیفای"
 
@@ -448,9 +434,8 @@ msgid "Spotify Podcast"
 msgstr "پادپخش اسپاتیفای"
 
 #: catalog/models/common.py:102
-#, fuzzy
 msgid "Discogs Release"
-msgstr "انتشار دیسکاگ ها"
+msgstr "انتشار Discogs"
 
 #: catalog/models/common.py:103
 msgid "Discogs Master"
@@ -465,15 +450,12 @@ msgid "MusicBrainz Release"
 msgstr "انتشار موزیک‌برینزش"
 
 #: catalog/models/common.py:109
-#, fuzzy
-#| msgid "MusicBrainz Release"
 msgid "MusicBrainz Artist"
-msgstr "انتشار موزیک‌برینزش"
+msgstr "هنرمند MusicBrainz"
 
 #: catalog/models/common.py:110
-#, fuzzy
 msgid "Douban Personage"
-msgstr "بازی دوبان"
+msgstr "شخص دوبان"
 
 #: catalog/models/common.py:111
 msgid "Goodreads Author"
@@ -508,9 +490,8 @@ msgid "Steam Game"
 msgstr "بازی استیم"
 
 #: catalog/models/common.py:130
-#, fuzzy
 msgid "Open Library Work"
-msgstr "کار کتابخانه‌های باز"
+msgstr "اثر کتابخانه باز"
 
 #: catalog/models/common.py:133
 msgid "RateYourMusic Release"
@@ -533,27 +514,20 @@ msgid "MyAnimeList Manga"
 msgstr ""
 
 #: catalog/models/common.py:146
-#, fuzzy
-#| msgid "TV Series"
 msgid "TheTVDB Series"
-msgstr "دنبالهٔ تلویزیونی"
+msgstr "سریال TheTVDB"
 
 #: catalog/models/common.py:147
-#, fuzzy
-#| msgid "TV Season"
 msgid "TheTVDB Season"
-msgstr "فصل تلویزیون"
+msgstr "فصل TheTVDB"
 
 #: catalog/models/common.py:148
-#, fuzzy
 msgid "TheTVDB Episode"
-msgstr "اپیزود تلویزیونی"
+msgstr "قسمت TheTVDB"
 
 #: catalog/models/common.py:149
-#, fuzzy
-#| msgid "Movie"
 msgid "TheTVDB Movie"
-msgstr "فیلم"
+msgstr "فیلم TheTVDB"
 
 #: catalog/models/common.py:150
 msgid "TheTVDB Person"
@@ -577,9 +551,8 @@ msgid "TV Season"
 msgstr "فصل تلویزیون"
 
 #: catalog/models/common.py:176
-#, fuzzy
 msgid "TV Episode"
-msgstr "اپیزود تلویزیونی"
+msgstr "قسمت تلویزیونی"
 
 #: catalog/models/common.py:177 catalog/models/common.py:193
 #: catalog/models/common.py:207 catalog/templates/_sidebar_edit.html:196
@@ -589,9 +562,8 @@ msgid "Movie"
 msgstr "فیلم"
 
 #: catalog/models/common.py:178
-#, fuzzy
 msgid "Album"
-msgstr "آلبم"
+msgstr "آلبوم"
 
 #: catalog/models/common.py:179 catalog/models/common.py:196
 #: catalog/models/common.py:210 common/templates/_header.html:53
@@ -601,9 +573,8 @@ msgid "Game"
 msgstr "بازی"
 
 #: catalog/models/common.py:180
-#, fuzzy
 msgid "Podcast Program"
-msgstr "برنامه پادکست"
+msgstr "برنامهٔ پادپخش"
 
 #: catalog/models/common.py:181
 msgid "Podcast Episode"
@@ -617,9 +588,8 @@ msgid "Performance"
 msgstr "عملکرد"
 
 #: catalog/models/common.py:183 catalog/templates/performance.html:42
-#, fuzzy
 msgid "Production"
-msgstr "تولید"
+msgstr "اجرا"
 
 #: catalog/models/common.py:184
 msgid "Exhibition"
@@ -683,9 +653,8 @@ msgid "platform"
 msgstr "بُن‌سازه"
 
 #: catalog/models/common.py:431
-#, fuzzy
 msgid "media format"
-msgstr "قالب‌ کتاب"
+msgstr "قالب رسانه"
 
 #: catalog/models/common.py:436 catalog/templates/_language_list.html:5
 #: users/models/user.py:144
@@ -693,10 +662,8 @@ msgid "language"
 msgstr "زبان"
 
 #: catalog/models/creator.py:26
-#, fuzzy
-#| msgid "binding"
 msgid "pending"
-msgstr "صحافی"
+msgstr "در انتظار"
 
 #: catalog/models/creator.py:27
 msgid "verified"
@@ -723,7 +690,6 @@ msgid "no matching identity found in the feed or its linked website"
 msgstr ""
 
 #: catalog/models/game.py:30
-#, fuzzy
 msgid "Main Game"
 msgstr "بازی اصلی"
 
@@ -809,7 +775,6 @@ msgstr ""
 #: catalog/models/item.py:233 catalog/models/movie.py:137
 #: catalog/models/performance.py:217 catalog/models/performance.py:424
 #: catalog/models/tv.py:230 catalog/models/tv.py:457
-#, fuzzy
 msgid "actor"
 msgstr "بازیگر"
 
@@ -848,9 +813,8 @@ msgid "crew"
 msgstr ""
 
 #: catalog/models/item.py:246
-#, fuzzy
 msgid "production company"
-msgstr "تولید"
+msgstr "شرکت تولیدکننده"
 
 #: catalog/models/item.py:247
 msgid "record label"
@@ -870,9 +834,8 @@ msgid "troupe"
 msgstr ""
 
 #: catalog/models/item.py:253
-#, fuzzy
 msgid "voice actor"
-msgstr "بازیگر"
+msgstr "صداپیشه"
 
 #: catalog/models/item.py:254 catalog/templates/edition.html:29
 msgid "publishing house"
@@ -972,40 +935,30 @@ msgid "Organization"
 msgstr ""
 
 #: catalog/models/people.py:39
-#, fuzzy
-#| msgid "author"
 msgid "Author"
 msgstr "نویسنده"
 
 #: catalog/models/people.py:40
-#, fuzzy
-#| msgid "translator"
 msgid "Translator"
-msgstr "ترجمه‌کننده"
+msgstr "مترجم"
 
 #: catalog/models/people.py:41
-#, fuzzy
-#| msgid "Performance"
 msgid "Performer"
-msgstr "عملکرد"
+msgstr "اجراکننده"
 
 #: catalog/models/people.py:42
-#, fuzzy
 msgid "Actor"
 msgstr "بازیگر"
 
 #: catalog/models/people.py:43
-#, fuzzy
 msgid "Director"
-msgstr "بازیگر"
+msgstr "کارگردان"
 
 #: catalog/models/people.py:44
 msgid "Composer"
 msgstr ""
 
 #: catalog/models/people.py:45
-#, fuzzy
-#| msgid "artist"
 msgid "Artist"
 msgstr "هنرمند"
 
@@ -1022,8 +975,6 @@ msgid "Playwright"
 msgstr ""
 
 #: catalog/models/people.py:49
-#, fuzzy
-#| msgid "designer"
 msgid "Designer"
 msgstr "طراح"
 
@@ -1032,19 +983,14 @@ msgid "Choreographer"
 msgstr ""
 
 #: catalog/models/people.py:51
-#, fuzzy
-#| msgid "original title"
 msgid "Original Creator"
-msgstr "عنوان اصلی"
+msgstr "پدیدآورندهٔ اصلی"
 
 #: catalog/models/people.py:52
-#, fuzzy
 msgid "Producer"
-msgstr "تولید"
+msgstr "تهیه‌کننده"
 
 #: catalog/models/people.py:55
-#, fuzzy
-#| msgid "publisher"
 msgid "Publisher"
 msgstr "ناشر"
 
@@ -1053,9 +999,8 @@ msgid "Distributor"
 msgstr ""
 
 #: catalog/models/people.py:57
-#, fuzzy
 msgid "Production Company"
-msgstr "تولید"
+msgstr "شرکت تولیدکننده"
 
 #: catalog/models/people.py:58
 msgid "Record Label"
@@ -1252,9 +1197,8 @@ msgid "Podcasts by creators on the Fediverse. Play right on this page."
 msgstr ""
 
 #: catalog/templates/_discover_originals.html:15
-#, fuzzy
 msgid "All original shows"
-msgstr "پادکست اسپاتیفای"
+msgstr "همهٔ برنامه‌های اختصاصی"
 
 #: catalog/templates/_discover_originals.html:32
 #: catalog/templates/_item_card_metadata_podcast.html:15
@@ -1276,10 +1220,8 @@ msgstr ""
 
 #: catalog/templates/_discover_spotlight.html:6
 #: catalog/templates/_discover_spotlight.html:8
-#, fuzzy
-#| msgid "binding"
 msgid "Trending now"
-msgstr "صحافی"
+msgstr "پرطرفدار در حال حاضر"
 
 #: catalog/templates/_discover_spotlight.html:9
 msgid "Marked most across the Fediverse recently."
@@ -1333,10 +1275,8 @@ msgstr ""
 #: catalog/templates/item_mark_list.html:46
 #: journal/templates/action_translate_post.html:3
 #: journal/templates/article.html:76
-#, fuzzy
-#| msgid "translator"
 msgid "Translate"
-msgstr "ترجمه‌کننده"
+msgstr "ترجمه"
 
 #: catalog/templates/_item_comments.html:90
 #: catalog/templates/_item_comments_by_episode.html:80
@@ -1430,9 +1370,8 @@ msgid "No history."
 msgstr "بدون تاریخچه."
 
 #: catalog/templates/_item_user_mark_history.html:34
-#, fuzzy
 msgid "Sure to clear mark history?"
-msgstr "پاک‌سازی تاریخچه علامت‌ها؟"
+msgstr "از پاک کردن تاریخچهٔ نشان‌گذاری‌ها مطمئن هستید؟"
 
 #: catalog/templates/_item_user_mark_history.html:34
 msgid "Clear mark history"
@@ -1451,10 +1390,8 @@ msgid "My notes and progress"
 msgstr ""
 
 #: catalog/templates/_item_user_pieces.html:68
-#, fuzzy
-#| msgid "Add podcasts"
 msgid "Add note"
-msgstr "اضافه کردن پادپخش‌ها"
+msgstr "اضافه کردن یادداشت"
 
 #: catalog/templates/_item_user_pieces.html:95
 #: catalog/templates/_sidebar_edit.html:8
@@ -2093,9 +2030,8 @@ msgid "Open importers"
 msgstr ""
 
 #: catalog/templates/discover.html:146
-#, fuzzy
 msgid "Sections"
-msgstr "تولید"
+msgstr "بخش‌ها"
 
 #: catalog/templates/discover.html:149 catalog/templates/people_works.html:58
 #: catalog/templates/search_header.html:13
@@ -2120,10 +2056,8 @@ msgid "Posts"
 msgstr ""
 
 #: catalog/templates/discover.html:175
-#, fuzzy
-#| msgid "original title"
 msgid "Originals"
-msgstr "عنوان اصلی"
+msgstr "برنامه‌های اختصاصی"
 
 #: catalog/templates/discover.html:190 catalog/views/view.py:1003
 msgid "Because of what is on your shelf."
@@ -2179,10 +2113,8 @@ msgstr ""
 
 #: catalog/templates/discover_original_podcasts.html:10
 #: catalog/templates/discover_original_podcasts.html:18
-#, fuzzy
-#| msgid "original title"
 msgid "Original podcasts"
-msgstr "عنوان اصلی"
+msgstr "پادپخش‌های اختصاصی"
 
 #: catalog/templates/edition.html:38
 msgid "publication date"
@@ -2697,17 +2629,14 @@ msgid "Arcade"
 msgstr ""
 
 #: common/models/game_platform.py:64
-#, fuzzy
-#| msgid "BGG Boardgame"
 msgctxt "platform"
 msgid "Board Game"
-msgstr "بازی رو میزی بی جی جی"
+msgstr "بازی رومیزی"
 
 #: common/models/genre.py:21
-#, fuzzy
 msgctxt "genre"
 msgid "Action"
-msgstr "تولید"
+msgstr "اکشن"
 
 #: common/models/genre.py:22
 msgctxt "genre"
@@ -2740,11 +2669,9 @@ msgid "Mystery"
 msgstr ""
 
 #: common/models/genre.py:28
-#, fuzzy
-#| msgid "Performance"
 msgctxt "genre"
 msgid "Romance"
-msgstr "عملکرد"
+msgstr "عاشقانه"
 
 #: common/models/genre.py:29
 msgctxt "genre"
@@ -2757,11 +2684,9 @@ msgid "Thriller"
 msgstr ""
 
 #: common/models/genre.py:31
-#, fuzzy
-#| msgid "Edition"
 msgctxt "genre"
 msgid "Animation"
-msgstr "ویرایش"
+msgstr "انیمیشن"
 
 #: common/models/genre.py:32
 msgctxt "genre"
@@ -2804,8 +2729,6 @@ msgid "Sports"
 msgstr ""
 
 #: common/models/genre.py:40
-#, fuzzy
-#| msgid "Music"
 msgctxt "genre"
 msgid "Music"
 msgstr "موسیقی"
@@ -2816,11 +2739,9 @@ msgid "Film Noir"
 msgstr ""
 
 #: common/models/genre.py:43
-#, fuzzy
-#| msgid "Music"
 msgctxt "genre"
 msgid "Musical"
-msgstr "موسیقی"
+msgstr "موزیکال"
 
 #: common/models/genre.py:44
 msgctxt "genre"
@@ -2838,11 +2759,9 @@ msgid "News"
 msgstr ""
 
 #: common/models/genre.py:47
-#, fuzzy
-#| msgid "Game"
 msgctxt "genre"
 msgid "Game Show"
-msgstr "بازی"
+msgstr "مسابقهٔ تلویزیونی"
 
 #: common/models/genre.py:48
 msgctxt "genre"
@@ -2860,11 +2779,9 @@ msgid "Superhero"
 msgstr ""
 
 #: common/models/genre.py:51
-#, fuzzy
-#| msgid "Discogs Master"
 msgctxt "genre"
 msgid "Disaster"
-msgstr "استاد دیسکاگ ها"
+msgstr "فاجعه"
 
 #: common/models/genre.py:52
 msgctxt "genre"
@@ -2882,11 +2799,9 @@ msgid "LGBTQ"
 msgstr ""
 
 #: common/models/genre.py:55
-#, fuzzy
-#| msgid "Movie"
 msgctxt "genre"
 msgid "TV Movie"
-msgstr "فیلم"
+msgstr "فیلم تلویزیونی"
 
 #: common/models/genre.py:57
 msgctxt "genre"
@@ -2904,11 +2819,9 @@ msgid "Hip Hop"
 msgstr ""
 
 #: common/models/genre.py:60
-#, fuzzy
-#| msgid "Collection"
 msgctxt "genre"
 msgid "Electronic"
-msgstr "مجموعه"
+msgstr "الکترونیک"
 
 #: common/models/genre.py:61
 msgctxt "genre"
@@ -2966,11 +2879,9 @@ msgid "Latin"
 msgstr ""
 
 #: common/models/genre.py:72
-#, fuzzy
-#| msgid "Apple Music"
 msgctxt "genre"
 msgid "World Music"
-msgstr "اپل موزیک"
+msgstr "موسیقی جهان"
 
 #: common/models/genre.py:73
 msgctxt "genre"
@@ -3018,11 +2929,9 @@ msgid "K-Pop"
 msgstr ""
 
 #: common/models/genre.py:82
-#, fuzzy
-#| msgid "podcasts listening"
 msgctxt "genre"
 msgid "Easy Listening"
-msgstr "گوش دادن به پادپخش‌ها"
+msgstr "موسیقی سبک"
 
 #: common/models/genre.py:84
 msgctxt "genre"
@@ -3050,11 +2959,9 @@ msgid "Puzzle"
 msgstr ""
 
 #: common/models/genre.py:89
-#, fuzzy
-#| msgid "platform"
 msgctxt "genre"
 msgid "Platformer"
-msgstr "بُن‌سازه"
+msgstr "پلتفرمر"
 
 #: common/models/genre.py:90
 msgctxt "genre"
@@ -3087,17 +2994,14 @@ msgid "Visual Novel"
 msgstr ""
 
 #: common/models/genre.py:96
-#, fuzzy
 msgctxt "genre"
 msgid "Card Game"
-msgstr "بازی اصلی"
+msgstr "بازی کارتی"
 
 #: common/models/genre.py:97
-#, fuzzy
-#| msgid "BGG Boardgame"
 msgctxt "genre"
 msgid "Board Game"
-msgstr "بازی رو میزی بی جی جی"
+msgstr "بازی رومیزی"
 
 #: common/models/genre.py:98
 msgctxt "genre"
@@ -3175,11 +3079,9 @@ msgid "Technology"
 msgstr ""
 
 #: common/models/genre.py:115
-#, fuzzy
-#| msgid "Edition"
 msgctxt "genre"
 msgid "Education"
-msgstr "ویرایش"
+msgstr "آموزشی"
 
 #: common/models/genre.py:116
 msgctxt "genre"
@@ -3953,10 +3855,9 @@ msgid "Hakka Chinese"
 msgstr ""
 
 #: common/models/music_format.py:18
-#, fuzzy
 msgctxt "album_type"
 msgid "Album"
-msgstr "آلبم"
+msgstr "آلبوم"
 
 #: common/models/music_format.py:19
 msgctxt "album_type"
@@ -3969,11 +3870,9 @@ msgid "EP"
 msgstr ""
 
 #: common/models/music_format.py:21
-#, fuzzy
-#| msgid "Collection"
 msgctxt "album_type"
 msgid "Compilation"
-msgstr "مجموعه"
+msgstr "گلچین"
 
 #: common/models/music_format.py:22
 msgctxt "album_type"
@@ -4011,18 +3910,14 @@ msgid "Spoken Word"
 msgstr ""
 
 #: common/models/music_format.py:29
-#, fuzzy
-#| msgid "Audiobook"
 msgctxt "album_type"
 msgid "Audiobook"
 msgstr "کتاب صوتی"
 
 #: common/models/music_format.py:30
-#, fuzzy
-#| msgid "Douban Drama"
 msgctxt "album_type"
 msgid "Audio Drama"
-msgstr "درام دوبان"
+msgstr "نمایش رادیویی"
 
 #: common/models/music_format.py:31
 msgctxt "album_type"
@@ -4030,11 +3925,9 @@ msgid "Interview"
 msgstr ""
 
 #: common/models/music_format.py:32
-#, fuzzy
-#| msgid "Podcast"
 msgctxt "album_type"
 msgid "Broadcast"
-msgstr "پادپخش"
+msgstr "پخش رادیویی"
 
 #: common/models/music_format.py:33
 msgctxt "album_type"
@@ -4236,10 +4129,8 @@ msgid "Move down"
 msgstr ""
 
 #: common/templates/_pagination.html:3
-#, fuzzy
-#| msgid "translator"
 msgid "Pagination"
-msgstr "ترجمه‌کننده"
+msgstr "صفحه‌بندی"
 
 #: common/templates/_pagination.html:9 common/templates/_pagination.html:13
 msgid "Previous page"
@@ -4558,10 +4449,8 @@ msgid "Login required"
 msgstr ""
 
 #: common/views_manage.py:34 common/views_manage.py:374
-#, fuzzy
-#| msgid "binding"
 msgid "Branding"
-msgstr "صحافی"
+msgstr "برند"
 
 #: common/views_manage.py:37
 msgid "Recommendations"
@@ -4572,10 +4461,8 @@ msgid "Access"
 msgstr ""
 
 #: common/views_manage.py:39 common/views_manage.py:878
-#, fuzzy
-#| msgid "description"
 msgid "Federation"
-msgstr "توضیحات"
+msgstr "فدراسیون"
 
 #: common/views_manage.py:40
 msgid "Catalog"
@@ -4586,10 +4473,8 @@ msgid "API keys"
 msgstr ""
 
 #: common/views_manage.py:42
-#, fuzzy
-#| msgid "Downloadable Content"
 msgid "Downloader"
-msgstr "محتوای قابل بارگیری"
+msgstr "ابزار بارگیری"
 
 #: common/views_manage.py:43 common/views_manage.py:382
 #: users/templates/users/steam_import.html:113
@@ -4617,10 +4502,8 @@ msgid "Site name"
 msgstr ""
 
 #: common/views_manage.py:313
-#, fuzzy
-#| msgid "description"
 msgid "Site description"
-msgstr "توضیحات"
+msgstr "توضیحات وبگاه"
 
 #: common/views_manage.py:314
 msgid "Short description shown in metadata and about page."
@@ -4659,9 +4542,8 @@ msgid "PicoCSS color theme."
 msgstr ""
 
 #: common/views_manage.py:355
-#, fuzzy
 msgid "Site introduction"
-msgstr "تولید"
+msgstr "معرفی وبگاه"
 
 #: common/views_manage.py:356
 msgid "URL path for the intro/welcome sidebar page."
@@ -4748,9 +4630,8 @@ msgid "Show popular public tags on the discover page."
 msgstr ""
 
 #: common/views_manage.py:432
-#, fuzzy
 msgid "Show verified podcasts"
-msgstr "پادکست اسپاتیفای"
+msgstr "نمایش پادپخش‌های تأییدشده"
 
 #: common/views_manage.py:434
 msgid "Show a shelf of recent episodes from podcasts with a verified creator on the discover page."
@@ -4929,10 +4810,8 @@ msgid "Weight of shared public tags in similar items, relative to shared marks a
 msgstr ""
 
 #: common/views_manage.py:646
-#, fuzzy
-#| msgid "Collection"
 msgid "Collection weight"
-msgstr "مجموعه"
+msgstr "وزن مجموعه"
 
 #: common/views_manage.py:648
 msgid "Weight of shared public collections in similar items, relative to shared marks at 1."
@@ -4959,10 +4838,8 @@ msgid "Mark weights"
 msgstr ""
 
 #: common/views_manage.py:680
-#, fuzzy
-#| msgid "original title"
 msgid "Signal blend"
-msgstr "عنوان اصلی"
+msgstr "ترکیب سیگنال‌ها"
 
 #: common/views_manage.py:685
 msgid "Personalisation"
@@ -5065,10 +4942,8 @@ msgid "Show the Mastodon archive import on the data page. Imported posts become 
 msgstr ""
 
 #: common/views_manage.py:788
-#, fuzzy
-#| msgid "language"
 msgid "Default language"
-msgstr "زبان"
+msgstr "زبان پیش‌فرض"
 
 #: common/views_manage.py:791
 msgid "Interface language for visitors and for users who have not chosen one themselves."
@@ -5157,9 +5032,8 @@ msgid "Visitors who are not logged in cannot open search result pages beyond thi
 msgstr ""
 
 #: common/views_manage.py:896
-#, fuzzy
 msgid "Spotify API key"
-msgstr "آلبوم اسپاتیفای"
+msgstr "کلید API برای Spotify"
 
 #: common/views_manage.py:897
 msgid "https://developer.spotify.com/"
@@ -5174,20 +5048,16 @@ msgid "https://developer.themoviedb.org/"
 msgstr ""
 
 #: common/views_manage.py:904
-#, fuzzy
-#| msgid "Google Books"
 msgid "Google Books API key"
-msgstr "کتاب‌های گوگل"
+msgstr "کلید API برای Google Books"
 
 #: common/views_manage.py:905
 msgid "https://developers.google.com/books/"
 msgstr ""
 
 #: common/views_manage.py:908
-#, fuzzy
-#| msgid "Discogs Master"
 msgid "Discogs API key"
-msgstr "استاد دیسکاگ ها"
+msgstr "کلید API برای Discogs"
 
 #: common/views_manage.py:910
 msgid "Personal access token from https://www.discogs.com/settings/developers"
@@ -5222,20 +5092,16 @@ msgid "Client ID of an app registered at https://myanimelist.net/apiconfig. MyAn
 msgstr ""
 
 #: common/views_manage.py:935
-#, fuzzy
-#| msgid "Steam Game"
 msgid "TheTVDB API key"
-msgstr "بازی استیم"
+msgstr "کلید API برای TheTVDB"
 
 #: common/views_manage.py:937
 msgid "Project API key from https://thetvdb.com/api-information. TheTVDB is disabled when empty."
 msgstr ""
 
 #: common/views_manage.py:942 users/templates/users/steam_import.html:26
-#, fuzzy
-#| msgid "Steam Game"
 msgid "Steam API key"
-msgstr "بازی استیم"
+msgstr "کلید API برای Steam"
 
 #: common/views_manage.py:944
 msgid "https://steamcommunity.com/dev - fallback key for Steam importer. Users can provide their own key when importing."
@@ -5282,10 +5148,8 @@ msgid "Catalog APIs"
 msgstr ""
 
 #: common/views_manage.py:997
-#, fuzzy
-#| msgid "translator"
 msgid "Translation"
-msgstr "ترجمه‌کننده"
+msgstr "ترجمه"
 
 #: common/views_manage.py:1002
 msgid "Third-party login"
@@ -5350,10 +5214,8 @@ msgid "Cache timeout (seconds)"
 msgstr ""
 
 #: common/views_manage.py:1051
-#, fuzzy
-#| msgid "series"
 msgid "Retries"
-msgstr "دنباله‌ها"
+msgstr "تعداد تلاش دوباره"
 
 #: common/views_manage.py:1056
 msgid "Providers"
@@ -5480,20 +5342,16 @@ msgid "Genre codes offered in the Game edit dropdown, one per line. Leave empty 
 msgstr ""
 
 #: common/views_manage.py:1189
-#, fuzzy
-#| msgid "Podcast"
 msgid "Podcast genres"
-msgstr "پادپخش"
+msgstr "ژانرهای پادپخش"
 
 #: common/views_manage.py:1191
 msgid "Genre codes offered in the Podcast edit dropdown, one per line. Leave empty to use the built-in default."
 msgstr ""
 
 #: common/views_manage.py:1196
-#, fuzzy
-#| msgid "Performance"
 msgid "Performance genres"
-msgstr "عملکرد"
+msgstr "ژانرهای اجرا"
 
 #: common/views_manage.py:1198
 msgid "Genre codes offered in the Performance edit dropdown, one per line. Leave empty to use the built-in default."
@@ -6388,10 +6246,8 @@ msgid "Complete"
 msgstr ""
 
 #: journal/templates/_sidebar_collection_filter.html:20
-#, fuzzy
-#| msgid "podcasts dropped"
 msgid "Dropped"
-msgstr "پادپخش‌ها برداشته شدند"
+msgstr "رها شده"
 
 #: journal/templates/_sidebar_collection_filter.html:22
 msgid "Not marked yet"
@@ -6627,10 +6483,8 @@ msgid "Share"
 msgstr ""
 
 #: journal/templates/collection.html:87
-#, fuzzy
-#| msgid "Collection"
 msgid "created a collection"
-msgstr "مجموعه"
+msgstr "یک مجموعه ساخت"
 
 #: journal/templates/collection.html:154
 msgid "Query"
@@ -6837,10 +6691,8 @@ msgid "Organizations"
 msgstr ""
 
 #: journal/templates/profile_items.html:10
-#, fuzzy
-#| msgid "Collection"
 msgid "Create collection"
-msgstr "مجموعه"
+msgstr "ساختن مجموعه"
 
 #: journal/templates/replies.html:8
 msgid "Replies"
@@ -6883,9 +6735,8 @@ msgid "by %(name)s"
 msgstr ""
 
 #: journal/templates/user_article_list.html:39
-#, fuzzy
 msgid "RSS feed"
-msgstr "نشانی خوراک‌وب"
+msgstr "خوراک RSS"
 
 #: journal/templates/user_article_list.html:46
 msgid "Compose new article"
@@ -7615,16 +7466,12 @@ msgid "Marks and reviews"
 msgstr ""
 
 #: social/templates/feed.html:53 social/templates/feed.html:55
-#, fuzzy
-#| msgid "locale"
 msgid "Local"
 msgstr "محلی"
 
 #: social/templates/feed.html:62 social/templates/feed.html:64
-#, fuzzy
-#| msgid "Apple Music"
 msgid "World"
-msgstr "اپل موزیک"
+msgstr "جهانی"
 
 #: social/templates/feed_events.html:27
 msgid "No matching activities."
@@ -7663,10 +7510,8 @@ msgid "Follows"
 msgstr ""
 
 #: social/templates/post_question.html:6
-#, fuzzy
-#| msgid "Collection"
 msgid "Poll options"
-msgstr "مجموعه"
+msgstr "گزینه‌های نظرسنجی"
 
 #: social/templates/post_question.html:21
 msgid "Poll has ended."
@@ -7767,20 +7612,16 @@ msgid "credential ID"
 msgstr ""
 
 #: users/models/webauthn.py:16
-#, fuzzy
-#| msgid "publisher"
 msgid "public key"
-msgstr "ناشر"
+msgstr "کلید عمومی"
 
 #: users/models/webauthn.py:17
 msgid "sign count"
 msgstr ""
 
 #: users/models/webauthn.py:18
-#, fuzzy
-#| msgid "translator"
 msgid "transports"
-msgstr "ترجمه‌کننده"
+msgstr "روش‌های انتقال"
 
 #: users/models/webauthn.py:19
 msgid "created"
@@ -7795,10 +7636,8 @@ msgid "Crossposted successfully."
 msgstr ""
 
 #: users/templates/users/_crosspost_row.html:41
-#, fuzzy
-#| msgid "author"
 msgid "Re-authorize"
-msgstr "نویسنده"
+msgstr "مجوزدهی دوباره"
 
 #: users/templates/users/_crosspost_row.html:52
 msgid "Retry"
@@ -7828,10 +7667,8 @@ msgstr ""
 
 #: users/templates/users/_hardcover_section.html:5
 #: users/templates/users/_hardcover_section.html:23
-#, fuzzy
-#| msgid "Goodreads"
 msgid "Import from Hardcover"
-msgstr "گودریدز"
+msgstr "وارد کردن از Hardcover"
 
 #: users/templates/users/_hardcover_section.html:11
 #: users/templates/users/_rym_section.html:11
@@ -8171,10 +8008,8 @@ msgid "No passkeys registered."
 msgstr ""
 
 #: users/templates/users/account.html:265
-#, fuzzy
-#| msgid "Add podcasts"
 msgid "Add passkey"
-msgstr "اضافه کردن پادپخش‌ها"
+msgstr "اضافه کردن کلید عبور"
 
 #: users/templates/users/account.html:273
 msgid "Sync and import social account"
@@ -8242,10 +8077,8 @@ msgid "Authorized apps"
 msgstr ""
 
 #: users/templates/users/account.html:382
-#, fuzzy
-#| msgid "publication year"
 msgid "Application"
-msgstr "سال انتشار"
+msgstr "برنامه"
 
 #: users/templates/users/account.html:383
 msgid "Scopes"
@@ -8313,10 +8146,8 @@ msgstr ""
 #: users/templates/users/account.html:467
 #: users/templates/users/account.html:476
 #: users/templates/users/account.html:485
-#, fuzzy
-#| msgid "Downloadable Content"
 msgid "Download CSV"
-msgstr "محتوای قابل بارگیری"
+msgstr "بارگیری CSV"
 
 #: users/templates/users/account.html:472
 msgid "Blocks"
@@ -8433,10 +8264,8 @@ msgid "Put every cover into the row it belongs to. Drag it, or select a cover an
 msgstr ""
 
 #: users/templates/users/captcha.html:38 users/templates/users/captcha.html:40
-#, fuzzy
-#| msgid "cover"
 msgid "Item cover"
-msgstr "جلد"
+msgstr "جلد مورد"
 
 #: users/templates/users/captcha.html:56
 #, python-format
@@ -8503,10 +8332,8 @@ msgid "Import marks and reviews from Doufen / NiceDB"
 msgstr ""
 
 #: users/views/data.py:278
-#, fuzzy
-#| msgid "Goodreads"
 msgid "Import articles from WordPress"
-msgstr "گودریدز"
+msgstr "وارد کردن مقاله‌ها از WordPress"
 
 #: users/templates/users/data.html:43
 msgid "Select <code>.xlsx</code> exported from <a href=\"https://doufen.org\" target=\"_blank\" rel=\"noopener\">Doufen</a>"
@@ -8557,10 +8384,8 @@ msgid "Import in progress, please wait"
 msgstr ""
 
 #: users/templates/users/data.html:96
-#, fuzzy
-#| msgid "Goodreads"
 msgid "Import from Goodreads"
-msgstr "گودریدز"
+msgstr "وارد کردن از گودریدز"
 
 #: users/templates/users/data.html:102
 msgid "On Goodreads, click <a href=\"https://www.goodreads.com/review/import\" target=\"_blank\" rel=\"noopener\"><b>Export Library</b></a> to download your library as a CSV file."
@@ -8763,10 +8588,8 @@ msgid "Import marks and reviews"
 msgstr ""
 
 #: users/templates/users/data.html:91 users/views/data.py:192
-#, fuzzy
-#| msgid "Import podcast subscriptions"
 msgid "Import posts and articles"
-msgstr "وارد کردن اشتراک‌های پادپخش"
+msgstr "وارد کردن فرسته‌ها و مقاله‌ها"
 
 #: users/templates/users/data.html:520
 msgid "In WordPress, go to <b>Tools</b> - <b>Export</b> - <b>Posts</b> to download an <code>.xml</code> file, then upload it below."
@@ -8839,10 +8662,8 @@ msgstr ""
 #: users/templates/users/hardcover_import.html:34
 #: users/templates/users/rym_import.html:34
 #: users/templates/users/storygraph_import.html:34
-#, fuzzy
-#| msgid "Downloadable Content"
 msgid "Download matched CSV"
-msgstr "محتوای قابل بارگیری"
+msgstr "بارگیری CSV تطبیق‌یافته"
 
 #: users/templates/users/hardcover_import.html:46
 #: users/templates/users/storygraph_import.html:46
@@ -9115,10 +8936,8 @@ msgid "Hide these categories in discovery and search results"
 msgstr ""
 
 #: users/templates/users/preferences.html:202
-#, fuzzy
-#| msgid "language"
 msgid "Preferred catalog languages"
-msgstr "زبان"
+msgstr "زبان‌های ترجیحی کاتالوگ"
 
 #: users/templates/users/preferences.html:211
 msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."
@@ -9295,10 +9114,8 @@ msgid "Import from Steam"
 msgstr ""
 
 #: users/templates/users/steam_import.html:20
-#, fuzzy
-#| msgid "Steam Game"
 msgid "Steam ID"
-msgstr "بازی استیم"
+msgstr "شناسهٔ Steam"
 
 #: users/templates/users/steam_import.html:28
 msgid "Your personal Steam API key"
