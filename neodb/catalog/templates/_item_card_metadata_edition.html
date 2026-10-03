@@ -3,8 +3,7 @@
 {% load i18n %}
 {% block brief %}
   <div class="multi-fields">
-    {% include "_item_card_rating.html" %}
-    {% include "_credits.html" with credits=item.role_credits.author role_label="author" max=2 %}
+    {% include "_credits.html" with credits=item.role_credits.author role_label="" max=2 %}
     {% include "_credits.html" with credits=item.role_credits.translator role_label="translator" max=2 %}
     {% include "_credits.html" with credits=item.role_credits.publisher role_label="publishing house" max=2 %}
     {% if item.pub_year %}
@@ -17,5 +16,5 @@
   </div>
 {% endblock brief %}
 {% block full %}
-  <div>{% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}</div>
+  <div>{% if not hide_brief %}{{ item.display_description }}{% endif %}</div>
 {% endblock full %}

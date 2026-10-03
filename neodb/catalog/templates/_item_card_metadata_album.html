@@ -3,7 +3,6 @@
 {% load i18n %}
 {% block brief %}
   <div class="multi-fields">
-    {% include "_item_card_rating.html" %}
     {% include "_credits.html" with credits=item.role_credits.artist role_label="" max=2 %}
     {% include "_genre_list.html" with list=item.genre max=5 %}
   </div>
@@ -16,6 +15,6 @@
     {% include "_credits.html" with credits=item.role_credits.record_label role_label="publisher" max=2 %}
   </div>
   <div>
-    <div>{% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}</div>
+    <div>{% if not hide_brief %}{{ item.display_description }}{% endif %}</div>
   </div>
 {% endblock full %}

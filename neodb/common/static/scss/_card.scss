@@ -1,27 +1,26 @@
 // The item card of lists, collections and posts, in the look of the discover
-// spotlight card (.dc-spot): rounded cover, category eyebrow, strong title,
-// muted meta. The --dc-* tokens come from _modules.scss.
+// spotlight card (.dc-spot): a .dc-cover in its category shape, category
+// eyebrow, strong title, rating row, muted by-line. The --dc-* tokens come
+// from _modules.scss.
 div.item {
+  --card-cover: 6.5rem;
   display: grid;
   // minmax(0, ...) and not auto: an auto track takes its minimum from the
   // longest unwrappable line, which would widen the card past a phone screen
-  grid-template-columns:
-    calc(4rem * var(--pico-line-height)) minmax(0, 1fr);
+  grid-template-columns: var(--card-cover) minmax(0, 1fr);
   column-gap: var(--dc-gap);
   align-items: start;
-  word-break: break-all;
+  // anywhere, not break-all: words wrap whole, yet a long URL still cannot
+  // raise the min-content width of the text column
+  overflow-wrap: anywhere;
 
   &.player {
     display: block;
   }
 
-  .cover img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: var(--dc-radius-sm);
-    background: var(--dc-surface-2);
-    box-shadow: var(--pico-card-box-shadow);
+  .cover .dc-cover {
+    border-radius: var(--dc-radius);
+    box-shadow: none;
   }
 
   hgroup {
@@ -32,16 +31,37 @@ div.item {
       font-size: var(--dc-fs-xs);
     }
 
-    // Pico sizes the last child of an hgroup at 1rem
+    // subtitle, original title and the site labels; Pico sizes the last child
+    // of an hgroup at 1rem
     > small {
-      display: block;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.15rem 0.5rem;
       margin-top: 0.15rem;
       font-size: var(--dc-fs-sm);
       color: var(--dc-muted);
+
+      // the template leaves whitespace in it, which :empty does not ignore
+      &:not(:has(*)) {
+        display: none;
+      }
+
+      .site-list {
+        opacity: 0.75;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
     }
   }
 
   h5 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     margin: 0;
     font-size: var(--dc-fs-base);
     font-weight: 700;
@@ -63,6 +83,22 @@ div.item {
     }
   }
 
+  .card-rating {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+    font-size: var(--dc-fs-sm);
+    color: var(--dc-muted);
+
+    b {
+      color: var(--pico-primary);
+      font-size: var(--dc-fs-base);
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
   .brief,
   .full > div.multi-fields {
     font-size: var(--dc-fs-sm);
@@ -79,29 +115,22 @@ div.item {
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    margin-top: 0.35rem;
-
-    > span {
-      margin-right: 1rem;
-    }
+    margin-top: 0.2rem;
   }
 
-  .card-rating {
-    b {
-      color: var(--pico-primary);
-      font-variant-numeric: tabular-nums;
-    }
+  .card-rating + .brief {
+    margin-top: 0.1rem;
+  }
 
-    small {
-      font-size: inherit;
-    }
+  // a by-line like the discover cards, not the slashes of the item page
+  .multi-fields > span:not(:first-child):before {
+    content: "\00b7";
   }
 
   .full > div {
     text-overflow: ellipsis;
-    word-wrap: break-word;
     overflow: hidden;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     margin-top: 0.3rem;
@@ -120,6 +149,10 @@ div.item {
   .full > div.card-episode {
     -webkit-line-clamp: 1;
     font-size: var(--dc-fs-sm);
+  }
+
+  @media (max-width: 768px) {
+    --card-cover: 5rem;
   }
 }
 

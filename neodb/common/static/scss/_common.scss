@@ -166,6 +166,11 @@ article.item-card {
   border: 1px solid var(--dc-border);
   border-radius: var(--dc-radius-lg);
   box-shadow: none;
+  transition: border-color 0.2s;
+
+  &:hover {
+    border-color: var(--pico-primary);
+  }
 
   // A floated action narrows the whole div.item grid beside it, so the
   // text column loses the icon width for the full card height. Pin it to the
@@ -180,13 +185,43 @@ article.item-card {
   >.action:has(*)+.item hgroup::before {
     content: "";
     float: right;
-    width: 1.5rem;
-    height: 1rem;
+    width: 2.25rem;
+    height: 1.5rem;
+  }
+
+  // the mark button, round like .dc-nav and filled once the item is marked;
+  // collection edit mode keeps its three plain icons
+  &:not([data-member-id])>.action>span {
+    padding-left: 0;
+
+    >a {
+      display: inline-grid;
+      place-items: center;
+      width: 2rem;
+      height: 2rem;
+      border: 1px solid var(--dc-border);
+      border-radius: var(--dc-pill);
+      background: var(--dc-surface);
+      color: var(--dc-muted);
+      opacity: 1;
+
+      &:hover {
+        border-color: var(--pico-primary);
+        color: var(--pico-primary);
+      }
+
+      &.activated {
+        border-color: transparent;
+        background: var(--pico-primary-background);
+        color: var(--pico-primary-inverse);
+      }
+    }
   }
 
   // collection edit mode shows three action icons
   &[data-member-id]>.action:has(*)+.item hgroup::before {
     width: 4.5rem;
+    height: 1rem;
   }
 
   header,
@@ -211,6 +246,64 @@ article.item-card {
   section.item-note+section {
     padding-top: calc(var(--pico-spacing) / 2);
     border-top: var(--pico-border-width) dashed var(--dc-border)
+  }
+
+  // the curator's note, quoted under the item with the curator named above it
+  section.item-note > div {
+    padding: 0.5rem 0.75rem;
+    border-left: 3px solid var(--pico-primary);
+    border-radius: 0 var(--dc-radius-sm) var(--dc-radius-sm) 0;
+    background: var(--dc-surface-2);
+    font-size: var(--dc-fs-md);
+
+    .curator {
+      display: block;
+      font-size: var(--dc-fs-xs);
+      font-weight: 700;
+      color: var(--dc-muted);
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  // own mark: status pill and stars, then the date and the post link
+  .mark-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+
+    .mark-status {
+      padding: 0.1rem 0.6rem;
+      border: 1px solid var(--dc-border);
+      border-radius: var(--dc-pill);
+      background: var(--dc-surface-2);
+      color: var(--dc-strong);
+      font-size: var(--dc-fs-xs);
+      font-weight: 600;
+    }
+
+    .mark-date {
+      margin-left: auto;
+      color: var(--dc-muted);
+      font-size: var(--dc-fs-xs);
+    }
+
+    >.action {
+      float: none;
+    }
+  }
+
+  .mark-comment {
+    margin-top: 0.4rem;
+    font-size: var(--dc-fs-md);
+    line-height: 1.5;
+
+    p:last-child {
+      margin-bottom: 0;
+    }
   }
 
   @media (max-width: 768px) {

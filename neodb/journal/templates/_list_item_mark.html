@@ -5,12 +5,13 @@
      {% if oob %}hx-swap-oob="outerHTML:[data-mark-detail='{{ item.uuid }}']"{% endif %}>
   {% if mark.shelf %}
     <section>
-      <div class="action">{% include "action_open_post.html" with post=mark.shelfmember.latest_post %}</div>
-      <span class="action inline">
-        <span class="timestamp">{{ mark.created_time|date }} {{ mark.status_label }}</span>
-      </span>
-      {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
-      <span>{{ mark.comment.html|safe }}</span>
+      <div class="mark-line">
+        <span class="mark-status">{{ mark.status_label|capfirst }}</span>
+        {% if mark.rating_grade %}{{ mark.rating_grade|rating_star }}{% endif %}
+        <span class="mark-date">{{ mark.created_time|date }}</span>
+        <div class="action">{% include "action_open_post.html" with post=mark.shelfmember.latest_post %}</div>
+      </div>
+      {% if mark.comment.html %}<div class="mark-comment">{{ mark.comment.html|safe }}</div>{% endif %}
       {% if mark.comment.latest_post %}<div id="replies_{{ mark.comment.latest_post.pk }}"></div>{% endif %}
     </section>
   {% endif %}

@@ -3,10 +3,9 @@
 {% load i18n %}
 {% block brief %}
   <div class="multi-fields">
-    {% include "_item_card_rating.html" %}
+    {% include "_credits.html" with credits=item.role_credits.troupe role_label="" max=2 %}
     {% include "_genre_list.html" with list=item.genre max=2 %}
     {% include "_language_list.html" with list=item.language max=5 %}
-    {% include "_credits.html" with credits=item.role_credits.troupe role_label="troupe" max=2 %}
     {% include "_people.html" with people=item.location role="theater" max=2 %}
     {% include "_credits.html" with credits=item.role_credits.director role_label="director" max=2 %}
     {% include "_credits.html" with credits=item.role_credits.original_creator role_label="original creator" max=2 %}
@@ -24,9 +23,9 @@
   <div>
     {% if not hide_brief %}
       {% if item.display_description %}
-        {{ item.display_description | linebreaksbr }}
+        {{ item.display_description }}
       {% elif item.parent_item and item.parent_item.display_description %}
-        {{ item.parent_item.display_description | linebreaksbr }}
+        {{ item.parent_item.display_description }}
       {% endif %}
     {% endif %}
   </div>

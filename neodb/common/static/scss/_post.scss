@@ -132,6 +132,31 @@
 	border-radius: var(--dc-radius);
 	background-color: var(--dc-surface-2);
 	box-shadow: none;
+
+	// The post already says what the item is ("finished reading"), and the
+	// item page has the site labels, so the card drops both. Its text column
+	// beside the avatar is narrow, so the by-line and description get a line
+	// more than elsewhere.
+	div.item {
+		column-gap: calc(var(--dc-gap) * 0.65);
+	}
+
+	.dc-eyebrow,
+	hgroup > small .site-list {
+		display: none;
+	}
+
+	hgroup > small:not(:has(> :not(.site-list))) {
+		display: none;
+	}
+
+	.brief {
+		-webkit-line-clamp: 2;
+	}
+
+	.full > div:not(.multi-fields, .card-episode) {
+		-webkit-line-clamp: 3;
+	}
 }
 
 section.replies {

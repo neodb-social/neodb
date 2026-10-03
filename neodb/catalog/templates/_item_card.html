@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load duration %}
+{% load discover %}
 {% if allow_embed and item.get_embed_link %}
   <div class="item player">
     <hgroup>
@@ -21,8 +22,10 @@
   <div class="item">
     <div class="cover">
       <a href="{{ item.url }}">
-        <img src="{{ item.display_cover_image_url|relative_uri }}"
-             alt="{% trans 'cover' %}" />
+        <span class="dc-cover {{ item|cover_shape }}">
+          <img src="{{ item.display_cover_image_url|relative_uri }}"
+               alt="{% trans 'cover' %}" />
+        </span>
       </a>
     </div>
     <div>

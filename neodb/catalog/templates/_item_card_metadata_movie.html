@@ -3,12 +3,11 @@
 {% load i18n %}
 {% block brief %}
   <div class="multi-fields">
-    {% include "_item_card_rating.html" %}
-    {% include "_credits.html" with credits=item.role_credits.director role_label="director" max=2 %}
+    {% include "_credits.html" with credits=item.role_credits.director role_label="" max=2 %}
     {% include "_credits.html" with credits=item.role_credits.actor role_label="actor" max=2 %}
   </div>
 {% endblock brief %}
 {% block full %}
   <div class="multi-fields">{% include "_people.html" with people=item.additional_title role="other title" max=2 %}</div>
-  <div>{% if not hide_brief %}{{ item.display_description | linebreaksbr }}{% endif %}</div>
+  <div>{% if not hide_brief %}{{ item.display_description }}{% endif %}</div>
 {% endblock full %}
