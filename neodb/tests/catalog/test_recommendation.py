@@ -957,6 +957,24 @@ class TestSeedCombiner:
         assert scores[self.t1.pk] == pytest.approx(0.6)
         assert scores[self.t1.pk] > scores[self.t2.pk]
 
+    def test_review_on_rewrite_target_weighs_seed(self):
+        show = Performance.objects.create(title="Show")
+        staging = PerformanceProduction.objects.create(title="Staging")
+        staging.show = show
+        staging.save()
+        _public_mark(self.identity, staging, rating=0)
+        ItemSimilarity.objects.create(
+            source=show,
+            target=self.t1,
+            score=0.4,
+            method=ItemSimilarity.METHOD_BLENDED,
+        )
+        self._seed("bare", t2=0.45)
+        Review.update_item_review(show, self.identity, "t", "body", visibility=0)
+        scores = self._scores()
+        assert scores[self.t1.pk] == pytest.approx(0.6)
+        assert scores[self.t1.pk] > scores[self.t2.pk]
+
     def test_few_strong_seeds_beat_many_weak_ones(self):
         for i in range(3):
             self._seed(f"strong {i}", t1=0.5)
@@ -1066,6 +1084,26 @@ class TestFeatureSimilarity:
         BuildItemSimilarity().run()
         pairs = self._pairs()
         assert pairs == {(self.a.pk, self.b.pk), (self.b.pk, self.a.pk)}
+
+    def test_credit_ignores_marks_of_non_discoverable_owners(self):
+        t = self.users[0].takahe_identity
+        t.discoverable = False
+        t.save(update_fields=["discoverable"])
+        for item in (self.a, self.b):
+            _public_mark(self.users[0], item, rating=0)
+            ItemCredit.objects.create(item=item, role="author", name="Hidden")
+        BuildItemSimilarity().run()
+        assert not ItemSimilarity.objects.exists()
+
+    def test_credit_scope_follows_merged_marks(self):
+        # the only mark on the survivor's line sits on a merged edition
+        _public_mark(self.users[0], self.a, rating=0)
+        self.a.merge_to(self.b)
+        _public_mark(self.users[1], self.c, rating=0)
+        for item in (self.b, self.c):
+            ItemCredit.objects.create(item=item, role="author", name="Same")
+        BuildItemSimilarity().run()
+        assert self._pairs() == {(self.b.pk, self.c.pk), (self.c.pk, self.b.pk)}
 
     def test_credit_needs_a_public_mark(self):
         ItemCredit.objects.create(item=self.a, role="author", name="Anon")

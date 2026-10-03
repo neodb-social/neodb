@@ -441,7 +441,12 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
         seeds.append(mapped)
         if len(seeds) >= seed_cap:
             break
-    signals = load_mark_signals({identity_pk: seed_set}, rewrite, item_ids=raw_seeds)
+    # content written on a rewrite target counts too, as it does in training
+    signals = load_mark_signals(
+        {identity_pk: seed_set},
+        rewrite,
+        item_ids=set(raw_seeds) | {rewrite[s] for s in raw_seeds if s in rewrite},
+    )
     seed_signals = [signals.get((identity_pk, s), NO_MARK_SIGNALS) for s in seeds]
     user_mean = user_mean_grade(grade for grade, _, _, _ in seed_signals)
     seed_weight = {

@@ -229,17 +229,31 @@ def _collection_cells(
             yield target, collection_id, 1.0
 
 
-def _credit_cells(ctypes: list[int], rewrite: dict[int, int]) -> Iterator[FeatureCell]:
-    """Creator credits of items with a public mark, which bounds the matrix."""
+def _credit_cells(
+    ctypes: list[int],
+    excluded_owners: set[int],
+    rewrite: dict[int, int],
+    marked_targets: set[int],
+) -> Iterator[FeatureCell]:
+    """Creator credits of items with a public mark, which bounds the matrix.
+
+    ``marked_targets`` adds the items such marks count toward, because a
+    merge moves credits to the surviving item and leaves marks behind.
+    """
     marked = ShelfMember._base_manager.filter(
         visibility=0, parent__shelf_type__in=SHELF_TYPES_AS_SEED
-    ).values("item_id")
+    )
+    if excluded_owners:
+        marked = marked.exclude(owner_id__in=excluded_owners)
+    in_scope = Q(item_id__in=marked.order_by().values("item_id"))
+    if marked_targets:
+        in_scope |= Q(item_id__in=marked_targets)
     rows = (
         ItemCredit.objects.filter(
+            in_scope,
             role__in=CONTENT_CREDIT_ROLES,
             item__polymorphic_ctype_id__in=ctypes,
             item__is_deleted=False,
-            item_id__in=marked,
         )
         .order_by()
         .values_list("item_id", "item__merged_to_item_id", "role", "person_id", "name")
@@ -467,6 +481,27 @@ class BuildItemSimilarity(BaseJob):
             if src in marked_merged or src in productions
         }
 
+    def _marked_rewrite_targets(
+        self, rewrite: dict[int, int], excluded_owners: set[int]
+    ) -> set[int]:
+        """Targets of rewrite sources that carry a public seed mark.
+
+        ``rewrite`` is the trimmed map, so the ``IN`` list stays short.
+        """
+        if not rewrite:
+            return set()
+        qs = ShelfMember._base_manager.filter(
+            visibility=0,
+            parent__shelf_type__in=SHELF_TYPES_AS_SEED,
+            item_id__in=list(rewrite),
+        )
+        if excluded_owners:
+            qs = qs.exclude(owner_id__in=excluded_owners)
+        return {
+            rewrite[item_id]
+            for item_id in qs.order_by().values_list("item_id", flat=True).distinct()
+        }
+
     def _active_item_ids(
         self,
         min_marks: int,
@@ -630,6 +665,7 @@ class BuildItemSimilarity(BaseJob):
         excluded = _non_discoverable_identity_ids()
         full_rewrite = training_rewrite_map()
         rewrite = self._rewrite_for_marked_items(full_rewrite)
+        marked_targets = self._marked_rewrite_targets(rewrite, excluded)
         excluded_target_ctypes = excluded_target_ctype_ids()
         logger.info(
             f"Similarity build start: min_source={min_source} min_target={min_target} "
@@ -749,7 +785,7 @@ class BuildItemSimilarity(BaseJob):
                     ),
                     _feature_topk(
                         ItemSimilarity.METHOD_CONTENT,
-                        _credit_cells(ctypes, full_rewrite),
+                        _credit_cells(ctypes, excluded, full_rewrite, marked_targets),
                         True,
                         top_k,
                         max_feature_items,
