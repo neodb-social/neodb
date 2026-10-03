@@ -98,6 +98,60 @@ class TestPrecompute:
         assert self.other.pk in ids
 
 
+class TestRefill:
+    @pytest.fixture(autouse=True)
+    def setup(self, site_config):
+        strangers = [
+            User.register(email=f"rf{i}@t.com", username=f"rf{i}").identity
+            for i in range(2)
+        ]
+        self.src = Edition.objects.create(title="Src")
+        self.targets = [Edition.objects.create(title=f"T{i}") for i in range(4)]
+        for ident in strangers:
+            for item in [self.src, *self.targets]:
+                _public_mark(ident, item)
+        BuildItemSimilarity().run()
+        self.user = User.register(email="rft@t.com", username="rft")
+        _public_mark(self.user.identity, self.src)
+        # a stored list that the member has since used up
+        _cached_rows(self.user, self.targets[:1])
+        dismiss_item(self.user, self.targets[0])
+
+    def _ids(self) -> set[int]:
+        return {i.pk for i in for_you(self.user, limit=3)}
+
+    def test_used_up_list_is_recomputed(self):
+        assert self._ids() == {t.pk for t in self.targets[1:]}
+
+    def test_refill_runs_once_a_day(self, monkeypatch):
+        calls = []
+        real = compute_for_user
+
+        def counting(user_pk: int, identity_pk: int):
+            calls.append(user_pk)
+            return real(user_pk, identity_pk)
+
+        monkeypatch.setattr("catalog.recommendation.compute_for_user", counting)
+        self._ids()
+        for t in self.targets[1:]:
+            dismiss_item(self.user, t)
+        assert self._ids() == set()
+        assert calls == [self.user.pk]
+
+    def test_nothing_new_keeps_the_stored_rows(self, monkeypatch):
+        monkeypatch.setattr("catalog.recommendation.compute_for_user", lambda u, i: [])
+        assert self._ids() == set()
+        assert UserRecommendation.objects.filter(user=self.user).count() == 1
+
+    def test_short_list_without_skips_is_left_alone(self, monkeypatch):
+        restore_item(self.user, self.targets[0])
+        monkeypatch.setattr(
+            "catalog.recommendation.compute_for_user",
+            lambda u, i: pytest.fail("recomputed a list nothing was taken from"),
+        )
+        assert self._ids() == {self.targets[0].pk}
+
+
 class TestForYou:
     @pytest.fixture(autouse=True)
     def setup(self, site_config):

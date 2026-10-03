@@ -20,7 +20,7 @@ def _reset_language():
 
 @pytest.fixture(autouse=True)
 def _clear_circles_cache():
-    """Drop cached circles rows keyed by user pk, and rendered discover sections.
+    """Drop per-user reco cache keys, and rendered discover sections.
 
     Tests share redis with the dev cluster and --create-db restarts the pk
     sequences, so a key left by an earlier run can match a new test user.
@@ -30,6 +30,7 @@ def _clear_circles_cache():
     delete_pattern = getattr(cache, "delete_pattern", None)
     if delete_pattern:
         delete_pattern("reco:circles:*")
+        delete_pattern("reco:refill:*")
         delete_pattern("discover_frag:*")
 
 
