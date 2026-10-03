@@ -843,8 +843,9 @@ class TestSimilarityCosine:
         ]
 
     def _score(self, src, tgt) -> float:
+        # shelf weighs 1 in the blend and nothing else links these items
         return ItemSimilarity.objects.get(
-            source=src, target=tgt, method=ItemSimilarity.METHOD_SHELF_COOC
+            source=src, target=tgt, method=ItemSimilarity.METHOD_BLENDED
         ).score
 
     def _pairs(self) -> tuple:
@@ -993,12 +994,12 @@ class TestFeatureSimilarity:
             Edition.objects.create(title=f"Feature {t}") for t in "ABCD"
         )
 
-    def _pairs(self, method: int) -> set[tuple[int, int]]:
-        return set(
-            ItemSimilarity.objects.filter(method=method).values_list(
-                "source_id", "target_id"
-            )
-        )
+    def _pairs(self) -> set[tuple[int, int]]:
+        # each test exercises one method, and only blended rows are stored
+        assert set(ItemSimilarity.objects.values_list("method", flat=True)) <= {
+            ItemSimilarity.METHOD_BLENDED
+        }
+        return set(ItemSimilarity.objects.values_list("source_id", "target_id"))
 
     def _tag(self, identity, item, tags, visibility=0):
         identity.tag_manager.tag_item(item, tags, visibility)
@@ -1011,7 +1012,7 @@ class TestFeatureSimilarity:
         self._tag(u0, self.c, ["cooking"])
         self._tag(u0, self.d, ["cooking"])
         BuildItemSimilarity().run()
-        pairs = self._pairs(ItemSimilarity.METHOD_TAG_COOC)
+        pairs = self._pairs()
         assert {(self.a.pk, self.b.pk), (self.b.pk, self.a.pk)} <= pairs
         assert (self.c.pk, self.d.pk) in pairs
         assert (self.a.pk, self.c.pk) not in pairs
@@ -1020,7 +1021,7 @@ class TestFeatureSimilarity:
         self._tag(self.users[0], self.a, ["secret"], visibility=2)
         self._tag(self.users[0], self.b, ["secret"], visibility=2)
         BuildItemSimilarity().run()
-        assert not self._pairs(ItemSimilarity.METHOD_TAG_COOC)
+        assert not self._pairs()
 
     def test_hub_feature_is_ignored(self):
         _set(reco_max_feature_items=2)
@@ -1029,7 +1030,7 @@ class TestFeatureSimilarity:
         self._tag(self.users[0], self.a, ["pair"])
         self._tag(self.users[0], self.b, ["pair"])
         BuildItemSimilarity().run()
-        pairs = self._pairs(ItemSimilarity.METHOD_TAG_COOC)
+        pairs = self._pairs()
         assert (self.a.pk, self.b.pk) in pairs
         assert (self.a.pk, self.c.pk) not in pairs
 
@@ -1044,7 +1045,7 @@ class TestFeatureSimilarity:
         self._collection(self.users[0], [self.a, self.b])
         self._collection(self.users[1], [self.c, self.d], visibility=2)
         BuildItemSimilarity().run()
-        pairs = self._pairs(ItemSimilarity.METHOD_COLLECTION_COOC)
+        pairs = self._pairs()
         assert pairs == {(self.a.pk, self.b.pk), (self.b.pk, self.a.pk)}
 
     def test_non_discoverable_collection_is_ignored(self):
@@ -1053,7 +1054,7 @@ class TestFeatureSimilarity:
         t.save(update_fields=["discoverable"])
         self._collection(self.users[0], [self.a, self.b])
         BuildItemSimilarity().run()
-        assert not self._pairs(ItemSimilarity.METHOD_COLLECTION_COOC)
+        assert not self._pairs()
 
     def test_credit_links_books_by_same_author(self):
         for item in (self.a, self.b, self.c, self.d):
@@ -1063,21 +1064,21 @@ class TestFeatureSimilarity:
         ItemCredit.objects.create(item=self.c, role="publisher", name="Ace")
         ItemCredit.objects.create(item=self.d, role="publisher", name="Ace")
         BuildItemSimilarity().run()
-        pairs = self._pairs(ItemSimilarity.METHOD_CONTENT)
+        pairs = self._pairs()
         assert pairs == {(self.a.pk, self.b.pk), (self.b.pk, self.a.pk)}
 
     def test_credit_needs_a_public_mark(self):
         ItemCredit.objects.create(item=self.a, role="author", name="Anon")
         ItemCredit.objects.create(item=self.b, role="author", name="Anon")
         BuildItemSimilarity().run()
-        assert not self._pairs(ItemSimilarity.METHOD_CONTENT)
+        assert not self._pairs()
 
     def test_merged_item_features_count_toward_final(self):
         self._tag(self.users[0], self.a, ["moon"])
         self._tag(self.users[0], self.c, ["moon"])
         self.a.merge_to(self.b)
         BuildItemSimilarity().run()
-        pairs = self._pairs(ItemSimilarity.METHOD_TAG_COOC)
+        pairs = self._pairs()
         assert pairs == {(self.b.pk, self.c.pk), (self.c.pk, self.b.pk)}
 
 
@@ -1119,14 +1120,38 @@ class TestBlendedSimilarity:
         for item in (self.a, self.b, self.c):
             self.users[0].tag_manager.tag_item(item, ["noir"], 0)
         BuildItemSimilarity().run()
-        shelf = self._score(self.a, self.b, ItemSimilarity.METHOD_SHELF_COOC)
-        tag_ab = self._score(self.a, self.b, ItemSimilarity.METHOD_TAG_COOC)
-        tag_ac = self._score(self.a, self.c, ItemSimilarity.METHOD_TAG_COOC)
-        assert shelf and tag_ab and tag_ac
+        # shelf cosine of a and b is 1, tag cosine of every pair is 1
         blended_ab = self._score(self.a, self.b, ItemSimilarity.METHOD_BLENDED)
         blended_ac = self._score(self.a, self.c, ItemSimilarity.METHOD_BLENDED)
-        assert blended_ab == pytest.approx(shelf + 0.5 * tag_ab, rel=1e-5)
-        assert blended_ac == pytest.approx(0.5 * tag_ac, rel=1e-5)
+        assert blended_ab == pytest.approx(1.0 + 0.5, rel=1e-5)
+        assert blended_ac == pytest.approx(0.5, rel=1e-5)
+        _set(reco_tag_weight=0.2)
+        BuildItemSimilarity().run()
+        blended_ac = self._score(self.a, self.c, ItemSimilarity.METHOD_BLENDED)
+        assert blended_ac == pytest.approx(0.2, rel=1e-5)
+        assert set(ItemSimilarity.objects.values_list("method", flat=True)) == {
+            ItemSimilarity.METHOD_BLENDED
+        }
+
+    def test_rebuild_drops_rows_of_other_methods(self):
+        for ident in self.users:
+            _public_mark(ident, self.a, rating=0)
+            _public_mark(ident, self.b, rating=0)
+        # left behind by older builds, for a covered and an uncovered source
+        for src, tgt in ((self.a, self.b), (self.c, self.a)):
+            ItemSimilarity.objects.create(
+                source=src,
+                target=tgt,
+                score=0.9,
+                method=ItemSimilarity.METHOD_SHELF_COOC,
+            )
+        BuildItemSimilarity().run()
+        assert set(
+            ItemSimilarity.objects.values_list("source_id", "target_id", "method")
+        ) == {
+            (self.a.pk, self.b.pk, ItemSimilarity.METHOD_BLENDED),
+            (self.b.pk, self.a.pk, ItemSimilarity.METHOD_BLENDED),
+        }
 
     def test_serving_reads_only_blended_rows(self):
         ItemSimilarity.objects.create(
@@ -1155,10 +1180,10 @@ class TestBlendedSimilarity:
         for item in (self.a, self.b):
             ItemCredit.objects.create(item=item, role="author", name="Same Author")
         BuildItemSimilarity().run()
-        # one mark each is below the shelf threshold
-        assert not ItemSimilarity.objects.filter(
-            method=ItemSimilarity.METHOD_SHELF_COOC
-        ).exists()
+        assert set(ItemSimilarity.objects.values_list("method", flat=True)) == {
+            ItemSimilarity.METHOD_BLENDED
+        }
+        # one mark each is below the shelf threshold, credits alone link them
         assert [i.pk for i in similar_items(self.a)] == [self.b.pk]
         assert self._score(
             self.a, self.b, ItemSimilarity.METHOD_BLENDED

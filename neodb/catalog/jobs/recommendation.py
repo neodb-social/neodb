@@ -336,11 +336,10 @@ def _feature_topk(
 class _SimilarityWriter:
     """Replaces every row of a source, in batches of sources.
 
-    Each source gets its per-method rows plus ``METHOD_BLENDED`` rows: the
-    top-K of the weighted sum of its method scores per target. Batched
-    transactions keep each commit small, avoid one long-lived transaction
-    across the rebuild, and give readers a consistent view per source.
-    Sources no longer covered are pruned in ``finish``.
+    Only ``METHOD_BLENDED`` rows are stored: the top-K of the weighted sum of
+    a source's per-method scores per target. Batched transactions keep each
+    commit small, avoid one long-lived transaction across the rebuild, and
+    give readers a consistent view per source.
     """
 
     def __init__(self, blend_weights: dict[int, float], top_k: int) -> None:
@@ -356,19 +355,17 @@ class _SimilarityWriter:
         if src in self.covered:
             # a second add would delete the rows of the first
             raise RuntimeError(f"similarity source {src} added twice")
-        rows: list[ItemSimilarity] = []
         blended: dict[int, float] = defaultdict(float)
         for method, (targets, scores) in by_method.items():
-            weight = self.blend_weights.get(method, 0.0)
-            for t, v in zip(targets.tolist(), scores.tolist()):
-                rows.append(
-                    ItemSimilarity(source_id=src, target_id=t, score=v, method=method)
-                )
-                if weight:
-                    blended[t] += weight * v
             self.counts[method] += len(targets)
+            weight = self.blend_weights.get(method, 0.0)
+            if not weight:
+                continue
+            for t, v in zip(targets.tolist(), scores.tolist()):
+                blended[t] += weight * v
         top = nlargest(self.top_k, blended.items(), key=itemgetter(1))
-        rows.extend(
+        self.counts[ItemSimilarity.METHOD_BLENDED] += len(top)
+        self.pending[src] = [
             ItemSimilarity(
                 source_id=src,
                 target_id=t,
@@ -376,9 +373,7 @@ class _SimilarityWriter:
                 method=ItemSimilarity.METHOD_BLENDED,
             )
             for t, v in top
-        )
-        self.counts[ItemSimilarity.METHOD_BLENDED] += len(top)
-        self.pending[src] = rows
+        ]
         self.covered.add(src)
         if len(self.pending) >= _WRITE_SOURCE_BATCH:
             self.flush()
@@ -396,6 +391,12 @@ class _SimilarityWriter:
         self.pending = {}
 
     def finish(self) -> dict[int, int]:
+        """Prune sources not covered by this run; return counts per method.
+
+        ``flush`` deleted every row of each covered source whatever its
+        method, and this deletes every row of the rest, so no row of another
+        method survives a run, including those older builds stored.
+        """
         self.flush()
         existing = set(
             ItemSimilarity.objects.order_by()
@@ -421,10 +422,10 @@ def _enabled() -> bool:
 class BuildItemSimilarity(BaseJob):
     """Weekly item-item similarity builder.
 
-    Per category it computes four methods and their weighted blend, writing
-    top-K ``ItemSimilarity`` rows per source for each. Serving reads only
-    ``METHOD_BLENDED``, so after deploying this, run
-    ``manage.py recommendation similarity`` once before blended rows exist.
+    Per category it computes four methods in memory and stores only their
+    weighted blend, as top-K ``METHOD_BLENDED`` rows per source. After
+    deploying this, run ``manage.py recommendation similarity`` once: until
+    then no blended rows exist and serving returns nothing.
 
     - shelf: cosine with shrinkage over weighted public marks of active
       items. Each mark carries ``mark_weight`` (rating and annotations) times
@@ -764,8 +765,8 @@ class BuildItemSimilarity(BaseJob):
                     writer.add(src, {m: (t, v) for _, m, t, v in group})
         counts = writer.finish()
         logger.info(
-            f"Similarity build done: {len(writer.covered)} sources, rows per "
-            f"method {counts}"
+            f"Similarity build done: {len(writer.covered)} sources, neighbours "
+            f"per method {counts}"
         )
 
     def _shelf_topk(
