@@ -7,6 +7,7 @@ from mastodon.models import BlueskyAccount, Email, EmailAccount
 from users.models import User
 
 CLOSED_MESSAGE = b"Registration with email is not available"
+LOGIN_HINT = b"New accounts cannot be registered with email."
 REGISTER_URL = reverse("users:register")
 CAPTCHA_URL = reverse("users:captcha")
 
@@ -137,3 +138,18 @@ class TestRegisterView:
         )
         assert CLOSED_MESSAGE not in response.content
         assert sent == [("carol@example.org", "verify")]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestLoginPage:
+    def test_hint_shown_when_closed(self, client, settings, closed) -> None:
+        settings.ENABLE_LOGIN_EMAIL = True
+        response = client.get(reverse("users:login"))
+        assert response.status_code == 200
+        assert LOGIN_HINT in response.content
+
+    def test_no_hint_when_open(self, client, settings) -> None:
+        settings.ENABLE_LOGIN_EMAIL = True
+        response = client.get(reverse("users:login"))
+        assert response.status_code == 200
+        assert LOGIN_HINT not in response.content

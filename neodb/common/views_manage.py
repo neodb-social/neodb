@@ -808,7 +808,8 @@ class AccessSettings(SiteConfigSettingsPage):
                 "Allow new accounts to be created with an email address. When "
                 "off, email login keeps working for accounts that already have "
                 "an email address linked, and other login methods can still "
-                "register."
+                "register. Has no effect while email login is off, which "
+                "happens when no email URL is set."
             ),
         },
         "enable_login_mastodon": {

@@ -86,6 +86,7 @@ def login(request):
             or len(SiteConfig.system.mastodon_login_whitelist) == 0,
             "enable_mastodon": enable_mastodon,
             "enable_email": settings.ENABLE_LOGIN_EMAIL,
+            "enable_register_email": SiteConfig.system.enable_register_email,
             "enable_threads": SiteConfig.system.enable_login_threads,
             "enable_bluesky": SiteConfig.system.enable_login_bluesky,
             "invite_status": invite_status,

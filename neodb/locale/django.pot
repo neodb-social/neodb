@@ -4946,7 +4946,7 @@ msgid "Enable email registration"
 msgstr ""
 
 #: common/views_manage.py:808
-msgid "Allow new accounts to be created with an email address. When off, email login keeps working for accounts that already have an email address linked, and other login methods can still register."
+msgid "Allow new accounts to be created with an email address. When off, email login keeps working for accounts that already have an email address linked, and other login methods can still register. Has no effect while email login is off, which happens when no email URL is set."
 msgstr ""
 
 #: common/views_manage.py:755
@@ -8777,6 +8777,10 @@ msgstr ""
 
 #: users/templates/users/login.html:132
 msgid "Send verification code"
+msgstr ""
+
+#: users/templates/users/login.html:137
+msgid "Email login is only for accounts that already have an email address linked. New accounts cannot be registered with email."
 msgstr ""
 
 #: users/templates/users/login.html:151

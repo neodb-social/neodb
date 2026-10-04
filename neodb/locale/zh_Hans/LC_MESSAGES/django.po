@@ -4963,8 +4963,8 @@ msgid "Enable email registration"
 msgstr "允许电子邮件注册"
 
 #: common/views_manage.py:808
-msgid "Allow new accounts to be created with an email address. When off, email login keeps working for accounts that already have an email address linked, and other login methods can still register."
-msgstr "允许使用电子邮件地址创建新账号。关闭后，已关联电子邮件地址的账号仍可使用电子邮件登录，其他登录方式仍可注册。"
+msgid "Allow new accounts to be created with an email address. When off, email login keeps working for accounts that already have an email address linked, and other login methods can still register. Has no effect while email login is off, which happens when no email URL is set."
+msgstr "允许使用电子邮件地址创建新账号。关闭后，已关联电子邮件地址的账号仍可使用电子邮件登录，其他登录方式仍可注册。未设置电子邮件 URL（即电子邮件登录关闭）时此项无效。"
 
 #: common/views_manage.py:755
 msgid "Enable Mastodon login"
@@ -8888,6 +8888,10 @@ msgstr "输入电子邮件地址"
 #: users/templates/users/login.html:132
 msgid "Send verification code"
 msgstr "发送验证码"
+
+#: users/templates/users/login.html:137
+msgid "Email login is only for accounts that already have an email address linked. New accounts cannot be registered with email."
+msgstr "电子邮件登录仅适用于已关联电子邮件地址的账号，无法使用电子邮件注册新账号。"
 
 #: users/templates/users/login.html:151
 msgid "Domain of your instance, e.g. mastodon.social"
