@@ -270,9 +270,13 @@ def _credit_cells(
 
 
 def _unusable_items(
-    item_ids: np.ndarray, excluded_ctypes: set[int]
+    item_ids: np.ndarray, excluded_ctypes: set[int], category_ctypes: list[int]
 ) -> tuple[set[int], set[int]]:
-    """(not sources, not targets) among ``item_ids``, queried in chunks."""
+    """(not sources, not targets) among ``item_ids``, queried in chunks.
+
+    An item outside ``category_ctypes`` is no source here: a merge can leave
+    a cell on a survivor of another category, which has its own pass.
+    """
     dead: set[int] = set()
     non_target: set[int] = set()
     q = Q(is_deleted=True) | Q(merged_to_item_id__isnull=False)
@@ -286,6 +290,11 @@ def _unusable_items(
             non_target.add(pk)
             if deleted or merged_to is not None:
                 dead.add(pk)
+        dead.update(
+            Item.objects.filter(pk__in=chunk)
+            .exclude(polymorphic_ctype_id__in=category_ctypes)
+            .values_list("pk", flat=True)
+        )
     return dead, non_target
 
 
@@ -296,6 +305,7 @@ def _feature_topk(
     top_k: int,
     max_feature_items: int,
     excluded_ctypes: set[int],
+    category_ctypes: list[int],
 ) -> Iterator[Neighbours]:
     """Item-item cosine over shared features, for one category.
 
@@ -340,7 +350,7 @@ def _feature_topk(
         (weights, (rows.astype(np.int32), cols.astype(np.int32))),
         shape=(int(rows.max()) + 1, len(item_ids)),
     )
-    dead, non_target = _unusable_items(item_ids, excluded_ctypes)
+    dead, non_target = _unusable_items(item_ids, excluded_ctypes, category_ctypes)
     target_mask = ~np.isin(item_ids, np.fromiter(non_target, dtype=np.int64))
     sources = np.flatnonzero(~np.isin(item_ids, np.fromiter(dead, dtype=np.int64)))
     for src_col, tgt_cols, scores in _cosine_topk(m, sources, target_mask, top_k, 0.0):
@@ -774,6 +784,7 @@ class BuildItemSimilarity(BaseJob):
                         top_k,
                         max_feature_items,
                         excluded_target_ctypes,
+                        ctypes,
                     ),
                     _feature_topk(
                         ItemSimilarity.METHOD_COLLECTION_COOC,
@@ -782,6 +793,7 @@ class BuildItemSimilarity(BaseJob):
                         top_k,
                         max_feature_items,
                         excluded_target_ctypes,
+                        ctypes,
                     ),
                     _feature_topk(
                         ItemSimilarity.METHOD_CONTENT,
@@ -790,6 +802,7 @@ class BuildItemSimilarity(BaseJob):
                         top_k,
                         max_feature_items,
                         excluded_target_ctypes,
+                        ctypes,
                     ),
                 ]
                 # every method must yield each source once, in ascending item
