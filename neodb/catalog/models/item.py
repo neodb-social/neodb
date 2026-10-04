@@ -10,7 +10,7 @@ from auditlog.models import LogEntry
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.indexes import GinIndex
-from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.files.base import ContentFile
 from django.core.signing import b62_decode, b62_encode
 from django.db import IntegrityError, connection, models, transaction
 from django.db.models import Q, QuerySet, prefetch_related_objects
@@ -1993,9 +1993,9 @@ class ExternalResource(models.Model):
                 resource_content.metadata.get("cover_image_url"), self.url
             )
         if resource_content.cover_image and resource_content.cover_image_extention:
-            self.cover = SimpleUploadedFile(
-                "temp." + resource_content.cover_image_extention,
+            self.cover = ContentFile(
                 resource_content.cover_image,
+                name="temp." + resource_content.cover_image_extention,
             )
         elif resource_content.metadata.get("cover_image_path"):
             self.cover = resource_content.metadata.get("cover_image_path")
