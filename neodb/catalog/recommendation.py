@@ -1,19 +1,20 @@
 """Serving-time helpers for item and user recommendations.
 
-Three surfaces, all visibility- and pref-gated by Preference.show_recommendations:
+Surfaces, all visibility- and pref-gated by Preference.show_recommendations:
 - similar_items(item, viewer): item-page "you might also like"
-- recommendations_for(viewer): personalised, merging cached + circles
+- for_you(viewer): personalised, from the stored per-user rows
 - from_your_circles(viewer): recent shelves from followees
+- blended_for_discover(viewer): for_you and from_your_circles interleaved
 """
 
 import logging
 from collections.abc import Collection, Iterable, Iterator
-from datetime import timedelta
+from datetime import datetime, timedelta
 from heapq import heappush, heapreplace, nlargest
 
 from django.core.cache import cache
 from django.db import transaction
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Count, Max, Q, QuerySet
 from django.utils import timezone
 
 from common.models import SiteConfig
@@ -226,19 +227,25 @@ def load_mark_signals(
     wanted: dict[int, set[int]],
     rewrite: dict[int, int],
     item_ids: Collection[int] | None = None,
+    *,
+    public_only: bool = True,
 ) -> dict[tuple[int, int], MarkSignals]:
-    """Public rating, comment, review and note for each wanted (owner, item).
+    """Rating, comment, review and note for each wanted (owner, item).
 
     ``wanted`` maps owner id to item ids after rewrite; content on a rewrite
     source counts for its target. Loaded per owner instead of per mark,
     because Comment and Review have no (owner, item) index. ``item_ids``
-    optionally narrows the scan to these raw item ids. Pairs without any
-    signal are absent; use ``NO_MARK_SIGNALS``.
+    optionally narrows the scan to these raw item ids. Only public content
+    counts unless ``public_only`` is False, which is for signals that feed
+    nothing but the owner's own list. Pairs without any signal are absent;
+    use ``NO_MARK_SIGNALS``.
     """
     owners = list(wanted)
 
-    def public_rows(model: type[Content], *fields: str) -> Iterator[tuple]:
-        qs = model.objects.filter(owner_id__in=owners, visibility=0)
+    def content_rows(model: type[Content], *fields: str) -> Iterator[tuple]:
+        qs = model.objects.filter(owner_id__in=owners)
+        if public_only:
+            qs = qs.filter(visibility=0)
         if item_ids is not None:
             qs = qs.filter(item_id__in=item_ids)
         return (
@@ -248,7 +255,7 @@ def load_mark_signals(
         )
 
     grades: dict[tuple[int, int], int] = {}
-    for owner_id, item_id, grade in public_rows(Rating, "grade"):
+    for owner_id, item_id, grade in content_rows(Rating, "grade"):
         target = rewrite.get(item_id, item_id)
         if not grade or target not in wanted[owner_id]:
             continue
@@ -259,7 +266,7 @@ def load_mark_signals(
     present: list[set[tuple[int, int]]] = []
     for model in (Comment, Review, Note):
         found: set[tuple[int, int]] = set()
-        for owner_id, item_id in public_rows(model):
+        for owner_id, item_id in content_rows(model):
             target = rewrite.get(item_id, item_id)
             if target in wanted[owner_id]:
                 found.add((owner_id, target))
@@ -295,11 +302,13 @@ def reco_mark_weight(
 
 _LAZY_LOCK_TTL = 120  # seconds — covers typical compute duration
 _REFILL_INTERVAL = 86400
+_STALE_REFRESH_INTERVAL = 600
 
 # Shelves that count as positive interest signal for recommendation training
 # and as seeds for personalised recommendations. Wishlist is an explicit
 # forward-looking taste signal; dropped is excluded (negative signal).
 SHELF_TYPES_AS_SEED = ("wishlist", "progress", "complete")
+SHELF_TYPE_NEGATIVE_SEED = "dropped"
 
 # Shelves that mean the user has already engaged with an item, so we should
 # never recommend it back to them. Includes "dropped" so we don't re-surface
@@ -542,8 +551,54 @@ def _balanced_top(
     return [e for e in ranked if e[0] in chosen]
 
 
+# a seed never fades below this share of its weight
+MIN_SEED_RECENCY = 0.25
+
+
+def seed_recency_factor(age_days: float, half_life_days: int) -> float:
+    """Share of its weight a seed keeps at ``age_days`` old; 1 when decay is off."""
+    if half_life_days <= 0:
+        return 1.0
+    return max(MIN_SEED_RECENCY, 0.5 ** (max(age_days, 0.0) / half_life_days))
+
+
+def _cap_per_seed(
+    ranked: list[tuple[int, float]],
+    seeds_by_target: dict[int, list[int]],
+    slots: int,
+) -> list[tuple[int, float]]:
+    """``ranked`` with at most ``slots`` targets per strongest seed up front.
+
+    The targets past a seed's slots follow all the others in their own
+    order, so the list is reordered, never shortened. One prolific seed
+    then cannot fill the whole list. ``slots`` 0 keeps the order.
+    """
+    if slots <= 0:
+        return ranked
+    used: dict[int, int] = {}
+    admitted: list[tuple[int, float]] = []
+    overflow: list[tuple[int, float]] = []
+    for entry in ranked:
+        seeds = seeds_by_target.get(entry[0])
+        if not seeds:
+            admitted.append(entry)
+            continue
+        n = used.get(seeds[0], 0)
+        if n < slots:
+            used[seeds[0]] = n + 1
+            admitted.append(entry)
+        else:
+            overflow.append(entry)
+    return admitted + overflow
+
+
 def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]:
-    """Score candidate items for one user, returning unsaved UserRecommendation rows."""
+    """Score candidate items for one user, returning unsaved UserRecommendation rows.
+
+    Seeds are the user's recent marks of any visibility: the rows are shown
+    to nobody else. A seed rated well below the user's own average, a
+    dropped item and a dismissed item lower the score of their neighbours.
+    """
     sys = SiteConfig.system
     seed_cap = sys.reco_per_user_seed_cap
     top_n = sys.reco_user_top_n
@@ -551,11 +606,10 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     raw_seeds = list(
         ShelfMember._base_manager.filter(
             owner_id=identity_pk,
-            visibility=0,
             parent__shelf_type__in=SHELF_TYPES_AS_SEED,
         )
         .order_by("-edited_time")
-        .values_list("item_id", flat=True)[: seed_cap * 2]
+        .values_list("item_id", "edited_time")[: seed_cap * 2]
     )
     if not raw_seeds:
         return []
@@ -563,46 +617,62 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     # Seeds are a subset of the shelved items the scoped map starts from.
     rewrite = _user_rewrite_map(identity_pk)
     seeds: list[int] = []
-    seed_set: set[int] = set()
-    for sid in raw_seeds:
+    seed_time: dict[int, datetime] = {}
+    for sid, edited in raw_seeds:
         mapped = rewrite.get(sid, sid)
-        if mapped in seed_set:
+        if mapped in seed_time:
             continue
-        seed_set.add(mapped)
+        # newest first, so this is the latest mark counting toward the seed
+        seed_time[mapped] = edited
         seeds.append(mapped)
         if len(seeds) >= seed_cap:
             break
+    seed_set = set(seeds)
+    raw_ids = {sid for sid, _ in raw_seeds}
     # content written on a rewrite target counts too, as it does in training
     signals = load_mark_signals(
         {identity_pk: seed_set},
         rewrite,
-        item_ids=set(raw_seeds) | {rewrite[s] for s in raw_seeds if s in rewrite},
+        item_ids=raw_ids | {rewrite[s] for s in raw_ids if s in rewrite},
+        public_only=False,
     )
     seed_signals = [signals.get((identity_pk, s), NO_MARK_SIGNALS) for s in seeds]
     user_mean = user_mean_grade(grade for grade, _, _, _ in seed_signals)
-    seed_weight = {
-        sid: reco_mark_weight(
+    now = timezone.now()
+    positive: list[int] = []
+    low_rated: list[int] = []
+    seed_weight: dict[int, float] = {}
+    for sid, (grade, has_comment, has_review, has_note) in zip(seeds, seed_signals):
+        if (
+            grade
+            and user_mean is not None
+            and grade <= user_mean - sys.reco_negative_rating_gap
+        ):
+            low_rated.append(sid)
+            continue
+        positive.append(sid)
+        age_days = (now - seed_time[sid]).total_seconds() / 86400
+        seed_weight[sid] = reco_mark_weight(
             sys,
             grade,
             user_mean,
             has_comment=has_comment,
             has_review=has_review,
             has_note=has_note,
-        )
-        for sid, (grade, has_comment, has_review, has_note) in zip(seeds, seed_signals)
-    }
+        ) * seed_recency_factor(age_days, sys.reco_seed_half_life_days)
+    if not positive:
+        return []
     # Exclude shelved and dismissed items plus their sibling editions (same
     # Work). Precompute only; a sibling marked later may dupe until the next
     # refresh.
-    hidden = _with_rewrites(
-        _user_shelved_item_ids(identity_pk), rewrite
-    ) | _user_dismissed_item_ids(user_pk)
+    dismissed = _user_dismissed_item_ids(user_pk)
+    hidden = _with_rewrites(_user_shelved_item_ids(identity_pk), rewrite) | dismissed
     excluded = hidden | _sibling_edition_ids(hidden)
 
     # min-heap of the strongest (contribution, seed) pairs per target
     contribs: dict[int, list[tuple[float, int]]] = {}
     sim_rows = ItemSimilarity.objects.filter(
-        source_id__in=seeds, method=ItemSimilarity.METHOD_BLENDED
+        source_id__in=positive, method=ItemSimilarity.METHOD_BLENDED
     ).values_list("source_id", "target_id", "score")
     for src, tgt, score in sim_rows:
         if tgt in excluded or tgt in seed_set:
@@ -617,8 +687,34 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     if not contribs:
         return []
     scores = {tgt: sum(c for c, _ in heap) for tgt, heap in contribs.items()}
+    neg_weight = sys.reco_negative_weight
+    if neg_weight > 0:
+        dropped = (
+            ShelfMember._base_manager.filter(
+                owner_id=identity_pk, parent__shelf_type=SHELF_TYPE_NEGATIVE_SEED
+            )
+            .order_by("-edited_time")
+            .values_list("item_id", flat=True)[:seed_cap]
+        )
+        # dismissals have no order here, so they come last under the cap
+        negatives = [
+            i
+            for i in dict.fromkeys(
+                [*low_rated, *(rewrite.get(i, i) for i in dropped), *sorted(dismissed)]
+            )
+            if i not in seed_weight
+        ][:seed_cap]
+        neg_rows = ItemSimilarity.objects.filter(
+            source_id__in=negatives, method=ItemSimilarity.METHOD_BLENDED
+        ).values_list("target_id", "score")
+        for tgt, score in neg_rows:
+            if tgt in scores:
+                scores[tgt] -= neg_weight * score
+        scores = {tgt: sc for tgt, sc in scores.items() if sc > 0}
+        if not scores:
+            return []
     seeds_by_target = {
-        tgt: [src for _, src in nlargest(3, heap)] for tgt, heap in contribs.items()
+        tgt: [src for _, src in nlargest(3, contribs[tgt])] for tgt in scores
     }
 
     pref = Preference.objects.filter(user_id=user_pk).first()
@@ -626,18 +722,21 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     if sys.discover_user_languages and pref:
         codes = pref.catalog_language_codes()
     # categories the member does not search, or the site hides, stay out
-    hidden = set(sys.hidden_categories) | set(pref.hidden_categories if pref else [])
+    hidden_cats = set(sys.hidden_categories) | set(
+        pref.hidden_categories if pref else []
+    )
     ranked = sorted(scores.items(), key=lambda t: t[1], reverse=True)
-    cats = _categories_of([t for t, _ in ranked] + seeds)
-    ranked = [(t, sc) for t, sc in ranked if cats.get(t) not in (None, *hidden)]
+    cats = _categories_of([t for t, _ in ranked] + positive)
+    ranked = [(t, sc) for t, sc in ranked if cats.get(t) not in (None, *hidden_cats)]
     if codes:
         in_lang = set(_first_in_languages([t for t, _ in ranked], codes, len(ranked)))
         ranked = [(t, sc) for t, sc in ranked if t in in_lang]
     if not ranked:
         return []
+    ranked = _cap_per_seed(ranked, seeds_by_target, sys.reco_per_seed_slots)
     # slots follow the mix of the member's own marks
     weights: dict[str, float] = {}
-    for sid in seeds:
+    for sid in positive:
         cat = cats.get(sid)
         if cat:
             weights[cat] = weights.get(cat, 0) + 1
@@ -655,18 +754,23 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     return rows
 
 
-def _refresh_lazy(user_pk: int, identity_pk: int) -> bool:
+def _refresh_lazy(
+    user_pk: int, identity_pk: int, keep_when_empty: bool = False
+) -> bool:
     """Lazy on-demand recompute for one user.
 
     Guarded by a cache-based lock so concurrent requests for the same user
-    don't dogpile compute + write. Returns True if this caller did the work,
-    False if another request already holds the lock (skip-and-serve-stale).
+    don't dogpile compute + write. Returns True if this caller replaced the
+    rows, False if another request already holds the lock (skip-and-serve-
+    stale) or, with ``keep_when_empty``, the compute found nothing.
     """
     lock_key = f"reco:lazy_refresh:{user_pk}"
     if not cache.add(lock_key, "1", timeout=_LAZY_LOCK_TTL):
         return False
     try:
         rows = compute_for_user(user_pk, identity_pk)
+        if keep_when_empty and not rows:
+            return False
         with transaction.atomic():
             UserRecommendation.objects.filter(user_id=user_pk).delete()
             if rows:
@@ -699,6 +803,37 @@ def _refill(user_pk: int, identity_pk: int) -> bool:
     return True
 
 
+def _shelf_changed_since(identity_pk: int, when: datetime) -> bool:
+    """Whether a mark or a rating of the member changed after ``when``.
+
+    A rating-only edit touches the Rating row but not the ShelfMember, and
+    it can turn a seed negative, so both are checked.
+    """
+    for model in (ShelfMember, Rating):
+        newest = (
+            model._base_manager.filter(owner_id=identity_pk)
+            .order_by("-edited_time")
+            .values_list("edited_time", flat=True)
+            .first()
+        )
+        if newest is not None and newest > when:
+            return True
+    return False
+
+
+def _refresh_stale(user_pk: int, identity_pk: int) -> bool:
+    """Recompute rows older than the member's last shelf change.
+
+    At most once per ``_STALE_REFRESH_INTERVAL`` per member, so marking a
+    run of items does not recompute on every request. The old rows stay
+    when the compute finds nothing.
+    """
+    key = f"reco:stale_refresh:{user_pk}"
+    if not cache.add(key, "1", timeout=_STALE_REFRESH_INTERVAL):
+        return False
+    return _refresh_lazy(user_pk, identity_pk, keep_when_empty=True)
+
+
 def _cached_user_rows(user_pk: int, ttl_days: int) -> list[UserRecommendation]:
     qs = UserRecommendation.objects.filter(user_id=user_pk).order_by("-score")
     rows = list(qs)
@@ -710,8 +845,30 @@ def _cached_user_rows(user_pk: int, ttl_days: int) -> list[UserRecommendation]:
     return rows
 
 
+def _attach_seed_items(items: list[Item], seed_ids: dict[int, list[int]]) -> None:
+    """Set ``reco_seed_items`` on each item from one query; deleted seeds drop out."""
+    wanted = {sid for item in items for sid in seed_ids.get(item.pk, [])}
+    seeds = (
+        {s.pk: s for s in Item.objects.filter(pk__in=wanted, is_deleted=False)}
+        if wanted
+        else {}
+    )
+    for item in items:
+        item.reco_seed_items = [
+            seeds[sid] for sid in seed_ids.get(item.pk, []) if sid in seeds
+        ]
+
+
 def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
-    """Return personalised recommendations for the viewer."""
+    """Return personalised recommendations for the viewer.
+
+    Each item carries ``reco_seed_items``, the marked items it was found
+    through, strongest first. Stored rows are computed again when missing,
+    older than ``reco_lazy_ttl_days``, or older than the viewer's newest
+    shelf change. The last is at most once per ``_STALE_REFRESH_INTERVAL``
+    per viewer; until then, or when that compute fails or finds nothing,
+    the old rows are served.
+    """
     if not viewer or not viewer.is_authenticated:
         return []
     identity = getattr(viewer, "identity", None)
@@ -726,6 +883,12 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
             logger.exception(f"Lazy reco refresh failed for user {viewer.pk}: {e}")
             return []
         rows = _cached_user_rows(viewer.pk, sys.reco_lazy_ttl_days)
+    elif _shelf_changed_since(identity.pk, rows[0].computed_at):
+        try:
+            if _refresh_stale(viewer.pk, identity.pk):
+                rows = _cached_user_rows(viewer.pk, sys.reco_lazy_ttl_days)
+        except Exception as e:
+            logger.exception(f"Stale reco refresh failed for user {viewer.pk}: {e}")
     # filter before cutting to ``limit``, so the rows stored beyond it
     # (reco_user_top_n) fill the places of shelved, dismissed or dead items
     skip = _user_excluded_item_ids(identity.pk) | _user_dismissed_item_ids(viewer.pk)
@@ -757,22 +920,29 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
         .values_list("pk", flat=True)
     )
     live_rows = [r for r in rows if r.item_id in live and r.item_id not in skip]
+    seed_ids = {r.item_id: r.seed_item_ids for r in live_rows}
+    # stored rows come back by score, so the per-seed cap applies again
+    ranked = _cap_per_seed(
+        [(r.item_id, r.score) for r in live_rows], seed_ids, sys.reco_per_seed_slots
+    )
     if category:
-        target_ids = [r.item_id for r in live_rows][:limit]
+        target_ids = [pk for pk, _ in ranked][:limit]
     else:
         # the stored mix already follows the member's marks
         mix: dict[str, float] = {}
         for r in live_rows:
             mix[r.category] = mix.get(r.category, 0) + 1
         picked = _balanced_top(
-            [(r.item_id, r.score) for r in live_rows],
+            ranked,
             {r.item_id: r.category for r in live_rows},
             mix,
             limit,
         )
         target_ids = [pk for pk, _ in picked]
     by_id = {i.pk: i for i in Item.objects.filter(pk__in=target_ids)}
-    return [by_id[tid] for tid in target_ids if tid in by_id]
+    items = [by_id[tid] for tid in target_ids if tid in by_id]
+    _attach_seed_items(items, seed_ids)
+    return items
 
 
 _CIRCLES_TTL = 3600
@@ -809,8 +979,8 @@ def _circles_ranked_ids(
         qs = qs.exclude(item__polymorphic_ctype_id__in=excluded_ctypes)
     return list(
         qs.values("item_id")
-        .annotate(c=Count("owner_id", distinct=True))
-        .order_by("-c")
+        .annotate(c=Count("owner_id", distinct=True), latest=Max("edited_time"))
+        .order_by("-c", "-latest")
         .values_list("item_id", flat=True)[: limit * 2]
     )
 
@@ -882,7 +1052,7 @@ def blended_for_discover(viewer, limit: int = 30) -> list[Item]:
         return []
     a = for_you(viewer, limit=limit) if show_for_you else []
     b = from_your_circles(viewer, limit=limit) if show_circles else []
-    seen: set[int] = set()
+    seen: dict[int, Item] = {}
     out: list[Item] = []
     a_iter = iter(a)
     b_iter = iter(b)
@@ -892,9 +1062,13 @@ def blended_for_discover(viewer, limit: int = 30) -> list[Item]:
             if it is None:
                 continue
             progressed = True
-            if it.pk in seen:
+            kept = seen.get(it.pk)
+            if kept is not None:
+                # the circles copy may have come first; keep the seeds
+                if it.reco_seed_items and not kept.reco_seed_items:
+                    kept.reco_seed_items = it.reco_seed_items
                 continue
-            seen.add(it.pk)
+            seen[it.pk] = it
             out.append(it)
             if len(out) >= limit:
                 break

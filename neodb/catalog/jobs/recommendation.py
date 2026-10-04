@@ -886,9 +886,10 @@ class BuildItemSimilarity(BaseJob):
 class BuildUserRecommendations(BaseJob):
     """Nightly per-user personalised recommendations.
 
-    Refreshes only users with at least one public mark in the last
-    ``reco_user_active_days`` days. Cold users get on-demand compute via
-    ``catalog.recommendation.recommendations_for`` at request time.
+    Refreshes only users with at least one mark, of any visibility, in the
+    last ``reco_user_active_days`` days. Cold users get on-demand compute via
+    ``catalog.recommendation.for_you`` at request time, which also serves
+    ``blended_for_discover``; ``from_your_circles`` is never stored.
     """
 
     @classmethod
@@ -900,7 +901,7 @@ class BuildUserRecommendations(BaseJob):
     def _active_users(self, days: int) -> list[int]:
         since = timezone.now() - timedelta(days=days)
         return list(
-            ShelfMember.objects.filter(visibility=0, edited_time__gte=since)
+            ShelfMember.objects.filter(edited_time__gte=since)
             .values_list("owner_id", flat=True)
             .distinct()
         )

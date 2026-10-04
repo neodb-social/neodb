@@ -1,0 +1,13 @@
+{% load i18n %}
+{% with seed=item.reco_seed_items.0 more=item.reco_seed_items|length|add:"-1" %}
+  {% blocktranslate trimmed with url=seed.url title=seed.display_title %}
+    Because of <a href="{{ url }}">{{ title }}</a>
+  {% endblocktranslate %}
+  {% if more > 0 %}
+    {% blocktranslate trimmed count counter=more %}
+      and {{ counter }} more
+    {% plural %}
+      and {{ counter }} more
+    {% endblocktranslate %}
+  {% endif %}
+{% endwith %}

@@ -1,3 +1,4 @@
+from datetime import timedelta
 from types import SimpleNamespace
 
 import numpy as np
@@ -5,6 +6,7 @@ import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
+from django.utils import timezone
 from scipy.sparse import csc_matrix
 
 from catalog.apis import _prepare_reco_items
@@ -32,6 +34,8 @@ from catalog.recommendation import (
     blended_for_discover,
     _balanced_top,
     compute_for_user,
+    dismiss_item,
+    for_you,
     from_your_circles,
     mark_weight,
     similar_items,
@@ -39,7 +43,7 @@ from catalog.recommendation import (
     user_mean_grade,
 )
 from common.models import SiteConfig
-from journal.models import Collection, Mark, Note, Review, ShelfType
+from journal.models import Collection, Mark, Note, Review, ShelfMember, ShelfType
 from users.models import User
 
 
@@ -723,6 +727,19 @@ class TestFromYourCircles:
         items = from_your_circles(self.viewer)
         assert book_c.pk not in {i.pk for i in items}
 
+    def test_tie_goes_to_the_latest_mark(self):
+        older = Edition.objects.create(title="Circles older")
+        newer = Edition.objects.create(title="Circles newer")
+        _public_mark(self.friends[1].identity, newer)
+        _public_mark(self.friends[0].identity, older)
+        ShelfMember._base_manager.filter(item=older).update(
+            edited_time=timezone.now() - timedelta(days=1)
+        )
+        ids = [i.pk for i in from_your_circles(self.viewer)]
+        assert ids.index(newer.pk) < ids.index(older.pk)
+        # more followees still beat a later mark
+        assert ids.index(self.book_a.pk) < ids.index(newer.pk)
+
     def test_first_follow_is_not_hidden_by_cache(self):
         loner = User.register(email="c9@test.com", username="c_loner")
         assert from_your_circles(loner) == []
@@ -920,15 +937,18 @@ class TestSeedCombiner:
             reco_rating_weight=0.5,
             reco_review_boost=0.5,
             reco_comment_note_boost=0.25,
+            reco_negative_rating_gap=10.0,
+            reco_negative_weight=0.0,
+            reco_seed_half_life_days=0,
+            reco_per_seed_slots=0,
         )
         self.user = User.register(email="sc@t.com", username="sc_user")
         self.identity = self.user.identity
         self.t1 = Edition.objects.create(title="T1")
         self.t2 = Edition.objects.create(title="T2")
+        self.t3 = Edition.objects.create(title="T3")
 
-    def _seed(self, title: str, rating: int = 0, **sims: float) -> Edition:
-        seed = Edition.objects.create(title=title)
-        _public_mark(self.identity, seed, rating=rating)
+    def _similar(self, seed: Item, **sims: float) -> None:
         for attr, score in sims.items():
             ItemSimilarity.objects.create(
                 source=seed,
@@ -936,7 +956,24 @@ class TestSeedCombiner:
                 score=score,
                 method=ItemSimilarity.METHOD_BLENDED,
             )
+
+    def _seed(
+        self,
+        title: str,
+        rating: int = 0,
+        visibility: int = 0,
+        shelf: ShelfType = ShelfType.COMPLETE,
+        **sims: float,
+    ) -> Edition:
+        seed = Edition.objects.create(title=title)
+        Mark(self.identity, seed).update(shelf, "", rating, [], visibility)
+        self._similar(seed, **sims)
         return seed
+
+    def _age(self, item: Item, days: int) -> None:
+        ShelfMember._base_manager.filter(owner=self.identity, item=item).update(
+            edited_time=timezone.now() - timedelta(days=days)
+        )
 
     def _scores(self) -> dict[int, float]:
         return {
@@ -1003,6 +1040,154 @@ class TestSeedCombiner:
         row = next(r for r in rows if r.item_id == self.t1.pk)
         assert row.seed_item_ids == [s.pk for s in seeds[:3]]
         assert row.score == pytest.approx(0.5 + 0.4 + 0.3 + 0.2 + 0.1)
+
+    def test_private_marks_seed(self):
+        self._seed("private", visibility=2, t1=0.5)
+        assert self._scores() == {self.t1.pk: pytest.approx(0.5)}
+
+    def test_private_rating_and_review_weigh_seed(self):
+        self._seed("high", rating=10, visibility=2, t2=0.4)
+        self._seed("low", rating=6, visibility=2, t1=0.5)
+        self._seed("filler 1", rating=8, visibility=2)
+        self._seed("filler 2", rating=8, visibility=2)
+        scores = self._scores()
+        assert scores[self.t2.pk] == pytest.approx(0.4 * (1 + 0.5 * 2 / 4.5))
+        assert scores[self.t1.pk] == pytest.approx(0.5 * (1 - 0.5 * 2 / 4.5))
+        reviewed = self._seed("reviewed", visibility=2, t3=0.4)
+        Review.update_item_review(reviewed, self.identity, "t", "body", visibility=2)
+        assert self._scores()[self.t3.pk] == pytest.approx(0.6)
+
+    def test_nightly_job_picks_member_with_only_private_marks(self):
+        self._seed("private", visibility=2, t1=0.5)
+        job = BuildUserRecommendations()
+        assert self.identity.pk in job._active_users(30)
+        job.run()
+        assert list(
+            UserRecommendation.objects.filter(user=self.user).values_list(
+                "item_id", flat=True
+            )
+        ) == [self.t1.pk]
+
+    def test_low_rated_seed_no_longer_pulls_neighbours(self):
+        _set(reco_negative_rating_gap=2.0)
+        self._seed("low", rating=2, t1=0.5)
+        for i in range(3):
+            self._seed(f"liked {i}", rating=9, t2=0.1)
+        assert self.t1.pk not in self._scores()
+        _set(reco_negative_rating_gap=10.0)
+        assert self.t1.pk in self._scores()
+
+    def test_low_rated_seed_pushes_neighbours_down(self):
+        _set(reco_negative_rating_gap=2.0, reco_negative_weight=0.5)
+        self._seed("low", rating=2, t1=0.4)
+        for i in range(3):
+            self._seed(f"liked {i}", rating=9, t1=0.5 - 0.1 * i)
+        # each liked seed is rated above the mean of 7.25
+        weight = 1 + 0.5 * (9 - 7.25) / 4.5
+        assert self._scores()[self.t1.pk] == pytest.approx(
+            weight * (0.5 + 0.4 + 0.3) - 0.5 * 0.4
+        )
+
+    def test_dropped_and_dismissed_items_push_neighbours_down(self):
+        liked = self._seed("liked", t1=0.5, t2=0.5)
+        dropped = self._seed("dropped", shelf=ShelfType.DROPPED, t1=0.4)
+        disliked = Edition.objects.create(title="dismissed")
+        self._similar(disliked, t2=0.2)
+        dismiss_item(self.user, disliked)
+        assert self._scores() == {
+            self.t1.pk: pytest.approx(0.5),
+            self.t2.pk: pytest.approx(0.5),
+        }
+        _set(reco_negative_weight=0.5)
+        assert self._scores() == {
+            self.t1.pk: pytest.approx(0.5 - 0.5 * 0.4),
+            self.t2.pk: pytest.approx(0.5 - 0.5 * 0.2),
+        }
+        # a neighbour pushed to zero is gone
+        self._similar(dropped, t3=1.0)
+        self._similar(liked, t3=0.5)
+        assert self.t3.pk not in self._scores()
+
+    def test_old_seed_counts_less(self):
+        old = self._seed("old", t1=0.5)
+        self._seed("new", t2=0.5)
+        self._age(old, 365)
+        assert self._scores()[self.t1.pk] == pytest.approx(0.5)
+        _set(reco_seed_half_life_days=365)
+        scores = self._scores()
+        assert scores[self.t1.pk] == pytest.approx(0.25, rel=1e-3)
+        assert scores[self.t2.pk] == pytest.approx(0.5, rel=1e-3)
+        self._age(old, 365 * 5)
+        assert self._scores()[self.t1.pk] == pytest.approx(0.5 * 0.25)
+
+    def _prolific_seeds(self) -> list[Edition]:
+        many = self._seed("many")
+        targets = [Edition.objects.create(title=f"Many {i}") for i in range(5)]
+        for n, target in enumerate(targets):
+            ItemSimilarity.objects.create(
+                source=many,
+                target=target,
+                score=0.9 - 0.1 * n,
+                method=ItemSimilarity.METHOD_BLENDED,
+            )
+        self._seed("one", t1=0.1)
+        return targets
+
+    def test_per_seed_slots_let_other_seeds_in(self):
+        targets = self._prolific_seeds()
+        _set(reco_per_seed_slots=2)
+        ids = [r.item_id for r in compute_for_user(self.user.pk, self.identity.pk)]
+        assert ids == [targets[0].pk, targets[1].pk, self.t1.pk] + [
+            t.pk for t in targets[2:]
+        ]
+        served = [i.pk for i in for_you(self.user, limit=3)]
+        assert served == [targets[0].pk, targets[1].pk, self.t1.pk]
+
+    def test_per_seed_slots_off_keeps_score_order(self):
+        targets = self._prolific_seeds()
+        ids = [r.item_id for r in compute_for_user(self.user.pk, self.identity.pk)]
+        assert ids == [t.pk for t in targets] + [self.t1.pk]
+
+    def test_for_you_attaches_seed_items(self):
+        strong = self._seed("strong", t1=0.5)
+        weak = self._seed("weak", t1=0.3)
+        items = for_you(self.user)
+        assert [i.pk for i in items] == [self.t1.pk]
+        # model equality compares concrete classes, so these are Edition rows
+        assert items[0].reco_seed_items == [strong, weak]
+        Item.objects.filter(pk=strong.pk).update(is_deleted=True)
+        assert for_you(self.user)[0].reco_seed_items == [weak]
+
+    def test_mark_after_compute_recomputes(self):
+        self._seed("first", t1=0.5)
+        assert [i.pk for i in for_you(self.user)] == [self.t1.pk]
+        self._seed("second", t2=0.4)
+        assert [i.pk for i in for_you(self.user)] == [self.t1.pk, self.t2.pk]
+        # within the window the stored rows are served as they are
+        self._seed("third", t3=0.3)
+        assert [i.pk for i in for_you(self.user)] == [self.t1.pk, self.t2.pk]
+
+    def test_rating_edit_recomputes(self):
+        _set(reco_negative_rating_gap=2.0, reco_negative_weight=0.5)
+        self._seed("graded", rating=8, t2=0.3)
+        for n in range(2):
+            self._seed(f"graded {n}", rating=8)
+        low = self._seed("low", rating=8, t1=0.5)
+        assert [i.pk for i in for_you(self.user)] == [self.t1.pk, self.t2.pk]
+        # a rating-only edit leaves ShelfMember.edited_time alone
+        Mark(self.identity, low).update(ShelfType.COMPLETE, "", 2, [], 0)
+        assert [i.pk for i in for_you(self.user)] == [self.t2.pk]
+
+    def test_failed_recompute_serves_the_old_rows(self, monkeypatch):
+        self._seed("first", t1=0.5)
+        assert [i.pk for i in for_you(self.user)] == [self.t1.pk]
+        self._seed("second", t2=0.4)
+
+        def broken(user_pk: int, identity_pk: int):
+            raise RuntimeError("compute failed")
+
+        monkeypatch.setattr("catalog.recommendation.compute_for_user", broken)
+        assert [i.pk for i in for_you(self.user)] == [self.t1.pk]
 
 
 @pytest.mark.django_db(databases="__all__")

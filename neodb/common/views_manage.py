@@ -576,7 +576,7 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "title": _("Active-user window (days)"),
             "help_text": _(
                 "Refresh personalised recommendations for users with at "
-                "least one public mark in the last N days."
+                "least one mark in the last N days."
             ),
             "min_value": 1,
         },
@@ -672,6 +672,38 @@ class RecommendationSettings(SiteConfigSettingsPage):
             ),
             "min_value": 0,
         },
+        "reco_negative_rating_gap": {
+            "title": _("Low rating gap"),
+            "help_text": _(
+                "A mark rated this far below the user's own average counts "
+                "against its similar items instead of for them."
+            ),
+            "min_value": 0,
+        },
+        "reco_negative_weight": {
+            "title": _("Negative signal weight"),
+            "help_text": _(
+                "How strongly items similar to low-rated, dropped or "
+                "dismissed items are pushed down. 0 turns it off."
+            ),
+            "min_value": 0,
+        },
+        "reco_seed_half_life_days": {
+            "title": _("Seed half-life (days)"),
+            "help_text": _(
+                "A mark this old counts half as much as a new one, and never "
+                "less than a quarter. 0 turns it off."
+            ),
+            "min_value": 0,
+        },
+        "reco_per_seed_slots": {
+            "title": _("Recommendations per seed"),
+            "help_text": _(
+                "At most this many recommendations led by the same mark come "
+                "before the rest. 0 turns it off."
+            ),
+            "min_value": 0,
+        },
     }
     layout = {
         _("Master switch"): [
@@ -702,6 +734,10 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "reco_per_user_seed_cap",
             "reco_lazy_ttl_days",
             "reco_circles_window_days",
+            "reco_negative_rating_gap",
+            "reco_negative_weight",
+            "reco_seed_half_life_days",
+            "reco_per_seed_slots",
         ],
     }
 
