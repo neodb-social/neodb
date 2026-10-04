@@ -2,6 +2,7 @@ import functools
 import json
 import logging
 import math
+import mimetypes
 import re
 import uuid
 from typing import TYPE_CHECKING, Any, get_args, get_origin
@@ -116,8 +117,8 @@ def clean_json(value: Any) -> Any:
 
 class S3Storage(S3Boto3Storage):
     """
-    Custom override backend that makes webp files store correctly, and that
-    addresses media on one of our own domains by path
+    Custom override backend that stores files with the type their name
+    says, and that addresses media on one of our own domains by path
     """
 
     def url(
@@ -136,8 +137,16 @@ class S3Storage(S3Boto3Storage):
             return f"{url}?{urlencode(parameters)}" if parameters else url
         return super().url(name, parameters, expire, http_method)
 
-    def get_object_parameters(self, name: str):
+    def get_object_parameters(self, name: str) -> dict[str, Any]:
         params = super().get_object_parameters(name)
+        if "ContentType" not in params:
+            # django-storages prefers the upload's own content_type over the
+            # name, and SimpleUploadedFile defaults that to text/plain; an
+            # encoded name such as .csv.gz is left to it, so it sets
+            # ContentEncoding too
+            content_type, encoding = mimetypes.guess_type(name)
+            if content_type and not encoding:
+                params["ContentType"] = content_type
         if name.endswith(".webp"):
             params["ContentDisposition"] = "inline"
             params["ContentType"] = "image/webp"

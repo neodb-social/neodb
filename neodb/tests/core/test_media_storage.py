@@ -9,6 +9,7 @@ carries is a key. ``InMemoryStorage`` is no stand-in here, because it answers
 
 import os
 import zipfile
+from unittest.mock import MagicMock
 
 import pytest
 from django.conf import settings
@@ -333,6 +334,57 @@ class TestS3StorageUrl:
     def test_a_media_host_keeps_the_parent_behaviour(self):
         storage = S3Storage(custom_domain="media.example.net/media")
         assert storage.url("item/x.jpg") == "https://media.example.net/media/item/x.jpg"
+
+
+class TestS3StorageContentType:
+    """The type an object is stored with comes from its name.
+
+    ``SimpleUploadedFile`` carries ``text/plain`` unless told otherwise, and
+    django-storages would store that over the name's type.
+    """
+
+    def test_an_image_gets_the_type_of_its_extension(self):
+        params = S3Storage().get_object_parameters
+        assert params("item/x/a.jpg")["ContentType"] == "image/jpeg"
+        assert params("item/x/a.jpeg")["ContentType"] == "image/jpeg"
+        assert params("item/x/a.png")["ContentType"] == "image/png"
+        assert params("item/x/a.gif")["ContentType"] == "image/gif"
+
+    def test_webp_is_still_inline(self):
+        params = S3Storage().get_object_parameters("item/x/a.webp")
+        assert params["ContentType"] == "image/webp"
+        assert params["ContentDisposition"] == "inline"
+
+    def test_an_export_is_a_typed_attachment(self):
+        params = S3Storage().get_object_parameters("export/u/2026/a.zip")
+        assert params["ContentType"] == "application/zip"
+        assert params["ContentDisposition"] == 'attachment; filename="a.zip"'
+        params = S3Storage().get_object_parameters("sync/u/a.csv")
+        assert params["ContentType"] == "text/csv"
+        assert params["ContentDisposition"] == 'attachment; filename="a.csv"'
+
+    def test_the_sitemap_is_plain_text_shown_inline(self):
+        params = S3Storage().get_object_parameters("export/sitemap.txt")
+        assert params["ContentType"] == "text/plain"
+        assert "ContentDisposition" not in params
+
+    def test_a_name_without_extension_is_not_typed(self):
+        assert "ContentType" not in S3Storage().get_object_parameters("item/x/a")
+
+    def test_an_encoded_name_is_left_to_django_storages(self):
+        storage = S3Storage()
+        assert "ContentType" not in storage.get_object_parameters("sync/u/a.csv.gz")
+        params = storage._get_write_parameters("sync/u/a.csv.gz")
+        assert params["ContentType"] == "text/csv"
+        assert params["ContentEncoding"] == "gzip"
+
+    def test_a_simple_upload_is_stored_with_the_name_type(self):
+        storage = S3Storage()
+        storage._bucket = MagicMock()
+        storage.save("item/x/a.jpg", SimpleUploadedFile("temp.jpg", b"\xff\xd8"))
+        obj = storage._bucket.Object.return_value
+        extra_args = obj.upload_fileobj.call_args.kwargs["ExtraArgs"]
+        assert extra_args["ContentType"] == "image/jpeg"
 
 
 class TestMediaUrlAtSiteRoot:
