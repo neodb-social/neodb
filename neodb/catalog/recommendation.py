@@ -18,6 +18,7 @@ from collections.abc import (
     Sequence,
 )
 from datetime import datetime, timedelta
+from functools import partial
 from heapq import nlargest
 from typing import NamedTuple
 
@@ -630,19 +631,31 @@ def _categories_of(item_ids: Collection[int]) -> dict[int, str]:
     return out
 
 
+# (source, target, score) of blended neighbours for the given sources
+SimilarityLookup = Callable[[Collection[int]], Iterable[tuple[int, int, float]]]
+
+
+# picks ``quota`` of a category's entries (best first), each with the score
+# to store, in the order picked
+Diversify = Callable[[list[tuple[int, float]], int], list[tuple[int, float]]]
+
+
 def _balanced_top(
     ranked: list[tuple[int, float]],
     cats: dict[int, str],
     weights: dict[str, float],
     n: int,
+    diversify: Diversify | None = None,
 ) -> list[tuple[int, float]]:
     """Top ``n`` of ``ranked`` (best first) with category slots in proportion to ``weights``.
 
     Slots go by largest remainder, only to categories that have candidates.
     A category short of its slots hands the rest to the best remaining items
     overall, and a category without weight only gets such leftovers.
+    ``diversify`` fills each category's slots instead of its best entries,
+    and a leftover then scores no higher than that category's picks.
     """
-    if len(ranked) <= n:
+    if len(ranked) <= n and diversify is None:
         return list(ranked)
     by_cat: dict[str, list[tuple[int, float]]] = {}
     for entry in ranked:
@@ -652,6 +665,7 @@ def _balanced_top(
     w = {c: weights[c] for c in by_cat if weights.get(c, 0) > 0}
     total = sum(w.values())
     chosen: set[int] = set()
+    rescored: dict[int, float] = {}
     if total:
         exact = {c: n * v / total for c, v in w.items()}
         quota = {c: int(x) for c, x in exact.items()}
@@ -659,17 +673,104 @@ def _balanced_top(
         for c in sorted(exact, key=lambda c: exact[c] - quota[c], reverse=True)[:spare]:
             quota[c] += 1
         for c, q in quota.items():
-            chosen.update(pk for pk, _ in by_cat[c][:q])
+            if diversify is None:
+                chosen.update(pk for pk, _ in by_cat[c][:q])
+            else:
+                rescored.update(diversify(by_cat[c], q))
+    chosen.update(rescored)
     for pk, _ in ranked:
         if len(chosen) >= n:
             break
         if pk in cats:
             chosen.add(pk)
-    return [e for e in ranked if e[0] in chosen]
+    if not rescored:
+        return [e for e in ranked if e[0] in chosen]
+    floor: dict[str, float] = {}
+    for pk, sc in rescored.items():
+        floor[cats[pk]] = min(sc, floor.get(cats[pk], sc))
+    return [
+        (pk, rescored[pk] if pk in rescored else min(sc, floor.get(cats[pk], sc)))
+        for pk, sc in ranked
+        if pk in chosen
+    ]
+
+
+def pair_similarity(
+    neighbours: SimilarityLookup, item_ids: Collection[int]
+) -> dict[tuple[int, int], float]:
+    """Blended similarity of each pair within ``item_ids``, the higher direction.
+
+    Keyed by (lower id, higher id); a pair neither item lists is absent.
+    """
+    wanted = set(item_ids)
+    out: dict[tuple[int, int], float] = {}
+    for src, tgt, score in neighbours(list(wanted)):
+        if tgt in wanted:
+            key = (src, tgt) if src < tgt else (tgt, src)
+            if score > out.get(key, 0.0):
+                out[key] = score
+    return out
+
+
+# a category's slots are filled from this many times as many of its best
+MMR_POOL_FACTOR = 4
+
+
+def _mmr(
+    entries: list[tuple[int, float]],
+    quota: int,
+    lam: float,
+    neighbours: SimilarityLookup,
+    overflow: Collection[int] = (),
+) -> list[tuple[int, float]]:
+    """Maximal marginal relevance: ``quota`` of ``entries`` (best first), varied.
+
+    Each pick maximises its score less ``lam`` times the best score times
+    its highest similarity to an earlier pick, and stores that value, which
+    never rises from one pick to the next. Entries past their seed's slots
+    (``overflow``) are picked only once the others run out.
+    """
+    pool = entries[: quota * MMR_POOL_FACTOR]
+    if not pool:
+        return []
+    top = max(sc for _, sc in pool)
+    sims = pair_similarity(neighbours, [pk for pk, _ in pool])
+    closest = {pk: 0.0 for pk, _ in pool}
+    picked: list[tuple[int, float]] = []
+    stored = top
+    for tier in (
+        [e for e in pool if e[0] not in overflow],
+        [e for e in pool if e[0] in overflow],
+    ):
+        while tier and len(picked) < quota:
+            values = [sc - lam * top * closest[pk] for pk, sc in tier]
+            i = max(range(len(tier)), key=values.__getitem__)
+            pk, _ = tier.pop(i)
+            # the second tier can start above the end of the first
+            stored = min(stored, values[i])
+            picked.append((pk, stored))
+            for other in closest:
+                key = (pk, other) if pk < other else (other, pk)
+                closest[other] = max(closest[other], sims.get(key, 0.0))
+    return picked
 
 
 # a seed never fades below this share of its weight
 MIN_SEED_RECENCY = 0.25
+
+
+def aggregate_contributions(contributions: Iterable[float], decay: float) -> float:
+    """Sum of the contributions, strongest first, the i-th (from 0) times ``decay**i``.
+
+    ``decay`` 1 is the plain sum; lower values let a cluster of related
+    seeds add less over one strong link.
+    """
+    total = 0.0
+    factor = 1.0
+    for c in sorted(contributions, reverse=True):
+        total += c * factor
+        factor *= decay
+    return total
 
 
 def seed_recency_factor(age_days: float, half_life_days: int) -> float:
@@ -747,10 +848,6 @@ def recommendable_for_user(
         if codes:
             return set(_first_in_languages(allowed, codes, len(allowed)))
     return set(allowed)
-
-
-# (source, target, score) of blended neighbours for the given sources
-SimilarityLookup = Callable[[Collection[int]], Iterable[tuple[int, int, float]]]
 
 
 def stored_similarity(source_ids: Collection[int]) -> Iterable[tuple[int, int, float]]:
@@ -914,7 +1011,11 @@ def compute_for_user(
         for tgt, by_group in contribs.items()
     }
     del contribs
-    scores = {tgt: sum(c for c, _ in top) for tgt, top in strongest.items()}
+    decay = sys.reco_seed_agg_decay
+    scores = {
+        tgt: aggregate_contributions((c for c, _ in top), decay)
+        for tgt, top in strongest.items()
+    }
     if negatives:
         penalties: dict[int, dict[Hashable, float]] = {}
         for src, tgt, score in neighbours(negatives):
@@ -940,9 +1041,10 @@ def compute_for_user(
         ranked, stand_in = _dedupe_groups(ranked, reco_groups([t for t, _ in ranked]))
         for rep, best in stand_in.items():
             seeds_by_target[rep] = seeds_by_target[best]
-    ranked = _cap_per_seed(
+    admitted, overflow = _split_per_seed(
         ranked, seeds_by_target, sys.reco_per_seed_slots, seed_groups
     )
+    ranked = admitted + overflow
     # slots follow the mix of the member's own marks, a seed group counting once
     weights: dict[str, float] = {}
     counted: set[Hashable] = set()
@@ -952,7 +1054,15 @@ def compute_for_user(
         if cat and key not in counted:
             counted.add(key)
             weights[cat] = weights.get(cat, 0) + 1
-    top = _balanced_top(ranked, cats, weights, top_n)
+    diversify: Diversify | None = None
+    if sys.reco_diversity_lambda > 0:
+        diversify = partial(
+            _mmr,
+            lam=sys.reco_diversity_lambda,
+            neighbours=neighbours,
+            overflow={pk for pk, _ in overflow},
+        )
+    top = _balanced_top(ranked, cats, weights, top_n, diversify)
     rows = [
         UserRecommendation(
             user_id=user_pk,

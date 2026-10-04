@@ -124,6 +124,8 @@ class SiteConfig(models.Model):
         reco_seed_half_life_days: int = 365
         reco_per_seed_slots: int = 10
         reco_group_items: bool = True
+        reco_diversity_lambda: float = 0.0
+        reco_seed_agg_decay: float = 1.0
 
         # Localization
         preferred_languages: list[str] = ["en", "zh"]

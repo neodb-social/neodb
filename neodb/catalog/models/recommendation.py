@@ -56,7 +56,9 @@ class ItemSimilarity(models.Model):
 class UserRecommendation(models.Model):
     """Per-user precomputed recommendation list, refreshed nightly.
 
-    Score is the raw producer output; visibility filtering happens at serve time.
+    Score orders one user's rows; within a category it is lowered for rows
+    similar to better ones when ``reco_diversity_lambda`` is on, so it is
+    not comparable across users. Visibility filtering happens at serve time.
     `seed_item_ids` lets the UI render "because you liked X". `category` is
     denormalized off ``Item`` so category-scoped queries avoid a join.
     """

@@ -712,6 +712,25 @@ class RecommendationSettings(SiteConfigSettingsPage):
                 "and count marks on several of them as one."
             ),
         },
+        "reco_diversity_lambda": {
+            "title": _("Diversity"),
+            "help_text": _(
+                "How strongly a recommendation similar to a better one in the "
+                "same category is pushed down, so that the list varies more. "
+                "0 turns it off."
+            ),
+            "min_value": 0,
+            "max_value": 2,
+        },
+        "reco_seed_agg_decay": {
+            "title": _("Extra seed decay"),
+            "help_text": _(
+                "Each further mark that leads to the same recommendation adds "
+                "this share of the previous one. 1 adds them in full."
+            ),
+            "min_value": 0,
+            "max_value": 1,
+        },
     }
     layout = {
         _("Master switch"): [
@@ -747,6 +766,8 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "reco_seed_half_life_days",
             "reco_per_seed_slots",
             "reco_group_items",
+            "reco_diversity_lambda",
+            "reco_seed_agg_decay",
         ],
     }
 

@@ -35,6 +35,7 @@ from catalog.recommendation import (
     blended_for_discover,
     _balanced_top,
     _cap_per_seed,
+    aggregate_contributions,
     compute_for_user,
     dismiss_item,
     for_you,
@@ -1682,3 +1683,102 @@ class TestGroupEditionsAndSeasons:
         assert ids == [o1.pk, self.seasons[1].pk]
         _set(reco_group_items=False)
         assert len(similar_items(self.e1)) == 5
+
+
+def test_aggregate_contributions():
+    assert aggregate_contributions([0.2, 0.5, 0.3], 1.0) == pytest.approx(1.0)
+    assert aggregate_contributions([0.2, 0.5, 0.3], 0.5) == pytest.approx(
+        0.5 + 0.3 * 0.5 + 0.2 * 0.25
+    )
+    assert aggregate_contributions([], 0.5) == 0.0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestDiversityAndDecay:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_user_top_n=3,
+            reco_per_user_seed_cap=50,
+            reco_negative_weight=0.0,
+            reco_seed_half_life_days=0,
+            reco_per_seed_slots=0,
+        )
+        self.user = User.register(email="div@t.com", username="div_user")
+        self.seed = Edition.objects.create(title="Div seed")
+        _public_mark(self.user.identity, self.seed, rating=0)
+
+    def _link(self, source: Item, target: Item, score: float) -> None:
+        ItemSimilarity.objects.create(
+            source=source,
+            target=target,
+            score=score,
+            method=ItemSimilarity.METHOD_BLENDED,
+        )
+
+    def _rows(self) -> list[tuple[int, float]]:
+        rows = compute_for_user(self.user.pk, self.user.identity.pk)
+        return [(r.item_id, r.score) for r in rows]
+
+    def _cluster(self) -> tuple[list[Edition], Edition]:
+        cluster = [Edition.objects.create(title=f"Cluster {n}") for n in range(3)]
+        loner = Edition.objects.create(title="Different")
+        for n, item in enumerate(cluster):
+            self._link(self.seed, item, 0.9 - n / 50)
+        self._link(self.seed, loner, 0.8)
+        for a in cluster:
+            for b in cluster:
+                if a != b:
+                    self._link(a, b, 0.9)
+        return cluster, loner
+
+    def test_lambda_zero_keeps_score_order(self):
+        cluster, _ = self._cluster()
+        assert self._rows() == [
+            (cluster[0].pk, pytest.approx(0.9)),
+            (cluster[1].pk, pytest.approx(0.88)),
+            (cluster[2].pk, pytest.approx(0.86)),
+        ]
+
+    def test_dissimilar_item_makes_the_cut(self):
+        cluster, loner = self._cluster()
+        _set(reco_diversity_lambda=0.5)
+        rows = self._rows()
+        assert {pk for pk, _ in rows} == {cluster[0].pk, loner.pk, cluster[1].pk}
+        by_score = sorted(rows, key=lambda r: r[1], reverse=True)
+        assert by_score == [
+            (cluster[0].pk, pytest.approx(0.9)),
+            (loner.pk, pytest.approx(0.8)),
+            (cluster[1].pk, pytest.approx(0.88 - 0.5 * 0.9 * 0.9)),
+        ]
+        UserRecommendation.objects.bulk_create(
+            compute_for_user(self.user.pk, self.user.identity.pk)
+        )
+        assert {i.pk for i in for_you(self.user, limit=2)} == {
+            cluster[0].pk,
+            loner.pk,
+        }
+
+    def test_diversity_picks_admitted_before_overflow(self):
+        cluster, loner = self._cluster()
+        other_seed = Edition.objects.create(title="Div seed 2")
+        _public_mark(self.user.identity, other_seed, rating=0)
+        late = Edition.objects.create(title="Late")
+        self._link(other_seed, late, 0.1)
+        _set(reco_diversity_lambda=0.5, reco_per_seed_slots=1, reco_user_top_n=2)
+        rows = self._rows()
+        assert [pk for pk, _ in sorted(rows, key=lambda r: -r[1])] == [
+            cluster[0].pk,
+            late.pk,
+        ]
+
+    def test_extra_seeds_decay(self):
+        target = Edition.objects.create(title="Shared")
+        second = Edition.objects.create(title="Div seed 2")
+        _public_mark(self.user.identity, second, rating=0)
+        self._link(self.seed, target, 0.5)
+        self._link(second, target, 0.4)
+        assert self._rows() == [(target.pk, pytest.approx(0.9))]
+        _set(reco_seed_agg_decay=0.5)
+        assert self._rows() == [(target.pk, pytest.approx(0.7))]
