@@ -487,6 +487,61 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
     return out
 
 
+def _categories_of(item_ids: Collection[int]) -> dict[int, str]:
+    """Category value per item id, read off the concrete class of each row."""
+    by_ctype = {
+        ct: str(cls.category)
+        for cls, ct in item_content_types().items()
+        if getattr(cls, "category", None) is not None
+    }
+    ids = list(item_ids)
+    out: dict[int, str] = {}
+    for start in range(0, len(ids), 5000):
+        rows = Item.objects.filter(pk__in=ids[start : start + 5000]).values_list(
+            "pk", "polymorphic_ctype_id"
+        )
+        out.update((pk, by_ctype[ct]) for pk, ct in rows if ct in by_ctype)
+    return out
+
+
+def _balanced_top(
+    ranked: list[tuple[int, float]],
+    cats: dict[int, str],
+    weights: dict[str, float],
+    n: int,
+) -> list[tuple[int, float]]:
+    """Top ``n`` of ``ranked`` (best first) with category slots in proportion to ``weights``.
+
+    Slots go by largest remainder, only to categories that have candidates.
+    A category short of its slots hands the rest to the best remaining items
+    overall, and a category without weight only gets such leftovers.
+    """
+    if len(ranked) <= n:
+        return list(ranked)
+    by_cat: dict[str, list[tuple[int, float]]] = {}
+    for entry in ranked:
+        cat = cats.get(entry[0])
+        if cat:
+            by_cat.setdefault(cat, []).append(entry)
+    w = {c: weights[c] for c in by_cat if weights.get(c, 0) > 0}
+    total = sum(w.values())
+    chosen: set[int] = set()
+    if total:
+        exact = {c: n * v / total for c, v in w.items()}
+        quota = {c: int(x) for c, x in exact.items()}
+        spare = n - sum(quota.values())
+        for c in sorted(exact, key=lambda c: exact[c] - quota[c], reverse=True)[:spare]:
+            quota[c] += 1
+        for c, q in quota.items():
+            chosen.update(pk for pk, _ in by_cat[c][:q])
+    for pk, _ in ranked:
+        if len(chosen) >= n:
+            break
+        if pk in cats:
+            chosen.add(pk)
+    return [e for e in ranked if e[0] in chosen]
+
+
 def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]:
     """Score candidate items for one user, returning unsaved UserRecommendation rows."""
     sys = SiteConfig.system
@@ -566,35 +621,37 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
         tgt: [src for _, src in nlargest(3, heap)] for tgt, heap in contribs.items()
     }
 
+    pref = Preference.objects.filter(user_id=user_pk).first()
     codes: list[str] = []
-    if sys.discover_user_languages:
-        pref = Preference.objects.filter(user_id=user_pk).first()
-        codes = pref.catalog_language_codes() if pref else []
+    if sys.discover_user_languages and pref:
+        codes = pref.catalog_language_codes()
+    # categories the member does not search, or the site hides, stay out
+    hidden = set(sys.hidden_categories) | set(pref.hidden_categories if pref else [])
+    ranked = sorted(scores.items(), key=lambda t: t[1], reverse=True)
+    cats = _categories_of([t for t, _ in ranked] + seeds)
+    ranked = [(t, sc) for t, sc in ranked if cats.get(t) not in (None, *hidden)]
     if codes:
-        ranked = sorted(scores, key=scores.__getitem__, reverse=True)
-        top = [(t, scores[t]) for t in _first_in_languages(ranked, codes, top_n)]
-    else:
-        top = nlargest(top_n, scores.items(), key=lambda t: t[1])
-    if not top:
+        in_lang = set(_first_in_languages([t for t, _ in ranked], codes, len(ranked)))
+        ranked = [(t, sc) for t, sc in ranked if t in in_lang]
+    if not ranked:
         return []
-    target_ids = [t for t, _ in top]
-    # category is a class attribute on each Item subclass, not a DB column,
-    # so resolve via the polymorphic queryset and read the attribute.
-    cats = {i.pk: str(i.category) for i in Item.objects.filter(pk__in=target_ids)}
-    rows: list[UserRecommendation] = []
-    for tgt, score in top:
-        cat = cats.get(tgt)
-        if not cat:
-            continue
-        rows.append(
-            UserRecommendation(
-                user_id=user_pk,
-                item_id=tgt,
-                score=score,
-                seed_item_ids=seeds_by_target.get(tgt, []),
-                category=cat,
-            )
+    # slots follow the mix of the member's own marks
+    weights: dict[str, float] = {}
+    for sid in seeds:
+        cat = cats.get(sid)
+        if cat:
+            weights[cat] = weights.get(cat, 0) + 1
+    top = _balanced_top(ranked, cats, weights, top_n)
+    rows = [
+        UserRecommendation(
+            user_id=user_pk,
+            item_id=tgt,
+            score=score,
+            seed_item_ids=seeds_by_target.get(tgt, []),
+            category=cats[tgt],
         )
+        for tgt, score in top
+    ]
     return rows
 
 
@@ -699,7 +756,21 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
         .order_by()
         .values_list("pk", flat=True)
     )
-    target_ids = [tid for tid in candidates if tid in live][:limit]
+    live_rows = [r for r in rows if r.item_id in live and r.item_id not in skip]
+    if category:
+        target_ids = [r.item_id for r in live_rows][:limit]
+    else:
+        # the stored mix already follows the member's marks
+        mix: dict[str, float] = {}
+        for r in live_rows:
+            mix[r.category] = mix.get(r.category, 0) + 1
+        picked = _balanced_top(
+            [(r.item_id, r.score) for r in live_rows],
+            {r.item_id: r.category for r in live_rows},
+            mix,
+            limit,
+        )
+        target_ids = [pk for pk, _ in picked]
     by_id = {i.pk: i for i in Item.objects.filter(pk__in=target_ids)}
     return [by_id[tid] for tid in target_ids if tid in by_id]
 
