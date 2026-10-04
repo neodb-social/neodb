@@ -466,8 +466,10 @@ class DiscoverGenerator(BaseJob):
         Item.prefetch_edition_works(spotlight)
         cache.set("discover_spotlight", spotlight, timeout=None)
 
+        excluding_identities = self.get_no_discover_identities()
         collections = (
             Collection.objects.filter(visibility=0)
+            .exclude(owner_id__in=excluding_identities)
             .annotate(num=Count("interactions"))
             .filter(num__gte=self.min_marks)
             .order_by("-edited_time")
@@ -477,7 +479,6 @@ class DiscoverGenerator(BaseJob):
         collection_ids = list(collections.values_list("pk", flat=True)[:40])
 
         tags = TagManager.popular_tags(days=14, local_only=local)[:40]
-        excluding_identities = self.get_no_discover_identities()
 
         if SiteConfig.system.discover_show_popular_posts:
             reviews = (
