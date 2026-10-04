@@ -1425,6 +1425,17 @@ msgstr "已从推荐中隐藏。"
 msgid "Undo"
 msgstr "撤销"
 
+#: catalog/templates/_reco_seeds.html:3
+#, python-format
+msgid "Because of <a href=\"%(url)s\">%(title)s</a>"
+msgstr "因为你标记了 <a href=\"%(url)s\">%(title)s</a>"
+
+#: catalog/templates/_reco_seeds.html:7
+#, python-format
+msgid "and %(counter)s more"
+msgid_plural "and %(counter)s more"
+msgstr[0] "及另外 %(counter)s 项"
+
 #: catalog/templates/_search_suggest.html:2
 msgid "Suggestions"
 msgstr "搜索建议"
@@ -4751,9 +4762,9 @@ msgstr "构建相似度矩阵时，仅截取每位用户最近的 N 条标记。
 msgid "Active-user window (days)"
 msgstr "活跃用户窗口（天）"
 
-#: common/views_manage.py:564
-msgid "Refresh personalised recommendations for users with at least one public mark in the last N days."
-msgstr "为最近 N 天内至少有一条公开标记的用户刷新个性化推荐。"
+#: common/views_manage.py:578
+msgid "Refresh personalised recommendations for users with at least one mark in the last N days."
+msgstr "为最近 N 天内至少有一条标记的用户刷新个性化推荐。"
 
 #: common/views_manage.py:570
 msgid "Per-user seed cap (serving)"
@@ -4842,6 +4853,38 @@ msgstr "创作者权重"
 #: common/views_manage.py:656
 msgid "Weight of shared creators, such as authors, directors and actors, in similar items, relative to shared marks at 1."
 msgstr "相似条目中共同创作者（如作者、导演、演员）的权重，以共同标记为 1。"
+
+#: common/views_manage.py:676
+msgid "Low rating gap"
+msgstr "低分差值"
+
+#: common/views_manage.py:678
+msgid "A mark rated this far below the user's own average counts against its similar items instead of for them."
+msgstr "评分比用户自己的平均分低出此值的标记，会压低而非提升其相似条目。"
+
+#: common/views_manage.py:684
+msgid "Negative signal weight"
+msgstr "负面信号权重"
+
+#: common/views_manage.py:686
+msgid "How strongly items similar to low-rated, dropped or dismissed items are pushed down. 0 turns it off."
+msgstr "与低分、已放弃或不感兴趣的条目相似的条目被压低的程度。设为 0 则关闭。"
+
+#: common/views_manage.py:692
+msgid "Seed half-life (days)"
+msgstr "种子半衰期（天）"
+
+#: common/views_manage.py:694
+msgid "A mark this old counts half as much as a new one, and never less than a quarter. 0 turns it off."
+msgstr "达到此天数的标记，权重为新标记的一半，且不低于四分之一。设为 0 则关闭。"
+
+#: common/views_manage.py:700
+msgid "Recommendations per seed"
+msgstr "每个种子的推荐数"
+
+#: common/views_manage.py:702
+msgid "At most this many recommendations led by the same mark come before the rest. 0 turns it off."
+msgstr "由同一标记主导的推荐，最多此数量排在其余推荐之前。设为 0 则关闭。"
 
 #: common/views_manage.py:663
 msgid "Master switch"
