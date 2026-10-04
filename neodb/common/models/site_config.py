@@ -126,6 +126,10 @@ class SiteConfig(models.Model):
         reco_group_items: bool = True
         reco_diversity_lambda: float = 0.0
         reco_seed_agg_decay: float = 1.0
+        reco_cap_negatives: bool = False
+        reco_dismissal_weight: float = -1.0
+        reco_seed_top_rated: int = 0
+        reco_wishlist_seed_weight: float = 1.0
 
         # Localization
         preferred_languages: list[str] = ["en", "zh"]

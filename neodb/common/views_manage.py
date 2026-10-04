@@ -731,6 +731,38 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "min_value": 0,
             "max_value": 1,
         },
+        "reco_cap_negatives": {
+            "title": _("Cap negative signals"),
+            "help_text": _(
+                "Count only the strongest low-rated, dropped or dismissed items "
+                "against each recommendation, as many as count for it."
+            ),
+        },
+        "reco_dismissal_weight": {
+            "title": _("Dismissal weight"),
+            "help_text": _(
+                "How strongly items similar to dismissed items are pushed down. "
+                "-1 uses the negative signal weight."
+            ),
+            "min_value": -1,
+        },
+        "reco_seed_top_rated": {
+            "title": _("Best rated seeds"),
+            "help_text": _(
+                "Of the seed marks, this many are the user's best rated marks "
+                "older than the recent ones. 0 uses only recent marks."
+            ),
+            "min_value": 0,
+        },
+        "reco_wishlist_seed_weight": {
+            "title": _("Wishlist seed weight"),
+            "help_text": _(
+                "Weight of a wishlist mark as a seed, relative to a mark in "
+                "progress or complete at 1."
+            ),
+            "min_value": 0,
+            "max_value": 1,
+        },
     }
     layout = {
         _("Master switch"): [
@@ -763,7 +795,11 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "reco_circles_window_days",
             "reco_negative_rating_gap",
             "reco_negative_weight",
+            "reco_dismissal_weight",
+            "reco_cap_negatives",
             "reco_seed_half_life_days",
+            "reco_seed_top_rated",
+            "reco_wishlist_seed_weight",
             "reco_per_seed_slots",
             "reco_group_items",
             "reco_diversity_lambda",

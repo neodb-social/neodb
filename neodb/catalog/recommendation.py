@@ -910,28 +910,59 @@ def compute_for_user(
     if until is not None:
         seed_qs = seed_qs.filter(edited_time__lt=until)
     raw_seeds = list(
-        seed_qs.order_by("-edited_time").values_list("item_id", "edited_time")[
-            : seed_cap * 2
-        ]
+        seed_qs.order_by("-edited_time").values_list(
+            "item_id", "edited_time", "parent__shelf_type"
+        )[: seed_cap * 2]
     )
     if not raw_seeds:
         return []
     # Rewrite seeds the same way the similarity matrix aggregates marks.
     # Seeds are a subset of the shelved items the scoped map starts from.
     rewrite = _user_rewrite_map(identity_pk, until=until)
+    # the rest of the seed slots go to the best rated marks before them
+    top_rated = min(max(sys.reco_seed_top_rated, 0), seed_cap)
     seeds: list[int] = []
     seed_time: dict[int, datetime] = {}
-    for sid, edited in raw_seeds:
+    seed_shelf: dict[int, str] = {}
+    for sid, edited, shelf in raw_seeds:
+        if len(seeds) >= seed_cap - top_rated:
+            break
         mapped = rewrite.get(sid, sid)
         if mapped in seed_time:
             continue
         # newest first, so this is the latest mark counting toward the seed
         seed_time[mapped] = edited
+        seed_shelf[mapped] = shelf
         seeds.append(mapped)
-        if len(seeds) >= seed_cap:
-            break
+    recent = len(seeds)
+    raw_ids = {sid for sid, _, _ in raw_seeds}
+    if top_rated:
+        rated = Rating.objects.filter(
+            owner_id=identity_pk, grade__gt=0, item_id__in=seed_qs.values("item_id")
+        )
+        if until is not None:
+            rated = rated.filter(created_time__lt=until)
+        best = list(
+            rated.order_by("-grade", "-edited_time").values_list("item_id", flat=True)[
+                : top_rated * 2 + recent
+            ]
+        )
+        marks = {
+            sid: (edited, shelf)
+            for sid, edited, shelf in seed_qs.filter(item_id__in=best).values_list(
+                "item_id", "edited_time", "parent__shelf_type"
+            )
+        }
+        for sid in best:
+            if len(seeds) >= seed_cap:
+                break
+            mapped = rewrite.get(sid, sid)
+            if mapped in seed_time or sid not in marks:
+                continue
+            seed_time[mapped], seed_shelf[mapped] = marks[sid]
+            seeds.append(mapped)
+            raw_ids.add(sid)
     seed_set = set(seeds)
-    raw_ids = {sid for sid, _ in raw_seeds}
     # content written on a rewrite target counts too, as it does in training
     signals = load_mark_signals(
         {identity_pk: seed_set},
@@ -941,7 +972,8 @@ def compute_for_user(
         until=until,
     )
     seed_signals = [signals.get((identity_pk, s), NO_MARK_SIGNALS) for s in seeds]
-    user_mean = user_mean_grade(grade for grade, _, _, _ in seed_signals)
+    # the best rated seeds would lift the mean the others are measured by
+    user_mean = user_mean_grade(grade for grade, _, _, _ in seed_signals[:recent])
     now = until or timezone.now()
     positive: list[int] = []
     low_rated: list[int] = []
@@ -964,6 +996,8 @@ def compute_for_user(
             has_review=has_review,
             has_note=has_note,
         ) * seed_recency_factor(age_days, sys.reco_seed_half_life_days)
+        if seed_shelf[sid] == "wishlist":
+            seed_weight[sid] *= sys.reco_wishlist_seed_weight
     if not positive:
         return []
     # Precompute only; a sibling marked later may dupe until the next refresh.
@@ -971,7 +1005,11 @@ def compute_for_user(
         user_pk, identity_pk, rewrite, until=until
     )
     neg_weight = sys.reco_negative_weight
-    negatives: list[int] = []
+    # a dismissal may only mean the member has it elsewhere
+    dismissal_weight = (
+        sys.reco_dismissal_weight if sys.reco_dismissal_weight >= 0 else neg_weight
+    )
+    negative_weight: dict[int, float] = {}
     if neg_weight > 0:
         dropped_qs = ShelfMember._base_manager.filter(
             owner_id=identity_pk, parent__shelf_type=SHELF_TYPE_NEGATIVE_SEED
@@ -981,14 +1019,13 @@ def compute_for_user(
         dropped = dropped_qs.order_by("-edited_time").values_list("item_id", flat=True)[
             :seed_cap
         ]
+        for i in [*low_rated, *(rewrite.get(i, i) for i in dropped)]:
+            negative_weight.setdefault(i, neg_weight)
+    if dismissal_weight > 0:
         # dismissals have no order here, so they come last under the cap
-        negatives = [
-            i
-            for i in dict.fromkeys(
-                [*low_rated, *(rewrite.get(i, i) for i in dropped), *sorted(dismissed)]
-            )
-            if i not in seed_weight
-        ][:seed_cap]
+        for i in sorted(dismissed):
+            negative_weight.setdefault(i, dismissal_weight)
+    negatives = [i for i in negative_weight if i not in seed_weight][:seed_cap]
     group_items = sys.reco_group_items
     # seeds of one group (editions of a Work, seasons of a show) count once
     seed_groups = reco_groups(seed_set | set(negatives)) if group_items else NO_GROUPS
@@ -1023,9 +1060,12 @@ def compute_for_user(
                 continue
             by_group = penalties.setdefault(tgt, {})
             key = _group_of(src, seed_groups)
-            by_group[key] = max(by_group.get(key, 0.0), neg_weight * score)
+            by_group[key] = max(by_group.get(key, 0.0), negative_weight[src] * score)
         for tgt, by_group in penalties.items():
-            scores[tgt] -= sum(by_group.values())
+            if sys.reco_cap_negatives:
+                scores[tgt] -= sum(nlargest(SEED_CONTRIB_CAP, by_group.values()))
+            else:
+                scores[tgt] -= sum(by_group.values())
         scores = {tgt: sc for tgt, sc in scores.items() if sc > 0}
         if not scores:
             return []

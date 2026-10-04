@@ -47,7 +47,15 @@ from catalog.recommendation import (
     user_mean_grade,
 )
 from common.models import SiteConfig
-from journal.models import Collection, Mark, Note, Review, ShelfMember, ShelfType
+from journal.models import (
+    Collection,
+    Mark,
+    Note,
+    Rating,
+    Review,
+    ShelfMember,
+    ShelfType,
+)
 from users.models import User
 
 
@@ -1782,3 +1790,129 @@ class TestDiversityAndDecay:
         assert self._rows() == [(target.pk, pytest.approx(0.9))]
         _set(reco_seed_agg_decay=0.5)
         assert self._rows() == [(target.pk, pytest.approx(0.7))]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestNegativesAndSeedSelection:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_user_top_n=10,
+            reco_per_user_seed_cap=50,
+            reco_negative_rating_gap=10.0,
+            reco_negative_weight=0.2,
+            reco_seed_half_life_days=0,
+            reco_per_seed_slots=0,
+        )
+        self.user = User.register(email="neg@t.com", username="neg_user")
+        self.identity = self.user.identity
+        self.target = Edition.objects.create(title="Neg target")
+
+    def _link(self, source: Item, target: Item, score: float) -> None:
+        ItemSimilarity.objects.create(
+            source=source,
+            target=target,
+            score=score,
+            method=ItemSimilarity.METHOD_BLENDED,
+        )
+
+    def _seed(self, title: str, shelf=ShelfType.COMPLETE, rating: int = 0) -> Edition:
+        seed = Edition.objects.create(title=title)
+        Mark(self.identity, seed).update(shelf, "", rating, [], 0)
+        return seed
+
+    def _scores(self, **kwargs) -> dict[int, float]:
+        rows = compute_for_user(self.user.pk, self.identity.pk, **kwargs)
+        return {r.item_id: r.score for r in rows}
+
+    def _age(self, item: Item, days: int) -> None:
+        ShelfMember._base_manager.filter(owner=self.identity, item=item).update(
+            edited_time=timezone.now() - timedelta(days=days)
+        )
+
+    def _dismissed_cluster(self) -> None:
+        self._link(self._seed("Liked"), self.target, 5.0)
+        for n in range(20):
+            other = Edition.objects.create(title=f"Dismissed {n}")
+            dismiss_item(self.user, other)
+            self._link(other, self.target, 0.5)
+
+    def test_negatives_uncapped_by_default(self):
+        self._dismissed_cluster()
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 20 * 0.1)}
+
+    def test_negatives_capped(self):
+        self._dismissed_cluster()
+        _set(reco_cap_negatives=True)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 5 * 0.1)}
+
+    def test_dismissal_weight(self):
+        self._dismissed_cluster()
+        _set(reco_cap_negatives=True, reco_dismissal_weight=0.2)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 5 * 0.1)}
+        _set(reco_dismissal_weight=0.1)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 5 * 0.05)}
+        # dismissals count even with the other negatives off
+        _set(reco_negative_weight=0.0)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 5 * 0.05)}
+        _set(reco_dismissal_weight=-1.0)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0)}
+
+    def test_negative_seasons_count_once(self):
+        _set(reco_cap_negatives=True)
+        self._link(self._seed("Liked"), self.target, 5.0)
+        show = TVShow.objects.create(title="Dropped show")
+        for n in (1, 2):
+            season = TVSeason.objects.create(title=f"S{n}", show=show, season_number=n)
+            Mark(self.identity, season).update(ShelfType.DROPPED, "", 0, [], 0)
+            self._link(season, self.target, 0.5 * n)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 0.2)}
+
+    def _rated_history(self) -> list[Edition]:
+        _set(reco_per_user_seed_cap=2, reco_negative_weight=0.0)
+        old = self._seed("Old favourite", rating=10)
+        self._age(old, 400)
+        recent = [self._seed(f"Recent {n}") for n in range(2)]
+        self._age(recent[0], 2)
+        self._age(recent[1], 1)
+        targets = [Edition.objects.create(title=f"From {n}") for n in range(3)]
+        for seed, target in zip([old, *recent], targets):
+            self._link(seed, target, 0.5)
+        return targets
+
+    def test_recent_window_only_by_default(self):
+        from_old, from_older_recent, from_newest = self._rated_history()
+        assert set(self._scores()) == {from_older_recent.pk, from_newest.pk}
+
+    def test_top_rated_seed_slots(self):
+        from_old, _, from_newest = self._rated_history()
+        _set(reco_seed_top_rated=1)
+        assert set(self._scores()) == {from_old.pk, from_newest.pk}
+
+    def test_top_rated_seed_respects_until(self):
+        from_old, _, from_newest = self._rated_history()
+        _set(reco_seed_top_rated=1)
+        until = timezone.now() - timedelta(hours=12)
+        # the rating itself was written just now
+        assert set(self._scores(until=until)) == {from_newest.pk}
+        Rating.objects.filter(owner=self.identity).update(
+            created_time=timezone.now() - timedelta(days=400)
+        )
+        assert set(self._scores(until=until)) == {from_old.pk, from_newest.pk}
+
+    def test_wishlist_seed_weight(self):
+        wished = self._seed("Wished", shelf=ShelfType.WISHLIST)
+        done = self._seed("Done")
+        other = Edition.objects.create(title="Other")
+        self._link(wished, self.target, 0.5)
+        self._link(done, other, 0.4)
+        assert self._scores() == {
+            self.target.pk: pytest.approx(0.5),
+            other.pk: pytest.approx(0.4),
+        }
+        _set(reco_wishlist_seed_weight=0.6)
+        assert self._scores() == {
+            self.target.pk: pytest.approx(0.3),
+            other.pk: pytest.approx(0.4),
+        }
