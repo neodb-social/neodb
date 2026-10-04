@@ -42,6 +42,7 @@ from takahe.utils import Takahe
 from users.models import APIdentity, Preference, User
 
 from .models import (
+    Edition,
     Item,
     ItemSimilarity,
     PerformanceProduction,
@@ -505,27 +506,37 @@ class RecoGroups(NamedTuple):
 NO_GROUPS = RecoGroups({}, {})
 
 
-def reco_groups(item_ids: Collection[int]) -> RecoGroups:
+def reco_groups(
+    item_ids: Collection[int], cats: Mapping[int, str] | None = None
+) -> RecoGroups:
     """Group the editions of one Work and the seasons of one show.
 
     Members of a group are one thing to recommend, so a list holds one of
     them and their marks count once as seeds. An edition in several Works
     takes the lowest work id. Other items have no key and stand alone.
+    ``cats`` saves looking up ids of other categories.
     """
-    ids = list(item_ids)
+
+    def of(category: str) -> list[int]:
+        if cats is None:
+            return list(item_ids)
+        return [i for i in item_ids if cats.get(i, category) == category]
+
     keys: dict[int, GroupKey] = {}
     seasons: dict[int, int] = {}
     through = Work.editions.through
+    ids = of(str(Edition.category))
     for start in range(0, len(ids), _GROUP_CHUNK):
-        chunk = ids[start : start + _GROUP_CHUNK]
         for edition_id, work_id in (
-            through.objects.filter(edition_id__in=chunk)
+            through.objects.filter(edition_id__in=ids[start : start + _GROUP_CHUNK])
             .order_by("work_id")
             .values_list("edition_id", "work_id")
         ):
             keys.setdefault(edition_id, ("work", work_id))
+    ids = of(str(TVSeason.category))
+    for start in range(0, len(ids), _GROUP_CHUNK):
         for pk, show_id, number in TVSeason.objects.filter(
-            pk__in=chunk, show_id__isnull=False
+            pk__in=ids[start : start + _GROUP_CHUNK], show_id__isnull=False
         ).values_list("pk", "show_id", "season_number"):
             keys[pk] = ("show", show_id)
             if number is not None:
@@ -947,7 +958,8 @@ def popular_fill(cutoff: datetime | None = None) -> PopularItems:
     ids = popular_items(
         cutoff or timezone.now(), POPULARITY_SPARE, excluded_identity_ids()
     )
-    return PopularItems(ids, _categories_of(ids), reco_groups(ids))
+    cats = _categories_of(ids)
+    return PopularItems(ids, cats, reco_groups(ids, cats))
 
 
 def refresh_popular_fill() -> PopularItems:
@@ -1190,7 +1202,7 @@ def compute_for_user(
         return []
     target_groups = NO_GROUPS
     if group_items:
-        target_groups = reco_groups([t for t, _ in ranked])
+        target_groups = reco_groups([t for t, _ in ranked], cats)
         ranked, stand_in = _dedupe_groups(ranked, target_groups)
         for rep, best in stand_in.items():
             seeds_by_target[rep] = seeds_by_target[best]
@@ -1418,7 +1430,8 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
     if sys.reco_group_items:
         # rows stored before grouping, or a sibling shelved since
         groups = reco_groups(
-            {pk for pk, _ in ranked} | {ids[0] for ids in seed_ids.values() if ids}
+            {pk for pk, _ in ranked} | {ids[0] for ids in seed_ids.values() if ids},
+            row_cats,
         )
         ranked, stand_in = _dedupe_groups(ranked, groups)
         for rep, best in stand_in.items():
