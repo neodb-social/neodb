@@ -4,9 +4,11 @@ from django.shortcuts import render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
+from common.models import SiteConfig
 from common.sentry import count as sentry_count
 from common.views import render_error
 from users.login_proof import verify_login_proof
+from users.views.account import render_email_registration_closed
 
 from ..forms import EmailLoginForm
 from ..models import Email
@@ -46,6 +48,8 @@ def email_login(request: HttpRequest):
             _("Unable to register with this email address"),
             _("Please use a different email address."),
         )
+    if not SiteConfig.system.enable_register_email and not Email.has_user(login_email):
+        return render_email_registration_closed(request)
     Email.send_login_email(request, login_email, "login")
     return render(
         request,

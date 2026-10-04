@@ -231,6 +231,23 @@ def _render_error(request: HttpRequest, title, message=""):
     )
 
 
+def _email_registration_closed(verified_account: SocialAccount) -> bool:
+    return (
+        verified_account.platform == Platform.EMAIL
+        and not SiteConfig.system.enable_register_email
+    )
+
+
+def render_email_registration_closed(request: HttpRequest) -> HttpResponse:
+    return _render_error(
+        request,
+        _("Registration with email is not available"),
+        _(
+            "Only accounts that already have this email address linked can log in with it. Please use a different login method."
+        ),
+    )
+
+
 def _captcha_end(request: HttpRequest, outcome: str, title, message):
     """Drop the pending registration and send the visitor back to login.
 
@@ -278,6 +295,8 @@ def registration_captcha(request: HttpRequest):
             _("Authentication failed"),
             _("Registration is for invitation only"),
         )
+    if _email_registration_closed(verified_account):
+        return render_email_registration_closed(request)
 
     if request.method == "POST":
         challenge = captcha.get_challenge(request)
@@ -411,6 +430,9 @@ def register(request: HttpRequest):
         if not verified_account:
             # kick back to login if no identity verified
             return redirect(reverse("users:login"))
+        # a code issued before the option was turned off still verifies
+        if _email_registration_closed(verified_account):
+            return render_email_registration_closed(request)
         if captcha.is_required(verified_account) and not captcha.has_passed(request):
             # the enforcement point, not the redirect in register_new_user: this
             # catches a POST straight to /account/register, and sits above the

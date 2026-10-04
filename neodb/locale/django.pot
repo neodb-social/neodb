@@ -4941,6 +4941,14 @@ msgstr ""
 msgid "Show the captcha only to people who register with an email address. Mastodon, Bluesky and Threads sign-ups already passed an external login and skip it. Has no effect while captcha items is 0."
 msgstr ""
 
+#: common/views_manage.py:806
+msgid "Enable email registration"
+msgstr ""
+
+#: common/views_manage.py:808
+msgid "Allow new accounts to be created with an email address. When off, email login keeps working for accounts that already have an email address linked, and other login methods can still register."
+msgstr ""
+
 #: common/views_manage.py:755
 msgid "Enable Mastodon login"
 msgstr ""
@@ -9353,6 +9361,14 @@ msgstr ""
 
 #: users/views/account.py:145
 msgid "Email addresses from this domain are not accepted."
+msgstr ""
+
+#: users/views/account.py:244
+msgid "Registration with email is not available"
+msgstr ""
+
+#: users/views/account.py:246
+msgid "Only accounts that already have this email address linked can log in with it. Please use a different login method."
 msgstr ""
 
 #: users/views/account.py:279 users/views/account.py:398
