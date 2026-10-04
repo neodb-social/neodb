@@ -705,6 +705,13 @@ class RecommendationSettings(SiteConfigSettingsPage):
             ),
             "min_value": 0,
         },
+        "reco_group_items": {
+            "title": _("Group editions and seasons"),
+            "help_text": _(
+                "Recommend one edition of a work and one season of a show, "
+                "and count marks on several of them as one."
+            ),
+        },
     }
     layout = {
         _("Master switch"): [
@@ -739,6 +746,7 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "reco_negative_weight",
             "reco_seed_half_life_days",
             "reco_per_seed_slots",
+            "reco_group_items",
         ],
     }
 

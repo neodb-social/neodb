@@ -26,6 +26,7 @@ from catalog.models import (
     Movie,
     Performance,
     PerformanceProduction,
+    TVSeason,
     TVShow,
     UserRecommendation,
     Work,
@@ -33,11 +34,13 @@ from catalog.models import (
 from catalog.recommendation import (
     blended_for_discover,
     _balanced_top,
+    _cap_per_seed,
     compute_for_user,
     dismiss_item,
     for_you,
     from_your_circles,
     mark_weight,
+    reco_groups,
     similar_items,
     training_rewrite_map,
     user_mean_grade,
@@ -1525,3 +1528,157 @@ class TestBalanceByCategory:
         rows = compute_for_user(viewer.pk, viewer.identity.pk)
         assert rows
         assert {r.category for r in rows} == {"book"}
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestGroupEditionsAndSeasons:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_user_top_n=20,
+            reco_per_user_seed_cap=50,
+            reco_negative_weight=0.0,
+            reco_seed_half_life_days=0,
+            reco_per_seed_slots=0,
+            reco_group_items=True,
+        )
+        self.user = User.register(email="grp@t.com", username="grp_user")
+        self.identity = self.user.identity
+        self.work = Work.objects.create(title="Grouped work")
+        self.e1, self.e2 = (Edition.objects.create(title=f"Ed {n}") for n in (1, 2))
+        self.work.editions.add(self.e1, self.e2)
+        self.show = TVShow.objects.create(title="Grouped show")
+        self.seasons = [
+            TVSeason.objects.create(title=f"S{n}", show=self.show, season_number=n)
+            for n in range(1, 8)
+        ]
+
+    def _link(self, source: Item, target: Item, score: float) -> None:
+        ItemSimilarity.objects.create(
+            source=source,
+            target=target,
+            score=score,
+            method=ItemSimilarity.METHOD_BLENDED,
+        )
+
+    def _rows(self) -> dict[int, float]:
+        return {
+            r.item_id: r.score for r in compute_for_user(self.user.pk, self.identity.pk)
+        }
+
+    def test_group_keys(self):
+        loner = Movie.objects.create(title="Alone")
+        groups = reco_groups([self.e1.pk, self.e2.pk, self.seasons[2].pk, loner.pk])
+        assert groups.keys == {
+            self.e1.pk: ("work", self.work.pk),
+            self.e2.pk: ("work", self.work.pk),
+            self.seasons[2].pk: ("show", self.show.pk),
+        }
+        assert groups.seasons == {self.seasons[2].pk: 3}
+
+    def test_edition_in_two_works_takes_the_lowest(self):
+        later = Work.objects.create(title="Later work")
+        later.editions.add(self.e1)
+        assert reco_groups([self.e1.pk]).keys == {self.e1.pk: ("work", self.work.pk)}
+
+    def test_one_edition_per_work(self):
+        seed = Edition.objects.create(title="Seed")
+        _public_mark(self.identity, seed, rating=0)
+        other = Edition.objects.create(title="Other")
+        self._link(seed, self.e1, 0.4)
+        self._link(seed, self.e2, 0.6)
+        self._link(seed, other, 0.3)
+        assert self._rows() == {
+            self.e2.pk: pytest.approx(0.6),
+            other.pk: pytest.approx(0.3),
+        }
+        _set(reco_group_items=False)
+        assert set(self._rows()) == {self.e1.pk, self.e2.pk, other.pk}
+
+    def test_seasons_as_seeds_count_once(self):
+        target = Movie.objects.create(title="Shared neighbour")
+        for season in self.seasons[:2]:
+            _public_mark(self.identity, season, rating=0)
+        self._link(self.seasons[0], target, 0.5)
+        self._link(self.seasons[1], target, 0.4)
+        assert self._rows() == {target.pk: pytest.approx(0.5)}
+        _set(reco_group_items=False)
+        assert self._rows() == {target.pk: pytest.approx(0.9)}
+
+    def test_show_stands_as_next_season(self):
+        seed = Movie.objects.create(title="Seed film")
+        _public_mark(self.identity, seed, rating=0)
+        for season in self.seasons[:2]:
+            _public_mark(self.identity, season, rating=0)
+        for n, season in enumerate(self.seasons[2:]):
+            # S5 scores best, S3 is the next season
+            self._link(seed, season, 0.9 if n == 2 else 0.5 - n / 100)
+        rows = compute_for_user(self.user.pk, self.identity.pk)
+        assert [(r.item_id, r.score) for r in rows] == [
+            (self.seasons[2].pk, pytest.approx(0.9))
+        ]
+        assert rows[0].seed_item_ids == [seed.pk]
+
+    def test_seed_group_shares_per_seed_slots(self):
+        loner = Movie.objects.create(title="Alone")
+        ranked = [(1, 0.9), (2, 0.8), (3, 0.7)]
+        seeds = {1: [self.e1.pk], 2: [self.e2.pk], 3: [loner.pk]}
+        groups = reco_groups([self.e1.pk, self.e2.pk, loner.pk])
+        assert _cap_per_seed(ranked, seeds, 1) == ranked
+        assert _cap_per_seed(ranked, seeds, 1, groups) == [(1, 0.9), (3, 0.7), (2, 0.8)]
+
+    def test_category_slots_count_seed_groups(self):
+        _set(reco_user_top_n=4)
+        book_seed = Edition.objects.create(title="Seed book")
+        for item in (*self.seasons[:3], book_seed):
+            _public_mark(self.identity, item, rating=0)
+        for n in range(4):
+            self._link(
+                self.seasons[0],
+                TVSeason.objects.create(title=f"Other show {n}"),
+                0.9 - n / 100,
+            )
+            self._link(
+                book_seed, Edition.objects.create(title=f"Book {n}"), 0.1 - n / 100
+            )
+        cats = [r.category for r in compute_for_user(self.user.pk, self.identity.pk)]
+        assert sorted(cats) == ["book", "book", "tv", "tv"]
+        _set(reco_group_items=False)
+        cats = [r.category for r in compute_for_user(self.user.pk, self.identity.pk)]
+        assert sorted(cats) == ["book", "tv", "tv", "tv"]
+
+    def test_for_you_dedupes_stored_rows(self):
+        seed = Edition.objects.create(title="Seed")
+        _public_mark(self.identity, seed, rating=0)
+        for item, score in ((self.e1, 0.9), (self.e2, 0.8), (self.seasons[4], 0.7)):
+            UserRecommendation.objects.create(
+                user=self.user,
+                item=item,
+                score=score,
+                category=str(item.category),
+                seed_item_ids=[seed.pk],
+            )
+        UserRecommendation.objects.create(
+            user=self.user,
+            item=self.seasons[1],
+            score=0.1,
+            category="tv",
+            seed_item_ids=[seed.pk],
+        )
+        served = {i.pk for i in for_you(self.user)}
+        assert served == {self.e1.pk, self.seasons[1].pk}
+
+    def test_similar_items_skip_own_group_and_dedupe(self):
+        other_work = Work.objects.create(title="Other work")
+        o1, o2 = (Edition.objects.create(title=f"Other ed {n}") for n in (1, 2))
+        other_work.editions.add(o1, o2)
+        self._link(self.e1, self.e2, 0.9)
+        self._link(self.e1, o1, 0.8)
+        self._link(self.e1, o2, 0.7)
+        self._link(self.e1, self.seasons[3], 0.6)
+        self._link(self.e1, self.seasons[1], 0.5)
+        ids = [i.pk for i in similar_items(self.e1)]
+        assert ids == [o1.pk, self.seasons[1].pk]
+        _set(reco_group_items=False)
+        assert len(similar_items(self.e1)) == 5

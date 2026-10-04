@@ -177,7 +177,45 @@ class Command(SiteCommand):
                 f"{pop.mean_list_length:.1f}",
             ),
         ]
+        for label, attr, fmt in self._DIVERSITY:
+            rows.append(
+                (
+                    label,
+                    self._value(getattr(reco.diversity, attr), fmt),
+                    self._value(getattr(pop.diversity, attr), fmt),
+                )
+            )
         self._table(("Metric", "Recommendations", "Popularity"), rows)
+
+        w(
+            f"By seed-shelf marks before the cutoff, hit rate@{result.top_n} "
+            "and diversity of recommendations (popularity hit rate):"
+        )
+        bucket_rows = []
+        for label, r in reco.by_bucket.items():
+            p = pop.by_bucket.get(label)
+            bucket_rows.append(
+                (
+                    label,
+                    str(r.members),
+                    f"{r.hit_rate:.4f}",
+                    f"{p.hit_rate:.4f}" if p else "-",
+                    *(
+                        self._value(getattr(r.diversity, attr), fmt)
+                        for _, attr, fmt in self._DIVERSITY
+                    ),
+                )
+            )
+        self._table(
+            (
+                "Marks",
+                "Members",
+                "Hit rate",
+                "Popular",
+                *(label for label, _, _ in self._DIVERSITY),
+            ),
+            bucket_rows,
+        )
 
         w(
             f"Hit rate@{result.top_n} by category, among members whose list "
@@ -195,6 +233,18 @@ class Command(SiteCommand):
                 )
             )
         self._table(("Category", "Recommendations", "Popularity"), cat_rows)
+
+    _DIVERSITY = (
+        ("lead seeds", "lead_seeds", ".1f"),
+        ("top seed share", "top_seed_share", ".2f"),
+        ("duplicate rate", "duplicate_rate", ".4f"),
+        ("max per creator", "max_per_creator", ".2f"),
+        ("intra-list similarity", "intra_list_similarity", ".4f"),
+    )
+
+    @staticmethod
+    def _value(value: float | None, fmt: str) -> str:
+        return "-" if value is None else format(value, fmt)
 
     def _table(self, header: tuple[str, ...], rows: Sequence[tuple[str, ...]]) -> None:
         widths = [max(len(r[i]) for r in [header, *rows]) for i in range(len(header))]

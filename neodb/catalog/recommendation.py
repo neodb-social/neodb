@@ -8,9 +8,18 @@ Surfaces, all visibility- and pref-gated by Preference.show_recommendations:
 """
 
 import logging
-from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence
+from collections.abc import (
+    Callable,
+    Collection,
+    Hashable,
+    Iterable,
+    Iterator,
+    Mapping,
+    Sequence,
+)
 from datetime import datetime, timedelta
-from heapq import heappush, heapreplace, nlargest
+from heapq import nlargest
+from typing import NamedTuple
 
 from django.core.cache import cache
 from django.db import transaction
@@ -37,6 +46,7 @@ from .models import (
     PodcastEpisode,
     RecommendationDismissal,
     TVEpisode,
+    TVSeason,
     TVShow,
     UserRecommendation,
     Work,
@@ -462,6 +472,88 @@ def _sibling_edition_ids(item_ids: set[int]) -> set[int]:
     )
 
 
+# a Work for an Edition, a show for a TVSeason
+GroupKey = tuple[str, int]
+_GROUP_CHUNK = 5000
+
+
+class RecoGroups(NamedTuple):
+    keys: dict[int, GroupKey]
+    # season number of each TVSeason with a key
+    seasons: dict[int, int]
+
+
+NO_GROUPS = RecoGroups({}, {})
+
+
+def reco_groups(item_ids: Collection[int]) -> RecoGroups:
+    """Group the editions of one Work and the seasons of one show.
+
+    Members of a group are one thing to recommend, so a list holds one of
+    them and their marks count once as seeds. An edition in several Works
+    takes the lowest work id. Other items have no key and stand alone.
+    """
+    ids = list(item_ids)
+    keys: dict[int, GroupKey] = {}
+    seasons: dict[int, int] = {}
+    through = Work.editions.through
+    for start in range(0, len(ids), _GROUP_CHUNK):
+        chunk = ids[start : start + _GROUP_CHUNK]
+        for edition_id, work_id in (
+            through.objects.filter(edition_id__in=chunk)
+            .order_by("work_id")
+            .values_list("edition_id", "work_id")
+        ):
+            keys.setdefault(edition_id, ("work", work_id))
+        for pk, show_id, number in TVSeason.objects.filter(
+            pk__in=chunk, show_id__isnull=False
+        ).values_list("pk", "show_id", "season_number"):
+            keys[pk] = ("show", show_id)
+            if number is not None:
+                seasons[pk] = number
+    return RecoGroups(keys, seasons)
+
+
+def _group_of(item_id: int, groups: RecoGroups) -> Hashable:
+    return groups.keys.get(item_id, item_id)
+
+
+def _dedupe_groups(
+    ranked: list[tuple[int, float]], groups: RecoGroups
+) -> tuple[list[tuple[int, float]], dict[int, int]]:
+    """``ranked`` (best first) with one entry per group, at its best score and place.
+
+    A show stands as its lowest numbered season in ``ranked``, so the next
+    season of a show in progress or the first of a new one; any other group
+    as its best entry. Also returns, for each representative that is not
+    the best entry of its group, that best entry.
+    """
+    if not groups.keys:
+        return ranked, {}
+    lowest: dict[Hashable, int] = {}
+    for pk, _ in ranked:
+        key = groups.keys.get(pk)
+        number = groups.seasons.get(pk)
+        if key is None or number is None:
+            continue
+        kept = lowest.get(key)
+        if kept is None or number < groups.seasons[kept]:
+            lowest[key] = pk
+    out: list[tuple[int, float]] = []
+    stand_in: dict[int, int] = {}
+    seen: set[Hashable] = set()
+    for pk, score in ranked:
+        key = _group_of(pk, groups)
+        if key in seen:
+            continue
+        seen.add(key)
+        rep = lowest.get(key, pk)
+        if rep != pk:
+            stand_in[rep] = pk
+        out.append((rep, score))
+    return out, stand_in
+
+
 def dismiss_item(user: User, item: Item) -> None:
     """Stop recommending ``item`` to ``user`` on every surface."""
     RecommendationDismissal.objects.get_or_create(user=user, item=item.final_item)
@@ -491,14 +583,16 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
     """Return up to ``limit`` items similar to ``item``.
 
     Excludes items the viewer has already shelved (any state) or dismissed.
-    Drops deleted and merged items. No author/owner visibility filter needed:
-    ItemSimilarity is built from public marks only. The viewer's catalog
-    languages do not apply: a similar item is wanted in any language.
+    Drops deleted and merged items, and with ``reco_group_items`` the other
+    editions or seasons of ``item`` and all but one of any other group. No
+    author/owner visibility filter needed: ItemSimilarity is built from
+    public marks only. The viewer's catalog languages do not apply: a
+    similar item is wanted in any language.
     """
     rows = list(
         ItemSimilarity.objects.filter(source=item, method=ItemSimilarity.METHOD_BLENDED)
         .order_by("-score")
-        .values_list("target_id", flat=True)[: limit * 2]
+        .values_list("target_id", "score")[: limit * 4]
     )
     if not rows:
         return []
@@ -507,19 +601,16 @@ def similar_items(item: Item, viewer=None, limit: int = 10) -> list[Item]:
         exclude = _user_excluded_item_ids(
             viewer.identity.pk
         ) | _user_dismissed_item_ids(viewer.pk)
-    qs = _live_items(Item.objects.filter(pk__in=rows))
+    qs = _live_items(Item.objects.filter(pk__in=[iid for iid, _ in rows]))
     by_id = {i.pk: i for i in qs}
-    out: list[Item] = []
-    for iid in rows:
-        if iid in exclude:
-            continue
-        i = by_id.get(iid)
-        if i is None:
-            continue
-        out.append(i)
-        if len(out) >= limit:
-            break
-    return out
+    ranked = [(iid, sc) for iid, sc in rows if iid in by_id and iid not in exclude]
+    if SiteConfig.system.reco_group_items:
+        groups = reco_groups([item.pk, *(iid for iid, _ in ranked)])
+        own = groups.keys.get(item.pk)
+        if own is not None:
+            ranked = [e for e in ranked if groups.keys.get(e[0]) != own]
+        ranked, _ = _dedupe_groups(ranked, groups)
+    return [by_id[iid] for iid, _ in ranked[:limit]]
 
 
 def _categories_of(item_ids: Collection[int]) -> dict[int, str]:
@@ -588,20 +679,20 @@ def seed_recency_factor(age_days: float, half_life_days: int) -> float:
     return max(MIN_SEED_RECENCY, 0.5 ** (max(age_days, 0.0) / half_life_days))
 
 
-def _cap_per_seed(
+def _split_per_seed(
     ranked: list[tuple[int, float]],
-    seeds_by_target: dict[int, list[int]],
+    seeds_by_target: Mapping[int, list[int]],
     slots: int,
-) -> list[tuple[int, float]]:
-    """``ranked`` with at most ``slots`` targets per strongest seed up front.
+    seed_groups: RecoGroups = NO_GROUPS,
+) -> tuple[list[tuple[int, float]], list[tuple[int, float]]]:
+    """(admitted, overflow): ``ranked`` split at ``slots`` targets per strongest seed.
 
-    The targets past a seed's slots follow all the others in their own
-    order, so the list is reordered, never shortened. One prolific seed
-    then cannot fill the whole list. ``slots`` 0 keeps the order.
+    Seeds of one group share their slots. Both parts keep the order of
+    ``ranked``; ``slots`` 0 admits everything.
     """
     if slots <= 0:
-        return ranked
-    used: dict[int, int] = {}
+        return ranked, []
+    used: dict[Hashable, int] = {}
     admitted: list[tuple[int, float]] = []
     overflow: list[tuple[int, float]] = []
     for entry in ranked:
@@ -609,12 +700,29 @@ def _cap_per_seed(
         if not seeds:
             admitted.append(entry)
             continue
-        n = used.get(seeds[0], 0)
+        lead = _group_of(seeds[0], seed_groups)
+        n = used.get(lead, 0)
         if n < slots:
-            used[seeds[0]] = n + 1
+            used[lead] = n + 1
             admitted.append(entry)
         else:
             overflow.append(entry)
+    return admitted, overflow
+
+
+def _cap_per_seed(
+    ranked: list[tuple[int, float]],
+    seeds_by_target: Mapping[int, list[int]],
+    slots: int,
+    seed_groups: RecoGroups = NO_GROUPS,
+) -> list[tuple[int, float]]:
+    """``ranked`` with at most ``slots`` targets per strongest seed up front.
+
+    The targets past a seed's slots follow all the others in their own
+    order, so the list is reordered, never shortened. One prolific seed
+    then cannot fill the whole list. ``slots`` 0 keeps the order.
+    """
+    admitted, overflow = _split_per_seed(ranked, seeds_by_target, slots, seed_groups)
     return admitted + overflow
 
 
@@ -765,23 +873,8 @@ def compute_for_user(
     dismissed, excluded = user_reco_exclusions(
         user_pk, identity_pk, rewrite, until=until
     )
-
-    # min-heap of the strongest (contribution, seed) pairs per target
-    contribs: dict[int, list[tuple[float, int]]] = {}
-    for src, tgt, score in neighbours(positive):
-        if tgt in excluded or tgt in seed_set:
-            continue
-        entry = (seed_weight[src] * score, src)
-        heap = contribs.setdefault(tgt, [])
-        if len(heap) < SEED_CONTRIB_CAP:
-            heappush(heap, entry)
-        elif entry > heap[0]:
-            heapreplace(heap, entry)
-
-    if not contribs:
-        return []
-    scores = {tgt: sum(c for c, _ in heap) for tgt, heap in contribs.items()}
     neg_weight = sys.reco_negative_weight
+    negatives: list[int] = []
     if neg_weight > 0:
         dropped_qs = ShelfMember._base_manager.filter(
             owner_id=identity_pk, parent__shelf_type=SHELF_TYPE_NEGATIVE_SEED
@@ -799,15 +892,43 @@ def compute_for_user(
             )
             if i not in seed_weight
         ][:seed_cap]
-        for _, tgt, score in neighbours(negatives):
-            if tgt in scores:
-                scores[tgt] -= neg_weight * score
+    group_items = sys.reco_group_items
+    # seeds of one group (editions of a Work, seasons of a show) count once
+    seed_groups = reco_groups(seed_set | set(negatives)) if group_items else NO_GROUPS
+
+    # the strongest (contribution, seed) of each seed group, per target
+    contribs: dict[int, dict[Hashable, tuple[float, int]]] = {}
+    for src, tgt, score in neighbours(positive):
+        if tgt in excluded or tgt in seed_set:
+            continue
+        entry = (seed_weight[src] * score, src)
+        by_group = contribs.setdefault(tgt, {})
+        key = _group_of(src, seed_groups)
+        kept = by_group.get(key)
+        if kept is None or entry > kept:
+            by_group[key] = entry
+    if not contribs:
+        return []
+    strongest = {
+        tgt: nlargest(SEED_CONTRIB_CAP, by_group.values())
+        for tgt, by_group in contribs.items()
+    }
+    del contribs
+    scores = {tgt: sum(c for c, _ in top) for tgt, top in strongest.items()}
+    if negatives:
+        penalties: dict[int, dict[Hashable, float]] = {}
+        for src, tgt, score in neighbours(negatives):
+            if tgt not in scores:
+                continue
+            by_group = penalties.setdefault(tgt, {})
+            key = _group_of(src, seed_groups)
+            by_group[key] = max(by_group.get(key, 0.0), neg_weight * score)
+        for tgt, by_group in penalties.items():
+            scores[tgt] -= sum(by_group.values())
         scores = {tgt: sc for tgt, sc in scores.items() if sc > 0}
         if not scores:
             return []
-    seeds_by_target = {
-        tgt: [src for _, src in nlargest(3, contribs[tgt])] for tgt in scores
-    }
+    seeds_by_target = {tgt: [src for _, src in strongest[tgt][:3]] for tgt in scores}
 
     ranked = sorted(scores.items(), key=lambda t: t[1], reverse=True)
     cats = _categories_of([t for t, _ in ranked] + positive)
@@ -815,12 +936,21 @@ def compute_for_user(
     ranked = [(t, sc) for t, sc in ranked if t in allowed]
     if not ranked:
         return []
-    ranked = _cap_per_seed(ranked, seeds_by_target, sys.reco_per_seed_slots)
-    # slots follow the mix of the member's own marks
+    if group_items:
+        ranked, stand_in = _dedupe_groups(ranked, reco_groups([t for t, _ in ranked]))
+        for rep, best in stand_in.items():
+            seeds_by_target[rep] = seeds_by_target[best]
+    ranked = _cap_per_seed(
+        ranked, seeds_by_target, sys.reco_per_seed_slots, seed_groups
+    )
+    # slots follow the mix of the member's own marks, a seed group counting once
     weights: dict[str, float] = {}
+    counted: set[Hashable] = set()
     for sid in positive:
         cat = cats.get(sid)
-        if cat:
+        key = _group_of(sid, seed_groups)
+        if cat and key not in counted:
+            counted.add(key)
             weights[cat] = weights.get(cat, 0) + 1
     top = _balanced_top(ranked, cats, weights, top_n)
     rows = [
@@ -1005,23 +1135,27 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
     )
     live_rows = [r for r in rows if r.item_id in live and r.item_id not in skip]
     seed_ids = {r.item_id: r.seed_item_ids for r in live_rows}
+    row_cats = {r.item_id: r.category for r in live_rows}
+    ranked = [(r.item_id, r.score) for r in live_rows]
+    groups = NO_GROUPS
+    if sys.reco_group_items:
+        # rows stored before grouping, or a sibling shelved since
+        groups = reco_groups(
+            {pk for pk, _ in ranked} | {ids[0] for ids in seed_ids.values() if ids}
+        )
+        ranked, stand_in = _dedupe_groups(ranked, groups)
+        for rep, best in stand_in.items():
+            seed_ids[rep] = seed_ids[best]
     # stored rows come back by score, so the per-seed cap applies again
-    ranked = _cap_per_seed(
-        [(r.item_id, r.score) for r in live_rows], seed_ids, sys.reco_per_seed_slots
-    )
+    ranked = _cap_per_seed(ranked, seed_ids, sys.reco_per_seed_slots, groups)
     if category:
         target_ids = [pk for pk, _ in ranked][:limit]
     else:
         # the stored mix already follows the member's marks
         mix: dict[str, float] = {}
-        for r in live_rows:
-            mix[r.category] = mix.get(r.category, 0) + 1
-        picked = _balanced_top(
-            ranked,
-            {r.item_id: r.category for r in live_rows},
-            mix,
-            limit,
-        )
+        for pk, _ in ranked:
+            mix[row_cats[pk]] = mix.get(row_cats[pk], 0) + 1
+        picked = _balanced_top(ranked, row_cats, mix, limit)
         target_ids = [pk for pk, _ in picked]
     # score picks the items; newest in the catalog are shown first
     target_ids.sort(reverse=True)
