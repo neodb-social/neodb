@@ -21,6 +21,7 @@ from catalog.models import (
     Item,
     ItemCredit,
     ItemSimilarity,
+    Movie,
     Performance,
     PerformanceProduction,
     TVShow,
@@ -29,6 +30,7 @@ from catalog.models import (
 )
 from catalog.recommendation import (
     blended_for_discover,
+    _balanced_top,
     compute_for_user,
     from_your_circles,
     mark_weight,
@@ -1249,3 +1251,65 @@ class TestBlendedSimilarity:
         ItemCredit.objects.filter(item=self.b).delete()
         BuildItemSimilarity().run()
         assert not ItemSimilarity.objects.exists()
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestBalanceByCategory:
+    def test_slots_follow_weights(self):
+        ranked = [(i, 1.0 - i / 100) for i in range(10)] + [
+            (100 + i, 0.1 - i / 1000) for i in range(4)
+        ]
+        cats = {i: "book" for i in range(10)} | {100 + i: "movie" for i in range(4)}
+        top = _balanced_top(ranked, cats, {"book": 3, "movie": 1}, 8)
+        assert [pk for pk, _ in top] == [0, 1, 2, 3, 4, 5, 100, 101]
+
+    def test_short_category_hands_slots_on(self):
+        ranked = [(i, 1.0 - i / 100) for i in range(10)] + [(100, 0.1)]
+        cats = {i: "book" for i in range(10)} | {100: "movie"}
+        top = _balanced_top(ranked, cats, {"book": 1, "movie": 1}, 6)
+        assert [pk for pk, _ in top] == [0, 1, 2, 3, 4, 100]
+
+    def test_unweighted_category_only_fills(self):
+        ranked = [(1, 0.9), (2, 0.8), (3, 0.7)]
+        cats = {1: "book", 2: "movie", 3: "book"}
+        top = _balanced_top(ranked, cats, {"book": 1}, 2)
+        assert [pk for pk, _ in top] == [1, 3]
+
+    @pytest.fixture
+    def viewer(self):
+        _set(reco_user_top_n=8, reco_per_user_seed_cap=50)
+        user = User.register(email="cat@t.com", username="cat_viewer")
+        books = [Edition.objects.create(title=f"Seed book {i}") for i in range(3)]
+        movie = Movie.objects.create(title="Seed movie")
+        for item in (*books, movie):
+            _public_mark(user.identity, item, rating=0)
+        for n in range(8):
+            target = Edition.objects.create(title=f"Target book {n}")
+            ItemSimilarity.objects.create(
+                source=books[0],
+                target=target,
+                score=0.9 - n / 20,
+                method=ItemSimilarity.METHOD_BLENDED,
+            )
+        for n in range(4):
+            target = Movie.objects.create(title=f"Target movie {n}")
+            ItemSimilarity.objects.create(
+                source=movie,
+                target=target,
+                score=0.1 - n / 100,
+                method=ItemSimilarity.METHOD_BLENDED,
+            )
+        return user
+
+    def test_compute_follows_mark_mix(self, viewer):
+        rows = compute_for_user(viewer.pk, viewer.identity.pk)
+        counts = {c: sum(1 for r in rows if r.category == c) for c in ("book", "movie")}
+        assert counts == {"book": 6, "movie": 2}
+
+    def test_compute_skips_hidden_categories(self, viewer):
+        pref = viewer.preference
+        pref.hidden_categories = ["movie"]
+        pref.save()
+        rows = compute_for_user(viewer.pk, viewer.identity.pk)
+        assert rows
+        assert {r.category for r in rows} == {"book"}

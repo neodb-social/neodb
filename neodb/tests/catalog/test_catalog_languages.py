@@ -317,6 +317,20 @@ class TestPreferences:
         self._save(["ja"])
         assert UserRecommendation.objects.filter(user=self.user).exists()
 
+    def test_changed_hidden_categories_drop_stored_rows(self):
+        _stored_rows(self.user, [_book("Stored", "ja")])
+        self.client.post(
+            self.url, {"catalog_languages": ["ja"], "hidden_categories": ["movie"]}
+        )
+        assert not UserRecommendation.objects.filter(user=self.user).exists()
+        _stored_rows(self.user, [_book("Stored again", "ja")])
+        self.client.post(
+            self.url, {"catalog_languages": ["ja"], "hidden_categories": ["movie"]}
+        )
+        assert UserRecommendation.objects.filter(user=self.user).exists()
+        self.client.post(self.url, {"catalog_languages": ["ja"]})
+        assert not UserRecommendation.objects.filter(user=self.user).exists()
+
     def test_hidden_select_keeps_the_stored_list(self, site_config):
         site_config.discover_user_languages = False
         assert "catalog_languages" not in self.client.get(self.url).content.decode()

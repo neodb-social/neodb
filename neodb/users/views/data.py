@@ -103,7 +103,9 @@ def preferences(request):
             int(request.POST.get("bluesky_publish_records", 0)) == 1
         )
         preference.classic_homepage = int(request.POST.get("classic_homepage", 0))
-        preference.hidden_categories = request.POST.getlist("hidden_categories")
+        hidden = request.POST.getlist("hidden_categories")
+        categories_changed = set(hidden) != set(preference.hidden_categories)
+        preference.hidden_categories = hidden
         preference.disabled_search_sources = request.POST.getlist(
             "disabled_search_sources"
         )
@@ -150,7 +152,7 @@ def preferences(request):
             preference.catalog_languages = languages
             update_fields.append("catalog_languages")
         preference.save(update_fields=update_fields)
-        if languages_changed:
+        if languages_changed or categories_changed:
             forget_for_user(request.user)
         lang = request.POST.get("language")
         if lang in dict(settings.LANGUAGES).keys() and lang != request.user.language:
