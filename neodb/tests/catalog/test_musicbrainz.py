@@ -11,6 +11,7 @@ from catalog.sites.musicbrainz import (
     _extract_first_isrc,
     _extract_label_info,
     _extract_track_info,
+    _pick_cover_art_url,
 )
 
 
@@ -119,6 +120,10 @@ class TestMusicBrainzReleaseGroup:
 
         # ISRC is harvested from the first track's recording.isrcs.
         assert site.resource.other_lookup_ids.get(IdType.ISRC) == "GBAYE9700001"
+        assert metadata["cover_image_url"] == (
+            "http://coverartarchive.org/release/"
+            "1834eae1-741b-3c03-9ca5-0df3decb43ea/18174904878-1200.jpg"
+        )
 
     def test_extract_track_info(self):
         """Test track information extraction"""
@@ -328,6 +333,10 @@ class TestMusicBrainzRelease:
         )
 
         assert site.resource.other_lookup_ids.get(IdType.ISRC) == "GBAYE9700001"
+        assert metadata["cover_image_url"] == (
+            "http://coverartarchive.org/release/"
+            "1834eae1-741b-3c03-9ca5-0df3decb43ea/18174904878-1200.jpg"
+        )
 
     def test_barcode_handling(self):
         """Test barcode to GTIN conversion in release data"""
@@ -452,6 +461,55 @@ class TestMusicBrainzIntegration:
     def test_extract_first_isrc_returns_none_when_absent(self):
         assert _extract_first_isrc({}) is None
         assert _extract_first_isrc({"media": [{"tracks": []}]}) is None
+
+
+class TestCoverArtArchive:
+    CAA = "http://coverartarchive.org/release/r"
+
+    def _image(self, n: int, front: bool = False, thumbnails=None) -> dict:
+        image = {"front": front, "image": f"{self.CAA}/{n}.png"}
+        if thumbnails is not None:
+            image["thumbnails"] = thumbnails
+        return image
+
+    def _thumbnails(self, n: int, sizes: list[str]) -> dict:
+        return {s: f"{self.CAA}/{n}-{s}.jpg" for s in sizes}
+
+    def test_the_1200_thumbnail_is_preferred(self):
+        sizes = ["250", "500", "1200", "small", "large"]
+        image = self._image(1, True, self._thumbnails(1, sizes))
+        assert _pick_cover_art_url({"images": [image]}) == f"{self.CAA}/1-1200.jpg"
+
+    def test_large_is_used_without_1200(self):
+        image = self._image(1, True, self._thumbnails(1, ["small", "large"]))
+        assert _pick_cover_art_url({"images": [image]}) == f"{self.CAA}/1-large.jpg"
+        image = self._image(1, True, self._thumbnails(1, ["250", "500"]))
+        assert _pick_cover_art_url({"images": [image]}) == f"{self.CAA}/1-500.jpg"
+
+    def test_the_original_is_used_without_thumbnails(self):
+        assert _pick_cover_art_url({"images": [self._image(1, True)]}) == (
+            f"{self.CAA}/1.png"
+        )
+        image = self._image(1, True, {})
+        assert _pick_cover_art_url({"images": [image]}) == f"{self.CAA}/1.png"
+
+    def test_the_front_image_is_preferred_over_the_first(self):
+        images = [
+            self._image(1, False, self._thumbnails(1, ["1200"])),
+            self._image(2, True, self._thumbnails(2, ["1200"])),
+        ]
+        assert _pick_cover_art_url({"images": images}) == f"{self.CAA}/2-1200.jpg"
+
+    def test_the_first_image_is_used_without_a_front(self):
+        images = [
+            self._image(1, False, self._thumbnails(1, ["1200"])),
+            self._image(2, False, self._thumbnails(2, ["1200"])),
+        ]
+        assert _pick_cover_art_url({"images": images}) == f"{self.CAA}/1-1200.jpg"
+
+    def test_no_images_yield_none(self):
+        assert _pick_cover_art_url({"images": []}) is None
+        assert _pick_cover_art_url({}) is None
 
 
 @pytest.mark.django_db(databases="__all__")

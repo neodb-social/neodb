@@ -179,6 +179,36 @@ def _extract_label_info(release_data: Dict[str, Any]) -> List[str]:
     return labels
 
 
+def _pick_cover_art_url(cover_data: Dict[str, Any]) -> str | None:
+    """Front image, else the first one, at the largest Cover Art Archive
+    thumbnail; originals can be hundreds of megabytes"""
+    images = cover_data.get("images") or []
+    if not images:
+        return None
+    image = next((i for i in images if i.get("front")), images[0])
+    thumbnails = image.get("thumbnails")
+    if not isinstance(thumbnails, dict):
+        thumbnails = {}
+    # "large" is the legacy alias of "500", and older entries lack "1200"
+    return (
+        thumbnails.get("1200")
+        or thumbnails.get("large")
+        or thumbnails.get("500")
+        or image.get("image")
+        or None
+    )
+
+
+def _get_cover_art_url(release_id: str, headers: Dict[str, str]) -> str | None:
+    try:
+        cover_api_url = f"https://coverartarchive.org/release/{release_id}"
+        downloader = BasicDownloader(cover_api_url, headers=headers)
+        return _pick_cover_art_url(downloader.download().json())
+    except Exception as e:
+        _logger.debug(f"No cover art found for release {release_id}: {e}")
+    return None
+
+
 @SiteManager.register
 class MusicBrainzReleaseGroup(AbstractSite):
     SITE_NAME = SiteName.MusicBrainz
@@ -288,7 +318,9 @@ class MusicBrainzReleaseGroup(AbstractSite):
                         ]
                     )
                     company = _extract_label_info(release_data)
-                    cover_image_url = self._get_cover_art_url(release_id)
+                    cover_image_url = _get_cover_art_url(
+                        release_id, self.get_api_headers()
+                    )
                     isrc = _extract_first_isrc(release_data)
             except Exception as e:
                 _logger.warning(f"Failed to get detailed release info: {e}")
@@ -342,27 +374,6 @@ class MusicBrainzReleaseGroup(AbstractSite):
         headers = self.get_api_headers()
         downloader = MusicBrainzDownloader(api_url, headers=headers)
         return downloader.download().json()
-
-    def _get_cover_art_url(self, release_id: str) -> str | None:
-        """Get cover art URL from Cover Art Archive"""
-        try:
-            cover_api_url = f"https://coverartarchive.org/release/{release_id}"
-            headers = self.get_api_headers()
-
-            downloader = BasicDownloader(cover_api_url, headers=headers)
-            cover_data = downloader.download().json()
-
-            if "images" in cover_data and cover_data["images"]:
-                # Find front cover or use first image
-                for image in cover_data["images"]:
-                    if image.get("front", False):
-                        return image.get("image", "")
-                # If no front cover found, use first image
-                return cover_data["images"][0].get("image", "")
-        except Exception as e:
-            _logger.debug(f"No cover art found for release {release_id}: {e}")
-
-        return None
 
     def _upc_to_gtin_13(self, upc: str) -> str:
         """Convert UPC-12 to GTIN-13 by adding leading zero"""
@@ -471,7 +482,11 @@ class MusicBrainzRelease(AbstractSite):
         company = _extract_label_info(data)
 
         # Get cover art
-        cover_image_url = self._get_cover_art_url(self.id_value)
+        cover_image_url = (
+            _get_cover_art_url(self.id_value, self.get_api_headers())
+            if self.id_value
+            else None
+        )
 
         metadata = {
             "title": title,
@@ -512,27 +527,6 @@ class MusicBrainzRelease(AbstractSite):
             pd.lookup_ids[IdType.ISRC] = isrc
 
         return pd
-
-    def _get_cover_art_url(self, release_id) -> str | None:
-        """Get cover art URL from Cover Art Archive"""
-        try:
-            cover_api_url = f"https://coverartarchive.org/release/{release_id}"
-            headers = self.get_api_headers()
-
-            downloader = BasicDownloader(cover_api_url, headers=headers)
-            cover_data = downloader.download().json()
-
-            if "images" in cover_data and cover_data["images"]:
-                # Find front cover or use first image
-                for image in cover_data["images"]:
-                    if image.get("front", False):
-                        return image.get("image", "")
-                # If no front cover found, use first image
-                return cover_data["images"][0].get("image", "")
-        except Exception as e:
-            _logger.debug(f"No cover art found for release {release_id}: {e}")
-
-        return None
 
     def _upc_to_gtin_13(self, upc: str) -> str:
         """Convert UPC-12 to GTIN-13 by adding leading zero"""
