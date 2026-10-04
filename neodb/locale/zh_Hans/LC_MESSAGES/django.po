@@ -4679,8 +4679,8 @@ msgid "Exclude posts from"
 msgstr "排除以下来源的帖文"
 
 #: common/views_manage.py:449
-msgid "Accounts (@user@domain) or domains whose posts never appear in popular posts or trends, one per line."
-msgstr "这些账号（@user@domain）或域名的帖文不会出现在热门帖文和热门趋势中，每行一个。"
+msgid "Accounts (@user@domain) or domains, one per line. Their posts never appear in popular posts or trends, and their marks and collections are left out of discover and recommendations."
+msgstr "账号（@user@domain）或域名，每行一个。它们的帖文不会出现在热门帖文和热门趋势中，它们的标记和收藏单也不会用于发现页和推荐。"
 
 #: common/views_manage.py:474
 msgid "Show world timeline"

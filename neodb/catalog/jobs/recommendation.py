@@ -38,6 +38,7 @@ from catalog.recommendation import (
 from common.models import BaseJob, JobManager, SiteConfig
 from journal.models import CollectionMember, ShelfMember, Tag, TagMember
 from takahe.models import Identity as TakaheIdentity
+from takahe.utils import Takahe
 from users.models import APIdentity
 
 logger = logging.getLogger(__name__)
@@ -59,16 +60,20 @@ class UserMarks(NamedTuple):
     weights: "array[float]"
 
 
-def _non_discoverable_identity_ids() -> set[int]:
-    """Identities that have opted out of discovery features.
+def _excluded_identity_ids() -> set[int]:
+    """Identities whose marks, tags and collections never train recommendations.
 
     Reuses the existing ``discoverable`` flag on Takahe Identity (also the
     source of truth for ``DiscoverGenerator``). Users uncheck "Include
     profile and posts in discovery" on their account page to opt out of
-    being used as a training signal for recommendations.
+    being used as a training signal for recommendations. Accounts and
+    domains on the site's ``discover_exclude_posts_from`` list are left out
+    the same way.
     """
     return set(
         TakaheIdentity.objects.filter(discoverable=False).values_list("pk", flat=True)
+    ) | Takahe.get_identity_ids_by_handles(
+        SiteConfig.system.discover_exclude_posts_from
     )
 
 
@@ -772,7 +777,7 @@ class BuildItemSimilarity(BaseJob):
         dampen = sys.reco_user_idf_dampen
         shrinkage = sys.reco_similarity_shrinkage
         max_feature_items = sys.reco_max_feature_items
-        excluded = _non_discoverable_identity_ids()
+        excluded = _excluded_identity_ids()
         full_rewrite = training_rewrite_map()
         rewrite = self._rewrite_for_marked_items(full_rewrite)
         marked_targets = self._marked_rewrite_targets(rewrite, excluded)

@@ -97,6 +97,39 @@ class TestDiscoverJob:
         assert cache.get("featured_collections") == [picks[0].pk]
         assert picks[1].pk not in cache.get("discover_collection_meta")
 
+    def test_collections_of_excluded_accounts_stay_out(self, site_config):
+        shown = User.register(email="shown@example.com", username="shown")
+        listed = User.register(email="listed@example.com", username="listed")
+        picks = [
+            Collection.objects.create(owner=u.identity, title=u.username, visibility=0)
+            for u in (shown, listed)
+        ]
+        site_config.discover_exclude_posts_from = [
+            f"@listed@{listed.identity.domain_name}"
+        ]
+
+        DiscoverGenerator().run()
+
+        assert cache.get("featured_collections") == [picks[0].pk]
+
+    def test_marks_of_excluded_accounts_do_not_count(self, site_config):
+        site_config.min_marks_for_discover = 2
+        book = Edition.objects.create(title="Pushed Book")
+        readers = _mark_by_many(book, 3, "pusher")
+        listed = readers[0].identity
+
+        site_config.discover_exclude_posts_from = [
+            f"@{listed.username}@{listed.domain_name}"
+        ]
+        DiscoverGenerator().run()
+        shelf = cache.get("trending_book")
+        assert [i.recent_marks for i in shelf if i.pk == book.pk] == [2]
+
+        site_config.discover_exclude_posts_from = [listed.domain_name]
+        DiscoverGenerator().run()
+        assert book.pk not in [i.pk for i in cache.get("trending_book")]
+        assert book.pk not in [i.pk for i in cache.get("discover_spotlight")]
+
     def test_spotlight_window_picks_and_counts_over_the_same_days(self, site_config):
         book = Edition.objects.create(title="Slow Burn")
         _mark_by_many(book, 3, "slowreader")

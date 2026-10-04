@@ -4662,7 +4662,7 @@ msgid "Exclude posts from"
 msgstr ""
 
 #: common/views_manage.py:449
-msgid "Accounts (@user@domain) or domains whose posts never appear in popular posts or trends, one per line."
+msgid "Accounts (@user@domain) or domains, one per line. Their posts never appear in popular posts or trends, and their marks and collections are left out of discover and recommendations."
 msgstr ""
 
 #: common/views_manage.py:474
