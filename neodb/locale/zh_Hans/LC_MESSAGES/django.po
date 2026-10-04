@@ -5038,6 +5038,14 @@ msgstr "注册验证仅用于电子邮件注册"
 msgid "Show the captcha only to people who register with an email address. Mastodon, Bluesky and Threads sign-ups already passed an external login and skip it. Has no effect while captcha items is 0."
 msgstr "仅对使用电子邮件地址注册的用户显示验证。通过 Mastodon、Bluesky 和 Threads 注册的用户已经过外部登录，将跳过验证。注册验证封面数量为 0 时此项无效。"
 
+#: common/views_manage.py:806
+msgid "Enable email registration"
+msgstr "允许电子邮件注册"
+
+#: common/views_manage.py:808
+msgid "Allow new accounts to be created with an email address. When off, email login keeps working for accounts that already have an email address linked, and other login methods can still register. Has no effect while email login is off, which happens when no email URL is set."
+msgstr "允许使用电子邮件地址创建新账号。关闭后，已关联电子邮件地址的账号仍可使用电子邮件登录，其他登录方式仍可注册。未设置电子邮件 URL（即电子邮件登录关闭）时此项无效。"
+
 #: common/views_manage.py:755
 msgid "Enable Mastodon login"
 msgstr "启用 Mastodon 登录"
@@ -8961,6 +8969,10 @@ msgstr "输入电子邮件地址"
 msgid "Send verification code"
 msgstr "发送验证码"
 
+#: users/templates/users/login.html:137
+msgid "Email login is only for accounts that already have an email address linked. New accounts cannot be registered with email."
+msgstr "电子邮件登录仅适用于已关联电子邮件地址的账号，无法使用电子邮件注册新账号。"
+
 #: users/templates/users/login.html:151
 msgid "Domain of your instance, e.g. mastodon.social"
 msgstr "实例域名(不含@和@之前的部分)，如mastodon.social"
@@ -9547,6 +9559,14 @@ msgstr "此电子邮件地址已被使用。"
 #: users/views/account.py:145
 msgid "Email addresses from this domain are not accepted."
 msgstr "不接受此域名的电子邮件地址。"
+
+#: users/views/account.py:244
+msgid "Registration with email is not available"
+msgstr "暂不支持使用电子邮件注册"
+
+#: users/views/account.py:246
+msgid "Only accounts that already have this email address linked can log in with it. Please use a different login method."
+msgstr "只有已关联此电子邮件地址的账号才能用它登录。请使用其他登录方式。"
 
 #: users/views/account.py:279 users/views/account.py:398
 msgid "Registration is for invitation only"

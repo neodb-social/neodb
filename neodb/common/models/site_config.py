@@ -65,6 +65,8 @@ class SiteConfig(models.Model):
         enable_login_mastodon: bool = True
         enable_login_bluesky: bool = False
         enable_login_threads: bool = False
+        # Off: email login still works for addresses already linked to a user
+        enable_register_email: bool = True
         email_url: str = ""
         email_from: str = ""
 

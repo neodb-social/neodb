@@ -897,6 +897,16 @@ class AccessSettings(SiteConfigSettingsPage):
                 "items is 0."
             ),
         },
+        "enable_register_email": {
+            "title": _("Enable email registration"),
+            "help_text": _(
+                "Allow new accounts to be created with an email address. When "
+                "off, email login keeps working for accounts that already have "
+                "an email address linked, and other login methods can still "
+                "register. Has no effect while email login is off, which "
+                "happens when no email URL is set."
+            ),
+        },
         "enable_login_mastodon": {
             "title": _("Enable Mastodon login"),
         },
@@ -955,6 +965,7 @@ class AccessSettings(SiteConfigSettingsPage):
             "registration_captcha_items",
             "min_marks_for_captcha",
             "registration_captcha_email_only",
+            "enable_register_email",
         ],
         _("Login methods"): [
             "enable_login_mastodon",

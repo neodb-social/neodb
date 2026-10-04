@@ -133,6 +133,9 @@
                    disabled />
             <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=email" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
             <small class="login-proof-status" role="status" aria-live="polite"></small>
+            {% if not enable_register_email %}
+              <small>{% trans "Email login is only for accounts that already have an email address linked. New accounts cannot be registered with email." %}</small>
+            {% endif %}
           </form>
           {% if enable_mastodon %}
             <form id="login-mastodon"

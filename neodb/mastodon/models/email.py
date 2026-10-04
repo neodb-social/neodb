@@ -46,17 +46,19 @@ class Email:
         )
 
     @staticmethod
+    def has_user(email: str) -> bool:
+        """Is this address linked to a user? Matches the login/register split
+        in generate_login_email."""
+        account = EmailAccount.objects.filter(handle__iexact=email).first()
+        return bool(account and account.user)
+
+    @staticmethod
     def is_registration_blocked(email: str) -> bool:
         """Is this address refused because it has no account yet?
 
-        The existing-account test matches the login/register split in
-        generate_login_email, so a user who registered before the domain was
-        blocked keeps their login.
+        A user who registered before the domain was blocked keeps their login.
         """
-        if not Email.is_domain_blocked(email):
-            return False
-        account = EmailAccount.objects.filter(handle__iexact=email).first()
-        return not (account and account.user)
+        return Email.is_domain_blocked(email) and not Email.has_user(email)
 
     @staticmethod
     def _send(email, subject, body):
@@ -77,8 +79,7 @@ class Email:
     @staticmethod
     def generate_login_email(email: str, action: str) -> tuple[str, str]:
         if action != "verify":
-            account = EmailAccount.objects.filter(handle__iexact=email).first()
-            action = "login" if account and account.user else "register"
+            action = "login" if Email.has_user(email) else "register"
         s = {"e": email, "a": action}
         # v = TimestampSigner().sign_object(s)
         code = b62_encode(secrets.randbelow(pow(62, 8) - pow(62, 7)) + pow(62, 7))
