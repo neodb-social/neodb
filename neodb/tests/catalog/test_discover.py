@@ -83,6 +83,20 @@ class TestDiscoverJob:
         assert meta["covers"] == [book.display_cover_image_url]
         assert meta["owner"] == readers[0].identity.display_name
 
+    def test_collections_of_undiscoverable_owners_stay_out(self, site_config):
+        shown = User.register(email="shown@example.com", username="shown")
+        hidden = User.register(email="hidden@example.com", username="hidden")
+        TakaheIdentity.objects.filter(pk=hidden.identity.pk).update(discoverable=False)
+        picks = [
+            Collection.objects.create(owner=u.identity, title=u.username, visibility=0)
+            for u in (shown, hidden)
+        ]
+
+        DiscoverGenerator().run()
+
+        assert cache.get("featured_collections") == [picks[0].pk]
+        assert picks[1].pk not in cache.get("discover_collection_meta")
+
     def test_spotlight_window_picks_and_counts_over_the_same_days(self, site_config):
         book = Edition.objects.create(title="Slow Burn")
         _mark_by_many(book, 3, "slowreader")
