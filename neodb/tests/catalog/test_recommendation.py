@@ -1785,9 +1785,8 @@ class TestDiversityAndDecay:
         cluster, loner = self._cluster()
         _set(reco_diversity_lambda=0.5)
         rows = self._rows()
-        assert {pk for pk, _ in rows} == {cluster[0].pk, loner.pk, cluster[1].pk}
-        by_score = sorted(rows, key=lambda r: r[1], reverse=True)
-        assert by_score == [
+        # returned in the order served, as the evaluation reads them
+        assert rows == [
             (cluster[0].pk, pytest.approx(0.9)),
             (loner.pk, pytest.approx(0.8)),
             (cluster[1].pk, pytest.approx(0.88 - 0.5 * 0.9 * 0.9)),
@@ -1948,6 +1947,8 @@ class TestNegativesAndSeedSelection:
             self.target.pk: pytest.approx(0.3),
             other.pk: pytest.approx(0.4),
         }
+        _set(reco_wishlist_seed_weight=0.0)
+        assert self._scores() == {other.pk: pytest.approx(0.4)}
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -2039,6 +2040,27 @@ class TestColdStart:
         ids = self._ids()
         assert self.popular[0].pk in ids
         assert self.popular[1].pk not in ids
+
+    def test_popular_show_fills_as_its_first_season(self):
+        _set(reco_cold_start_seeds=10)
+        # a TV mark gives TV slots
+        own = TVSeason.objects.create(title="Own season")
+        _public_mark(self.user.identity, own, rating=0)
+        show = TVShow.objects.create(title="Hit show")
+        first, fifth = (
+            TVSeason.objects.create(title=f"Hit S{n}", show=show, season_number=n)
+            for n in (1, 5)
+        )
+        crowd = [
+            User.register(email=f"tv{i}@t.com", username=f"tv{i}").identity
+            for i in range(6)
+        ]
+        for ident in crowd:
+            _public_mark(ident, fifth, rating=0)
+        _public_mark(crowd[0], first, rating=0)
+        ids = self._ids()
+        assert first.pk in ids
+        assert fifth.pk not in ids
 
     def test_fill_is_cached_and_job_refreshes_it(self):
         _set(reco_cold_start_seeds=10)

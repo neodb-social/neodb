@@ -985,10 +985,13 @@ def _cold_start_fill(
     """Popular items for the member, one per group not ``taken``, scored under ``below``."""
     candidates = [i for i in popular.ids if i not in skip]
     allowed = recommendable_for_user(user_pk, candidates, popular.cats)
+    ranked = [(i, 0.0) for i in candidates if i in allowed]
+    if grouped:
+        ranked, _ = _dedupe_groups(ranked, popular.groups)
     picked: list[int] = []
-    for i in candidates:
+    for i, _ in ranked:
         key = _group_of(i, popular.groups) if grouped else i
-        if i in allowed and key not in taken:
+        if key not in taken:
             taken.add(key)
             picked.append(i)
     n = len(picked)
@@ -1118,6 +1121,8 @@ def compute_for_user(
         ) * seed_recency_factor(age_days, sys.reco_seed_half_life_days)
         if seed_shelf[sid] == "wishlist":
             seed_weight[sid] *= sys.reco_wishlist_seed_weight
+    # a seed weighed to nothing neither leads, fills quotas nor warms a start
+    positive = [sid for sid in positive if seed_weight[sid] > 0]
     if not positive:
         return []
     # Precompute only; a sibling marked later may dupe until the next refresh.
@@ -1242,6 +1247,14 @@ def compute_for_user(
             overflow={pk for pk, _ in overflow},
         )
     top = _balanced_top(ranked, cats, weights, top_n, diversify)
+    if diversify is not None:
+        # in the order serving ranks them: by the lowered score, capped per seed
+        top = _cap_per_seed(
+            sorted(top, key=lambda e: e[1], reverse=True),
+            seeds_by_target,
+            sys.reco_per_seed_slots,
+            seed_groups,
+        )
     rows = [
         UserRecommendation(
             user_id=user_pk,
