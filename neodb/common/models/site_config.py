@@ -130,6 +130,8 @@ class SiteConfig(models.Model):
         reco_dismissal_weight: float = -1.0
         reco_seed_top_rated: int = 0
         reco_wishlist_seed_weight: float = 1.0
+        reco_feature_shrinkage: float = 0.0
+        reco_max_collection_items: int = 0
 
         # Localization
         preferred_languages: list[str] = ["en", "zh"]

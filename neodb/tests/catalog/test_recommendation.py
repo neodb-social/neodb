@@ -1407,6 +1407,35 @@ class TestBlendedSimilarity:
             ItemSimilarity.METHOD_BLENDED
         }
 
+    def test_feature_shrinkage(self):
+        for item in (self.a, self.b):
+            self.users[0].tag_manager.tag_item(item, ["noir", "rain"], 0)
+        self.users[0].tag_manager.tag_item(self.c, ["noir"], 0)
+        BuildItemSimilarity().run()
+        one_tag = self._score(self.a, self.c, ItemSimilarity.METHOD_BLENDED)
+        two_tags = self._score(self.a, self.b, ItemSimilarity.METHOD_BLENDED)
+        assert one_tag is not None and two_tags is not None
+        _set(reco_feature_shrinkage=2.0)
+        BuildItemSimilarity().run()
+        assert self._score(
+            self.a, self.c, ItemSimilarity.METHOD_BLENDED
+        ) == pytest.approx(one_tag * 1 / (1 + 2), rel=1e-5)
+        assert self._score(
+            self.a, self.b, ItemSimilarity.METHOD_BLENDED
+        ) == pytest.approx(two_tags * 2 / (2 + 2), rel=1e-5)
+
+    def test_collection_item_cap(self):
+        collection = Collection.objects.create(
+            owner=self.users[0], title="Big", brief="", visibility=0
+        )
+        for item in (self.a, self.b, self.c):
+            collection.append_item(item)
+        BuildItemSimilarity().run()
+        assert ItemSimilarity.objects.filter(source=self.a).exists()
+        _set(reco_max_collection_items=2)
+        BuildItemSimilarity().run()
+        assert not ItemSimilarity.objects.exists()
+
     def test_rebuild_drops_rows_of_other_methods(self):
         for ident in self.users:
             _public_mark(ident, self.a, rating=0)

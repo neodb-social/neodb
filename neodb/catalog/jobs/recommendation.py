@@ -331,6 +331,7 @@ def _feature_topk(
     max_feature_items: int,
     excluded_ctypes: set[int],
     category_ctypes: list[int],
+    shrinkage: float = 0.0,
 ) -> Iterator[Neighbours]:
     """Item-item cosine over shared features, for one category.
 
@@ -338,6 +339,8 @@ def _feature_topk(
     dropped, and each kept feature is damped by ``1/sqrt(n_items)`` so a
     common tag weighs less than a rare one. A cell sums its weights, or is 1
     when ``binary``. Every usable item with a kept feature is a source.
+    With ``shrinkage`` a pair sharing ``n`` features keeps ``n / (n +
+    shrinkage)`` of its cosine, so a single shared tag is weak evidence.
     """
     feature_ids: dict[Hashable, int] = {}
     f = array("i")
@@ -378,7 +381,9 @@ def _feature_topk(
     dead, non_target = _unusable_items(item_ids, excluded_ctypes, category_ctypes)
     target_mask = ~np.isin(item_ids, np.fromiter(non_target, dtype=np.int64))
     sources = np.flatnonzero(~np.isin(item_ids, np.fromiter(dead, dtype=np.int64)))
-    for src_col, tgt_cols, scores in _cosine_topk(m, sources, target_mask, top_k, 0.0):
+    for src_col, tgt_cols, scores in _cosine_topk(
+        m, sources, target_mask, top_k, shrinkage
+    ):
         yield int(item_ids[src_col]), method, item_ids[tgt_cols], scores
 
 
@@ -777,6 +782,8 @@ class BuildItemSimilarity(BaseJob):
         dampen = sys.reco_user_idf_dampen
         shrinkage = sys.reco_similarity_shrinkage
         max_feature_items = sys.reco_max_feature_items
+        max_collection_items = sys.reco_max_collection_items or max_feature_items
+        feature_shrinkage = sys.reco_feature_shrinkage
         excluded = _excluded_identity_ids()
         full_rewrite = training_rewrite_map()
         rewrite = self._rewrite_for_marked_items(full_rewrite)
@@ -785,6 +792,7 @@ class BuildItemSimilarity(BaseJob):
         logger.info(
             f"Similarity build start: min_source={min_source} min_target={min_target} "
             f"cap={cap} top_k={top_k} dampen={dampen} shrinkage={shrinkage} "
+            f"feature_shrinkage={feature_shrinkage} "
             f"excluded_owners={len(excluded)} "
             f"rewrites={len(rewrite)} excluded_target_ctypes={len(excluded_target_ctypes)}"
         )
@@ -890,15 +898,17 @@ class BuildItemSimilarity(BaseJob):
                         max_feature_items,
                         excluded_target_ctypes,
                         ctypes,
+                        feature_shrinkage,
                     ),
                     _feature_topk(
                         ItemSimilarity.METHOD_COLLECTION_COOC,
                         _collection_cells(ctypes, excluded, full_rewrite, self.until),
                         True,
                         top_k,
-                        max_feature_items,
+                        max_collection_items,
                         excluded_target_ctypes,
                         ctypes,
+                        feature_shrinkage,
                     ),
                     _feature_topk(
                         ItemSimilarity.METHOD_CONTENT,
@@ -914,6 +924,7 @@ class BuildItemSimilarity(BaseJob):
                         max_feature_items,
                         excluded_target_ctypes,
                         ctypes,
+                        feature_shrinkage,
                     ),
                 ]
                 # every method must yield each source once, in ascending item

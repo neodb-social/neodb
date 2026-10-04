@@ -649,6 +649,23 @@ class RecommendationSettings(SiteConfigSettingsPage):
             ),
             "min_value": 2,
         },
+        "reco_feature_shrinkage": {
+            "title": _("Feature shrinkage"),
+            "help_text": _(
+                "Items sharing fewer tags, collections or credits than this "
+                "score lower. 0 turns it off. Applies from the next "
+                "similarity build."
+            ),
+            "min_value": 0,
+        },
+        "reco_max_collection_items": {
+            "title": _("Collection item cap"),
+            "help_text": _(
+                "Collections with more items than this are too broad to link "
+                "items and are ignored. 0 uses the feature item cap."
+            ),
+            "min_value": 0,
+        },
         "reco_tag_weight": {
             "title": _("Tag weight"),
             "help_text": _(
@@ -776,6 +793,8 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "reco_user_mark_cap",
             "reco_similarity_shrinkage",
             "reco_max_feature_items",
+            "reco_max_collection_items",
+            "reco_feature_shrinkage",
         ],
         _("Mark weights"): [
             "reco_rating_weight",
