@@ -96,6 +96,18 @@ class TestEvaluate:
         assert reco.mean_list_length == 1.0
         assert reco.by_category["book"].hits == 1
 
+    def test_hidden_category_truth_is_not_counted(self):
+        self._co_marked_world()
+        pref = self.user.preference
+        pref.hidden_categories = ["book"]
+        pref.save()
+        result = self._evaluate()
+        # the only held-out item is in a category the member hides, so
+        # neither list can hit it and the member is left out
+        assert result.members_sampled == 1
+        assert result.members_evaluated == 0
+        assert result.popularity.members_with_list == 0
+
     def test_too_few_seeds_is_not_eligible(self):
         self._co_marked_world()
         result = evaluate(self.cutoff, users=0, min_seeds=2)

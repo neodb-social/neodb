@@ -8,7 +8,7 @@ Surfaces, all visibility- and pref-gated by Preference.show_recommendations:
 """
 
 import logging
-from collections.abc import Callable, Collection, Iterable, Iterator
+from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence
 from datetime import datetime, timedelta
 from heapq import heappush, heapreplace, nlargest
 
@@ -618,6 +618,29 @@ def _cap_per_seed(
     return admitted + overflow
 
 
+def recommendable_for_user(
+    user_pk: int, item_ids: Sequence[int], cats: Mapping[int, str] | None = None
+) -> set[int]:
+    """The ids of ``item_ids`` the member's category and language settings allow.
+
+    Categories the site hides or the member does not search stay out, as do
+    items without a category, and so do items outside the member's catalog
+    languages when the site applies them. ``cats`` saves the category
+    lookup when the caller already has it.
+    """
+    sys = SiteConfig.system
+    pref = Preference.objects.filter(user_id=user_pk).first()
+    hidden = set(sys.hidden_categories) | set(pref.hidden_categories if pref else [])
+    if cats is None:
+        cats = _categories_of(item_ids)
+    allowed = [i for i in item_ids if cats.get(i) not in (None, *hidden)]
+    if sys.discover_user_languages and pref:
+        codes = pref.catalog_language_codes()
+        if codes:
+            return set(_first_in_languages(allowed, codes, len(allowed)))
+    return set(allowed)
+
+
 # (source, target, score) of blended neighbours for the given sources
 SimilarityLookup = Callable[[Collection[int]], Iterable[tuple[int, int, float]]]
 
@@ -786,20 +809,10 @@ def compute_for_user(
         tgt: [src for _, src in nlargest(3, contribs[tgt])] for tgt in scores
     }
 
-    pref = Preference.objects.filter(user_id=user_pk).first()
-    codes: list[str] = []
-    if sys.discover_user_languages and pref:
-        codes = pref.catalog_language_codes()
-    # categories the member does not search, or the site hides, stay out
-    hidden_cats = set(sys.hidden_categories) | set(
-        pref.hidden_categories if pref else []
-    )
     ranked = sorted(scores.items(), key=lambda t: t[1], reverse=True)
     cats = _categories_of([t for t, _ in ranked] + positive)
-    ranked = [(t, sc) for t, sc in ranked if cats.get(t) not in (None, *hidden_cats)]
-    if codes:
-        in_lang = set(_first_in_languages([t for t, _ in ranked], codes, len(ranked)))
-        ranked = [(t, sc) for t, sc in ranked if t in in_lang]
+    allowed = recommendable_for_user(user_pk, [t for t, _ in ranked], cats)
+    ranked = [(t, sc) for t, sc in ranked if t in allowed]
     if not ranked:
         return []
     ranked = _cap_per_seed(ranked, seeds_by_target, sys.reco_per_seed_slots)

@@ -32,6 +32,7 @@ from catalog.recommendation import (
     _live_items,
     compute_for_user,
     excluded_target_ctype_ids,
+    recommendable_for_user,
     training_rewrite_map,
     user_reco_exclusions,
 )
@@ -313,10 +314,11 @@ def evaluate(
 
     ``users`` caps the random sample of eligible members, 0 for all of them.
     ``top_n`` overrides ``reco_user_top_n``. A held-out item counts only if
-    it can be recommended at all: live, of a class that is a target, and not
-    excluded for the member before T. A recommended sibling edition of a
-    held-out item is a hit for that item. Members with nothing left to hit
-    are not evaluated.
+    it can be recommended at all: live, of a class that is a target, not
+    excluded for the member before T, and allowed by the member's hidden
+    categories and catalog languages. The popularity list is filtered the
+    same way per member. A recommended sibling edition of a held-out item is
+    a hit for that item. Members with nothing left to hit are not evaluated.
     """
     applied = dict(overrides or {})
     if top_n is not None:
@@ -353,6 +355,11 @@ def evaluate(
         siblings = _siblings_by_edition(live)
         popular = popular_items(cutoff, n + POPULARITY_SPARE)
         popular_cats = _categories_of(popular)
+        # one category lookup for every id a member's filter may see
+        cats = {
+            **_categories_of(live | set().union(*siblings.values())),
+            **popular_cats,
+        }
         timings["truth_and_baseline"] = time.monotonic() - started
 
         started = time.monotonic()
@@ -363,10 +370,18 @@ def evaluate(
             held_out = (mapped.get(identity_pk, set()) & live) - excluded
             if not held_out:
                 continue
+            related = set().union(*(siblings.get(i, set()) for i in held_out))
+            allowed = recommendable_for_user(
+                user_pk, [*held_out, *related, *popular], cats
+            )
+            held_out &= allowed
+            if not held_out:
+                continue
             truth = {i: i for i in held_out}
             for i in held_out:
                 for s in siblings.get(i, ()):
-                    truth.setdefault(s, i)
+                    if s in allowed:
+                        truth.setdefault(s, i)
             rows = compute_for_user(
                 user_pk, identity_pk, until=cutoff, similarity=similarity
             )
@@ -377,7 +392,7 @@ def evaluate(
                 len(held_out),
             )
             baseline.add(
-                [i for i in popular if i not in excluded][:n],
+                [i for i in popular if i in allowed and i not in excluded][:n],
                 popular_cats,
                 truth,
                 len(held_out),
