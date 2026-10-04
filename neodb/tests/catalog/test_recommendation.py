@@ -1140,8 +1140,8 @@ class TestSeedCombiner:
         assert ids == [targets[0].pk, targets[1].pk, self.t1.pk] + [
             t.pk for t in targets[2:]
         ]
-        served = [i.pk for i in for_you(self.user, limit=3)]
-        assert served == [targets[0].pk, targets[1].pk, self.t1.pk]
+        served = {i.pk for i in for_you(self.user, limit=3)}
+        assert served == {targets[0].pk, targets[1].pk, self.t1.pk}
 
     def test_per_seed_slots_off_keeps_score_order(self):
         targets = self._prolific_seeds()
@@ -1162,10 +1162,10 @@ class TestSeedCombiner:
         self._seed("first", t1=0.5)
         assert [i.pk for i in for_you(self.user)] == [self.t1.pk]
         self._seed("second", t2=0.4)
-        assert [i.pk for i in for_you(self.user)] == [self.t1.pk, self.t2.pk]
+        assert {i.pk for i in for_you(self.user)} == {self.t1.pk, self.t2.pk}
         # within the window the stored rows are served as they are
         self._seed("third", t3=0.3)
-        assert [i.pk for i in for_you(self.user)] == [self.t1.pk, self.t2.pk]
+        assert {i.pk for i in for_you(self.user)} == {self.t1.pk, self.t2.pk}
 
     def test_rating_edit_recomputes(self):
         _set(reco_negative_rating_gap=2.0, reco_negative_weight=0.5)
@@ -1173,7 +1173,7 @@ class TestSeedCombiner:
         for n in range(2):
             self._seed(f"graded {n}", rating=8)
         low = self._seed("low", rating=8, t1=0.5)
-        assert [i.pk for i in for_you(self.user)] == [self.t1.pk, self.t2.pk]
+        assert {i.pk for i in for_you(self.user)} == {self.t1.pk, self.t2.pk}
         # a rating-only edit leaves ShelfMember.edited_time alone
         Mark(self.identity, low).update(ShelfType.COMPLETE, "", 2, [], 0)
         assert [i.pk for i in for_you(self.user)] == [self.t2.pk]

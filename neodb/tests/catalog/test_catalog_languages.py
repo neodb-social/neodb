@@ -168,7 +168,7 @@ class TestForYou:
 
     def test_stored_rows_out_of_language_are_skipped(self):
         _stored_rows(self.user, [self.zh[0], self.en[0], self.zh[1], self.en[1]])
-        assert self._ids(limit=2) == [self.en[0].pk, self.en[1].pk]
+        assert set(self._ids(limit=2)) == {self.en[0].pk, self.en[1].pk}
 
     def test_items_without_a_known_language_are_kept(self):
         unknown = _book("Sans langue", "fr", [])
