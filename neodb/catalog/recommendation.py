@@ -804,13 +804,21 @@ def _refill(user_pk: int, identity_pk: int) -> bool:
 
 
 def _shelf_changed_since(identity_pk: int, when: datetime) -> bool:
-    newest = (
-        ShelfMember._base_manager.filter(owner_id=identity_pk)
-        .order_by("-edited_time")
-        .values_list("edited_time", flat=True)
-        .first()
-    )
-    return newest is not None and newest > when
+    """Whether a mark or a rating of the member changed after ``when``.
+
+    A rating-only edit touches the Rating row but not the ShelfMember, and
+    it can turn a seed negative, so both are checked.
+    """
+    for model in (ShelfMember, Rating):
+        newest = (
+            model._base_manager.filter(owner_id=identity_pk)
+            .order_by("-edited_time")
+            .values_list("edited_time", flat=True)
+            .first()
+        )
+        if newest is not None and newest > when:
+            return True
+    return False
 
 
 def _refresh_stale(user_pk: int, identity_pk: int) -> bool:

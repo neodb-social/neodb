@@ -1167,6 +1167,17 @@ class TestSeedCombiner:
         self._seed("third", t3=0.3)
         assert [i.pk for i in for_you(self.user)] == [self.t1.pk, self.t2.pk]
 
+    def test_rating_edit_recomputes(self):
+        _set(reco_negative_rating_gap=2.0, reco_negative_weight=0.5)
+        self._seed("graded", rating=8, t2=0.3)
+        for n in range(2):
+            self._seed(f"graded {n}", rating=8)
+        low = self._seed("low", rating=8, t1=0.5)
+        assert [i.pk for i in for_you(self.user)] == [self.t1.pk, self.t2.pk]
+        # a rating-only edit leaves ShelfMember.edited_time alone
+        Mark(self.identity, low).update(ShelfType.COMPLETE, "", 2, [], 0)
+        assert [i.pk for i in for_you(self.user)] == [self.t2.pk]
+
     def test_failed_recompute_serves_the_old_rows(self, monkeypatch):
         self._seed("first", t1=0.5)
         assert [i.pk for i in for_you(self.user)] == [self.t1.pk]
