@@ -4813,6 +4813,22 @@ msgstr ""
 msgid "Tags, collections and credits shared by more items than this are too broad to link items and are ignored."
 msgstr ""
 
+#: common/views_manage.py:653
+msgid "Feature shrinkage"
+msgstr ""
+
+#: common/views_manage.py:655
+msgid "Items sharing fewer tags, collections or credits than this score lower. 0 turns it off. Applies from the next similarity build."
+msgstr ""
+
+#: common/views_manage.py:662
+msgid "Collection item cap"
+msgstr ""
+
+#: common/views_manage.py:664
+msgid "Collections with more items than this are too broad to link items and are ignored. 0 uses the feature item cap."
+msgstr ""
+
 #: common/views_manage.py:638
 msgid "Tag weight"
 msgstr ""
@@ -4867,6 +4883,70 @@ msgstr ""
 
 #: common/views_manage.py:702
 msgid "At most this many recommendations led by the same mark come before the rest. 0 turns it off."
+msgstr ""
+
+#: common/views_manage.py:726
+msgid "Group editions and seasons"
+msgstr ""
+
+#: common/views_manage.py:728
+msgid "Recommend one edition of a work and one season of a show, and count marks on several of them as one."
+msgstr ""
+
+#: common/views_manage.py:733
+msgid "Diversity"
+msgstr ""
+
+#: common/views_manage.py:735
+msgid "How strongly a recommendation similar to a better one in the same category is pushed down, so that the list varies more. 0 turns it off."
+msgstr ""
+
+#: common/views_manage.py:743
+msgid "Extra seed decay"
+msgstr ""
+
+#: common/views_manage.py:745
+msgid "Each further mark that leads to the same recommendation adds this share of the previous one. 1 adds them in full."
+msgstr ""
+
+#: common/views_manage.py:752
+msgid "Cap negative signals"
+msgstr ""
+
+#: common/views_manage.py:754
+msgid "Count only the strongest low-rated, dropped or dismissed items against each recommendation, as many as count for it."
+msgstr ""
+
+#: common/views_manage.py:759
+msgid "Dismissal weight"
+msgstr ""
+
+#: common/views_manage.py:761
+msgid "How strongly items similar to dismissed items are pushed down. -1 uses the negative signal weight."
+msgstr ""
+
+#: common/views_manage.py:767
+msgid "Best rated seeds"
+msgstr ""
+
+#: common/views_manage.py:769
+msgid "Of the seed marks, this many are the user's best rated marks older than the recent ones. 0 uses only recent marks."
+msgstr ""
+
+#: common/views_manage.py:775
+msgid "Cold start seeds"
+msgstr ""
+
+#: common/views_manage.py:777
+msgid "A user with fewer marks than this, editions of a work or seasons of a show counting once, gets popular items after the recommendations within each mark's limit and before the rest. 0 turns it off."
+msgstr ""
+
+#: common/views_manage.py:785
+msgid "Wishlist seed weight"
+msgstr ""
+
+#: common/views_manage.py:787
+msgid "Weight of a wishlist mark as a seed, relative to a mark in progress or complete at 1."
 msgstr ""
 
 #: common/views_manage.py:663

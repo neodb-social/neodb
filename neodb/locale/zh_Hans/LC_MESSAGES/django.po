@@ -4830,6 +4830,22 @@ msgstr "特征条目上限"
 msgid "Tags, collections and credits shared by more items than this are too broad to link items and are ignored."
 msgstr "被超过此数量的条目共享的标签、收藏单和创作者过于宽泛，不用于关联条目。"
 
+#: common/views_manage.py:653
+msgid "Feature shrinkage"
+msgstr "特征收缩"
+
+#: common/views_manage.py:655
+msgid "Items sharing fewer tags, collections or credits than this score lower. 0 turns it off. Applies from the next similarity build."
+msgstr "共同标签、收藏单或创作者少于此值的条目对会得到更低的分数。设为 0 则关闭。下次构建相似度时生效。"
+
+#: common/views_manage.py:662
+msgid "Collection item cap"
+msgstr "收藏单条目上限"
+
+#: common/views_manage.py:664
+msgid "Collections with more items than this are too broad to link items and are ignored. 0 uses the feature item cap."
+msgstr "条目数超过此值的收藏单过于宽泛，不用于关联条目。设为 0 则使用特征条目上限。"
+
 #: common/views_manage.py:638
 msgid "Tag weight"
 msgstr "标签权重"
@@ -4885,6 +4901,70 @@ msgstr "每个种子的推荐数"
 #: common/views_manage.py:702
 msgid "At most this many recommendations led by the same mark come before the rest. 0 turns it off."
 msgstr "由同一标记主导的推荐，最多此数量排在其余推荐之前。设为 0 则关闭。"
+
+#: common/views_manage.py:726
+msgid "Group editions and seasons"
+msgstr "合并版本与季"
+
+#: common/views_manage.py:728
+msgid "Recommend one edition of a work and one season of a show, and count marks on several of them as one."
+msgstr "同一作品只推荐一个版本，同一剧集只推荐一季；标记了其中多个时只算一次。"
+
+#: common/views_manage.py:733
+msgid "Diversity"
+msgstr "多样性"
+
+#: common/views_manage.py:735
+msgid "How strongly a recommendation similar to a better one in the same category is pushed down, so that the list varies more. 0 turns it off."
+msgstr "与同一类别中排名更高的推荐相似的推荐被压低的程度，使列表更多样。设为 0 则关闭。"
+
+#: common/views_manage.py:743
+msgid "Extra seed decay"
+msgstr "额外种子衰减"
+
+#: common/views_manage.py:745
+msgid "Each further mark that leads to the same recommendation adds this share of the previous one. 1 adds them in full."
+msgstr "指向同一推荐的每个后续标记，只计入前一个的这一比例。设为 1 则全部计入。"
+
+#: common/views_manage.py:752
+msgid "Cap negative signals"
+msgstr "限制负面信号"
+
+#: common/views_manage.py:754
+msgid "Count only the strongest low-rated, dropped or dismissed items against each recommendation, as many as count for it."
+msgstr "每条推荐只计入最强的若干低分、已放弃或不感兴趣的条目，数量与计入的正面信号相同。"
+
+#: common/views_manage.py:759
+msgid "Dismissal weight"
+msgstr "不感兴趣权重"
+
+#: common/views_manage.py:761
+msgid "How strongly items similar to dismissed items are pushed down. -1 uses the negative signal weight."
+msgstr "与不感兴趣的条目相似的条目被压低的程度。设为 -1 则使用负面信号权重。"
+
+#: common/views_manage.py:767
+msgid "Best rated seeds"
+msgstr "高分种子数"
+
+#: common/views_manage.py:769
+msgid "Of the seed marks, this many are the user's best rated marks older than the recent ones. 0 uses only recent marks."
+msgstr "种子标记中，这一数量取自用户早于近期标记的最高评分标记。设为 0 则只用近期标记。"
+
+#: common/views_manage.py:775
+msgid "Cold start seeds"
+msgstr "冷启动种子数"
+
+#: common/views_manage.py:777
+msgid "A user with fewer marks than this, editions of a work or seasons of a show counting once, gets popular items after the recommendations within each mark's limit and before the rest. 0 turns it off."
+msgstr "标记数少于此值的用户（同一作品的多个版本或同一剧集的多季只算一次），会在每个标记限额内的推荐之后、其余推荐之前看到热门条目。设为 0 则关闭。"
+
+#: common/views_manage.py:785
+msgid "Wishlist seed weight"
+msgstr "想看种子权重"
+
+#: common/views_manage.py:787
+msgid "Weight of a wishlist mark as a seed, relative to a mark in progress or complete at 1."
+msgstr "想看标记作为种子的权重，在看或看过的标记为 1。"
 
 #: common/views_manage.py:663
 msgid "Master switch"
