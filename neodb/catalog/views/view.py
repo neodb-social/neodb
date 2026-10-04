@@ -811,23 +811,30 @@ def _originals_section(rot: int) -> DiscoverSection:
     return "_discover_originals.html", {"original_shows": shows}, [], len(shows)
 
 
-def _collections_section(rot: int) -> DiscoverSection:
+def _featured_collections(collection_ids: list[int]) -> list[Collection]:
     # cards read cover_previews, member_count and owner_name from the
     # instance; the job cached them so no members query runs per page view
-    featured_collections: list[Collection] = []
-    collection_ids = _rotate(list(cache.get("featured_collections", [])), rot)
-    if collection_ids:
-        meta = cache.get("discover_collection_meta", {})
-        by_id = {c.pk: c for c in Collection.objects.filter(pk__in=collection_ids)}
-        for cid in collection_ids:
-            c = by_id.get(cid)
-            if c is None:
-                continue
-            m = meta.get(cid, {})
-            c.cover_previews = m.get("covers", [])
-            c.member_count = m.get("count") or 0
-            c.owner_name = m.get("owner", "")
-            featured_collections.append(c)
+    if not collection_ids:
+        return []
+    meta = cache.get("discover_collection_meta", {})
+    by_id = {c.pk: c for c in Collection.objects.filter(pk__in=collection_ids)}
+    collections: list[Collection] = []
+    for cid in collection_ids:
+        c = by_id.get(cid)
+        if c is None:
+            continue
+        m = meta.get(cid, {})
+        c.cover_previews = m.get("covers", [])
+        c.member_count = m.get("count") or 0
+        c.owner_name = m.get("owner", "")
+        collections.append(c)
+    return collections
+
+
+def _collections_section(rot: int) -> DiscoverSection:
+    featured_collections = _featured_collections(
+        _rotate(list(cache.get("featured_collections", [])), rot)
+    )
     return (
         "_discover_collections.html",
         {"featured_collections": featured_collections},
@@ -1069,6 +1076,25 @@ def discover_original_podcasts(request):
         {
             "podcasts": podcasts,
             "pagination": pagination,
+            "total": paginator.count,
+            **_discover_sidebar_context(request),
+        },
+    )
+
+
+def discover_collections(request):
+    """Every collection on the discover shelf, in the job's order."""
+    paginator = CustomPaginator(list(cache.get("featured_collections", [])), request)
+    page_number = request.GET.get("page", default=1)
+    page = paginator.get_page(page_number)
+    return render(
+        request,
+        "discover_collections.html",
+        {
+            "featured_collections": _featured_collections(list(page.object_list)),
+            "pagination": PageLinksGenerator(
+                page_number, paginator.num_pages, request.GET
+            ),
             "total": paginator.count,
             **_discover_sidebar_context(request),
         },

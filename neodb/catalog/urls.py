@@ -305,6 +305,11 @@ urlpatterns = [
         name="discover_original_podcasts",
     ),
     path(
+        "discover/collections/",
+        discover_collections,
+        name="discover_collections",
+    ),
+    path(
         "discover/for-you/",
         discover_reco,
         {"kind": "for_you"},

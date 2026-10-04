@@ -647,3 +647,34 @@ class TestDiscoverFragments:
         content = client.get("/discover/").content.decode()
         assert "2026-01-02" in content
         assert "2026-01-01" not in content
+
+
+class TestDiscoverCollectionsPage:
+    def _collections(self, n: int) -> list[Collection]:
+        owner = User.register(email="curator@example.com", username="curator")
+        return [
+            Collection.objects.create(
+                owner=owner.identity, title=f"Featured {i}", visibility=0
+            )
+            for i in range(n)
+        ]
+
+    def test_lists_cached_collections_in_order(self, site_config):
+        collections = self._collections(3)
+        cache.set("featured_collections", [c.pk for c in collections], timeout=None)
+        response = Client().get("/discover/collections/")
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert content.index("Featured 0") < content.index("Featured 2")
+
+    def test_empty_cache_renders_empty_page(self, site_config):
+        cache.delete("featured_collections")
+        response = Client().get("/discover/collections/")
+        assert response.status_code == 200
+        assert "Nothing so far." in response.content.decode()
+
+    def test_discover_links_to_the_page(self, site_config):
+        collections = self._collections(1)
+        cache.set("featured_collections", [c.pk for c in collections], timeout=None)
+        content = Client().get("/discover/").content.decode()
+        assert "/discover/collections/" in content

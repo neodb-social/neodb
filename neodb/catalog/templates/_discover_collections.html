@@ -7,6 +7,8 @@
     <h2>{% trans "Collections" %}</h2>
     <span class="dc-sub">{% trans "Lists made by members, most recently updated first." %}</span>
     <span class="action">
+      <a class="dc-more"
+         href="{% url 'catalog:discover_collections' %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
       <button class="dc-nav dc-scroll"
               type="button"
               aria-label="{% trans 'Scroll left' %}"
