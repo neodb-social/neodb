@@ -132,6 +132,7 @@ class SiteConfig(models.Model):
         reco_wishlist_seed_weight: float = 1.0
         reco_feature_shrinkage: float = 0.0
         reco_max_collection_items: int = 0
+        reco_cold_start_seeds: int = 0
 
         # Localization
         preferred_languages: list[str] = ["en", "zh"]

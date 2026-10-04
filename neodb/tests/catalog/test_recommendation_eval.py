@@ -211,6 +211,14 @@ class TestEvaluate:
         assert starved.recommendations.at_k[0].hit_rate == 0.0
         assert SiteConfig.system.reco_min_source_marks == 2
 
+    def test_cold_start_fill_is_counted_before_cutoff(self):
+        self._co_marked_world()
+        result = self._evaluate(overrides={"reco_cold_start_seeds": 10})
+        assert result.recommendations.at_k[0].hit_rate == 1.0
+        # A is the target's seed and B already listed; the held-out mark on B
+        # is after the cutoff, so it does not make B popular either
+        assert result.recommendations.distinct_items == 1
+
     def test_top_n_conflicting_with_override_is_refused(self):
         with pytest.raises(ValueError):
             self._evaluate(top_n=10, overrides={"reco_user_top_n": 5})

@@ -38,6 +38,7 @@ from journal.models import (
     q_piece_visible_to_user,
 )
 from takahe.models import Identity as TakaheIdentity
+from takahe.utils import Takahe
 from users.models import APIdentity, Preference, User
 
 from .models import (
@@ -332,6 +333,23 @@ SHELF_TYPES_TO_EXCLUDE = ("wishlist", "progress", "complete", "dropped")
 
 # Surfaces that can be shown to anonymous viewers (the rest require a User).
 ANON_VISIBLE_KINDS = frozenset({"similar_items"})
+
+
+def excluded_identity_ids() -> set[int]:
+    """Identities whose marks, tags and collections never train recommendations.
+
+    Reuses the existing ``discoverable`` flag on Takahe Identity (also the
+    source of truth for ``DiscoverGenerator``). Users uncheck "Include
+    profile and posts in discovery" on their account page to opt out of
+    being used as a training signal for recommendations. Accounts and
+    domains on the site's ``discover_exclude_posts_from`` list are left out
+    the same way.
+    """
+    return set(
+        TakaheIdentity.objects.filter(discoverable=False).values_list("pk", flat=True)
+    ) | Takahe.get_identity_ids_by_handles(
+        SiteConfig.system.discover_exclude_posts_from
+    )
 
 
 def can_show_reco(user, kind: str) -> bool:
@@ -880,23 +898,113 @@ def user_reco_exclusions(
     return dismissed, hidden | _sibling_edition_ids(hidden)
 
 
+# window of public marks a popular item is counted over
+POPULARITY_WINDOW_DAYS = 90
+# popular items kept beyond any list length, so that a member's own items
+# can be skipped and the list still fill up
+POPULARITY_SPARE = 1000
+_POPULAR_KEY = "reco:popular"
+_POPULAR_TTL = 86400
+
+
+def popular_items(
+    cutoff: datetime, limit: int, excluded_owners: Collection[int] = ()
+) -> list[int]:
+    """Items by distinct owners of public seed-shelf marks in the window before ``cutoff``."""
+    qs = ShelfMember._base_manager.filter(
+        visibility=0,
+        parent__shelf_type__in=SHELF_TYPES_AS_SEED,
+        edited_time__gte=cutoff - timedelta(days=POPULARITY_WINDOW_DAYS),
+        edited_time__lt=cutoff,
+        item__is_deleted=False,
+        item__merged_to_item_id__isnull=True,
+    )
+    excluded = excluded_target_ctype_ids()
+    if excluded:
+        qs = qs.exclude(item__polymorphic_ctype_id__in=excluded)
+    if excluded_owners:
+        qs = qs.exclude(owner_id__in=excluded_owners)
+    return list(
+        qs.order_by()
+        .values("item_id")
+        .annotate(n=Count("owner_id", distinct=True))
+        .order_by("-n", "item_id")
+        .values_list("item_id", flat=True)[:limit]
+    )
+
+
+class PopularItems(NamedTuple):
+    ids: list[int]
+    cats: dict[int, str]
+    groups: RecoGroups
+
+
+def popular_fill(cutoff: datetime | None = None) -> PopularItems:
+    """Popular items that fill a cold-start list, most popular first.
+
+    Marks of owners left out of training do not count.
+    """
+    ids = popular_items(
+        cutoff or timezone.now(), POPULARITY_SPARE, excluded_identity_ids()
+    )
+    return PopularItems(ids, _categories_of(ids), reco_groups(ids))
+
+
+def refresh_popular_fill() -> PopularItems:
+    fill = popular_fill()
+    cache.set(_POPULAR_KEY, fill, timeout=_POPULAR_TTL)
+    return fill
+
+
+def cached_popular_fill() -> PopularItems:
+    """``popular_fill`` as of now, computed at most once per ``_POPULAR_TTL``."""
+    fill = cache.get(_POPULAR_KEY)
+    return fill if fill is not None else refresh_popular_fill()
+
+
+def _cold_start_fill(
+    user_pk: int,
+    popular: PopularItems,
+    skip: set[int],
+    taken: set[Hashable],
+    grouped: bool,
+    below: float,
+) -> list[tuple[int, float]]:
+    """Popular items for the member, one per group not ``taken``, scored under ``below``."""
+    candidates = [i for i in popular.ids if i not in skip]
+    allowed = recommendable_for_user(user_pk, candidates, popular.cats)
+    picked: list[int] = []
+    for i in candidates:
+        key = _group_of(i, popular.groups) if grouped else i
+        if i in allowed and key not in taken:
+            taken.add(key)
+            picked.append(i)
+    n = len(picked)
+    return [(i, below * (n - k) / (n + 1)) for k, i in enumerate(picked)]
+
+
 def compute_for_user(
     user_pk: int,
     identity_pk: int,
     *,
     until: datetime | None = None,
     similarity: SimilarityLookup | None = None,
+    popular: PopularItems | None = None,
 ) -> list[UserRecommendation]:
     """Score candidate items for one user, returning unsaved UserRecommendation rows.
 
     Seeds are the user's recent marks of any visibility: the rows are shown
     to nobody else. A seed rated well below the user's own average, a
     dropped item and a dismissed item lower the score of their neighbours.
+    A member with fewer seed groups than ``reco_cold_start_seeds`` gets
+    popular items after the rows within their seed's slots and before the
+    rest.
 
     ``until`` replays the member as of that time for offline evaluation:
     only marks, content and dismissals before it count, and it stands in
     for now in the seed decay. ``similarity`` replaces the stored
-    neighbours, e.g. with a build bounded by the same time.
+    neighbours, e.g. with a build bounded by the same time. ``popular``
+    replaces the cached popular items, e.g. counted before the same time.
     """
     sys = SiteConfig.system
     seed_cap = sys.reco_per_user_seed_cap
@@ -1029,6 +1137,9 @@ def compute_for_user(
     group_items = sys.reco_group_items
     # seeds of one group (editions of a Work, seasons of a show) count once
     seed_groups = reco_groups(seed_set | set(negatives)) if group_items else NO_GROUPS
+    cold = (
+        len({_group_of(s, seed_groups) for s in positive}) < sys.reco_cold_start_seeds
+    )
 
     # the strongest (contribution, seed) of each seed group, per target
     contribs: dict[int, dict[Hashable, tuple[float, int]]] = {}
@@ -1041,7 +1152,7 @@ def compute_for_user(
         kept = by_group.get(key)
         if kept is None or entry > kept:
             by_group[key] = entry
-    if not contribs:
+    if not contribs and not cold:
         return []
     strongest = {
         tgt: nlargest(SEED_CONTRIB_CAP, by_group.values())
@@ -1067,7 +1178,7 @@ def compute_for_user(
             else:
                 scores[tgt] -= sum(by_group.values())
         scores = {tgt: sc for tgt, sc in scores.items() if sc > 0}
-        if not scores:
+        if not scores and not cold:
             return []
     seeds_by_target = {tgt: [src for _, src in strongest[tgt][:3]] for tgt in scores}
 
@@ -1075,15 +1186,31 @@ def compute_for_user(
     cats = _categories_of([t for t, _ in ranked] + positive)
     allowed = recommendable_for_user(user_pk, [t for t, _ in ranked], cats)
     ranked = [(t, sc) for t, sc in ranked if t in allowed]
-    if not ranked:
+    if not ranked and not cold:
         return []
+    target_groups = NO_GROUPS
     if group_items:
-        ranked, stand_in = _dedupe_groups(ranked, reco_groups([t for t, _ in ranked]))
+        target_groups = reco_groups([t for t, _ in ranked])
+        ranked, stand_in = _dedupe_groups(ranked, target_groups)
         for rep, best in stand_in.items():
             seeds_by_target[rep] = seeds_by_target[best]
     admitted, overflow = _split_per_seed(
         ranked, seeds_by_target, sys.reco_per_seed_slots, seed_groups
     )
+    if cold:
+        popular = popular or cached_popular_fill()
+        fill = _cold_start_fill(
+            user_pk,
+            popular,
+            excluded | seed_set | scores.keys(),
+            {_group_of(t, target_groups) for t, _ in ranked},
+            group_items,
+            min((sc for _, sc in admitted), default=1.0),
+        )
+        cats.update((i, popular.cats[i]) for i, _ in fill)
+        admitted += fill
+        if not admitted:
+            return []
     ranked = admitted + overflow
     # slots follow the mix of the member's own marks, a seed group counting once
     weights: dict[str, float] = {}

@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.core.cache import cache
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
@@ -36,11 +37,13 @@ from catalog.recommendation import (
     _balanced_top,
     _cap_per_seed,
     aggregate_contributions,
+    cached_popular_fill,
     compute_for_user,
     dismiss_item,
     for_you,
     from_your_circles,
     mark_weight,
+    popular_fill,
     reco_groups,
     similar_items,
     training_rewrite_map,
@@ -1944,4 +1947,122 @@ class TestNegativesAndSeedSelection:
         assert self._scores() == {
             self.target.pk: pytest.approx(0.3),
             other.pk: pytest.approx(0.4),
+        }
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestColdStart:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_user_top_n=5,
+            reco_per_user_seed_cap=50,
+            reco_negative_weight=0.0,
+            reco_seed_half_life_days=0,
+            reco_per_seed_slots=2,
+            reco_user_active_days=30,
+        )
+        cache.delete("reco:popular")
+        self.user = User.register(email="cold@t.com", username="cold_user")
+        self.seed = Edition.objects.create(title="Only seed")
+        _public_mark(self.user.identity, self.seed, rating=0)
+        self.personal = [Edition.objects.create(title=f"Near {n}") for n in range(5)]
+        for n, item in enumerate(self.personal):
+            ItemSimilarity.objects.create(
+                source=self.seed,
+                target=item,
+                score=0.9 - n / 100,
+                method=ItemSimilarity.METHOD_BLENDED,
+            )
+        others = [
+            User.register(email=f"crowd{i}@t.com", username=f"crowd{i}").identity
+            for i in range(4)
+        ]
+        self.popular = [Edition.objects.create(title=f"Hit {n}") for n in range(4)]
+        # Hit 0 has four owners, Hit 3 one
+        for n, item in enumerate(self.popular):
+            for ident in others[: 4 - n]:
+                _public_mark(ident, item, rating=0)
+        self.movie = Movie.objects.create(title="Hit film")
+        for ident in others:
+            _public_mark(ident, self.movie, rating=0)
+        yield
+        cache.delete("reco:popular")
+
+    def _ids(self, **kwargs) -> list[int]:
+        rows = compute_for_user(self.user.pk, self.user.identity.pk, **kwargs)
+        return [r.item_id for r in rows]
+
+    def test_off_keeps_the_overflow(self):
+        assert set(self._ids()) == {i.pk for i in self.personal}
+
+    def test_popular_items_come_before_the_overflow(self):
+        _set(reco_cold_start_seeds=10)
+        rows = compute_for_user(self.user.pk, self.user.identity.pk)
+        assert {r.item_id for r in rows} == {
+            self.personal[0].pk,
+            self.personal[1].pk,
+            *(i.pk for i in self.popular[:3]),
+        }
+        fill = {r.item_id: r for r in rows if not r.seed_item_ids}
+        assert set(fill) == {i.pk for i in self.popular[:3]}
+        assert {r.category for r in rows} == {"book"}
+        ranked = sorted(rows, key=lambda r: r.score, reverse=True)
+        assert [r.item_id for r in ranked] == [
+            self.personal[0].pk,
+            self.personal[1].pk,
+            *(i.pk for i in self.popular[:3]),
+        ]
+
+    def test_enough_seeds_is_not_cold(self):
+        _set(reco_cold_start_seeds=1)
+        assert set(self._ids()) == {i.pk for i in self.personal}
+
+    def test_shelved_popular_item_is_skipped(self):
+        _set(reco_cold_start_seeds=10)
+        _public_mark(self.user.identity, self.popular[0], rating=0)
+        ids = self._ids()
+        assert self.popular[0].pk not in ids
+        assert self.popular[3].pk in ids
+
+    def test_no_neighbours_still_fills(self):
+        _set(reco_cold_start_seeds=10)
+        ItemSimilarity.objects.all().delete()
+        # four books for five book slots, the film takes the spare one
+        assert set(self._ids()) == {i.pk for i in self.popular} | {self.movie.pk}
+
+    def test_popular_editions_of_one_work_count_once(self):
+        _set(reco_cold_start_seeds=10)
+        work = Work.objects.create(title="Hit work")
+        work.editions.add(self.popular[0], self.popular[1])
+        ids = self._ids()
+        assert self.popular[0].pk in ids
+        assert self.popular[1].pk not in ids
+
+    def test_fill_is_cached_and_job_refreshes_it(self):
+        _set(reco_cold_start_seeds=10)
+        assert cached_popular_fill().ids[:1] == [self.popular[0].pk]
+        late = Edition.objects.create(title="Late hit")
+        for i in range(5):
+            ident = User.register(email=f"late{i}@t.com", username=f"late{i}").identity
+            _public_mark(ident, late, rating=0)
+        assert cached_popular_fill().ids[:1] == [self.popular[0].pk]
+        assert popular_fill().ids[:1] == [late.pk]
+        BuildUserRecommendations().run()
+        assert cached_popular_fill().ids[:1] == [late.pk]
+        assert UserRecommendation.objects.filter(
+            user=self.user, item=late, seed_item_ids=[]
+        ).exists()
+
+    def test_served_fill_ranks_before_overflow(self):
+        _set(reco_cold_start_seeds=10, reco_user_top_n=7)
+        UserRecommendation.objects.bulk_create(
+            compute_for_user(self.user.pk, self.user.identity.pk)
+        )
+        served = {i.pk for i in for_you(self.user, limit=5)}
+        assert served == {
+            self.personal[0].pk,
+            self.personal[1].pk,
+            *(i.pk for i in self.popular[:3]),
         }

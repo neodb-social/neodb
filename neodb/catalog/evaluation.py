@@ -19,7 +19,7 @@ import time
 from collections.abc import Hashable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 from django.db.models import Count, Q
@@ -27,6 +27,7 @@ from django.db.models import Count, Q
 from catalog.jobs.recommendation import CONTENT_CREDIT_ROLES, BuildItemSimilarity
 from catalog.models import Item, ItemCredit, Work
 from catalog.recommendation import (
+    POPULARITY_SPARE,
     SHELF_TYPES_AS_SEED,
     RecoGroups,
     SimilarityLookup,
@@ -34,7 +35,8 @@ from catalog.recommendation import (
     _group_of,
     _live_items,
     compute_for_user,
-    excluded_target_ctype_ids,
+    popular_fill,
+    popular_items,
     reco_groups,
     recommendable_for_user,
     training_rewrite_map,
@@ -45,11 +47,6 @@ from journal.models import ShelfMember
 
 OverrideValue = int | float | bool
 
-# window of public marks the popularity baseline counts, before T
-POPULARITY_WINDOW_DAYS = 90
-# popular items fetched beyond top_n, so the member's own shelved items can
-# be skipped and the list still fill up
-POPULARITY_SPARE = 1000
 _ID_CHUNK = 1000
 # lower bounds of the member buckets by seed-shelf marks before T
 MARK_BUCKETS = ((0, "<10"), (10, "10-49"), (50, "50-199"), (200, "200+"))
@@ -421,28 +418,6 @@ def _siblings_by_edition(item_ids: set[int]) -> dict[int, set[int]]:
     }
 
 
-def popular_items(cutoff: datetime, limit: int) -> list[int]:
-    """Items by distinct owners of public seed-shelf marks in the window before T."""
-    qs = ShelfMember._base_manager.filter(
-        visibility=0,
-        parent__shelf_type__in=SHELF_TYPES_AS_SEED,
-        edited_time__gte=cutoff - timedelta(days=POPULARITY_WINDOW_DAYS),
-        edited_time__lt=cutoff,
-        item__is_deleted=False,
-        item__merged_to_item_id__isnull=True,
-    )
-    excluded = excluded_target_ctype_ids()
-    if excluded:
-        qs = qs.exclude(item__polymorphic_ctype_id__in=excluded)
-    return list(
-        qs.order_by()
-        .values("item_id")
-        .annotate(n=Count("owner_id", distinct=True))
-        .order_by("-n", "item_id")
-        .values_list("item_id", flat=True)[:limit]
-    )
-
-
 def evaluate(
     cutoff: datetime,
     *,
@@ -496,6 +471,8 @@ def evaluate(
         live = _live_target_ids(set().union(*mapped.values()))
         siblings = _siblings_by_edition(live)
         popular = popular_items(cutoff, n + POPULARITY_SPARE)
+        # what a cold-start list is filled from, as the nightly job counts it
+        fill = popular_fill(cutoff) if sys.reco_cold_start_seeds > 0 else None
         popular_cats = _categories_of(popular)
         # one category lookup for every id a member's filter may see
         cats = {
@@ -525,7 +502,7 @@ def evaluate(
                     if s in allowed:
                         truth.setdefault(s, i)
             rows = compute_for_user(
-                user_pk, identity_pk, until=cutoff, similarity=similarity
+                user_pk, identity_pk, until=cutoff, similarity=similarity, popular=fill
             )
             bucket = mark_bucket(marks)
             reco.add(

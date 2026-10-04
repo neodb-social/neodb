@@ -771,6 +771,16 @@ class RecommendationSettings(SiteConfigSettingsPage):
             ),
             "min_value": 0,
         },
+        "reco_cold_start_seeds": {
+            "title": _("Cold start seeds"),
+            "help_text": _(
+                "A user with fewer marks than this, editions of a work or seasons "
+                "of a show counting once, gets popular items after the "
+                "recommendations within each mark's limit and before the rest. "
+                "0 turns it off."
+            ),
+            "min_value": 0,
+        },
         "reco_wishlist_seed_weight": {
             "title": _("Wishlist seed weight"),
             "help_text": _(
@@ -820,6 +830,7 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "reco_seed_top_rated",
             "reco_wishlist_seed_weight",
             "reco_per_seed_slots",
+            "reco_cold_start_seeds",
             "reco_group_items",
             "reco_diversity_lambda",
             "reco_seed_agg_decay",
