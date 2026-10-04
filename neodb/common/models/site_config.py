@@ -123,6 +123,16 @@ class SiteConfig(models.Model):
         reco_negative_weight: float = 0.5
         reco_seed_half_life_days: int = 365
         reco_per_seed_slots: int = 10
+        reco_group_items: bool = True
+        reco_diversity_lambda: float = 0.0
+        reco_seed_agg_decay: float = 1.0
+        reco_cap_negatives: bool = False
+        reco_dismissal_weight: float = -1.0
+        reco_seed_top_rated: int = 0
+        reco_wishlist_seed_weight: float = 1.0
+        reco_feature_shrinkage: float = 0.0
+        reco_max_collection_items: int = 0
+        reco_cold_start_seeds: int = 0
 
         # Localization
         preferred_languages: list[str] = ["en", "zh"]

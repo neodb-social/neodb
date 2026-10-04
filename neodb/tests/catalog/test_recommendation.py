@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.core.cache import cache
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
@@ -26,6 +27,7 @@ from catalog.models import (
     Movie,
     Performance,
     PerformanceProduction,
+    TVSeason,
     TVShow,
     UserRecommendation,
     Work,
@@ -33,17 +35,30 @@ from catalog.models import (
 from catalog.recommendation import (
     blended_for_discover,
     _balanced_top,
+    _cap_per_seed,
+    aggregate_contributions,
+    cached_popular_fill,
     compute_for_user,
     dismiss_item,
     for_you,
     from_your_circles,
     mark_weight,
+    popular_fill,
+    reco_groups,
     similar_items,
     training_rewrite_map,
     user_mean_grade,
 )
 from common.models import SiteConfig
-from journal.models import Collection, Mark, Note, Review, ShelfMember, ShelfType
+from journal.models import (
+    Collection,
+    Mark,
+    Note,
+    Rating,
+    Review,
+    ShelfMember,
+    ShelfType,
+)
 from users.models import User
 
 
@@ -1395,6 +1410,35 @@ class TestBlendedSimilarity:
             ItemSimilarity.METHOD_BLENDED
         }
 
+    def test_feature_shrinkage(self):
+        for item in (self.a, self.b):
+            self.users[0].tag_manager.tag_item(item, ["noir", "rain"], 0)
+        self.users[0].tag_manager.tag_item(self.c, ["noir"], 0)
+        BuildItemSimilarity().run()
+        one_tag = self._score(self.a, self.c, ItemSimilarity.METHOD_BLENDED)
+        two_tags = self._score(self.a, self.b, ItemSimilarity.METHOD_BLENDED)
+        assert one_tag is not None and two_tags is not None
+        _set(reco_feature_shrinkage=2.0)
+        BuildItemSimilarity().run()
+        assert self._score(
+            self.a, self.c, ItemSimilarity.METHOD_BLENDED
+        ) == pytest.approx(one_tag * 1 / (1 + 2), rel=1e-5)
+        assert self._score(
+            self.a, self.b, ItemSimilarity.METHOD_BLENDED
+        ) == pytest.approx(two_tags * 2 / (2 + 2), rel=1e-5)
+
+    def test_collection_item_cap(self):
+        collection = Collection.objects.create(
+            owner=self.users[0], title="Big", brief="", visibility=0
+        )
+        for item in (self.a, self.b, self.c):
+            collection.append_item(item)
+        BuildItemSimilarity().run()
+        assert ItemSimilarity.objects.filter(source=self.a).exists()
+        _set(reco_max_collection_items=2)
+        BuildItemSimilarity().run()
+        assert not ItemSimilarity.objects.exists()
+
     def test_rebuild_drops_rows_of_other_methods(self):
         for ident in self.users:
             _public_mark(ident, self.a, rating=0)
@@ -1525,3 +1569,522 @@ class TestBalanceByCategory:
         rows = compute_for_user(viewer.pk, viewer.identity.pk)
         assert rows
         assert {r.category for r in rows} == {"book"}
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestGroupEditionsAndSeasons:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_user_top_n=20,
+            reco_per_user_seed_cap=50,
+            reco_negative_weight=0.0,
+            reco_seed_half_life_days=0,
+            reco_per_seed_slots=0,
+            reco_group_items=True,
+        )
+        self.user = User.register(email="grp@t.com", username="grp_user")
+        self.identity = self.user.identity
+        self.work = Work.objects.create(title="Grouped work")
+        self.e1, self.e2 = (Edition.objects.create(title=f"Ed {n}") for n in (1, 2))
+        self.work.editions.add(self.e1, self.e2)
+        self.show = TVShow.objects.create(title="Grouped show")
+        self.seasons = [
+            TVSeason.objects.create(title=f"S{n}", show=self.show, season_number=n)
+            for n in range(1, 8)
+        ]
+
+    def _link(self, source: Item, target: Item, score: float) -> None:
+        ItemSimilarity.objects.create(
+            source=source,
+            target=target,
+            score=score,
+            method=ItemSimilarity.METHOD_BLENDED,
+        )
+
+    def _rows(self) -> dict[int, float]:
+        return {
+            r.item_id: r.score for r in compute_for_user(self.user.pk, self.identity.pk)
+        }
+
+    def test_group_keys(self):
+        loner = Movie.objects.create(title="Alone")
+        groups = reco_groups([self.e1.pk, self.e2.pk, self.seasons[2].pk, loner.pk])
+        assert groups.keys == {
+            self.e1.pk: ("work", self.work.pk),
+            self.e2.pk: ("work", self.work.pk),
+            self.seasons[2].pk: ("show", self.show.pk),
+        }
+        assert groups.seasons == {self.seasons[2].pk: 3}
+
+    def test_edition_in_two_works_takes_the_lowest(self):
+        later = Work.objects.create(title="Later work")
+        later.editions.add(self.e1)
+        assert reco_groups([self.e1.pk]).keys == {self.e1.pk: ("work", self.work.pk)}
+
+    def test_one_edition_per_work(self):
+        seed = Edition.objects.create(title="Seed")
+        _public_mark(self.identity, seed, rating=0)
+        other = Edition.objects.create(title="Other")
+        self._link(seed, self.e1, 0.4)
+        self._link(seed, self.e2, 0.6)
+        self._link(seed, other, 0.3)
+        assert self._rows() == {
+            self.e2.pk: pytest.approx(0.6),
+            other.pk: pytest.approx(0.3),
+        }
+        _set(reco_group_items=False)
+        assert set(self._rows()) == {self.e1.pk, self.e2.pk, other.pk}
+
+    def test_seasons_as_seeds_count_once(self):
+        target = Movie.objects.create(title="Shared neighbour")
+        for season in self.seasons[:2]:
+            _public_mark(self.identity, season, rating=0)
+        self._link(self.seasons[0], target, 0.5)
+        self._link(self.seasons[1], target, 0.4)
+        assert self._rows() == {target.pk: pytest.approx(0.5)}
+        _set(reco_group_items=False)
+        assert self._rows() == {target.pk: pytest.approx(0.9)}
+
+    def test_show_stands_as_next_season(self):
+        seed = Movie.objects.create(title="Seed film")
+        _public_mark(self.identity, seed, rating=0)
+        for season in self.seasons[:2]:
+            _public_mark(self.identity, season, rating=0)
+        for n, season in enumerate(self.seasons[2:]):
+            # S5 scores best, S3 is the next season
+            self._link(seed, season, 0.9 if n == 2 else 0.5 - n / 100)
+        rows = compute_for_user(self.user.pk, self.identity.pk)
+        assert [(r.item_id, r.score) for r in rows] == [
+            (self.seasons[2].pk, pytest.approx(0.9))
+        ]
+        assert rows[0].seed_item_ids == [seed.pk]
+
+    def test_seed_group_shares_per_seed_slots(self):
+        loner = Movie.objects.create(title="Alone")
+        ranked = [(1, 0.9), (2, 0.8), (3, 0.7)]
+        seeds = {1: [self.e1.pk], 2: [self.e2.pk], 3: [loner.pk]}
+        groups = reco_groups([self.e1.pk, self.e2.pk, loner.pk])
+        assert _cap_per_seed(ranked, seeds, 1) == ranked
+        assert _cap_per_seed(ranked, seeds, 1, groups) == [(1, 0.9), (3, 0.7), (2, 0.8)]
+
+    def test_category_slots_count_seed_groups(self):
+        _set(reco_user_top_n=4)
+        book_seed = Edition.objects.create(title="Seed book")
+        for item in (*self.seasons[:3], book_seed):
+            _public_mark(self.identity, item, rating=0)
+        for n in range(4):
+            self._link(
+                self.seasons[0],
+                TVSeason.objects.create(title=f"Other show {n}"),
+                0.9 - n / 100,
+            )
+            self._link(
+                book_seed, Edition.objects.create(title=f"Book {n}"), 0.1 - n / 100
+            )
+        cats = [r.category for r in compute_for_user(self.user.pk, self.identity.pk)]
+        assert sorted(cats) == ["book", "book", "tv", "tv"]
+        _set(reco_group_items=False)
+        cats = [r.category for r in compute_for_user(self.user.pk, self.identity.pk)]
+        assert sorted(cats) == ["book", "tv", "tv", "tv"]
+
+    def test_for_you_dedupes_stored_rows(self):
+        seed = Edition.objects.create(title="Seed")
+        _public_mark(self.identity, seed, rating=0)
+        for item, score in ((self.e1, 0.9), (self.e2, 0.8), (self.seasons[4], 0.7)):
+            UserRecommendation.objects.create(
+                user=self.user,
+                item=item,
+                score=score,
+                category=str(item.category),
+                seed_item_ids=[seed.pk],
+            )
+        UserRecommendation.objects.create(
+            user=self.user,
+            item=self.seasons[1],
+            score=0.1,
+            category="tv",
+            seed_item_ids=[seed.pk],
+        )
+        served = {i.pk for i in for_you(self.user)}
+        assert served == {self.e1.pk, self.seasons[1].pk}
+
+    def test_similar_items_skip_own_group_and_dedupe(self):
+        other_work = Work.objects.create(title="Other work")
+        o1, o2 = (Edition.objects.create(title=f"Other ed {n}") for n in (1, 2))
+        other_work.editions.add(o1, o2)
+        self._link(self.e1, self.e2, 0.9)
+        self._link(self.e1, o1, 0.8)
+        self._link(self.e1, o2, 0.7)
+        self._link(self.e1, self.seasons[3], 0.6)
+        self._link(self.e1, self.seasons[1], 0.5)
+        ids = [i.pk for i in similar_items(self.e1)]
+        assert ids == [o1.pk, self.seasons[1].pk]
+        _set(reco_group_items=False)
+        assert len(similar_items(self.e1)) == 5
+
+
+def test_aggregate_contributions():
+    assert aggregate_contributions([0.2, 0.5, 0.3], 1.0) == pytest.approx(1.0)
+    assert aggregate_contributions([0.2, 0.5, 0.3], 0.5) == pytest.approx(
+        0.5 + 0.3 * 0.5 + 0.2 * 0.25
+    )
+    assert aggregate_contributions([], 0.5) == 0.0
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestDiversityAndDecay:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_user_top_n=3,
+            reco_per_user_seed_cap=50,
+            reco_negative_weight=0.0,
+            reco_seed_half_life_days=0,
+            reco_per_seed_slots=0,
+        )
+        self.user = User.register(email="div@t.com", username="div_user")
+        self.seed = Edition.objects.create(title="Div seed")
+        _public_mark(self.user.identity, self.seed, rating=0)
+
+    def _link(self, source: Item, target: Item, score: float) -> None:
+        ItemSimilarity.objects.create(
+            source=source,
+            target=target,
+            score=score,
+            method=ItemSimilarity.METHOD_BLENDED,
+        )
+
+    def _rows(self) -> list[tuple[int, float]]:
+        rows = compute_for_user(self.user.pk, self.user.identity.pk)
+        return [(r.item_id, r.score) for r in rows]
+
+    def _cluster(self) -> tuple[list[Edition], Edition]:
+        cluster = [Edition.objects.create(title=f"Cluster {n}") for n in range(3)]
+        loner = Edition.objects.create(title="Different")
+        for n, item in enumerate(cluster):
+            self._link(self.seed, item, 0.9 - n / 50)
+        self._link(self.seed, loner, 0.8)
+        for a in cluster:
+            for b in cluster:
+                if a != b:
+                    self._link(a, b, 0.9)
+        return cluster, loner
+
+    def test_lambda_zero_keeps_score_order(self):
+        cluster, _ = self._cluster()
+        assert self._rows() == [
+            (cluster[0].pk, pytest.approx(0.9)),
+            (cluster[1].pk, pytest.approx(0.88)),
+            (cluster[2].pk, pytest.approx(0.86)),
+        ]
+
+    def test_dissimilar_item_makes_the_cut(self):
+        cluster, loner = self._cluster()
+        _set(reco_diversity_lambda=0.5)
+        rows = self._rows()
+        # returned in the order served, as the evaluation reads them
+        assert rows == [
+            (cluster[0].pk, pytest.approx(0.9)),
+            (loner.pk, pytest.approx(0.8)),
+            (cluster[1].pk, pytest.approx(0.88 - 0.5 * 0.9 * 0.9)),
+        ]
+        UserRecommendation.objects.bulk_create(
+            compute_for_user(self.user.pk, self.user.identity.pk)
+        )
+        assert {i.pk for i in for_you(self.user, limit=2)} == {
+            cluster[0].pk,
+            loner.pk,
+        }
+
+    def test_diversity_picks_admitted_before_overflow(self):
+        cluster, loner = self._cluster()
+        other_seed = Edition.objects.create(title="Div seed 2")
+        _public_mark(self.user.identity, other_seed, rating=0)
+        late = Edition.objects.create(title="Late")
+        self._link(other_seed, late, 0.1)
+        _set(reco_diversity_lambda=0.5, reco_per_seed_slots=1, reco_user_top_n=2)
+        rows = self._rows()
+        assert [pk for pk, _ in sorted(rows, key=lambda r: -r[1])] == [
+            cluster[0].pk,
+            late.pk,
+        ]
+
+    def test_extra_seeds_decay(self):
+        target = Edition.objects.create(title="Shared")
+        second = Edition.objects.create(title="Div seed 2")
+        _public_mark(self.user.identity, second, rating=0)
+        self._link(self.seed, target, 0.5)
+        self._link(second, target, 0.4)
+        assert self._rows() == [(target.pk, pytest.approx(0.9))]
+        _set(reco_seed_agg_decay=0.5)
+        assert self._rows() == [(target.pk, pytest.approx(0.7))]
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestNegativesAndSeedSelection:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_user_top_n=10,
+            reco_per_user_seed_cap=50,
+            reco_negative_rating_gap=10.0,
+            reco_negative_weight=0.2,
+            reco_seed_half_life_days=0,
+            reco_per_seed_slots=0,
+        )
+        self.user = User.register(email="neg@t.com", username="neg_user")
+        self.identity = self.user.identity
+        self.target = Edition.objects.create(title="Neg target")
+
+    def _link(self, source: Item, target: Item, score: float) -> None:
+        ItemSimilarity.objects.create(
+            source=source,
+            target=target,
+            score=score,
+            method=ItemSimilarity.METHOD_BLENDED,
+        )
+
+    def _seed(self, title: str, shelf=ShelfType.COMPLETE, rating: int = 0) -> Edition:
+        seed = Edition.objects.create(title=title)
+        Mark(self.identity, seed).update(shelf, "", rating, [], 0)
+        return seed
+
+    def _scores(self, **kwargs) -> dict[int, float]:
+        rows = compute_for_user(self.user.pk, self.identity.pk, **kwargs)
+        return {r.item_id: r.score for r in rows}
+
+    def _age(self, item: Item, days: int) -> None:
+        ShelfMember._base_manager.filter(owner=self.identity, item=item).update(
+            edited_time=timezone.now() - timedelta(days=days)
+        )
+
+    def _dismissed_cluster(self) -> None:
+        self._link(self._seed("Liked"), self.target, 5.0)
+        for n in range(20):
+            other = Edition.objects.create(title=f"Dismissed {n}")
+            dismiss_item(self.user, other)
+            self._link(other, self.target, 0.5)
+
+    def test_negatives_uncapped_by_default(self):
+        self._dismissed_cluster()
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 20 * 0.1)}
+
+    def test_negatives_capped(self):
+        self._dismissed_cluster()
+        _set(reco_cap_negatives=True)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 5 * 0.1)}
+
+    def test_dismissal_weight(self):
+        self._dismissed_cluster()
+        _set(reco_cap_negatives=True, reco_dismissal_weight=0.2)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 5 * 0.1)}
+        _set(reco_dismissal_weight=0.1)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 5 * 0.05)}
+        # dismissals count even with the other negatives off
+        _set(reco_negative_weight=0.0)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 5 * 0.05)}
+        _set(reco_dismissal_weight=-1.0)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0)}
+
+    def test_negative_seasons_count_once(self):
+        _set(reco_cap_negatives=True)
+        self._link(self._seed("Liked"), self.target, 5.0)
+        show = TVShow.objects.create(title="Dropped show")
+        for n in (1, 2):
+            season = TVSeason.objects.create(title=f"S{n}", show=show, season_number=n)
+            Mark(self.identity, season).update(ShelfType.DROPPED, "", 0, [], 0)
+            self._link(season, self.target, 0.5 * n)
+        assert self._scores() == {self.target.pk: pytest.approx(5.0 - 0.2)}
+
+    def _rated_history(self) -> list[Edition]:
+        _set(reco_per_user_seed_cap=2, reco_negative_weight=0.0)
+        old = self._seed("Old favourite", rating=10)
+        self._age(old, 400)
+        recent = [self._seed(f"Recent {n}") for n in range(2)]
+        self._age(recent[0], 2)
+        self._age(recent[1], 1)
+        targets = [Edition.objects.create(title=f"From {n}") for n in range(3)]
+        for seed, target in zip([old, *recent], targets):
+            self._link(seed, target, 0.5)
+        return targets
+
+    def test_recent_window_only_by_default(self):
+        from_old, from_older_recent, from_newest = self._rated_history()
+        assert set(self._scores()) == {from_older_recent.pk, from_newest.pk}
+
+    def test_top_rated_seed_slots(self):
+        from_old, _, from_newest = self._rated_history()
+        _set(reco_seed_top_rated=1)
+        assert set(self._scores()) == {from_old.pk, from_newest.pk}
+
+    def test_top_rated_seed_respects_until(self):
+        from_old, _, from_newest = self._rated_history()
+        _set(reco_seed_top_rated=1)
+        until = timezone.now() - timedelta(hours=12)
+        # the rating itself was written just now
+        assert set(self._scores(until=until)) == {from_newest.pk}
+        Rating.objects.filter(owner=self.identity).update(
+            created_time=timezone.now() - timedelta(days=400)
+        )
+        assert set(self._scores(until=until)) == {from_old.pk, from_newest.pk}
+
+    def test_wishlist_seed_weight(self):
+        wished = self._seed("Wished", shelf=ShelfType.WISHLIST)
+        done = self._seed("Done")
+        other = Edition.objects.create(title="Other")
+        self._link(wished, self.target, 0.5)
+        self._link(done, other, 0.4)
+        assert self._scores() == {
+            self.target.pk: pytest.approx(0.5),
+            other.pk: pytest.approx(0.4),
+        }
+        _set(reco_wishlist_seed_weight=0.6)
+        assert self._scores() == {
+            self.target.pk: pytest.approx(0.3),
+            other.pk: pytest.approx(0.4),
+        }
+        _set(reco_wishlist_seed_weight=0.0)
+        assert self._scores() == {other.pk: pytest.approx(0.4)}
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestColdStart:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        _set(
+            enable_recommendations=True,
+            reco_user_top_n=5,
+            reco_per_user_seed_cap=50,
+            reco_negative_weight=0.0,
+            reco_seed_half_life_days=0,
+            reco_per_seed_slots=2,
+            reco_user_active_days=30,
+        )
+        cache.delete("reco:popular")
+        self.user = User.register(email="cold@t.com", username="cold_user")
+        self.seed = Edition.objects.create(title="Only seed")
+        _public_mark(self.user.identity, self.seed, rating=0)
+        self.personal = [Edition.objects.create(title=f"Near {n}") for n in range(5)]
+        for n, item in enumerate(self.personal):
+            ItemSimilarity.objects.create(
+                source=self.seed,
+                target=item,
+                score=0.9 - n / 100,
+                method=ItemSimilarity.METHOD_BLENDED,
+            )
+        others = [
+            User.register(email=f"crowd{i}@t.com", username=f"crowd{i}").identity
+            for i in range(4)
+        ]
+        self.popular = [Edition.objects.create(title=f"Hit {n}") for n in range(4)]
+        # Hit 0 has four owners, Hit 3 one
+        for n, item in enumerate(self.popular):
+            for ident in others[: 4 - n]:
+                _public_mark(ident, item, rating=0)
+        self.movie = Movie.objects.create(title="Hit film")
+        for ident in others:
+            _public_mark(ident, self.movie, rating=0)
+        yield
+        cache.delete("reco:popular")
+
+    def _ids(self, **kwargs) -> list[int]:
+        rows = compute_for_user(self.user.pk, self.user.identity.pk, **kwargs)
+        return [r.item_id for r in rows]
+
+    def test_off_keeps_the_overflow(self):
+        assert set(self._ids()) == {i.pk for i in self.personal}
+
+    def test_popular_items_come_before_the_overflow(self):
+        _set(reco_cold_start_seeds=10)
+        rows = compute_for_user(self.user.pk, self.user.identity.pk)
+        assert {r.item_id for r in rows} == {
+            self.personal[0].pk,
+            self.personal[1].pk,
+            *(i.pk for i in self.popular[:3]),
+        }
+        fill = {r.item_id: r for r in rows if not r.seed_item_ids}
+        assert set(fill) == {i.pk for i in self.popular[:3]}
+        assert {r.category for r in rows} == {"book"}
+        ranked = sorted(rows, key=lambda r: r.score, reverse=True)
+        assert [r.item_id for r in ranked] == [
+            self.personal[0].pk,
+            self.personal[1].pk,
+            *(i.pk for i in self.popular[:3]),
+        ]
+
+    def test_enough_seeds_is_not_cold(self):
+        _set(reco_cold_start_seeds=1)
+        assert set(self._ids()) == {i.pk for i in self.personal}
+
+    def test_shelved_popular_item_is_skipped(self):
+        _set(reco_cold_start_seeds=10)
+        _public_mark(self.user.identity, self.popular[0], rating=0)
+        ids = self._ids()
+        assert self.popular[0].pk not in ids
+        assert self.popular[3].pk in ids
+
+    def test_no_neighbours_still_fills(self):
+        _set(reco_cold_start_seeds=10)
+        ItemSimilarity.objects.all().delete()
+        # four books for five book slots, the film takes the spare one
+        assert set(self._ids()) == {i.pk for i in self.popular} | {self.movie.pk}
+
+    def test_popular_editions_of_one_work_count_once(self):
+        _set(reco_cold_start_seeds=10)
+        work = Work.objects.create(title="Hit work")
+        work.editions.add(self.popular[0], self.popular[1])
+        ids = self._ids()
+        assert self.popular[0].pk in ids
+        assert self.popular[1].pk not in ids
+
+    def test_popular_show_fills_as_its_first_season(self):
+        _set(reco_cold_start_seeds=10)
+        # a TV mark gives TV slots
+        own = TVSeason.objects.create(title="Own season")
+        _public_mark(self.user.identity, own, rating=0)
+        show = TVShow.objects.create(title="Hit show")
+        first, fifth = (
+            TVSeason.objects.create(title=f"Hit S{n}", show=show, season_number=n)
+            for n in (1, 5)
+        )
+        crowd = [
+            User.register(email=f"tv{i}@t.com", username=f"tv{i}").identity
+            for i in range(6)
+        ]
+        for ident in crowd:
+            _public_mark(ident, fifth, rating=0)
+        _public_mark(crowd[0], first, rating=0)
+        ids = self._ids()
+        assert first.pk in ids
+        assert fifth.pk not in ids
+
+    def test_fill_is_cached_and_job_refreshes_it(self):
+        _set(reco_cold_start_seeds=10)
+        assert cached_popular_fill().ids[:1] == [self.popular[0].pk]
+        late = Edition.objects.create(title="Late hit")
+        for i in range(5):
+            ident = User.register(email=f"late{i}@t.com", username=f"late{i}").identity
+            _public_mark(ident, late, rating=0)
+        assert cached_popular_fill().ids[:1] == [self.popular[0].pk]
+        assert popular_fill().ids[:1] == [late.pk]
+        BuildUserRecommendations().run()
+        assert cached_popular_fill().ids[:1] == [late.pk]
+        assert UserRecommendation.objects.filter(
+            user=self.user, item=late, seed_item_ids=[]
+        ).exists()
+
+    def test_served_fill_ranks_before_overflow(self):
+        _set(reco_cold_start_seeds=10, reco_user_top_n=7)
+        UserRecommendation.objects.bulk_create(
+            compute_for_user(self.user.pk, self.user.identity.pk)
+        )
+        served = {i.pk for i in for_you(self.user, limit=5)}
+        assert served == {
+            self.personal[0].pk,
+            self.personal[1].pk,
+            *(i.pk for i in self.popular[:3]),
+        }

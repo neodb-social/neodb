@@ -28,6 +28,8 @@ from catalog.recommendation import (
     NO_MARK_SIGNALS,
     SHELF_TYPES_AS_SEED,
     compute_for_user,
+    excluded_identity_ids,
+    refresh_popular_fill,
     excluded_target_ctype_ids,
     load_mark_signals,
     production_to_performance_map,
@@ -37,8 +39,6 @@ from catalog.recommendation import (
 )
 from common.models import BaseJob, JobManager, SiteConfig
 from journal.models import CollectionMember, ShelfMember, Tag, TagMember
-from takahe.models import Identity as TakaheIdentity
-from takahe.utils import Takahe
 from users.models import APIdentity
 
 logger = logging.getLogger(__name__)
@@ -58,23 +58,6 @@ class UserMarks(NamedTuple):
 
     items: "array[int]"
     weights: "array[float]"
-
-
-def _excluded_identity_ids() -> set[int]:
-    """Identities whose marks, tags and collections never train recommendations.
-
-    Reuses the existing ``discoverable`` flag on Takahe Identity (also the
-    source of truth for ``DiscoverGenerator``). Users uncheck "Include
-    profile and posts in discovery" on their account page to opt out of
-    being used as a training signal for recommendations. Accounts and
-    domains on the site's ``discover_exclude_posts_from`` list are left out
-    the same way.
-    """
-    return set(
-        TakaheIdentity.objects.filter(discoverable=False).values_list("pk", flat=True)
-    ) | Takahe.get_identity_ids_by_handles(
-        SiteConfig.system.discover_exclude_posts_from
-    )
 
 
 def _coo_to_csc(
@@ -331,6 +314,7 @@ def _feature_topk(
     max_feature_items: int,
     excluded_ctypes: set[int],
     category_ctypes: list[int],
+    shrinkage: float = 0.0,
 ) -> Iterator[Neighbours]:
     """Item-item cosine over shared features, for one category.
 
@@ -338,6 +322,8 @@ def _feature_topk(
     dropped, and each kept feature is damped by ``1/sqrt(n_items)`` so a
     common tag weighs less than a rare one. A cell sums its weights, or is 1
     when ``binary``. Every usable item with a kept feature is a source.
+    With ``shrinkage`` a pair sharing ``n`` features keeps ``n / (n +
+    shrinkage)`` of its cosine, so a single shared tag is weak evidence.
     """
     feature_ids: dict[Hashable, int] = {}
     f = array("i")
@@ -378,7 +364,9 @@ def _feature_topk(
     dead, non_target = _unusable_items(item_ids, excluded_ctypes, category_ctypes)
     target_mask = ~np.isin(item_ids, np.fromiter(non_target, dtype=np.int64))
     sources = np.flatnonzero(~np.isin(item_ids, np.fromiter(dead, dtype=np.int64)))
-    for src_col, tgt_cols, scores in _cosine_topk(m, sources, target_mask, top_k, 0.0):
+    for src_col, tgt_cols, scores in _cosine_topk(
+        m, sources, target_mask, top_k, shrinkage
+    ):
         yield int(item_ids[src_col]), method, item_ids[tgt_cols], scores
 
 
@@ -777,7 +765,9 @@ class BuildItemSimilarity(BaseJob):
         dampen = sys.reco_user_idf_dampen
         shrinkage = sys.reco_similarity_shrinkage
         max_feature_items = sys.reco_max_feature_items
-        excluded = _excluded_identity_ids()
+        max_collection_items = sys.reco_max_collection_items or max_feature_items
+        feature_shrinkage = sys.reco_feature_shrinkage
+        excluded = excluded_identity_ids()
         full_rewrite = training_rewrite_map()
         rewrite = self._rewrite_for_marked_items(full_rewrite)
         marked_targets = self._marked_rewrite_targets(rewrite, excluded)
@@ -785,6 +775,7 @@ class BuildItemSimilarity(BaseJob):
         logger.info(
             f"Similarity build start: min_source={min_source} min_target={min_target} "
             f"cap={cap} top_k={top_k} dampen={dampen} shrinkage={shrinkage} "
+            f"feature_shrinkage={feature_shrinkage} "
             f"excluded_owners={len(excluded)} "
             f"rewrites={len(rewrite)} excluded_target_ctypes={len(excluded_target_ctypes)}"
         )
@@ -890,15 +881,17 @@ class BuildItemSimilarity(BaseJob):
                         max_feature_items,
                         excluded_target_ctypes,
                         ctypes,
+                        feature_shrinkage,
                     ),
                     _feature_topk(
                         ItemSimilarity.METHOD_COLLECTION_COOC,
                         _collection_cells(ctypes, excluded, full_rewrite, self.until),
                         True,
                         top_k,
-                        max_feature_items,
+                        max_collection_items,
                         excluded_target_ctypes,
                         ctypes,
+                        feature_shrinkage,
                     ),
                     _feature_topk(
                         ItemSimilarity.METHOD_CONTENT,
@@ -914,6 +907,7 @@ class BuildItemSimilarity(BaseJob):
                         max_feature_items,
                         excluded_target_ctypes,
                         ctypes,
+                        feature_shrinkage,
                     ),
                 ]
                 # every method must yield each source once, in ascending item
@@ -1047,9 +1041,11 @@ class BuildUserRecommendations(BaseJob):
         # transaction-per-user keeps each commit small and bounds rollback
         # blast radius if any single user's compute fails.
         built = 0
+        # once per run rather than per member
+        popular = refresh_popular_fill() if sys.reco_cold_start_seeds > 0 else None
         for identity_pk, user_pk in user_by_identity.items():
             try:
-                rows = compute_for_user(user_pk, identity_pk)
+                rows = compute_for_user(user_pk, identity_pk, popular=popular)
             except Exception as e:
                 logger.exception(f"compute_for_user failed for user {user_pk}: {e}")
                 continue

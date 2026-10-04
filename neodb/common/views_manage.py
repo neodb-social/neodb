@@ -649,6 +649,23 @@ class RecommendationSettings(SiteConfigSettingsPage):
             ),
             "min_value": 2,
         },
+        "reco_feature_shrinkage": {
+            "title": _("Feature shrinkage"),
+            "help_text": _(
+                "Items sharing fewer tags, collections or credits than this "
+                "score lower. 0 turns it off. Applies from the next "
+                "similarity build."
+            ),
+            "min_value": 0,
+        },
+        "reco_max_collection_items": {
+            "title": _("Collection item cap"),
+            "help_text": _(
+                "Collections with more items than this are too broad to link "
+                "items and are ignored. 0 uses the feature item cap."
+            ),
+            "min_value": 0,
+        },
         "reco_tag_weight": {
             "title": _("Tag weight"),
             "help_text": _(
@@ -705,6 +722,74 @@ class RecommendationSettings(SiteConfigSettingsPage):
             ),
             "min_value": 0,
         },
+        "reco_group_items": {
+            "title": _("Group editions and seasons"),
+            "help_text": _(
+                "Recommend one edition of a work and one season of a show, "
+                "and count marks on several of them as one."
+            ),
+        },
+        "reco_diversity_lambda": {
+            "title": _("Diversity"),
+            "help_text": _(
+                "How strongly a recommendation similar to a better one in the "
+                "same category is pushed down, so that the list varies more. "
+                "0 turns it off."
+            ),
+            "min_value": 0,
+            "max_value": 2,
+        },
+        "reco_seed_agg_decay": {
+            "title": _("Extra seed decay"),
+            "help_text": _(
+                "Each further mark that leads to the same recommendation adds "
+                "this share of the previous one. 1 adds them in full."
+            ),
+            "min_value": 0,
+            "max_value": 1,
+        },
+        "reco_cap_negatives": {
+            "title": _("Cap negative signals"),
+            "help_text": _(
+                "Count only the strongest low-rated, dropped or dismissed items "
+                "against each recommendation, as many as count for it."
+            ),
+        },
+        "reco_dismissal_weight": {
+            "title": _("Dismissal weight"),
+            "help_text": _(
+                "How strongly items similar to dismissed items are pushed down. "
+                "-1 uses the negative signal weight."
+            ),
+            "min_value": -1,
+        },
+        "reco_seed_top_rated": {
+            "title": _("Best rated seeds"),
+            "help_text": _(
+                "Of the seed marks, this many are the user's best rated marks "
+                "older than the recent ones. 0 uses only recent marks."
+            ),
+            "min_value": 0,
+        },
+        "reco_cold_start_seeds": {
+            "title": _("Cold start seeds"),
+            "help_text": _(
+                "A user with fewer marks than this, editions of a work or seasons "
+                "of a show counting once, gets popular items after the "
+                "recommendations within each mark's limit and before the rest. "
+                "0 turns it off."
+            ),
+            "min_value": 0,
+        },
+        "reco_wishlist_seed_weight": {
+            "title": _("Wishlist seed weight"),
+            "help_text": _(
+                "Weight of a wishlist mark as a seed, relative to a mark in "
+                "progress or complete at 1."
+            ),
+            "min_value": 0,
+            "max_value": 1,
+        },
     }
     layout = {
         _("Master switch"): [
@@ -718,6 +803,8 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "reco_user_mark_cap",
             "reco_similarity_shrinkage",
             "reco_max_feature_items",
+            "reco_max_collection_items",
+            "reco_feature_shrinkage",
         ],
         _("Mark weights"): [
             "reco_rating_weight",
@@ -737,8 +824,16 @@ class RecommendationSettings(SiteConfigSettingsPage):
             "reco_circles_window_days",
             "reco_negative_rating_gap",
             "reco_negative_weight",
+            "reco_dismissal_weight",
+            "reco_cap_negatives",
             "reco_seed_half_life_days",
+            "reco_seed_top_rated",
+            "reco_wishlist_seed_weight",
             "reco_per_seed_slots",
+            "reco_cold_start_seeds",
+            "reco_group_items",
+            "reco_diversity_lambda",
+            "reco_seed_agg_decay",
         ],
     }
 

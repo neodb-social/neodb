@@ -6,9 +6,15 @@ import pytest
 from django.core.management import call_command
 from django.utils import timezone
 
-from catalog.evaluation import evaluate, parse_overrides
+from catalog.evaluation import DiversityLookups, evaluate, parse_overrides
 from catalog.jobs.recommendation import BuildItemSimilarity
-from catalog.models import Edition, ItemSimilarity, UserRecommendation
+from catalog.models import (
+    Edition,
+    ItemCredit,
+    ItemSimilarity,
+    UserRecommendation,
+    Work,
+)
 from catalog.recommendation import compute_for_user
 from common.models import SiteConfig
 from journal.models import Mark, ShelfMember, ShelfType, TagMember
@@ -95,6 +101,35 @@ class TestEvaluate:
         assert reco.distinct_items == 1
         assert reco.mean_list_length == 1.0
         assert reco.by_category["book"].hits == 1
+        assert reco.diversity.lead_seeds == 1
+        assert reco.diversity.top_seed_share == 1.0
+        assert reco.diversity.duplicate_rate == 0.0
+        assert reco.diversity.intra_list_similarity == 0.0
+        assert result.popularity.diversity.lead_seeds is None
+        bucket = reco.by_bucket["<10"]
+        assert (bucket.members, bucket.hit_rate, bucket.recall) == (1, 1.0, 1.0)
+        assert set(reco.by_bucket) == {"<10"}
+
+    def test_diversity_of_one_list(self):
+        work = Work.objects.create(title="Eval work")
+        work.editions.add(self.a, self.b)
+        ItemCredit.objects.create(item=self.a, role="author", name="Same")
+        ItemCredit.objects.create(item=self.c, role="author", name=" same")
+        ItemCredit.objects.create(item=self.b, role="publisher", name="Same")
+        a, b, c, d = self.a.pk, self.b.pk, self.c.pk, self.d.pk
+
+        def similarity(sources):
+            return [(a, c, 0.6), (c, a, 0.3), (a, d, 0.9)]
+
+        lookups = DiversityLookups({a, b, c}, similarity)
+        assert lookups.measure([a, b, c], {a: [d], b: [d], c: [a]}) == {
+            "lead_seeds": 2,
+            "top_seed_share": pytest.approx(2 / 3),
+            "duplicates": 1,
+            "rows": 3,
+            "max_per_creator": 2,
+            "intra_list_similarity": pytest.approx(0.2),
+        }
 
     def test_hidden_category_truth_is_not_counted(self):
         self._co_marked_world()
@@ -176,6 +211,14 @@ class TestEvaluate:
         assert starved.recommendations.at_k[0].hit_rate == 0.0
         assert SiteConfig.system.reco_min_source_marks == 2
 
+    def test_cold_start_fill_is_counted_before_cutoff(self):
+        self._co_marked_world()
+        result = self._evaluate(overrides={"reco_cold_start_seeds": 10})
+        assert result.recommendations.at_k[0].hit_rate == 1.0
+        # A is the target's seed and B already listed; the held-out mark on B
+        # is after the cutoff, so it does not make B popular either
+        assert result.recommendations.distinct_items == 1
+
     def test_top_n_conflicting_with_override_is_refused(self):
         with pytest.raises(ValueError):
             self._evaluate(top_n=10, overrides={"reco_user_top_n": 5})
@@ -211,12 +254,15 @@ class TestEvaluate:
         assert ItemSimilarity.objects.filter(source=self.d, target=self.e).exists()
         text = out.getvalue()
         assert "hit rate@10" in text
+        assert "duplicate rate" in text
         assert "reco_user_top_n = 15  (override)" in text
         data = json.loads(path.read_text())
         assert data["top_n"] == 15
         assert data["members_evaluated"] == 1
         assert data["recommendations"]["at_k"][0]["hit_rate"] == 1.0
         assert "hit_rate" in data["popularity"]["at_k"][0]
+        assert data["recommendations"]["diversity"]["lead_seeds"] == 1
+        assert data["recommendations"]["by_bucket"]["<10"]["members"] == 1
         assert SiteConfig.system.reco_user_top_n == 20
 
 

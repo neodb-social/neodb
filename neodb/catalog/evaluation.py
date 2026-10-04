@@ -16,22 +16,28 @@ Known approximations, all of them as of now rather than as of T:
 
 import random
 import time
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Hashable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
 from django.db.models import Count, Q
 
-from catalog.jobs.recommendation import BuildItemSimilarity
-from catalog.models import Item, Work
+from catalog.jobs.recommendation import CONTENT_CREDIT_ROLES, BuildItemSimilarity
+from catalog.models import Item, ItemCredit, Work
 from catalog.recommendation import (
+    POPULARITY_SPARE,
     SHELF_TYPES_AS_SEED,
+    RecoGroups,
+    SimilarityLookup,
     _categories_of,
+    _group_of,
     _live_items,
     compute_for_user,
-    excluded_target_ctype_ids,
+    popular_fill,
+    popular_items,
+    reco_groups,
     recommendable_for_user,
     training_rewrite_map,
     user_reco_exclusions,
@@ -41,12 +47,9 @@ from journal.models import ShelfMember
 
 OverrideValue = int | float | bool
 
-# window of public marks the popularity baseline counts, before T
-POPULARITY_WINDOW_DAYS = 90
-# popular items fetched beyond top_n, so the member's own shelved items can
-# be skipped and the list still fill up
-POPULARITY_SPARE = 1000
 _ID_CHUNK = 1000
+# lower bounds of the member buckets by seed-shelf marks before T
+MARK_BUCKETS = ((0, "<10"), (10, "10-49"), (50, "50-199"), (200, "200+"))
 _TRUE = {"1", "true", "yes", "on"}
 _FALSE = {"0", "false", "no", "off"}
 
@@ -105,6 +108,28 @@ class CategoryHits:
 
 
 @dataclass
+class Diversity:
+    # means over the members with a list; the seed ones only for lists
+    # with seeds
+    lead_seeds: float | None
+    top_seed_share: float | None
+    # rows sharing a Work or show with a row ranked above them, of all rows
+    duplicate_rate: float
+    # rows of the creator with the most rows in the list
+    max_per_creator: float
+    # blended similarity of a pair of rows, missing pairs as 0
+    intra_list_similarity: float
+
+
+@dataclass
+class BucketMetrics:
+    members: int
+    hit_rate: float
+    recall: float
+    diversity: Diversity
+
+
+@dataclass
 class ListMetrics:
     at_k: list[AtK]
     members_with_list: int
@@ -112,6 +137,9 @@ class ListMetrics:
     distinct_items: int
     mean_list_length: float
     by_category: dict[str, CategoryHits]
+    diversity: Diversity
+    # keyed by seed-shelf marks before T, see MARK_BUCKETS
+    by_bucket: dict[str, BucketMetrics]
 
 
 @dataclass
@@ -134,11 +162,97 @@ class EvaluationResult:
         return out
 
 
+def mark_bucket(marks: int) -> str:
+    return [label for low, label in MARK_BUCKETS if marks >= low][-1]
+
+
+class DiversityLookups:
+    """Groups, creators and pair similarity of every listed item, loaded once."""
+
+    def __init__(self, item_ids: set[int], similarity: SimilarityLookup) -> None:
+        self.groups: RecoGroups = reco_groups(item_ids)
+        self.creators: dict[int, set[Hashable]] = {}
+        ids = list(item_ids)
+        for start in range(0, len(ids), _ID_CHUNK * 5):
+            rows = (
+                ItemCredit.objects.filter(
+                    item_id__in=ids[start : start + _ID_CHUNK * 5],
+                    role__in=CONTENT_CREDIT_ROLES,
+                )
+                .order_by()
+                .values_list("item_id", "person_id", "name")
+            )
+            for item_id, person_id, name in rows:
+                if person_id is not None:
+                    key: Hashable = person_id
+                elif name and name.strip():
+                    key = name.strip().casefold()
+                else:
+                    continue
+                self.creators.setdefault(item_id, set()).add(key)
+        self.similarity = similarity
+
+    def measure(self, ranked: list[int], seeds: Mapping[int, list[int]]) -> dict:
+        """One list's raw diversity values; seed ones are None without seeds."""
+        leads = [seeds[i][0] for i in ranked if seeds.get(i)]
+        lead_seeds = top_share = None
+        if leads:
+            per_lead: dict[int, int] = {}
+            for lead in leads:
+                per_lead[lead] = per_lead.get(lead, 0) + 1
+            lead_seeds = len(per_lead)
+            top_share = max(per_lead.values()) / len(ranked)
+        seen: set[Hashable] = set()
+        duplicates = 0
+        for i in ranked:
+            key = _group_of(i, self.groups)
+            duplicates += key in seen
+            seen.add(key)
+        per_creator: dict[Hashable, int] = {}
+        for i in ranked:
+            for c in self.creators.get(i, ()):
+                per_creator[c] = per_creator.get(c, 0) + 1
+        listed = set(ranked)
+        pairs: dict[tuple[int, int], float] = {}
+        for src, tgt, score in self.similarity(ranked):
+            if tgt in listed:
+                key = (min(src, tgt), max(src, tgt))
+                pairs[key] = max(pairs.get(key, 0.0), score)
+        n_pairs = len(ranked) * (len(ranked) - 1) // 2
+        return {
+            "lead_seeds": lead_seeds,
+            "top_seed_share": top_share,
+            "duplicates": duplicates,
+            "rows": len(ranked),
+            "max_per_creator": max(per_creator.values(), default=0),
+            "intra_list_similarity": sum(pairs.values()) / n_pairs if n_pairs else 0.0,
+        }
+
+
+def _diversity(measured: list[dict]) -> Diversity:
+    def mean(key: str) -> float | None:
+        values = [m[key] for m in measured if m[key] is not None]
+        return sum(values) / len(values) if values else None
+
+    rows = sum(m["rows"] for m in measured)
+    return Diversity(
+        lead_seeds=mean("lead_seeds"),
+        top_seed_share=mean("top_seed_share"),
+        duplicate_rate=sum(m["duplicates"] for m in measured) / rows if rows else 0.0,
+        max_per_creator=mean("max_per_creator") or 0.0,
+        intra_list_similarity=mean("intra_list_similarity") or 0.0,
+    )
+
+
 class _Tally:
     """Accumulates one list's hits over the evaluated members."""
 
     def __init__(self, ks: list[int]) -> None:
         self.ks = ks
+        # (ranked, seeds, bucket, hit, recall) per member, over the whole list
+        self.lists: list[
+            tuple[list[int], Mapping[int, list[int]], str, bool, float]
+        ] = []
         self.hit = dict.fromkeys(ks, 0)
         self.precision = dict.fromkeys(ks, 0.0)
         self.recall = dict.fromkeys(ks, 0.0)
@@ -155,8 +269,14 @@ class _Tally:
         cats: Mapping[int, str],
         truth: Mapping[int, int],
         held_out: int,
+        bucket: str,
+        seeds: Mapping[int, list[int]] | None = None,
     ) -> None:
         """``truth`` maps each id that counts as a hit to its held-out item."""
+        hits = len({truth[i] for i in ranked if i in truth})
+        self.lists.append(
+            (ranked, seeds or {}, bucket, hits > 0, min(1.0, hits / held_out))
+        )
         self.members += 1
         self.lengths += len(ranked)
         self.items.update(ranked)
@@ -180,8 +300,16 @@ class _Tally:
             self.cat_members[cat] = self.cat_members.get(cat, 0) + 1
             self.cat_hits[cat] = self.cat_hits.get(cat, 0) + (cat in hit_cats)
 
-    def result(self) -> ListMetrics:
+    def result(self, lookups: DiversityLookups) -> ListMetrics:
         n = self.members or 1
+        measured: dict[str, list[dict]] = {}
+        hit: dict[str, list[bool]] = {}
+        recall: dict[str, list[float]] = {}
+        for ranked, seeds, bucket, was_hit, rec in self.lists:
+            hit.setdefault(bucket, []).append(was_hit)
+            recall.setdefault(bucket, []).append(rec)
+            if ranked:
+                measured.setdefault(bucket, []).append(lookups.measure(ranked, seeds))
         return ListMetrics(
             at_k=[
                 AtK(
@@ -204,11 +332,22 @@ class _Tally:
                 )
                 for cat, m in sorted(self.cat_members.items())
             },
+            diversity=_diversity([m for ms in measured.values() for m in ms]),
+            by_bucket={
+                label: BucketMetrics(
+                    members=len(hit[label]),
+                    hit_rate=sum(hit[label]) / len(hit[label]),
+                    recall=sum(recall[label]) / len(recall[label]),
+                    diversity=_diversity(measured.get(label, [])),
+                )
+                for _, label in MARK_BUCKETS
+                if label in hit
+            },
         )
 
 
-def eligible_members(cutoff: datetime, min_seeds: int) -> list[tuple[int, int]]:
-    """(identity, user) of local members with seeds before and marks after T."""
+def eligible_members(cutoff: datetime, min_seeds: int) -> list[tuple[int, int, int]]:
+    """(identity, user, seed-shelf marks before T) of members with marks after T too."""
     rows = (
         ShelfMember._base_manager.filter(
             parent__shelf_type__in=SHELF_TYPES_AS_SEED,
@@ -221,7 +360,7 @@ def eligible_members(cutoff: datetime, min_seeds: int) -> list[tuple[int, int]]:
             after=Count("id", filter=Q(edited_time__gte=cutoff)),
         )
         .filter(before__gte=min_seeds, after__gte=1)
-        .values_list("owner_id", "owner__user_id")
+        .values_list("owner_id", "owner__user_id", "before")
     )
     return sorted(rows)
 
@@ -279,28 +418,6 @@ def _siblings_by_edition(item_ids: set[int]) -> dict[int, set[int]]:
     }
 
 
-def popular_items(cutoff: datetime, limit: int) -> list[int]:
-    """Items by distinct owners of public seed-shelf marks in the window before T."""
-    qs = ShelfMember._base_manager.filter(
-        visibility=0,
-        parent__shelf_type__in=SHELF_TYPES_AS_SEED,
-        edited_time__gte=cutoff - timedelta(days=POPULARITY_WINDOW_DAYS),
-        edited_time__lt=cutoff,
-        item__is_deleted=False,
-        item__merged_to_item_id__isnull=True,
-    )
-    excluded = excluded_target_ctype_ids()
-    if excluded:
-        qs = qs.exclude(item__polymorphic_ctype_id__in=excluded)
-    return list(
-        qs.order_by()
-        .values("item_id")
-        .annotate(n=Count("owner_id", distinct=True))
-        .order_by("-n", "item_id")
-        .values_list("item_id", flat=True)[:limit]
-    )
-
-
 def evaluate(
     cutoff: datetime,
     *,
@@ -347,13 +464,15 @@ def evaluate(
 
         started = time.monotonic()
         rewrite = training_rewrite_map()
-        raw_truth = _held_out([i for i, _ in sample], cutoff)
+        raw_truth = _held_out([i for i, _, _ in sample], cutoff)
         mapped = {
             ident: {rewrite.get(i, i) for i in ids} for ident, ids in raw_truth.items()
         }
         live = _live_target_ids(set().union(*mapped.values()))
         siblings = _siblings_by_edition(live)
         popular = popular_items(cutoff, n + POPULARITY_SPARE)
+        # what a cold-start list is filled from, as the nightly job counts it
+        fill = popular_fill(cutoff) if sys.reco_cold_start_seeds > 0 else None
         popular_cats = _categories_of(popular)
         # one category lookup for every id a member's filter may see
         cats = {
@@ -365,7 +484,7 @@ def evaluate(
         started = time.monotonic()
         reco = _Tally(ks)
         baseline = _Tally(ks)
-        for identity_pk, user_pk in sample:
+        for identity_pk, user_pk, marks in sample:
             _, excluded = user_reco_exclusions(user_pk, identity_pk, until=cutoff)
             held_out = (mapped.get(identity_pk, set()) & live) - excluded
             if not held_out:
@@ -383,21 +502,31 @@ def evaluate(
                     if s in allowed:
                         truth.setdefault(s, i)
             rows = compute_for_user(
-                user_pk, identity_pk, until=cutoff, similarity=similarity
+                user_pk, identity_pk, until=cutoff, similarity=similarity, popular=fill
             )
+            bucket = mark_bucket(marks)
             reco.add(
                 [r.item_id for r in rows],
                 {r.item_id: r.category for r in rows},
                 truth,
                 len(held_out),
+                bucket,
+                {r.item_id: r.seed_item_ids for r in rows},
             )
             baseline.add(
                 [i for i in popular if i in allowed and i not in excluded][:n],
                 popular_cats,
                 truth,
                 len(held_out),
+                bucket,
             )
         timings["members"] = time.monotonic() - started
+
+        started = time.monotonic()
+        lookups = DiversityLookups(reco.items | baseline.items, similarity)
+        reco_metrics = reco.result(lookups)
+        popularity_metrics = baseline.result(lookups)
+        timings["diversity"] = time.monotonic() - started
 
     return EvaluationResult(
         cutoff=cutoff,
@@ -408,7 +537,7 @@ def evaluate(
         members_eligible=len(eligible),
         members_sampled=len(sample),
         members_evaluated=reco.members,
-        recommendations=reco.result(),
-        popularity=baseline.result(),
+        recommendations=reco_metrics,
+        popularity=popularity_metrics,
         timings=timings,
     )
