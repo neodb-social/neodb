@@ -459,8 +459,9 @@ class DiscoverSettings(SiteConfigSettingsPage):
         "discover_exclude_posts_from": {
             "title": _("Exclude posts from"),
             "help_text": _(
-                "Accounts (@user@domain) or domains whose posts never appear in "
-                "popular posts or trends, one per line."
+                "Accounts (@user@domain) or domains, one per line. Their posts "
+                "never appear in popular posts or trends, and their marks and "
+                "collections are left out of discover and recommendations."
             ),
         },
     }

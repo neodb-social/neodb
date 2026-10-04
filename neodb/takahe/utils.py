@@ -1178,22 +1178,36 @@ class Takahe:
         return qs
 
     @staticmethod
-    def exclude_authors(qs: _PostQS, handles: list[str]) -> _PostQS:
-        """Drop posts by accounts (``@user@domain``) or by whole domains."""
+    def _identity_handles_q(handles: list[str], prefix: str = "") -> Q:
+        """Identities of accounts (``@user@domain``) or of whole domains."""
         q = Q()
         for handle in handles:
             handle = handle.strip().lstrip("@").lower()
             if "@" in handle:
                 username, domain = handle.split("@", 1)
-                q |= Q(author__username__iexact=username) & (
-                    Q(author__domain_id=domain)
-                    | Q(author__domain__service_domain=domain)
+                q |= Q(**{f"{prefix}username__iexact": username}) & (
+                    Q(**{f"{prefix}domain_id": domain})
+                    | Q(**{f"{prefix}domain__service_domain": domain})
                 )
             elif handle:
-                q |= Q(author__domain_id=handle) | Q(
-                    author__domain__service_domain=handle
+                q |= Q(**{f"{prefix}domain_id": handle}) | Q(
+                    **{f"{prefix}domain__service_domain": handle}
                 )
+        return q
+
+    @staticmethod
+    def exclude_authors(qs: _PostQS, handles: list[str]) -> _PostQS:
+        """Drop posts by accounts (``@user@domain``) or by whole domains."""
+        q = Takahe._identity_handles_q(handles, "author__")
         return qs.exclude(q) if q else qs
+
+    @staticmethod
+    def get_identity_ids_by_handles(handles: list[str]) -> set[int]:
+        """Ids of accounts (``@user@domain``) or of everyone on whole domains."""
+        q = Takahe._identity_handles_q(handles)
+        if not q:
+            return set()
+        return set(Identity.objects.filter(q).values_list("pk", flat=True))
 
     @staticmethod
     def get_public_posts(local_only=False):

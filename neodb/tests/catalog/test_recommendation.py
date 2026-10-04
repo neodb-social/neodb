@@ -204,6 +204,21 @@ class TestDiscoverableOptOut:
         BuildItemSimilarity().run()
         assert not ItemSimilarity.objects.filter(source=self.p).exists()
 
+    @pytest.mark.parametrize("by_domain", [False, True])
+    def test_marks_skipped_when_owner_on_exclude_list(self, monkeypatch, by_domain):
+        BuildItemSimilarity().run()
+        assert ItemSimilarity.objects.filter(source=self.p).exists()
+
+        ident = self.identities[0]
+        handle = (
+            ident.domain_name if by_domain else f"@{ident.username}@{ident.domain_name}"
+        )
+        monkeypatch.setattr(
+            SiteConfig.system, "discover_exclude_posts_from", [handle.upper()]
+        )
+        BuildItemSimilarity().run()
+        assert not ItemSimilarity.objects.filter(source=self.p).exists()
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestVisibilityRegression:

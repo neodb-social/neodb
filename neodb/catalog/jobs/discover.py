@@ -1,6 +1,7 @@
 import logging
 import time
 from datetime import timedelta
+from functools import cached_property
 from typing import Any
 
 from django.conf import settings
@@ -59,9 +60,19 @@ class DiscoverGenerator(BaseJob):
     def spotlight_days(self) -> int:
         return SiteConfig.system.discover_spotlight_days
 
+    @cached_property
+    def excluded_identities(self) -> set[int]:
+        """Accounts on ``discover_exclude_posts_from``; their marks do not count."""
+        return Takahe.get_identity_ids_by_handles(
+            SiteConfig.system.discover_exclude_posts_from
+        )
+
     def get_no_discover_identities(self) -> list:
         return list(
-            Identity.objects.filter(discoverable=False).values_list("pk", flat=True)
+            set(
+                Identity.objects.filter(discoverable=False).values_list("pk", flat=True)
+            )
+            | self.excluded_identities
         )
 
     def get_popular_posts(
@@ -185,6 +196,8 @@ class DiscoverGenerator(BaseJob):
             .filter(created_time__gt=timezone.now() - timedelta(days=days))
             .exclude(item_id__in=exisiting_ids)
         )
+        if self.excluded_identities:
+            qs = qs.exclude(owner_id__in=self.excluded_identities)
         if SiteConfig.system.discover_show_local_only:
             qs = qs.filter(local=True)
         if SiteConfig.system.discover_filter_language:
@@ -209,6 +222,8 @@ class DiscoverGenerator(BaseJob):
         qs = Comment.objects.filter(q_item_in_category(ItemCategory.Podcast)).filter(
             created_time__gt=timezone.now() - timedelta(days=days)
         )
+        if self.excluded_identities:
+            qs = qs.exclude(owner_id__in=self.excluded_identities)
         if SiteConfig.system.discover_show_local_only:
             qs = qs.filter(local=True)
         return list(
@@ -266,6 +281,8 @@ class DiscoverGenerator(BaseJob):
             item_id__in=set().union(*ids_by_item.values()),
             created_time__gt=timezone.now() - timedelta(days=days),
         )
+        if self.excluded_identities:
+            qs = qs.exclude(owner_id__in=self.excluded_identities)
         if SiteConfig.system.discover_show_local_only:
             qs = qs.filter(local=True)
         counts = dict(
