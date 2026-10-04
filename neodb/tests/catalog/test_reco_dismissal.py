@@ -179,22 +179,26 @@ class TestForYou:
         self.books = [Edition.objects.create(title=f"Book {i}") for i in range(6)]
         _cached_rows(self.user, self.books)
 
-    def _ids(self, limit: int = 3) -> list[int]:
-        return [i.pk for i in for_you(self.user, limit=limit)]
+    def _ids(self, limit: int = 3) -> set[int]:
+        return {i.pk for i in for_you(self.user, limit=limit)}
+
+    def test_best_scored_are_shown_newest_first(self):
+        served = [i.pk for i in for_you(self.user, limit=3)]
+        assert served == [b.pk for b in reversed(self.books[:3])]
 
     def test_stored_rows_fill_the_place_of_dismissed_items(self):
-        assert self._ids() == [b.pk for b in self.books[:3]]
+        assert self._ids() == {b.pk for b in self.books[:3]}
         dismiss_item(self.user, self.books[0])
         dismiss_item(self.user, self.books[2])
-        assert self._ids() == [
+        assert self._ids() == {
             b.pk for b in (self.books[1], self.books[3], self.books[4])
-        ]
+        }
 
     def test_stored_rows_fill_the_place_of_shelved_items(self):
         _public_mark(self.user.identity, self.books[1])
-        assert self._ids() == [
+        assert self._ids() == {
             b.pk for b in (self.books[0], self.books[2], self.books[3])
-        ]
+        }
 
     def test_dismissing_a_merged_item_stores_the_final_item(self):
         old = Edition.objects.create(title="Old")
@@ -464,14 +468,14 @@ class TestApi:
             f"/api/me/recommendations/{books[0].uuid}/dismiss", headers=self.auth
         )
         data = client.get("/api/me/recommendations", headers=self.auth).json()["data"]
-        assert [d["uuid"] for d in data] == [books[1].uuid, books[2].uuid]
+        assert [d["uuid"] for d in data] == [books[2].uuid, books[1].uuid]
 
     def test_recommendations_name_their_seeds(self):
         seeds = [Edition.objects.create(title=f"Api seed {i}") for i in range(2)]
         books = [Edition.objects.create(title=f"Api {i}") for i in range(2)]
         _cached_rows(self.user, books, seeds)
         payload = Client().get("/api/me/recommendations", headers=self.auth).json()
-        assert [d["uuid"] for d in payload["data"]] == [b.uuid for b in books]
+        assert [d["uuid"] for d in payload["data"]] == [b.uuid for b in reversed(books)]
         assert payload["seeds"] == {b.uuid: [s.uuid for s in seeds] for b in books}
 
 

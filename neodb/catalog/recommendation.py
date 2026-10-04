@@ -944,8 +944,10 @@ def _attach_seed_items(items: list[Item], seed_ids: dict[int, list[int]]) -> Non
 def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
     """Return personalised recommendations for the viewer.
 
-    Each item carries ``reco_seed_items``, the marked items it was found
-    through, strongest first. Stored rows are computed again when missing,
+    The best scored rows are picked and returned newest in the catalog
+    first (by id), not in score order. Each item carries
+    ``reco_seed_items``, the marked items it was found through, strongest
+    first. Stored rows are computed again when missing,
     older than ``reco_lazy_ttl_days``, or older than the viewer's newest
     shelf change. The last is at most once per ``_STALE_REFRESH_INTERVAL``
     per viewer; until then, or when that compute fails or finds nothing,
@@ -1021,6 +1023,8 @@ def for_you(viewer, category: str | None = None, limit: int = 30) -> list[Item]:
             limit,
         )
         target_ids = [pk for pk, _ in picked]
+    # score picks the items; newest in the catalog are shown first
+    target_ids.sort(reverse=True)
     by_id = {i.pk: i for i in Item.objects.filter(pk__in=target_ids)}
     items = [by_id[tid] for tid in target_ids if tid in by_id]
     _attach_seed_items(items, seed_ids)
