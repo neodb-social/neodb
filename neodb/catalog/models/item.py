@@ -416,6 +416,9 @@ class Item(PolymorphicModel):
     recent_marks: int | None = None
     # the shelf owner's own grade, set by the profile views for cover cards
     owner_rating_grade: int | None = None
+    #: The viewer's marked items a For you recommendation was found through,
+    #: strongest first, set by ``for_you``; not a DB field.
+    reco_seed_items: list["Item"] | None = None
     #: Values ``to_indexable_doc`` would otherwise query per item, filled in by
     #: ``prepare_indexable_batch``; not DB fields. None means "not batched".
     _indexable_tags: list[str] | None = None

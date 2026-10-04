@@ -54,7 +54,7 @@
     {% endif %}
   </span>
   {% include "_item_card.html" with item=item %}
-  {% if collection_edit or collection_member.note or mark.shelf or mark.review or mark.tags %}
+  {% if collection_edit or collection_member.note or mark.shelf or mark.review or mark.tags or item.reco_seed_items %}
     <footer>
       {% if collection_edit or collection_member.note %}
         <section class="item-note">
@@ -81,6 +81,11 @@
         </section>
       {% endif %}
       {% if not collection_edit %}
+        {% if item.reco_seed_items %}
+          <section>
+            <small>{% include "_reco_seeds.html" %}</small>
+          </section>
+        {% endif %}
         {% include "_list_item_mark.html" with item=item mark=mark %}
         {% if mark.review %}
           <section>

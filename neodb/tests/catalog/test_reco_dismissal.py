@@ -51,10 +51,16 @@ def _client(user: User) -> Client:
     return client
 
 
-def _cached_rows(user: User, items: list) -> None:
+def _cached_rows(user: User, items: list, seeds: list | None = None) -> None:
     """Store a precomputed list, best first, as the nightly job would."""
     UserRecommendation.objects.bulk_create(
-        UserRecommendation(user=user, item=item, score=len(items) - n, category="book")
+        UserRecommendation(
+            user=user,
+            item=item,
+            score=len(items) - n,
+            category="book",
+            seed_item_ids=[s.pk for s in seeds or []],
+        )
         for n, item in enumerate(items)
     )
 
@@ -383,6 +389,24 @@ class TestWebViews:
         for b in books:
             assert reverse("catalog:dismiss_recommendation", args=[b.uuid]) in content
 
+    def test_discover_reco_cards_explain_their_seed(self, site_config, monkeypatch):
+        site_config.min_marks_for_discover = 0
+        seed = Edition.objects.create(title="Seen")
+        _public_mark(self.user.identity, seed)
+        books = [Edition.objects.create(title=f"Reco {i}") for i in range(3)]
+        for b in books:
+            b.reco_seed_items = [seed]
+        friends = [Edition.objects.create(title=f"Circle {i}") for i in range(3)]
+        monkeypatch.setattr(
+            "catalog.views.view.for_you", lambda user, limit: list(books)
+        )
+        monkeypatch.setattr(
+            "catalog.views.view.from_your_circles", lambda user, limit: list(friends)
+        )
+        content = self.client.get("/discover/").content.decode()
+        assert 'id="from_circles"' in content
+        assert content.count(f'Because of <a href="{seed.url}">Seen</a>') == 3
+
 
 class TestApi:
     @pytest.fixture(autouse=True)
@@ -442,6 +466,14 @@ class TestApi:
         data = client.get("/api/me/recommendations", headers=self.auth).json()["data"]
         assert [d["uuid"] for d in data] == [books[1].uuid, books[2].uuid]
 
+    def test_recommendations_name_their_seeds(self):
+        seeds = [Edition.objects.create(title=f"Api seed {i}") for i in range(2)]
+        books = [Edition.objects.create(title=f"Api {i}") for i in range(2)]
+        _cached_rows(self.user, books, seeds)
+        payload = Client().get("/api/me/recommendations", headers=self.auth).json()
+        assert [d["uuid"] for d in payload["data"]] == [b.uuid for b in books]
+        assert payload["seeds"] == {b.uuid: [s.uuid for s in seeds] for b in books}
+
 
 class TestSeeAllPages:
     @pytest.fixture(autouse=True)
@@ -463,6 +495,14 @@ class TestSeeAllPages:
             dismiss = reverse("catalog:dismiss_recommendation", args=[b.uuid])
             assert dismiss in first or dismiss in second
         assert books[0].uuid not in first + second
+
+    def test_for_you_explains_each_item(self):
+        seeds = [Edition.objects.create(title=f"Seed {i}") for i in range(2)]
+        _cached_rows(self.user, [Edition.objects.create(title="Found")], seeds)
+        content = self.client.get(reverse("catalog:discover_for_you")).content.decode()
+        assert f'Because of <a href="{seeds[0].url}">Seed 0</a>' in content
+        assert "and 1 more" in content
+        assert seeds[1].url not in content
 
     def test_trending_page_lists_the_cached_shelf(self, monkeypatch):
         books = [Edition.objects.create(title=f"Trend {i}") for i in range(3)]
@@ -488,6 +528,7 @@ class TestSeeAllPages:
         ).content.decode()
         for b in books:
             assert reverse("catalog:dismiss_recommendation", args=[b.uuid]) in content
+        assert "Because of" not in content
 
     def test_opted_out_member_sees_nothing(self):
         _cached_rows(self.user, [Edition.objects.create(title="Opted Out")])

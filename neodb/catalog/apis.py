@@ -801,6 +801,15 @@ class RecommendationResult(Schema):
     count: int
 
 
+class PersonalRecommendationResult(RecommendationResult):
+    seeds: dict[str, list[str]] | None = Field(
+        None,
+        description="For each item in data, by its uuid, the uuids of the "
+        "current user's marked items it was recommended for, strongest "
+        "first. Items from people the user follows have no entry.",
+    )
+
+
 def _prepare_reco_items(request, items: list) -> None:
     """Hydrate items for ItemSchema serialization. Mirrors search_item.
 
@@ -851,7 +860,7 @@ def similar_for_item(request, item_uuid: str, limit: int = 10):
 
 @api.get(
     "/me/recommendations",
-    response={200: RecommendationResult, 401: Result},
+    response={200: PersonalRecommendationResult, 401: Result},
     summary="Personalised recommendations for the current user",
     tags=["recommendation"],
 )
@@ -865,7 +874,18 @@ def me_recommendations(request, limit: int = 30):
         return Status(200, NO_DATA)
     items = blended_for_discover(request.user, limit=min(max(limit, 1), 60))
     _prepare_reco_items(request, items)
-    return Status(200, {"data": items, "pages": 1 if items else 0, "count": len(items)})
+    seeds = {
+        i.uuid: [s.uuid for s in i.reco_seed_items] for i in items if i.reco_seed_items
+    }
+    return Status(
+        200,
+        {
+            "data": items,
+            "pages": 1 if items else 0,
+            "count": len(items),
+            "seeds": seeds,
+        },
+    )
 
 
 @api.post(

@@ -119,6 +119,10 @@ class SiteConfig(models.Model):
         reco_collection_weight: float = 0.5
         reco_content_weight: float = 0.3
         reco_max_feature_items: int = 500
+        reco_negative_rating_gap: float = 2.0
+        reco_negative_weight: float = 0.5
+        reco_seed_half_life_days: int = 365
+        reco_per_seed_slots: int = 10
 
         # Localization
         preferred_languages: list[str] = ["en", "zh"]

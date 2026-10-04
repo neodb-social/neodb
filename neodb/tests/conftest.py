@@ -31,6 +31,7 @@ def _clear_circles_cache():
     if delete_pattern:
         delete_pattern("reco:circles:*")
         delete_pattern("reco:refill:*")
+        delete_pattern("reco:stale_refresh:*")
         delete_pattern("discover_frag:*")
 
 
