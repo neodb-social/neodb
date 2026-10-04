@@ -8,7 +8,7 @@ Surfaces, all visibility- and pref-gated by Preference.show_recommendations:
 """
 
 import logging
-from collections.abc import Collection, Iterable, Iterator
+from collections.abc import Callable, Collection, Iterable, Iterator, Mapping, Sequence
 from datetime import datetime, timedelta
 from heapq import heappush, heapreplace, nlargest
 
@@ -229,6 +229,7 @@ def load_mark_signals(
     item_ids: Collection[int] | None = None,
     *,
     public_only: bool = True,
+    until: datetime | None = None,
 ) -> dict[tuple[int, int], MarkSignals]:
     """Rating, comment, review and note for each wanted (owner, item).
 
@@ -237,8 +238,9 @@ def load_mark_signals(
     because Comment and Review have no (owner, item) index. ``item_ids``
     optionally narrows the scan to these raw item ids. Only public content
     counts unless ``public_only`` is False, which is for signals that feed
-    nothing but the owner's own list. Pairs without any signal are absent;
-    use ``NO_MARK_SIGNALS``.
+    nothing but the owner's own list. With ``until`` only content created
+    before it counts. Pairs without any signal are absent; use
+    ``NO_MARK_SIGNALS``.
     """
     owners = list(wanted)
 
@@ -248,6 +250,8 @@ def load_mark_signals(
             qs = qs.filter(visibility=0)
         if item_ids is not None:
             qs = qs.filter(item_id__in=item_ids)
+        if until is not None:
+            qs = qs.filter(created_time__lt=until)
         return (
             qs.order_by()
             .values_list("owner_id", "item_id", *fields)
@@ -378,21 +382,36 @@ def _live_items(qs):
     return qs
 
 
-def _user_shelved_members(identity_pk: int) -> QuerySet[ShelfMember]:
+def _user_shelved_members(
+    identity_pk: int, *, until: datetime | None = None
+) -> QuerySet[ShelfMember]:
     # _base_manager skips ShelfMemberManager's default annotations (useless
     # here); order_by() keeps subqueries free of any future default ordering.
-    return ShelfMember._base_manager.filter(
+    qs = ShelfMember._base_manager.filter(
         owner_id=identity_pk,
         parent__shelf_type__in=SHELF_TYPES_TO_EXCLUDE,
     ).order_by()
+    if until is not None:
+        qs = qs.filter(edited_time__lt=until)
+    return qs
 
 
-def _user_shelved_item_ids(identity_pk: int) -> set[int]:
-    return set(_user_shelved_members(identity_pk).values_list("item_id", flat=True))
+def _user_shelved_item_ids(
+    identity_pk: int, *, until: datetime | None = None
+) -> set[int]:
+    return set(
+        _user_shelved_members(identity_pk, until=until).values_list(
+            "item_id", flat=True
+        )
+    )
 
 
-def _user_rewrite_map(identity_pk: int) -> dict[int, int]:
-    return _scoped_rewrite_map(_user_shelved_members(identity_pk).values("item_id"))
+def _user_rewrite_map(
+    identity_pk: int, *, until: datetime | None = None
+) -> dict[int, int]:
+    return _scoped_rewrite_map(
+        _user_shelved_members(identity_pk, until=until).values("item_id")
+    )
 
 
 def _user_excluded_item_ids(identity_pk: int) -> set[int]:
@@ -406,13 +425,20 @@ def _user_excluded_item_ids(identity_pk: int) -> set[int]:
     )
 
 
-def _user_dismissed_members(user_pk: int) -> QuerySet[RecommendationDismissal]:
-    return RecommendationDismissal.objects.filter(user_id=user_pk).order_by()
+def _user_dismissed_members(
+    user_pk: int, *, until: datetime | None = None
+) -> QuerySet[RecommendationDismissal]:
+    qs = RecommendationDismissal.objects.filter(user_id=user_pk).order_by()
+    if until is not None:
+        qs = qs.filter(created_time__lt=until)
+    return qs
 
 
-def _user_dismissed_item_ids(user_pk: int) -> set[int]:
+def _user_dismissed_item_ids(
+    user_pk: int, *, until: datetime | None = None
+) -> set[int]:
     """Dismissed items plus where their merges have led since."""
-    dismissed = _user_dismissed_members(user_pk)
+    dismissed = _user_dismissed_members(user_pk, until=until)
     ids = set(dismissed.values_list("item_id", flat=True))
     if not ids:
         return ids
@@ -592,30 +618,102 @@ def _cap_per_seed(
     return admitted + overflow
 
 
-def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]:
+def recommendable_for_user(
+    user_pk: int, item_ids: Sequence[int], cats: Mapping[int, str] | None = None
+) -> set[int]:
+    """The ids of ``item_ids`` the member's category and language settings allow.
+
+    Categories the site hides or the member does not search stay out, as do
+    items without a category, and so do items outside the member's catalog
+    languages when the site applies them. ``cats`` saves the category
+    lookup when the caller already has it.
+    """
+    sys = SiteConfig.system
+    pref = Preference.objects.filter(user_id=user_pk).first()
+    hidden = set(sys.hidden_categories) | set(pref.hidden_categories if pref else [])
+    if cats is None:
+        cats = _categories_of(item_ids)
+    allowed = [i for i in item_ids if cats.get(i) not in (None, *hidden)]
+    if sys.discover_user_languages and pref:
+        codes = pref.catalog_language_codes()
+        if codes:
+            return set(_first_in_languages(allowed, codes, len(allowed)))
+    return set(allowed)
+
+
+# (source, target, score) of blended neighbours for the given sources
+SimilarityLookup = Callable[[Collection[int]], Iterable[tuple[int, int, float]]]
+
+
+def stored_similarity(source_ids: Collection[int]) -> Iterable[tuple[int, int, float]]:
+    """Blended neighbours of ``source_ids`` as stored by the weekly build."""
+    return ItemSimilarity.objects.filter(
+        source_id__in=source_ids, method=ItemSimilarity.METHOD_BLENDED
+    ).values_list("source_id", "target_id", "score")
+
+
+def user_reco_exclusions(
+    user_pk: int,
+    identity_pk: int,
+    rewrite: dict[int, int] | None = None,
+    *,
+    until: datetime | None = None,
+) -> tuple[set[int], set[int]]:
+    """(dismissed, excluded): items ``compute_for_user`` never returns.
+
+    Excluded are shelved and dismissed items, what they count toward in
+    training and their sibling editions (same Work). ``rewrite`` defaults
+    to the member's scoped rewrite map.
+    """
+    if rewrite is None:
+        rewrite = _user_rewrite_map(identity_pk, until=until)
+    dismissed = _user_dismissed_item_ids(user_pk, until=until)
+    hidden = (
+        _with_rewrites(_user_shelved_item_ids(identity_pk, until=until), rewrite)
+        | dismissed
+    )
+    return dismissed, hidden | _sibling_edition_ids(hidden)
+
+
+def compute_for_user(
+    user_pk: int,
+    identity_pk: int,
+    *,
+    until: datetime | None = None,
+    similarity: SimilarityLookup | None = None,
+) -> list[UserRecommendation]:
     """Score candidate items for one user, returning unsaved UserRecommendation rows.
 
     Seeds are the user's recent marks of any visibility: the rows are shown
     to nobody else. A seed rated well below the user's own average, a
     dropped item and a dismissed item lower the score of their neighbours.
+
+    ``until`` replays the member as of that time for offline evaluation:
+    only marks, content and dismissals before it count, and it stands in
+    for now in the seed decay. ``similarity`` replaces the stored
+    neighbours, e.g. with a build bounded by the same time.
     """
     sys = SiteConfig.system
     seed_cap = sys.reco_per_user_seed_cap
     top_n = sys.reco_user_top_n
+    neighbours = similarity or stored_similarity
 
+    seed_qs = ShelfMember._base_manager.filter(
+        owner_id=identity_pk,
+        parent__shelf_type__in=SHELF_TYPES_AS_SEED,
+    )
+    if until is not None:
+        seed_qs = seed_qs.filter(edited_time__lt=until)
     raw_seeds = list(
-        ShelfMember._base_manager.filter(
-            owner_id=identity_pk,
-            parent__shelf_type__in=SHELF_TYPES_AS_SEED,
-        )
-        .order_by("-edited_time")
-        .values_list("item_id", "edited_time")[: seed_cap * 2]
+        seed_qs.order_by("-edited_time").values_list("item_id", "edited_time")[
+            : seed_cap * 2
+        ]
     )
     if not raw_seeds:
         return []
     # Rewrite seeds the same way the similarity matrix aggregates marks.
     # Seeds are a subset of the shelved items the scoped map starts from.
-    rewrite = _user_rewrite_map(identity_pk)
+    rewrite = _user_rewrite_map(identity_pk, until=until)
     seeds: list[int] = []
     seed_time: dict[int, datetime] = {}
     for sid, edited in raw_seeds:
@@ -635,10 +733,11 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
         rewrite,
         item_ids=raw_ids | {rewrite[s] for s in raw_ids if s in rewrite},
         public_only=False,
+        until=until,
     )
     seed_signals = [signals.get((identity_pk, s), NO_MARK_SIGNALS) for s in seeds]
     user_mean = user_mean_grade(grade for grade, _, _, _ in seed_signals)
-    now = timezone.now()
+    now = until or timezone.now()
     positive: list[int] = []
     low_rated: list[int] = []
     seed_weight: dict[int, float] = {}
@@ -662,19 +761,14 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
         ) * seed_recency_factor(age_days, sys.reco_seed_half_life_days)
     if not positive:
         return []
-    # Exclude shelved and dismissed items plus their sibling editions (same
-    # Work). Precompute only; a sibling marked later may dupe until the next
-    # refresh.
-    dismissed = _user_dismissed_item_ids(user_pk)
-    hidden = _with_rewrites(_user_shelved_item_ids(identity_pk), rewrite) | dismissed
-    excluded = hidden | _sibling_edition_ids(hidden)
+    # Precompute only; a sibling marked later may dupe until the next refresh.
+    dismissed, excluded = user_reco_exclusions(
+        user_pk, identity_pk, rewrite, until=until
+    )
 
     # min-heap of the strongest (contribution, seed) pairs per target
     contribs: dict[int, list[tuple[float, int]]] = {}
-    sim_rows = ItemSimilarity.objects.filter(
-        source_id__in=positive, method=ItemSimilarity.METHOD_BLENDED
-    ).values_list("source_id", "target_id", "score")
-    for src, tgt, score in sim_rows:
+    for src, tgt, score in neighbours(positive):
         if tgt in excluded or tgt in seed_set:
             continue
         entry = (seed_weight[src] * score, src)
@@ -689,13 +783,14 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
     scores = {tgt: sum(c for c, _ in heap) for tgt, heap in contribs.items()}
     neg_weight = sys.reco_negative_weight
     if neg_weight > 0:
-        dropped = (
-            ShelfMember._base_manager.filter(
-                owner_id=identity_pk, parent__shelf_type=SHELF_TYPE_NEGATIVE_SEED
-            )
-            .order_by("-edited_time")
-            .values_list("item_id", flat=True)[:seed_cap]
+        dropped_qs = ShelfMember._base_manager.filter(
+            owner_id=identity_pk, parent__shelf_type=SHELF_TYPE_NEGATIVE_SEED
         )
+        if until is not None:
+            dropped_qs = dropped_qs.filter(edited_time__lt=until)
+        dropped = dropped_qs.order_by("-edited_time").values_list("item_id", flat=True)[
+            :seed_cap
+        ]
         # dismissals have no order here, so they come last under the cap
         negatives = [
             i
@@ -704,10 +799,7 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
             )
             if i not in seed_weight
         ][:seed_cap]
-        neg_rows = ItemSimilarity.objects.filter(
-            source_id__in=negatives, method=ItemSimilarity.METHOD_BLENDED
-        ).values_list("target_id", "score")
-        for tgt, score in neg_rows:
+        for _, tgt, score in neighbours(negatives):
             if tgt in scores:
                 scores[tgt] -= neg_weight * score
         scores = {tgt: sc for tgt, sc in scores.items() if sc > 0}
@@ -717,20 +809,10 @@ def compute_for_user(user_pk: int, identity_pk: int) -> list[UserRecommendation]
         tgt: [src for _, src in nlargest(3, contribs[tgt])] for tgt in scores
     }
 
-    pref = Preference.objects.filter(user_id=user_pk).first()
-    codes: list[str] = []
-    if sys.discover_user_languages and pref:
-        codes = pref.catalog_language_codes()
-    # categories the member does not search, or the site hides, stay out
-    hidden_cats = set(sys.hidden_categories) | set(
-        pref.hidden_categories if pref else []
-    )
     ranked = sorted(scores.items(), key=lambda t: t[1], reverse=True)
     cats = _categories_of([t for t, _ in ranked] + positive)
-    ranked = [(t, sc) for t, sc in ranked if cats.get(t) not in (None, *hidden_cats)]
-    if codes:
-        in_lang = set(_first_in_languages([t for t, _ in ranked], codes, len(ranked)))
-        ranked = [(t, sc) for t, sc in ranked if t in in_lang]
+    allowed = recommendable_for_user(user_pk, [t for t, _ in ranked], cats)
+    ranked = [(t, sc) for t, sc in ranked if t in allowed]
     if not ranked:
         return []
     ranked = _cap_per_seed(ranked, seeds_by_target, sys.reco_per_seed_slots)

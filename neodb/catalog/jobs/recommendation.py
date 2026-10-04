@@ -2,16 +2,16 @@ import logging
 import math
 from array import array
 from collections import defaultdict
-from collections.abc import Hashable, Iterable, Iterator
-from datetime import timedelta
+from collections.abc import Collection, Hashable, Iterable, Iterator
+from datetime import datetime, timedelta
 from heapq import merge, nlargest
 from itertools import groupby
 from operator import itemgetter
-from typing import NamedTuple
+from typing import NamedTuple, TypeVar
 
 import numpy as np
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, Q, QuerySet
 from django.utils import timezone
 from scipy.sparse import csc_matrix, csr_matrix
 
@@ -183,15 +183,27 @@ def _resolve_item(
     return None if merged_to is not None else item_id
 
 
+def _before(qs: QuerySet, field: str, until: datetime | None) -> QuerySet:
+    return qs if until is None else qs.filter(**{f"{field}__lt": until})
+
+
 def _tag_cells(
-    ctypes: list[int], excluded_owners: set[int], rewrite: dict[int, int]
+    ctypes: list[int],
+    excluded_owners: set[int],
+    rewrite: dict[int, int],
+    until: datetime | None = None,
 ) -> Iterator[FeatureCell]:
-    """Public tags; a cell weighs the number of owners who applied the tag."""
+    """Public tags; a cell weighs the number of owners who applied the tag.
+
+    With ``until`` only tags applied before it count; the tag's visibility
+    and title are as of now.
+    """
     qs = TagMember.objects.filter(
         parent__visibility=0,
         item__polymorphic_ctype_id__in=ctypes,
         item__is_deleted=False,
     )
+    qs = _before(qs, "created_time", until)
     if excluded_owners:
         qs = qs.exclude(owner_id__in=excluded_owners)
     rows = (
@@ -209,13 +221,18 @@ def _tag_cells(
 
 
 def _collection_cells(
-    ctypes: list[int], excluded_owners: set[int], rewrite: dict[int, int]
+    ctypes: list[int],
+    excluded_owners: set[int],
+    rewrite: dict[int, int],
+    until: datetime | None = None,
 ) -> Iterator[FeatureCell]:
+    """Public collections; with ``until`` only items added before it count."""
     qs = CollectionMember.objects.filter(
         parent__visibility=0,
         item__polymorphic_ctype_id__in=ctypes,
         item__is_deleted=False,
     )
+    qs = _before(qs, "created_time", until)
     if excluded_owners:
         qs = qs.exclude(owner_id__in=excluded_owners)
     rows = (
@@ -234,15 +251,18 @@ def _credit_cells(
     excluded_owners: set[int],
     rewrite: dict[int, int],
     marked_targets: set[int],
+    until: datetime | None = None,
 ) -> Iterator[FeatureCell]:
     """Creator credits of items with a public mark, which bounds the matrix.
 
     ``marked_targets`` adds the items such marks count toward, because a
     merge moves credits to the surviving item and leaves marks behind.
+    ``until`` bounds the marks; credits are catalog data, read as of now.
     """
     marked = ShelfMember._base_manager.filter(
         visibility=0, parent__shelf_type__in=SHELF_TYPES_AS_SEED
     )
+    marked = _before(marked, "edited_time", until)
     if excluded_owners:
         marked = marked.exclude(owner_id__in=excluded_owners)
     in_scope = Q(item_id__in=marked.order_by().values("item_id"))
@@ -357,19 +377,16 @@ def _feature_topk(
         yield int(item_ids[src_col]), method, item_ids[tgt_cols], scores
 
 
-class _SimilarityWriter:
-    """Replaces every row of a source, in batches of sources.
+class _BlendingWriter:
+    """Blends each source's per-method neighbours into its top-K and keeps them.
 
-    Only ``METHOD_BLENDED`` rows are stored: the top-K of the weighted sum of
-    a source's per-method scores per target. Batched transactions keep each
-    commit small, avoid one long-lived transaction across the rebuild, and
-    give readers a consistent view per source.
+    The blend is the weighted sum of a source's per-method scores per
+    target, stored as ``METHOD_BLENDED``. Subclasses decide where it goes.
     """
 
     def __init__(self, blend_weights: dict[int, float], top_k: int) -> None:
         self.blend_weights = blend_weights
         self.top_k = top_k
-        self.pending: dict[int, list[ItemSimilarity]] = {}
         self.covered: set[int] = set()
         self.counts: dict[int, int] = defaultdict(int)
 
@@ -389,6 +406,57 @@ class _SimilarityWriter:
                 blended[t] += weight * v
         top = nlargest(self.top_k, blended.items(), key=itemgetter(1))
         self.counts[ItemSimilarity.METHOD_BLENDED] += len(top)
+        self.covered.add(src)
+        self._keep(src, top)
+
+    def _keep(self, src: int, top: list[tuple[int, float]]) -> None:
+        raise NotImplementedError
+
+    def finish(self) -> dict[int, int]:
+        """Complete the build; return neighbour counts per method."""
+        return dict(self.counts)
+
+
+class InMemorySimilarity(_BlendingWriter):
+    """Keeps the blended top-K per source in memory and touches no table.
+
+    Called with source ids, it yields ``(source, target, score)`` like
+    ``catalog.recommendation.stored_similarity``. Neighbours are kept in
+    compact arrays: a site-wide build has as many sources as the weekly job.
+    """
+
+    def __init__(self, blend_weights: dict[int, float], top_k: int) -> None:
+        super().__init__(blend_weights, top_k)
+        self.neighbours: dict[int, tuple[array[int], array[float]]] = {}
+
+    def _keep(self, src: int, top: list[tuple[int, float]]) -> None:
+        if top:
+            self.neighbours[src] = (
+                array("q", (t for t, _ in top)),
+                array("d", (v for _, v in top)),
+            )
+
+    def __call__(self, source_ids: Collection[int]) -> Iterator[tuple[int, int, float]]:
+        for src in source_ids:
+            found = self.neighbours.get(src)
+            if found is not None:
+                for t, v in zip(*found):
+                    yield src, t, v
+
+
+class _SimilarityWriter(_BlendingWriter):
+    """Replaces every stored row of a source, in batches of sources.
+
+    Batched transactions keep each commit small, avoid one long-lived
+    transaction across the rebuild, and give readers a consistent view per
+    source.
+    """
+
+    def __init__(self, blend_weights: dict[int, float], top_k: int) -> None:
+        super().__init__(blend_weights, top_k)
+        self.pending: dict[int, list[ItemSimilarity]] = {}
+
+    def _keep(self, src: int, top: list[tuple[int, float]]) -> None:
         self.pending[src] = [
             ItemSimilarity(
                 source_id=src,
@@ -398,7 +466,6 @@ class _SimilarityWriter:
             )
             for t, v in top
         ]
-        self.covered.add(src)
         if len(self.pending) >= _WRITE_SOURCE_BATCH:
             self.flush()
 
@@ -435,7 +502,10 @@ class _SimilarityWriter:
                 ItemSimilarity.objects.filter(
                     source_id__in=stale[i : i + _ID_CHUNK]
                 ).delete()
-        return dict(self.counts)
+        return super().finish()
+
+
+_Writer = TypeVar("_Writer", bound=_BlendingWriter)
 
 
 def _enabled() -> bool:
@@ -458,13 +528,24 @@ class BuildItemSimilarity(BaseJob):
       ``reco_user_mark_cap`` marks each.
     - tag, collection, credit: cosine over shared public tags, public
       collections and creator credits, for every item that has them.
+
+    With ``until`` the build sees only marks, their ratings and annotations,
+    tags and collection entries from before that time, for offline
+    evaluation. Such a build is kept in memory by ``build_in_memory`` and
+    never stored. Credits, merges and deletions are read as of now.
     """
+
+    def __init__(self, until: datetime | None = None) -> None:
+        self.until = until
 
     @classmethod
     def get_interval(cls) -> timedelta:
         if not _enabled():
             return timedelta(0)
         return timedelta(days=7)
+
+    def _marks(self, qs: QuerySet) -> QuerySet:
+        return _before(qs, "edited_time", self.until)
 
     def _rewrite_for_marked_items(self, rewrite: dict[int, int]) -> dict[int, int]:
         """Keep Productions and the merged items that still carry public marks.
@@ -475,10 +556,12 @@ class BuildItemSimilarity(BaseJob):
         if not rewrite:
             return rewrite
         marked_merged = set(
-            ShelfMember._base_manager.filter(
-                visibility=0,
-                parent__shelf_type__in=SHELF_TYPES_AS_SEED,
-                item__merged_to_item_id__isnull=False,
+            self._marks(
+                ShelfMember._base_manager.filter(
+                    visibility=0,
+                    parent__shelf_type__in=SHELF_TYPES_AS_SEED,
+                    item__merged_to_item_id__isnull=False,
+                )
             )
             .order_by()
             .values_list("item_id", flat=True)
@@ -500,10 +583,12 @@ class BuildItemSimilarity(BaseJob):
         """
         if not rewrite:
             return set()
-        qs = ShelfMember._base_manager.filter(
-            visibility=0,
-            parent__shelf_type__in=SHELF_TYPES_AS_SEED,
-            item_id__in=list(rewrite),
+        qs = self._marks(
+            ShelfMember._base_manager.filter(
+                visibility=0,
+                parent__shelf_type__in=SHELF_TYPES_AS_SEED,
+                item_id__in=list(rewrite),
+            )
         )
         if excluded_owners:
             qs = qs.exclude(owner_id__in=excluded_owners)
@@ -525,8 +610,10 @@ class BuildItemSimilarity(BaseJob):
         path for other items and stream the rewrite subset (typically small)
         to dedup owners against the target.
         """
-        qs = ShelfMember.objects.filter(
-            visibility=0, parent__shelf_type__in=SHELF_TYPES_AS_SEED
+        qs = self._marks(
+            ShelfMember.objects.filter(
+                visibility=0, parent__shelf_type__in=SHELF_TYPES_AS_SEED
+            )
         )
         if excluded_owners:
             qs = qs.exclude(owner_id__in=excluded_owners)
@@ -592,10 +679,12 @@ class BuildItemSimilarity(BaseJob):
         )
         item_filter = active_items | sources_to_include
 
-        qs = ShelfMember._base_manager.filter(
-            visibility=0,
-            parent__shelf_type__in=SHELF_TYPES_AS_SEED,
-            item_id__in=item_filter,
+        qs = self._marks(
+            ShelfMember._base_manager.filter(
+                visibility=0,
+                parent__shelf_type__in=SHELF_TYPES_AS_SEED,
+                item_id__in=item_filter,
+            )
         )
         if excluded_owners:
             qs = qs.exclude(owner_id__in=excluded_owners)
@@ -638,7 +727,9 @@ class BuildItemSimilarity(BaseJob):
         """
         sys = SiteConfig.system
         signals = load_mark_signals(
-            {owner_id: set(items) for owner_id, items in pending.items()}, rewrite
+            {owner_id: set(items) for owner_id, items in pending.items()},
+            rewrite,
+            until=self.until,
         )
         out: dict[int, UserMarks] = {}
         for owner_id, items in pending.items():
@@ -664,6 +755,15 @@ class BuildItemSimilarity(BaseJob):
         return out
 
     def run(self) -> None:
+        if self.until is not None:
+            raise ValueError("a time-bounded build must not replace stored rows")
+        self._build(_SimilarityWriter)
+
+    def build_in_memory(self) -> InMemorySimilarity:
+        """Build without writing, for ``compute_for_user(similarity=...)``."""
+        return self._build(InMemorySimilarity)
+
+    def _build(self, writer_class: type[_Writer]) -> _Writer:
         sys = SiteConfig.system
         min_source = sys.reco_min_source_marks
         min_target = sys.reco_min_target_marks
@@ -755,7 +855,7 @@ class BuildItemSimilarity(BaseJob):
         ctypes_by_cat: dict[str, list[int]] = defaultdict(list)
         for ct_id, cat in ctype_to_cat.items():
             ctypes_by_cat[cat].append(ct_id)
-        writer = _SimilarityWriter(
+        writer = writer_class(
             {
                 ItemSimilarity.METHOD_SHELF_COOC: 1.0,
                 ItemSimilarity.METHOD_TAG_COOC: sys.reco_tag_weight,
@@ -779,7 +879,7 @@ class BuildItemSimilarity(BaseJob):
                     ),
                     _feature_topk(
                         ItemSimilarity.METHOD_TAG_COOC,
-                        _tag_cells(ctypes, excluded, full_rewrite),
+                        _tag_cells(ctypes, excluded, full_rewrite, self.until),
                         False,
                         top_k,
                         max_feature_items,
@@ -788,7 +888,7 @@ class BuildItemSimilarity(BaseJob):
                     ),
                     _feature_topk(
                         ItemSimilarity.METHOD_COLLECTION_COOC,
-                        _collection_cells(ctypes, excluded, full_rewrite),
+                        _collection_cells(ctypes, excluded, full_rewrite, self.until),
                         True,
                         top_k,
                         max_feature_items,
@@ -797,7 +897,13 @@ class BuildItemSimilarity(BaseJob):
                     ),
                     _feature_topk(
                         ItemSimilarity.METHOD_CONTENT,
-                        _credit_cells(ctypes, excluded, full_rewrite, marked_targets),
+                        _credit_cells(
+                            ctypes,
+                            excluded,
+                            full_rewrite,
+                            marked_targets,
+                            self.until,
+                        ),
                         True,
                         top_k,
                         max_feature_items,
@@ -817,6 +923,7 @@ class BuildItemSimilarity(BaseJob):
             f"Similarity build done: {len(writer.covered)} sources, neighbours "
             f"per method {counts}"
         )
+        return writer
 
     def _shelf_topk(
         self,
