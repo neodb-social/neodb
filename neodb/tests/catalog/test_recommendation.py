@@ -21,6 +21,7 @@ from catalog.models import (
     Item,
     ItemCredit,
     ItemSimilarity,
+    Movie,
     Performance,
     PerformanceProduction,
     TVShow,
@@ -1128,6 +1129,18 @@ class TestFeatureSimilarity:
         BuildItemSimilarity().run()
         pairs = self._pairs()
         assert pairs == {(self.b.pk, self.c.pk), (self.c.pk, self.b.pk)}
+
+    def test_survivor_of_another_category_is_a_source_once(self):
+        movie, other = (Movie.objects.create(title=f"Feature {t}") for t in "MN")
+        self._tag(self.users[0], movie, ["moon"])
+        self._tag(self.users[0], other, ["moon"])
+        self._tag(self.users[0], self.b, ["moon"])
+        self._tag(self.users[0], self.c, ["moon"])
+        # a merge across classes, as old data holds
+        Item.objects.filter(pk=movie.pk).update(merged_to_item_id=self.b.pk)
+        BuildItemSimilarity().run()
+        sources = set(ItemSimilarity.objects.values_list("source_id", flat=True))
+        assert self.b.pk in sources
 
 
 @pytest.mark.django_db(databases="__all__")
