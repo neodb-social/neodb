@@ -548,6 +548,16 @@ a.dc-progress-badge,
   text-overflow: ellipsis;
 }
 
+// "Because of X": the seed title is the point, so it may take two lines
+.dc-because {
+  font-size: var(--dc-fs-sm);
+  color: var(--dc-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 // collections: a mosaic of member covers
 .dc-mosaic {
   // the blurred backdrop of a single cover is absolute against this box
