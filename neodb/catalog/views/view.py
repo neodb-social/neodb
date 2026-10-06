@@ -16,6 +16,7 @@ from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
@@ -1040,6 +1041,46 @@ def discover_personal(request):
     )
 
 
+def _trending_tabs(request, current: ItemCategory) -> list[dict]:
+    """A chip per trending shelf the viewer may see, plus the current one.
+
+    Categories hidden by the site or in the member's preferences stay out,
+    as they do on the discover page.
+    """
+    visible = _visible_category_values(request)
+    shelved = [
+        g["category"]
+        for g in cache.get("public_gallery", [])
+        if g["name"] != "original_episodes"
+    ]
+    if current not in shelved:
+        shelved.append(current)
+    return [
+        {
+            "label": c.label,
+            "url": reverse("catalog:discover_category", args=[c.value]),
+            "active": c == current,
+        }
+        for c in shelved
+        if c == current or c.value in visible
+    ]
+
+
+def _reco_tabs(kind: str) -> list[dict]:
+    return [
+        {
+            "label": _("For you"),
+            "url": reverse("catalog:discover_for_you"),
+            "active": kind == "for_you",
+        },
+        {
+            "label": _("From people you follow"),
+            "url": reverse("catalog:discover_from_circles"),
+            "active": kind == "from_circles",
+        },
+    ]
+
+
 def discover_category(request, category: str):
     """Every item on one trending shelf, in the job's order."""
     try:
@@ -1053,6 +1094,7 @@ def discover_category(request, category: str):
         ),
         _("Trending in %(category)s") % {"category": cat.label},
         _("Most marked across the Fediverse recently. Refreshed every hour."),
+        tabs=_trending_tabs(request, cat),
     )
 
 
@@ -1070,7 +1112,9 @@ def discover_reco(request, kind: str):
         if request.user.preference.show_recommendations(kind):
             items = from_your_circles(request.user, limit=CIRCLES_PAGE_SIZE)
     items = _in_visible_categories(items, _visible_category_values(request))
-    return _discover_list_page(request, items, title, subtitle, reco_dismiss=True)
+    return _discover_list_page(
+        request, items, title, subtitle, reco_dismiss=True, tabs=_reco_tabs(kind)
+    )
 
 
 def discover_original_podcasts(request):

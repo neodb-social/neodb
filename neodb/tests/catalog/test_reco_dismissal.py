@@ -5,7 +5,13 @@ from django.test import Client
 from django.urls import reverse
 
 from catalog.jobs.recommendation import BuildItemSimilarity
-from catalog.models import Edition, RecommendationDismissal, UserRecommendation, Work
+from catalog.models import (
+    Edition,
+    ItemCategory,
+    RecommendationDismissal,
+    UserRecommendation,
+    Work,
+)
 from catalog.recommendation import (
     compute_for_user,
     dismiss_item,
@@ -497,6 +503,59 @@ class TestSeeAllPages:
         for b in books:
             assert b.url in content
         assert "/dismiss" not in content
+
+    def test_personal_pages_switch_to_each_other(self):
+        for_you_url = reverse("catalog:discover_for_you")
+        circles_url = reverse("catalog:discover_from_circles")
+        content = self.client.get(for_you_url).content.decode()
+        assert '<a class="on" aria-current="page">For you</a>' in content
+        assert f'<a href="{circles_url}">From people you follow</a>' in content
+        content = self.client.get(circles_url).content.decode()
+        assert '<a class="on" aria-current="page">From people you follow</a>' in content
+        assert f'<a href="{for_you_url}">For you</a>' in content
+        assert "/discover/book/" not in content
+
+    def test_trending_page_switches_between_visible_categories(self, monkeypatch):
+        gallery = [
+            {"name": "trending_" + c.value, "category": c}
+            for c in (ItemCategory.Book, ItemCategory.Movie, ItemCategory.Game)
+        ] + [{"name": "original_episodes", "category": ItemCategory.Podcast}]
+        monkeypatch.setattr(
+            "catalog.views.view.cache.get",
+            lambda key, default=None: gallery if key == "public_gallery" else default,
+        )
+        self.user.preference.hidden_categories = ["game"]
+        self.user.preference.save(update_fields=["hidden_categories"])
+        content = self.client.get(
+            reverse("catalog:discover_category", args=["book"])
+        ).content.decode()
+        assert '<a class="on" aria-current="page">Book</a>' in content
+        assert '<a href="/discover/movie/">Movie</a>' in content
+        assert "/discover/game/" not in content
+        assert "/discover/podcast/" not in content
+        assert reverse("catalog:discover_for_you") not in content
+        # a hidden category opened directly still shows as the current chip
+        content = self.client.get(
+            reverse("catalog:discover_category", args=["game"])
+        ).content.decode()
+        assert '<a class="on" aria-current="page">Game</a>' in content
+        assert '<a href="/discover/book/">Book</a>' in content
+
+    def test_trending_page_hides_site_hidden_categories_from_guests(
+        self, site_config, monkeypatch
+    ):
+        gallery = [
+            {"name": "trending_" + c.value, "category": c}
+            for c in (ItemCategory.Book, ItemCategory.Movie)
+        ]
+        monkeypatch.setattr(
+            "catalog.views.view.cache.get",
+            lambda key, default=None: gallery if key == "public_gallery" else default,
+        )
+        site_config.hidden_categories = ["movie"]
+        content = Client().get("/discover/book/").content.decode()
+        assert '<a class="on" aria-current="page">Book</a>' in content
+        assert "/discover/movie/" not in content
 
     def test_from_circles_lists_followee_marks(self):
         friend = User.register(email="sa2@t.com", username="sa2")
