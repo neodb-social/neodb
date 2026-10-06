@@ -10,6 +10,9 @@ from activities.models import PostAttachment
 @pytest.fixture(autouse=True)
 def _media_root(settings, tmp_path) -> None:
     settings.MEDIA_ROOT = str(tmp_path)
+    # CI leaves TAKAHE_MEDIA_URL relative and PostAttachment URLs raise on
+    # that; pin an absolute one so the result does not depend on the env
+    settings.MEDIA_URL = "https://media.example.com/media/"
 
 
 def _png() -> bytes:
