@@ -257,8 +257,10 @@ class TestDiscoverPage:
         assert response.status_code == 200
         assert 'hx-get="/discover/personal/"' in response.content.decode()
 
-    def test_personal_rows_need_login(self, site_config):
-        assert Client().get("/discover/personal/").status_code == 302
+    def test_personal_rows_are_empty_for_guests(self, site_config):
+        response = Client().get("/discover/personal/")
+        assert response.status_code == 200
+        assert response.content == b""
 
     def test_personal_rows_are_short_cards_without_dismiss(
         self, site_config, monkeypatch

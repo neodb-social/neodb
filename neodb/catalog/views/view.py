@@ -1010,9 +1010,12 @@ def _personal_row_kinds(user) -> list[str]:
     return [k for k in ("for_you", "from_circles") if pref.show_recommendations(k)]
 
 
-@login_required
 def discover_personal(request):
     """The personal rows of the discover page, which loads them after itself."""
+    # not login_required: htmx would put the login page into the section of
+    # a page whose session ran out; empty, the page hides the section
+    if not request.user.is_authenticated:
+        return HttpResponse()
     kinds = _personal_row_kinds(request.user)
     visible = _visible_category_values(request)
     for_you_items: list[Item] = []
