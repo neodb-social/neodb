@@ -35,7 +35,6 @@
       <span>
         <a title="{% trans "Not interested" %}"
            hx-post="{% url 'catalog:dismiss_recommendation' item.uuid %}"
-           hx-vals='{"layout": "list"}'
            hx-target="closest article"
            hx-swap="outerHTML">
           <i class="fa-solid fa-eye-slash"></i>

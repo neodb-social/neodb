@@ -137,10 +137,9 @@ class Podcast(Item):
         # look up only the identities that are actually verified creators (a
         # small, curated set) and materialize the restricted ids, rather than
         # scanning every restricted identity on the instance or joining dbs.
+        verified = VerifiedCreator.objects.filter(state=VerifiedCreator.State.VERIFIED)
         verified_owner_ids = list(
-            VerifiedCreator.objects.filter(state=VerifiedCreator.State.VERIFIED)
-            .values_list("owner_id", flat=True)
-            .distinct()
+            verified.values_list("owner_id", flat=True).distinct()
         )
         restricted_ids = list(
             Identity.objects.filter(
@@ -148,8 +147,10 @@ class Podcast(Item):
                 restriction__gt=Identity.Restriction.none,
             ).values_list("pk", flat=True)
         )
+        # start from the few verified shows, or the count groups every podcast
         qs = (
             cls.objects.filter(
+                pk__in=verified.values("item_id"),
                 is_deleted=False,
                 merged_to_item__isnull=True,
             )

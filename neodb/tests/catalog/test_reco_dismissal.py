@@ -337,23 +337,14 @@ class TestWebViews:
         url = reverse("catalog:dismiss_recommendation", args=["0" * 22])
         assert self.client.post(url).status_code == 404
 
-    def test_undo_returns_the_card(self):
-        dismiss_item(self.user, self.book)
-        url = reverse("catalog:restore_recommendation", args=[self.book.uuid])
-        response = self.client.post(url)
-        assert response.status_code == 200
-        assert not RecommendationDismissal.objects.exists()
-        content = response.content.decode()
-        assert "Hide Me" in content
-        assert 'class="dc-card-dismiss"' in content
-
-    def test_list_layout_dismiss_and_undo_swap_rows(self):
+    def test_dismiss_and_undo_swap_rows(self):
         dismiss = reverse("catalog:dismiss_recommendation", args=[self.book.uuid])
         restore = reverse("catalog:restore_recommendation", args=[self.book.uuid])
-        row = self.client.post(dismiss, {"layout": "list"}).content.decode()
+        row = self.client.post(dismiss).content.decode()
         assert '<article class="item-card">' in row
         assert restore in row
-        row = self.client.post(restore, {"layout": "list"}).content.decode()
+        row = self.client.post(restore).content.decode()
+        assert "Hide Me" in row
         assert not RecommendationDismissal.objects.exists()
         assert 'class="entity-sort item-card"' in row
         assert dismiss in row
@@ -380,36 +371,22 @@ class TestWebViews:
             reverse("catalog:restore_recommendation", args=[self.book.uuid]) in content
         )
 
-    def test_discover_reco_cards_offer_dismiss(self, site_config, monkeypatch):
+    def test_discover_personal_rows_link_to_their_lists(self, site_config, monkeypatch):
         site_config.min_marks_for_discover = 0
         _public_mark(self.user.identity, Edition.objects.create(title="Seen"))
         books = [Edition.objects.create(title=f"Reco {i}") for i in range(3)]
-        monkeypatch.setattr(
-            "catalog.views.view.for_you", lambda user, limit: list(books)
-        )
-        content = self.client.get("/discover/").content.decode()
-        assert 'id="for_you"' in content
-        assert reverse("catalog:discover_for_you") in content
-        for b in books:
-            assert reverse("catalog:dismiss_recommendation", args=[b.uuid]) in content
-
-    def test_discover_reco_cards_explain_their_seed(self, site_config, monkeypatch):
-        site_config.min_marks_for_discover = 0
-        seed = Edition.objects.create(title="Seen")
-        _public_mark(self.user.identity, seed)
-        books = [Edition.objects.create(title=f"Reco {i}") for i in range(3)]
-        for b in books:
-            b.reco_seed_items = [seed]
         friends = [Edition.objects.create(title=f"Circle {i}") for i in range(3)]
         monkeypatch.setattr(
-            "catalog.views.view.for_you", lambda user, limit: list(books)
+            "catalog.views.view.for_you", lambda user, limit, seeds: list(books)
         )
         monkeypatch.setattr(
             "catalog.views.view.from_your_circles", lambda user, limit: list(friends)
         )
-        content = self.client.get("/discover/").content.decode()
+        content = self.client.get("/discover/personal/").content.decode()
+        assert 'id="for_you"' in content
         assert 'id="from_circles"' in content
-        assert content.count(f'Because of <a href="{seed.url}">Seen</a>') == 3
+        assert reverse("catalog:discover_for_you") in content
+        assert reverse("catalog:discover_from_circles") in content
 
 
 class TestApi:

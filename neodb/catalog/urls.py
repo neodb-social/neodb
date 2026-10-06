@@ -322,6 +322,11 @@ urlpatterns = [
         name="discover_from_circles",
     ),
     path(
+        "discover/personal/",
+        discover_personal,
+        name="discover_personal",
+    ),
+    path(
         "discover/<str:category>/",
         discover_category,
         name="discover_category",

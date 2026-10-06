@@ -1,0 +1,65 @@
+{% load i18n %}
+{% if for_you_items %}
+  <div class="dc-mod" id="for_you">
+    <header class="dc-mh">
+      <h2>{% trans "For you" %}</h2>
+      <span class="dc-sub">{% trans "Because of what is on your shelf." %}</span>
+      <span class="action">
+        <a class="dc-more"
+           href="{% url 'catalog:discover_for_you' %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
+        <button class="dc-nav dc-scroll"
+                type="button"
+                aria-label="{% trans 'Scroll left' %}"
+                _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="dc-nav dc-scroll"
+                type="button"
+                aria-label="{% trans 'Scroll right' %}"
+                _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </span>
+    </header>
+    <ul class="dc-cards">
+      {% for item in for_you_items %}
+        {% include "_item_cover_card.html" %}
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+{% if circles_items %}
+  <div class="dc-mod" id="from_circles">
+    <header class="dc-mh">
+      <h2>{% trans "From people you follow" %}</h2>
+      <span class="dc-sub">{% trans "Marked recently by people you follow." %}</span>
+      <span class="action">
+        <a class="dc-more"
+           href="{% url 'catalog:discover_from_circles' %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
+        <button class="dc-nav dc-scroll"
+                type="button"
+                aria-label="{% trans 'Scroll left' %}"
+                _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="dc-nav dc-scroll"
+                type="button"
+                aria-label="{% trans 'Scroll right' %}"
+                _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </span>
+    </header>
+    <ul class="dc-cards">
+      {% for item in circles_items %}
+        {% include "_item_cover_card.html" %}
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+{% if not for_you_items and not circles_items %}
+  <header class="dc-mh">
+    <h2>{% trans "For you" %}</h2>
+    <span class="dc-sub">{% trans "Recommendations appear here once you mark a few things or follow people." %}</span>
+  </header>
+{% endif %}
