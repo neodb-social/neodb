@@ -22,6 +22,21 @@
             <small>{{ subtitle }}</small>
           </p>
         {% endif %}
+        {% if tabs %}
+          <nav class="dc-chips" aria-label="{% trans 'Sections' %}">
+            <ul>
+              {% for tab in tabs %}
+                <li>
+                  {% if tab.active %}
+                    <a class="on" aria-current="page">{{ tab.label }}</a>
+                  {% else %}
+                    <a href="{{ tab.url }}">{{ tab.label }}</a>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </nav>
+        {% endif %}
         <div class="item-card-list">
           {% for item in items %}
             {% include "_list_item.html" with item=item %}
