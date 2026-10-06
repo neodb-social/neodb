@@ -743,6 +743,15 @@ class Shelf(List):
     def ap_object_extra_fields(self) -> dict[str, Any]:
         return {"shelfType": self.shelf_type}
 
+    def ap_member_queryset(self, viewer: APIdentity | None = None):
+        # each mark carries its own visibility while the shelf row stays public
+        qs = super().ap_member_queryset(viewer)
+        if viewer is not None and viewer.pk == self.owner.pk:
+            return qs
+        if viewer is not None and viewer.is_following(self.owner):
+            return qs.filter(visibility__lte=1)
+        return qs.filter(visibility=0)
+
     def ap_member_entry(self, member: ListMember) -> dict[str, Any]:
         # ``member`` is always a ``ShelfMember`` here (the list's
         # MEMBER_CLASS), but the signature follows the base class contract.

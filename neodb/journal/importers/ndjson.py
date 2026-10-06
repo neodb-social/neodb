@@ -1,7 +1,6 @@
 import datetime
 import json
 import logging
-import mimetypes
 import os
 import re
 import tempfile
@@ -40,7 +39,7 @@ from journal.models.renderers import RE_MD_IMAGE
 from takahe.utils import Takahe
 from users.models import APIdentity
 
-from .base import BaseImporter
+from .base import BaseImporter, extract_zip_safely, sniff_media
 
 logger = logging.getLogger(__name__)
 
@@ -160,10 +159,13 @@ class NdjsonImporter(BaseImporter):
         src = self._store_path(rel_path)
         if not src:
             return None
-        ext = os.path.splitext(src)[1]
+        media = sniff_media(src)
+        if not media:
+            logger.warning(f"skipping bundled file that is not an image: {rel_path}")
+            return None
         # same layout as journal.views.common.generate_upload_path, so
         # restored images sit where the rest of the app expects uploads
-        name = f"upload/{self.user.identity.pk}/{timezone.now():%Y}/{uuid.uuid4()}{ext}"
+        name = f"upload/{self.user.identity.pk}/{timezone.now():%Y}/{uuid.uuid4()}.{media[0]}"
         with open(src, "rb") as f:
             name = default_storage.save(name, File(f))
         return default_storage.url(name)
@@ -184,15 +186,15 @@ class NdjsonImporter(BaseImporter):
         """
         mimetype = atta.get("mimetype", "")
         src = self._store_path(atta.get("file"))
-        if src:
-            ext = (
-                os.path.splitext(src)[1]
-                or mimetypes.guess_extension(mimetype)
-                or ".bin"
-            )
+        media = sniff_media(src, allow_av=True) if src else None
+        if src and not media:
+            logger.warning(f"skipping unrecognised note attachment {src}")
+        elif src and media:
             try:
                 with open(src, "rb") as f:
-                    return Attachment.register(owner, File(f), ext, mimetype=mimetype)
+                    return Attachment.register(
+                        owner, File(f), media[0], mimetype=media[1]
+                    )
             except Exception as e:
                 logger.warning(f"error registering note attachment {src}: {e}")
         url = atta.get("url")
@@ -278,11 +280,10 @@ class NdjsonImporter(BaseImporter):
             # branch this also unlinks the rows the previous body referenced
             link_attachments_to_piece(collection, collection.brief)
             cover_src = self._store_path(data.get("cover"))
-            if cover_src:
+            cover_media = sniff_media(cover_src) if cover_src else None
+            if cover_src and cover_media:
                 with open(cover_src, "rb") as f:
-                    collection.cover.save(
-                        os.path.basename(cover_src), File(f), save=True
-                    )
+                    collection.cover.save(f"cover.{cover_media[0]}", File(f), save=True)
             item_data = data.get("items", [])
             member_notes_changed = False
             with collection.defer_member_updates():
@@ -468,11 +469,12 @@ class NdjsonImporter(BaseImporter):
             # initial create so the federated post carries it too. Keep the
             # handle open across the create — the ImageField reads it on save.
             cover_src = self._store_path(data.get("cover"))
+            cover_media = sniff_media(cover_src) if cover_src else None
             cover_arg = None
             cover_fh = None
-            if cover_src:
+            if cover_src and cover_media:
                 cover_fh = open(cover_src, "rb")
-                cover_arg = File(cover_fh, name=os.path.basename(cover_src))
+                cover_arg = File(cover_fh, name=f"cover.{cover_media[0]}")
             try:
                 # ``article=existing`` edits in place: a newer archive of an
                 # article already here must not land as a second copy
@@ -1087,15 +1089,7 @@ class NdjsonImporter(BaseImporter):
 
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:
-                for member in zipref.namelist():
-                    member_path = os.path.realpath(os.path.join(tmpdirname, member))
-                    if not member_path.startswith(
-                        os.path.realpath(tmpdirname) + os.sep
-                    ) and member_path != os.path.realpath(tmpdirname):
-                        raise ValueError(
-                            f"Zip member {member} would extract outside target directory"
-                        )
-                zipref.extractall(tmpdirname)
+                extract_zip_safely(zipref, tmpdirname)
 
                 # Process actor data first if available
                 actor_path = os.path.join(tmpdirname, "actor.ndjson")

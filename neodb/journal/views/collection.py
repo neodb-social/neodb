@@ -166,7 +166,7 @@ def _list_ap_object_view(request, instance):
         # 404 rather than 403 to avoid leaking existence to unauthorized callers.
         return JsonResponse({"error": "Not found"}, status=404)
     return JsonResponse(
-        instance.ap_envelope(),
+        instance.ap_envelope(viewer),
         content_type="application/activity+json",
     )
 
@@ -189,13 +189,13 @@ def _list_items_view(request, instance):
         return JsonResponse({"error": "Not found"}, status=404)
     raw_page = request.GET.get("page")
     if raw_page is None:
-        body = instance.ap_items_envelope()
+        body = instance.ap_items_envelope(viewer)
     else:
         try:
             page = int(raw_page)
         except TypeError, ValueError:
             return HttpResponse("Bad page", status=400, content_type="text/plain")
-        body = instance.ap_items_page(page)
+        body = instance.ap_items_page(page, viewer)
     return JsonResponse(body, content_type="application/activity+json")
 
 

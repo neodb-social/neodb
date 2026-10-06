@@ -19,7 +19,7 @@ from takahe.html import FediverseHtmlParser
 from takahe.models import Hashtag, Post
 from takahe.utils import Takahe
 
-from .base import BaseImporter
+from .base import BaseImporter, sniff_media
 
 logger = logging.getLogger(__name__)
 
@@ -371,12 +371,18 @@ class MastodonImporter(BaseImporter):
             if not mimetype or not mimetype.startswith("image/"):
                 continue
             try:
+                content = self._read_media(member)
+                # the stored name and type come from the bytes, never the archive
+                sniffed = sniff_media(content)
+                if not sniffed:
+                    logger.warning(f"skipping media that is not an image: {filename}")
+                    continue
                 attachments.append(
                     Takahe.upload_image(
                         self.user.identity.pk,
-                        filename,
-                        self._read_media(member),
-                        mimetype,
+                        f"image.{sniffed[0]}",
+                        content,
+                        sniffed[1],
                         description=a.get("name") or "",
                     )
                 )

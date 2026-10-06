@@ -12,6 +12,12 @@ from catalog.models.tv import TVShow
 from journal.models import Collection, Mark, ShelfType
 from users.models import Task
 
+from .base import (
+    MAX_TEXT_EXPORT_MEMBERS,
+    MAX_TEXT_EXPORT_SIZE,
+    extract_zip_safely,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -372,15 +378,9 @@ class TraktImporter(Task):
         filename = self.local_path()
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdir:
-                for member in zipref.namelist():
-                    member_path = os.path.realpath(os.path.join(tmpdir, member))
-                    if not member_path.startswith(
-                        os.path.realpath(tmpdir) + os.sep
-                    ) and member_path != os.path.realpath(tmpdir):
-                        raise ValueError(
-                            f"Zip member {member} would extract outside target directory"
-                        )
-                zipref.extractall(tmpdir)
+                extract_zip_safely(
+                    zipref, tmpdir, MAX_TEXT_EXPORT_SIZE, MAX_TEXT_EXPORT_MEMBERS
+                )
 
                 seen: set[str] = set()
                 # Ratings first (has rating grade, marks as complete)

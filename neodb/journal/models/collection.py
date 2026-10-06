@@ -267,21 +267,34 @@ class Collection(List):
         q.facet_by = ["item_class"]
         return q
 
-    @cached_property
-    def query_result(self):
-        if self.is_dynamic:
-            q = self.get_query(self.owner, page_size=250)
-            if q:
-                index = JournalIndex.instance()
-                return index.search(q)
-        return None
+    def get_query_result(self, viewer: APIdentity | None):
+        """The saved query's result as ``viewer`` (None for anonymous) sees it,
+        memoized per viewer on this instance."""
+        if not self.is_dynamic:
+            return None
+        results = self.__dict__.setdefault("_query_results", {})
+        key = viewer.pk if viewer else None
+        if key not in results:
+            q = self.get_query(viewer, page_size=250)
+            results[key] = JournalIndex.instance().search(q) if q else None
+        return results[key]
 
-    def get_item_ids(self):
+    @property
+    def query_result(self):
+        # anonymous: callers without a viewer (summaries, counts) must not
+        # surface the owner's non-public pieces
+        return self.get_query_result(None)
+
+    def get_item_ids(self, viewer: APIdentity | None = None):
         if self.is_dynamic:
-            r = self.query_result
+            r = self.get_query_result(viewer)
             return [i.pk for i in r.items] if r else []
         else:
             return list(self.members.all().values_list("item_id", flat=True))
+
+    def item_ids_for(self, viewer: APIdentity | None) -> list[int]:
+        # only a dynamic collection's members depend on who is looking
+        return self.get_item_ids(viewer) if self.is_dynamic else self.item_ids
 
     @cached_property
     def item_ids(self):
@@ -411,7 +424,7 @@ class Collection(List):
         cached = getattr(self, "_stats_cache", {}).get(getattr(viewer, "pk", None))
         if cached is not None:
             return cached
-        items = self.item_ids
+        items = self.item_ids_for(viewer)
         stats: dict[str, int] = {"total": len(items)}
         for st in ShelfType.values:
             stats[st] = 0
@@ -543,7 +556,7 @@ class Collection(List):
             cache[viewer.pk] = stats
 
     def get_progress(self, viewer: APIdentity):
-        items = self.item_ids
+        items = self.item_ids_for(viewer)
         if len(items) == 0:
             return 0
         shelf = viewer.shelf_manager.shelf_list["complete"]
@@ -769,18 +782,17 @@ class Collection(List):
 
     # --- ActivityPub: outbound -----------------------------------------
 
-    def ap_total_items(self) -> int:
+    def ap_total_items(self, viewer: APIdentity | None = None) -> int:
         if self.is_dynamic:
-            r = self.query_result
-            return len(list(r.items)) if r else 0
+            return len(self.ap_member_queryset(viewer))
         return self.members.count()
 
-    def ap_member_queryset(self):
+    def ap_member_queryset(self, viewer: APIdentity | None = None):
         # Dynamic collections snapshot the current search result; each page
         # call materializes the same in-memory list. Receivers see it as a
         # static ordered list.
         if self.is_dynamic:
-            r = self.query_result
+            r = self.get_query_result(viewer)
             items = list(r.items) if r else []
             # Wrap each Item in a transient CollectionMember so the shared
             # paginator can re-use the same per-entry serializer hook.

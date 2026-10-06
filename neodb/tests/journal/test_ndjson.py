@@ -1775,7 +1775,9 @@ class TestNdjsonExportImport:
     def test_ndjson_imported_note_non_image_media(self, tmp_path):
         owner2 = self.user2.identity
         with override_settings(MEDIA_ROOT=str(tmp_path)):
-            self._note_with_media("not really audio", "audio/mpeg", "mp3")
+            # the importer keeps only media its bytes identify, so this needs
+            # a real MP3 (ID3) header
+            self._note_with_media("ID3\x03" + "\x00" * 32, "audio/mpeg", "mp3")
             self._roundtrip(self.user1, self.user2)
             imported = Note.objects.get(owner=owner2, item=self.book1)
             post = imported.latest_post

@@ -249,14 +249,15 @@ class List(Piece):
     def ap_items_page_url(self, page: int) -> str:
         return f"{self.ap_items_url}?page={page}"
 
-    def ap_total_items(self) -> int:
-        """Total members. Subclasses with virtual / dynamic membership
-        (e.g. Collection.is_dynamic) override this."""
-        return self.members.count()
+    def ap_total_items(self, viewer: APIdentity | None = None) -> int:
+        """Total members ``viewer`` may see. Subclasses with virtual /
+        dynamic membership (e.g. Collection.is_dynamic) override this."""
+        return self.ap_member_queryset(viewer).count()
 
-    def ap_member_queryset(self):
-        """Ordered queryset of concrete members for paginated serialization.
-        Subclasses with virtual membership (dynamic Collection) override."""
+    def ap_member_queryset(self, viewer: APIdentity | None = None):
+        """Ordered members ``viewer`` (None for anonymous) may see, for
+        paginated serialization. Subclasses with virtual membership (dynamic
+        Collection) override."""
         return self.members.order_by("position", "id")
 
     def ap_object_extra_fields(self) -> dict[str, Any]:
@@ -269,14 +270,14 @@ class List(Piece):
         Must include at minimum `type: "ShelfItem"` and `withRegardTo`."""
         raise NotImplementedError
 
-    def ap_envelope(self) -> dict[str, Any]:
+    def ap_envelope(self, viewer: APIdentity | None = None) -> dict[str, Any]:
         """Lightweight Shelf AP object (envelope only — no items inline).
 
         Returned by both the announcement Note Post (embedded in
         `relatedWith`) and the dereferenceable `<list-url>` endpoint
         after visibility check. Items live behind `first`/`last`.
         """
-        total = self.ap_total_items()
+        total = self.ap_total_items(viewer)
         page_count = max(1, (total + AP_PAGE_SIZE - 1) // AP_PAGE_SIZE) if total else 1
         envelope: dict[str, Any] = {
             "id": self.absolute_url,
@@ -294,8 +295,8 @@ class List(Piece):
         envelope.update(self.ap_object_extra_fields())
         return envelope
 
-    def ap_items_envelope(self) -> dict[str, Any]:
-        total = self.ap_total_items()
+    def ap_items_envelope(self, viewer: APIdentity | None = None) -> dict[str, Any]:
+        total = self.ap_total_items(viewer)
         page_count = max(1, (total + AP_PAGE_SIZE - 1) // AP_PAGE_SIZE) if total else 1
         return {
             "id": self.ap_items_url,
@@ -305,14 +306,16 @@ class List(Piece):
             "last": self.ap_items_page_url(page_count),
         }
 
-    def ap_items_page(self, page: int) -> dict[str, Any]:
-        total = self.ap_total_items()
+    def ap_items_page(
+        self, page: int, viewer: APIdentity | None = None
+    ) -> dict[str, Any]:
+        total = self.ap_total_items(viewer)
         page_count = max(1, (total + AP_PAGE_SIZE - 1) // AP_PAGE_SIZE) if total else 1
         if page < 1 or page > page_count:
             ordered = []
         else:
             offset = (page - 1) * AP_PAGE_SIZE
-            qs = self.ap_member_queryset()
+            qs = self.ap_member_queryset(viewer)
             members = list(qs[offset : offset + AP_PAGE_SIZE])
             # Item is polymorphic; select_related("item") loses subclass info,
             # so re-fetch through the polymorphic manager and re-attach.

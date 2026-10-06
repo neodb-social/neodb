@@ -38,7 +38,8 @@ class OPMLImporter(Task):
             return False
 
     def run(self):
-        with open(self.local_path(), "r") as f:
+        # bytes: listparser fetches a str that starts with http(s)://
+        with open(self.local_path(), "rb") as f:
             feeds = listparser.parse(f.read()).feeds
             self.metadata["total"] = len(feeds)
             self.message = f"Processing {self.metadata['total']} feeds."
