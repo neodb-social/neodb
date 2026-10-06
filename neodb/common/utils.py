@@ -38,15 +38,25 @@ if TYPE_CHECKING:
 
 
 def client_ip(request: HttpRequest) -> str:
-    """Best-effort peer address, for rate-limit keys.
+    """Best-effort client address, for rate-limit keys.
 
-    The bundled nginx appends the peer address to any client-supplied
-    X-Forwarded-For, so only the last entry is trustworthy; a forged first
-    entry could otherwise be used to rotate rate-limit keys.
+    The bundled nginx passes X-Forwarded-For through unchanged, or sets it to
+    its peer address when the request carries none. Every entry is
+    client-supplied except those appended by the TRUSTED_PROXY_DEPTH reverse
+    proxies in front of it, so the client is the entry the outermost of them
+    appended. With fewer entries than that, or a depth of 0, REMOTE_ADDR is
+    used. A deployment with no appending proxy cannot tell a forged header from
+    a real one: at depth 1 the client chooses its own key.
     """
-    xff = request.META.get("HTTP_X_FORWARDED_FOR", "")
-    if xff:
-        return xff.split(",")[-1].strip()
+    depth = settings.TRUSTED_PROXY_DEPTH
+    if depth > 0:
+        entries = [
+            e.strip()
+            for e in request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")
+            if e.strip()
+        ]
+        if len(entries) >= depth:
+            return entries[-depth]
     return request.META.get("REMOTE_ADDR", "")
 
 

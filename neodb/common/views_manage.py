@@ -1417,6 +1417,7 @@ class EnvironmentSettings(TemplateView):
         ],
         _("Security"): [
             ("NEODB_SECRET_KEY", lambda: settings.SECRET_KEY),
+            ("NEODB_TRUSTED_PROXY_DEPTH", lambda: settings.TRUSTED_PROXY_DEPTH),
         ],
     }
 

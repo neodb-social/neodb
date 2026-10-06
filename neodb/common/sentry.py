@@ -1,8 +1,56 @@
+import re
 from collections.abc import Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
+if TYPE_CHECKING:
+    from sentry_sdk._types import Event, Hint
+
 MetricAttributes = Mapping[str, str | int | float | bool | None]
+
+# The default EventScrubber matches keys exactly, so OAuth form fields need
+# their own entries. takahe/takahe/settings.py keeps a copy of these helpers.
+SENTRY_EXTRA_DENYLIST = ["access_token", "client_secret", "refresh_token"]
+_SECRET_QUERY = re.compile(
+    r"(?:^|[?&;])(?:api_key|access_token|client_secret|key|token)=", re.IGNORECASE
+)
+
+
+def _strip_secret_query(data: dict, url_key: str, query_key: str) -> None:
+    url = data.get(url_key)
+    if isinstance(url, str) and _SECRET_QUERY.search(url):
+        data[url_key] = url.split("?", 1)[0]
+    query = data.get(query_key)
+    if isinstance(query, str) and _SECRET_QUERY.search(query):
+        data[query_key] = ""
+
+
+def before_send(event: "Event", hint: "Hint") -> "Event":
+    """Drop cookies and credential-bearing query strings from an event or transaction."""
+    request: Any = event.get("request")
+    if isinstance(request, dict):
+        request.pop("cookies", None)
+        headers = request.get("headers")
+        if isinstance(headers, dict):
+            for key in headers:
+                if key.lower() == "cookie":
+                    headers[key] = "[Filtered]"
+        _strip_secret_query(request, "url", "query_string")
+    spans: Any = event.get("spans") or []
+    for span in spans:
+        data = span.get("data") if isinstance(span, dict) else None
+        if isinstance(data, dict):
+            _strip_secret_query(data, "url", "http.query")
+    return event
+
+
+def before_breadcrumb(crumb: dict, hint: dict) -> dict:
+    """The SDK keeps an outgoing request's query in `http.query`, which no
+    scrubber key matches."""
+    data = crumb.get("data")
+    if isinstance(data, dict):
+        _strip_secret_query(data, "url", "http.query")
+    return crumb
 
 
 def url_domain(url: str | None) -> str:

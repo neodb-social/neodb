@@ -7274,6 +7274,10 @@ msgstr "新帖文"
 msgid "Bluesky login is disabled."
 msgstr "Bluesky 登录已禁用。"
 
+#: mastodon/views/threads.py:31 mastodon/views/threads.py:56
+msgid "Threads login is disabled."
+msgstr "Threads 登录已禁用。"
+
 #: mastodon/views/bluesky.py:47 mastodon/views/bluesky.py:59
 #: mastodon/views/bluesky.py:65 mastodon/views/bluesky.py:98
 #: mastodon/views/bluesky.py:106 mastodon/views/bluesky.py:112

@@ -328,3 +328,51 @@ class TestMetaCallbacks:
     def test_get_redirects_to_data_page(self, client):
         assert client.get(reverse("mastodon:threads_uninstall")).status_code == 302
         assert client.get(reverse("mastodon:threads_delete")).status_code == 302
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestLoginToggle:
+    @pytest.fixture(autouse=True)
+    def threads_login_disabled(self, monkeypatch):
+        disabled = SiteConfig.system.model_copy(update={"enable_login_threads": False})
+        monkeypatch.setattr(SiteConfig, "system", disabled)
+        monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
+
+    def _set_state(self, client) -> None:
+        session = client.session
+        session["threads_oauth_state"] = "s"
+        session.save()
+
+    def test_login_is_rejected(self, client, monkeypatch):
+        monkeypatch.setattr(
+            Threads, "generate_auth_url", lambda request: pytest.fail("not reached")
+        )
+        response = client.post(reverse("mastodon:threads_login"))
+        assert response.status_code == 200
+        assert b"Threads login is disabled." in response.content
+
+    def test_login_proof_challenge_is_rejected(self, client):
+        response = client.get(reverse("users:login_proof"), {"method": "threads"})
+        assert response.status_code == 400
+        assert response.json() == {"error": "Threads login is disabled"}
+
+    def test_oauth_callback_is_rejected(self, client, monkeypatch):
+        monkeypatch.setattr(
+            Threads, "authenticate", lambda request, code: pytest.fail("not reached")
+        )
+        self._set_state(client)
+        response = client.get(
+            reverse("mastodon:threads_oauth"), {"code": "c", "state": "s"}
+        )
+        assert response.status_code == 200
+        assert b"Threads login is disabled." in response.content
+
+    def test_logged_in_user_still_reaches_oauth(self, client, monkeypatch):
+        client.force_login(User.register(username="threadsreconnect"))
+        monkeypatch.setattr(Threads, "authenticate", lambda request, code: None)
+        self._set_state(client)
+        response = client.get(
+            reverse("mastodon:threads_oauth"), {"code": "c", "state": "s"}
+        )
+        assert b"Threads login is disabled." not in response.content
+        assert b"Invalid account data from Threads." in response.content

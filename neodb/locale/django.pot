@@ -7206,6 +7206,10 @@ msgstr ""
 msgid "Bluesky login is disabled."
 msgstr ""
 
+#: mastodon/views/threads.py:31 mastodon/views/threads.py:56
+msgid "Threads login is disabled."
+msgstr ""
+
 #: mastodon/views/bluesky.py:47 mastodon/views/bluesky.py:59
 #: mastodon/views/bluesky.py:65 mastodon/views/bluesky.py:98
 #: mastodon/views/bluesky.py:106 mastodon/views/bluesky.py:112

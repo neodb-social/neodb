@@ -58,6 +58,7 @@ These settings require infrastructure access or process restart and cannot be ma
  - `TAKAHE_SENTRY_DSN` - Sentry DSN for takahe container
  - `NEODB_ADMIN_HANDLES` - comma-separated list of handles to auto-promote to superuser on registration, in `type:handle` format (e.g. `mastodon:user@mastodon.social,email:admin@example.com`). Supported types: `mastodon`, `email`, `bluesky`, `threads`.
  - `NEODB_LOG_LEVEL` - logging level (DEBUG, INFO, WARNING, ERROR). Requires restart.
+ - `NEODB_TRUSTED_PROXY_DEPTH` - number of reverse proxies in front of the bundled nginx that append to `X-Forwarded-For`, default `1`; NeoDB takes the client address used for rate limits from that many entries from the end, so set `2` behind a CDN plus your own proxy, or `0` to ignore the header.
 
 
 ## Media Storage

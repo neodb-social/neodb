@@ -4,6 +4,7 @@ import mimetypes
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any, TypeVar
 
+import httpx
 from blurhash_rs import blurhash_encode
 from django.conf import settings
 from django.core.cache import cache
@@ -16,6 +17,7 @@ from django.utils.dateparse import parse_datetime
 from PIL import Image
 
 from common.models import SiteConfig
+from common.validators import is_valid_url
 
 from .models import *
 
@@ -589,10 +591,11 @@ class Takahe:
     @staticmethod
     def refresh_remote_identity(identity_pk: int) -> None:
         """Fetch latest actor data for a remote identity to refresh aliases etc."""
-        import httpx
-
         identity = Identity.objects.get(pk=identity_pk)
         if identity.local:
+            return
+        if not is_valid_url(identity.actor_uri):
+            logger.warning(f"refresh {identity.actor_uri} skipped: not a public URL")
             return
         try:
             response = httpx.get(
@@ -602,7 +605,7 @@ class Takahe:
                     "User-Agent": settings.TAKAHE_USER_AGENT,
                 },
                 timeout=SiteConfig.system.mastodon_timeout,
-                follow_redirects=True,
+                follow_redirects=False,
             )
             if response.status_code == 200:
                 data = response.json()
@@ -1103,6 +1106,16 @@ class Takahe:
             return False
         invite = Invite.objects.filter(token=token).first()
         return invite is not None and invite.valid
+
+    @staticmethod
+    def consume_invite(token: str) -> None:
+        """Spend one use of an invite; `uses=None` means unlimited and is untouched.
+
+        A spent invite stays at 0 uses, which `Invite.valid` already refuses.
+        """
+        if not token:
+            return
+        Invite.objects.filter(token=token, uses__gt=0).update(uses=models.F("uses") - 1)
 
     @staticmethod
     def get_announcements():

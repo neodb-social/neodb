@@ -1,4 +1,5 @@
 import os
+import re
 import secrets
 import sys
 import urllib.parse
@@ -19,6 +20,7 @@ from pydantic_core import Url
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from redis import Redis
 from rq import Queue
+from sentry_sdk.scrubber import DEFAULT_DENYLIST, EventScrubber
 
 from takahe import __version__
 from takahe.neodb import __version__ as __neodb_version__
@@ -382,6 +384,55 @@ if SETUP.USE_PROXY_HEADERS:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
+# neodb serves the same origin, so browsers send its session cookie to takahe
+# paths too; the Django integration masks only takahe's own cookie names.
+# Keys match exactly, so OAuth form fields need their own entries.
+# neodb/common/sentry.py keeps a copy of these helpers; this one cannot import it.
+SENTRY_DENYLIST = [
+    *DEFAULT_DENYLIST,
+    "neodbsid",
+    "access_token",
+    "client_secret",
+    "refresh_token",
+]
+_SENTRY_SECRET_QUERY = re.compile(
+    r"(?:^|[?&;])(?:api_key|access_token|client_secret|key|token)=", re.IGNORECASE
+)
+
+
+def _sentry_strip_secret_query(data: dict, url_key: str, query_key: str) -> None:
+    url = data.get(url_key)
+    if isinstance(url, str) and _SENTRY_SECRET_QUERY.search(url):
+        data[url_key] = url.split("?", 1)[0]
+    query = data.get(query_key)
+    if isinstance(query, str) and _SENTRY_SECRET_QUERY.search(query):
+        data[query_key] = ""
+
+
+def sentry_before_send(event: dict, hint: dict) -> dict:
+    request = event.get("request")
+    if isinstance(request, dict):
+        request.pop("cookies", None)
+        headers = request.get("headers")
+        if isinstance(headers, dict):
+            for key in headers:
+                if key.lower() == "cookie":
+                    headers[key] = "[Filtered]"
+        _sentry_strip_secret_query(request, "url", "query_string")
+    for span in event.get("spans") or []:
+        data = span.get("data") if isinstance(span, dict) else None
+        if isinstance(data, dict):
+            _sentry_strip_secret_query(data, "url", "http.query")
+    return event
+
+
+def sentry_before_breadcrumb(crumb: dict, hint: dict) -> dict:
+    data = crumb.get("data")
+    if isinstance(data, dict):
+        _sentry_strip_secret_query(data, "url", "http.query")
+    return crumb
+
+
 if SETUP.SENTRY_DSN:
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.httpx import HttpxIntegration
@@ -404,6 +455,12 @@ if SETUP.SENTRY_DSN:
         traces_sample_rate=SETUP.SENTRY_TRACES_SAMPLE_RATE,
         sample_rate=SETUP.SENTRY_SAMPLE_RATE,
         send_default_pii=True,
+        event_scrubber=EventScrubber(
+            denylist=SENTRY_DENYLIST, recursive=True, send_default_pii=True
+        ),
+        before_send=sentry_before_send,
+        before_send_transaction=sentry_before_send,
+        before_breadcrumb=sentry_before_breadcrumb,
         environment=SETUP.ENVIRONMENT,
         _experiments=sentry_experiments,
     )
