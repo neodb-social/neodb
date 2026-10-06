@@ -411,8 +411,15 @@ section.activity.post>section.replies {
 }
 
 // The infinite scroll spinner lines up under the post body, past the avatar.
+// Its box reaches one and a half screens up behind the posts above it, so the
+// next page starts loading before the reader gets to the end, and a short page
+// chains to the next one at once. The padding cancels the margin, so nothing
+// moves on the page.
 .post-list-more {
   margin-left: 60px;
+  margin-top: -150vh;
+  padding-top: 150vh;
+  pointer-events: none;
 }
 
 .post-thread-heading {
