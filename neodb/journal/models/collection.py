@@ -163,7 +163,9 @@ class Collection(List):
         # a dynamic collection may hold only pieces its viewer can see, so
         # the owner's own view must not go by the anonymous result
         if self.is_dynamic:
-            return len(self.item_ids_for(viewer)) > 0
+            # the hit total, so a page view need not load up to 250 items
+            r = self.get_query_result(viewer)
+            return bool(r and r.total > 0)
         else:
             return bool(self.query_result and self.query_result.pages == 1)
 
@@ -569,18 +571,25 @@ class Collection(List):
             shelf.members.all().filter(item_id__in=items).count() * 100 / len(items)
         )
 
-    def get_summary(self):
+    def get_summary(self) -> dict[str, int]:
+        # anonymous: it feeds the public announcement text
+        return self.get_summary_for(None)
+
+    def get_summary_for(self, viewer: APIdentity | None) -> dict[str, int]:
         if self.is_dynamic:
-            r = self.query_result
-            return r.facet_by_category if r and self.trackable else {}
+            r = self.get_query_result(viewer)
+            return r.facet_by_category if r and self.is_trackable_for(viewer) else {}
         else:
             return super().get_summary()
 
     @cached_property
     def item_count_by_category(self) -> dict[str, int]:
+        return self.item_count_by_category_for(None)
+
+    def item_count_by_category_for(self, viewer: APIdentity | None) -> dict[str, int]:
         from catalog.models import ItemCategory
 
-        summary = self.get_summary()
+        summary = self.get_summary_for(viewer)
         return {cat.value: int(summary.get(cat.value) or 0) for cat in ItemCategory}
 
     @classmethod

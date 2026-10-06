@@ -12,7 +12,8 @@ from catalog.models import Edition
 from journal.importers import NdjsonImporter, OPMLImporter
 from journal.importers.letterboxd import _is_letterboxd_url
 from journal.importers.base import extract_zip_safely, sniff_media
-from journal.models import Collection, ShelfMember, ShelfType
+from journal.models import Collection, FeaturedCollection, Shelf, ShelfMember, ShelfType
+from journal.search import JournalIndex
 from takahe.utils import Takahe
 from users.models import User
 
@@ -63,10 +64,40 @@ class TestShelfApItemsVisibility:
         assert len(self.shelf.ap_items_page(1)["orderedItems"]) == 1
         assert self.shelf.ap_total_items(self.bob.identity) == 1
         self.bob.identity.follow(self.alice.identity, force_accept=True)
-        assert self.shelf.ap_total_items(self.bob.identity) == 2
-        assert (
-            len(self.shelf.ap_items_page(1, self.alice.identity)["orderedItems"]) == 3
-        )
+        # the visibility ceiling is memoized per instance
+        shelf = Shelf.objects.get(pk=self.shelf.pk)
+        assert shelf.ap_total_items(self.bob.identity) == 2
+        assert len(shelf.ap_items_page(1, self.alice.identity)["orderedItems"]) == 3
+
+    def test_follow_lookup_runs_once_per_viewer(self, monkeypatch):
+        calls = []
+
+        def fake_is_following(identity_pk: int, target_pk: int) -> bool:
+            calls.append((identity_pk, target_pk))
+            return True
+
+        monkeypatch.setattr(Takahe, "get_is_following", staticmethod(fake_is_following))
+        shelf = Shelf.objects.get(pk=self.shelf.pk)
+        assert len(shelf.ap_items_page(1, self.bob.identity)["orderedItems"]) == 2
+        assert calls == [(self.bob.identity.pk, self.alice.identity.pk)]
+        assert len(shelf.ap_items_page(1)["orderedItems"]) == 1
+        assert len(shelf.ap_items_page(1, self.alice.identity)["orderedItems"]) == 3
+        assert len(calls) == 1
+
+
+class _FakeQuery:
+    def __init__(self, collection_pk: int, viewer_pk: int | None):
+        self.collection_pk = collection_pk
+        self.viewer_pk = viewer_pk
+
+
+class _FakeResult:
+    items: list = []
+    pages = 1
+
+    def __init__(self, books: int):
+        self.total = books
+        self.facet_by_category = {"book": books}
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -115,12 +146,51 @@ class TestDynamicCollectionViewer:
         owner = self.owner.identity
         monkeypatch.setattr(
             Collection,
-            "get_item_ids",
-            lambda c, viewer=None: [1] if viewer == owner else [],
+            "get_query_result",
+            lambda c, viewer: _FakeResult(1 if viewer == owner else 0),
         )
         collection = Collection.objects.get(pk=self.collection.pk)
         assert collection.trackable is False
         assert collection.is_trackable_for(owner) is True
+        assert collection.item_count_by_category["book"] == 0
+        assert collection.item_count_by_category_for(owner)["book"] == 1
+
+    def _fake_search(self, monkeypatch) -> list[tuple[int, int | None]]:
+        searches: list[tuple[int, int | None]] = []
+
+        def fake_get_query(collection, viewer, **kwargs):
+            return _FakeQuery(collection.pk, viewer.pk if viewer else None)
+
+        def fake_search(q):
+            searches.append((q.collection_pk, q.viewer_pk))
+            return _FakeResult(2 if q.viewer_pk else 1)
+
+        monkeypatch.setattr(Collection, "get_query", fake_get_query)
+        monkeypatch.setattr(JournalIndex.instance(), "search", fake_search)
+        return searches
+
+    def test_anonymous_page_runs_two_anonymous_searches(self, monkeypatch):
+        searches = self._fake_search(monkeypatch)
+        response = Client().get(self.collection.url)
+        assert response.status_code == 200
+        assert response.context["counts"]["book"] == 1
+        assert searches == [(self.collection.pk, None)] * 2
+
+    @pytest.mark.parametrize("featured", [False, True])
+    def test_owner_page_searches_only_as_owner(self, monkeypatch, featured: bool):
+        owner = self.owner.identity
+        if featured:
+            FeaturedCollection.objects.create(owner=owner, target=self.collection)
+        searches = self._fake_search(monkeypatch)
+        client = Client()
+        client.force_login(self.owner, backend="mastodon.auth.OAuth2Backend")
+        response = client.get(self.collection.url)
+        assert response.status_code == 200
+        assert response.context["counts"]["book"] == 2
+        mine = [s for s in searches if s[0] == self.collection.pk]
+        assert {v for _, v in mine} == {owner.pk}
+        if not featured:
+            assert len(mine) == 2
 
 
 @pytest.mark.django_db(databases="__all__")

@@ -746,11 +746,23 @@ class Shelf(List):
     def ap_member_queryset(self, viewer: APIdentity | None = None):
         # each mark carries its own visibility while the shelf row stays public
         qs = super().ap_member_queryset(viewer)
-        if viewer is not None and viewer.pk == self.owner.pk:
-            return qs
-        if viewer is not None and viewer.is_following(self.owner):
-            return qs.filter(visibility__lte=1)
-        return qs.filter(visibility=0)
+        ceiling = self._ap_visibility_ceiling(viewer)
+        return qs if ceiling is None else qs.filter(visibility__lte=ceiling)
+
+    def _ap_visibility_ceiling(self, viewer: APIdentity | None) -> int | None:
+        # memoized per viewer: both the total and the page of one AP request
+        # ask, and the follow lookup is a query
+        if viewer is None:
+            return 0
+        ceilings = self.__dict__.setdefault("_ap_visibility_ceilings", {})
+        if viewer.pk not in ceilings:
+            if viewer.pk == self.owner_id:
+                ceilings[viewer.pk] = None
+            elif Takahe.get_is_following(viewer.pk, self.owner_id):
+                ceilings[viewer.pk] = 1
+            else:
+                ceilings[viewer.pk] = 0
+        return ceilings[viewer.pk]
 
     def ap_member_entry(self, member: ListMember) -> dict[str, Any]:
         # ``member`` is always a ``ShelfMember`` here (the list's

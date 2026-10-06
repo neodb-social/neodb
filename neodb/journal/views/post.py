@@ -55,7 +55,8 @@ def _get_viewable_post(request: AuthedHttpRequest, post_id: int) -> Post:
     post = Takahe.get_post(post_id)
     if not post or post.state in ["deleted", "deleted_fanned_out"]:
         raise BadRequest(_("Invalid parameter"))
-    owner = APIdentity.by_takahe_identity(post.author)
+    # APIdentity shares its pk with the takahe Identity, so skip loading that
+    owner = APIdentity.objects.filter(pk=post.author_id).first()
     if not owner or _can_view_post(post, owner, request.user.identity) < 0:
         raise PermissionDenied(_("Insufficient permission"))
     return post

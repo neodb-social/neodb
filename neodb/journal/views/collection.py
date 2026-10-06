@@ -288,7 +288,7 @@ def collection_retrieve(
         request.user.is_authenticated
         and (following or request.user.identity == collection.owner)
         and not featured_since
-        and collection.is_trackable_for(request.user.identity)
+        and collection.is_trackable_for(viewer)
     )
     # Deferred: catalog.views pulls in users.views, which reaches back into
     # journal.views via journal.importers, so a module-level import here is a
@@ -297,7 +297,7 @@ def collection_retrieve(
 
     # Offer only categories this collection actually holds, minus the ones the
     # viewer has hidden; a single-category collection gets no category select.
-    counts = collection.item_count_by_category
+    counts = collection.item_count_by_category_for(viewer)
     cats = visible_categories(request)
     category_choices = [
         (c.value, c.label)
@@ -305,7 +305,7 @@ def collection_retrieve(
         if counts.get(c.value) and c.value in cats
     ]
     stats = {}
-    if featured_since and collection.is_trackable_for(request.user.identity):
+    if featured_since and collection.is_trackable_for(viewer):
         stats = collection.get_stats(request.user.identity)
         stats["wishlist_deg"] = (
             round(stats["wishlist"] / stats["total"] * 360) if stats["total"] else 0
@@ -333,6 +333,7 @@ def collection_retrieve(
             "category": category,
             "status": status,
             "category_choices": category_choices,
+            "counts": counts,
         },
     )
 
