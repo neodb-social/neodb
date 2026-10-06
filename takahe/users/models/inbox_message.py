@@ -13,9 +13,18 @@ from core.signatures import (
     VerificationError,
     VerificationFormatError,
 )
+from stator.exceptions import TryAgainLater
 from stator.models import State, StateField, StateGraph, StatorModel
 
 logger = logging.getLogger(__name__)
+
+DEFERRED_SIG_TYPES = ["relay_http_sig", "http_sig", "ld_sig"]
+# Anyone can post an unknown keyId, so the key behind it is looked for a few
+# times, not on every retry for the message's whole lifetime
+MAX_KEY_FETCH_ATTEMPTS = 5
+KEY_FETCH_ATTEMPTS = "key_fetch_attempts"
+# A fetch this recent that found no key is not repeated
+KEY_REFETCH_AFTER = 3600
 
 
 def _internal_subject(message, key: str) -> str:
@@ -47,8 +56,12 @@ class InboxMessageStates(StateGraph):
         """
         if identity.public_key:
             return True
+        if identity.data_age < KEY_REFETCH_AFTER:
+            return False
         try:
             identity.fetch_actor()
+        except TryAgainLater:
+            logger.info("Key fetch timed out for %s", identity.actor_uri)
         except Exception as e:
             logger.error("Key fetch failed for %s: %s", identity.actor_uri, e)
         return bool(identity.public_key)
@@ -70,10 +83,10 @@ class InboxMessageStates(StateGraph):
         from users.models import Identity  # avoid circular import
 
         deferred_sigs = instance.metadata
-        if not deferred_sigs:
+        if not deferred_sigs or not any(k in deferred_sigs for k in DEFERRED_SIG_TYPES):
             return False
 
-        for sig_type in ["relay_http_sig", "http_sig", "ld_sig"]:
+        for sig_type in DEFERRED_SIG_TYPES:
             if sig_type not in deferred_sigs:
                 continue
 
@@ -132,16 +145,28 @@ class InboxMessageStates(StateGraph):
                 deferred_sigs = {
                     k: v for k, v in deferred_sigs.items() if k != "relay_http_sig"
                 }
-                InboxMessage.objects.filter(pk=instance.pk).update(
-                    metadata=deferred_sigs or None
-                )
-                if not deferred_sigs:
+                if not any(k in deferred_sigs for k in DEFERRED_SIG_TYPES):
+                    InboxMessage.objects.filter(pk=instance.pk).update(metadata=None)
                     return True  # LD sig was verified at inbox time
+                InboxMessage.objects.filter(pk=instance.pk).update(
+                    metadata=deferred_sigs
+                )
                 continue
 
             return True
 
         # No signature could be verified yet (keys still unavailable)
+        attempts = int(deferred_sigs.get(KEY_FETCH_ATTEMPTS) or 0) + 1
+        if attempts >= MAX_KEY_FETCH_ATTEMPTS:
+            logger.info(
+                "Inbox: no key for %s after %d attempts, dropping it",
+                instance.message.get("actor"),
+                attempts,
+            )
+            return False
+        deferred_sigs = {**deferred_sigs, KEY_FETCH_ATTEMPTS: attempts}
+        InboxMessage.objects.filter(pk=instance.pk).update(metadata=deferred_sigs)
+        instance.metadata = deferred_sigs
         return None
 
     @classmethod
@@ -382,6 +407,17 @@ class InboxMessageStates(StateGraph):
             # so report it once instead of retrying for days
             logger.exception(
                 "Inbox message %s (%s) not stored", instance.pk, instance.message_type
+            )
+            return cls.errored
+        except LookupError, TypeError, ValueError:
+            # A payload missing or mistyping a field fails the same way on
+            # every retry too. Any sender can produce one, so it is a warning,
+            # not an error report. LookupError covers KeyError and IndexError.
+            logger.warning(
+                "Inbox message %s (%s) malformed",
+                instance.pk,
+                instance.message_type,
+                exc_info=True,
             )
             return cls.errored
 

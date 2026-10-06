@@ -730,8 +730,9 @@ class Identity(StatorModel):
                     )
             except cls.DoesNotExist:
                 if fetch and not local:
-                    actor_uri, handle = cls.fetch_webfinger(f"{username}@{domain}")
-                    if handle is None:
+                    queried = f"{username}@{domain}"
+                    actor_uri, handle = cls.fetch_webfinger(queried)
+                    if handle is None or actor_uri is None:
                         return None
                     # See if this actually does match an existing actor
                     try:
@@ -739,7 +740,10 @@ class Identity(StatorModel):
                     except cls.DoesNotExist:
                         pass
                     # OK, make one
-                    username, domain = handle.split("@")
+                    if cls.confirm_webfinger_handle(actor_uri, queried, handle):
+                        username, claimed_domain = handle.split("@")
+                        if claimed_domain.lower() != domain:
+                            domain_instance = Domain.get_remote_domain(claimed_domain)
                     if not domain_instance:
                         domain_instance = Domain.get_remote_domain(domain)
                     return cls.objects.create(
@@ -1292,6 +1296,42 @@ class Identity(StatorModel):
         return None, None
 
     @classmethod
+    def confirm_webfinger_handle(
+        cls, actor_uri: str, queried: str, subject: str
+    ) -> bool | None:
+        """
+        Whether actor_uri may take the WebFinger subject returned for the
+        queried handle: True if confirmed, False if refuted, None if it could
+        not be checked.
+
+        A server speaks only for its own domain. A subject on another domain is
+        taken only once that domain's own WebFinger names the same actor, as
+        Mastodon does; otherwise any server could claim a handle on a domain
+        it does not run, and with it that domain's blocks.
+        """
+        parts = subject.split("@")
+        if len(parts) != 2 or not parts[0]:
+            return None
+        claimed_domain = parts[1].lower()
+        if claimed_domain == queried.split("@")[-1].lower():
+            return True
+        if not Domain.is_valid_domain(claimed_domain):
+            return False
+        claimed = Domain.get_domain(claimed_domain)
+        if claimed and claimed.local:
+            return False
+        try:
+            confirmed_actor, confirmed_subject = cls.fetch_webfinger(subject)
+        except TryAgainLater, ValueError:
+            return None
+        if confirmed_actor is None:
+            return None
+        return (
+            confirmed_actor == actor_uri
+            and (confirmed_subject or "").lower() == subject.lower()
+        )
+
+    @classmethod
     def fetch_collection(cls, client: httpx.Client, uri: str) -> tuple[int, list[dict]]:
         try:
             response = client.get(
@@ -1300,6 +1340,9 @@ class Identity(StatorModel):
                 headers={"Accept": "application/activity+json"},
             )
             response.raise_for_status()
+        except SSRFAttemptError:
+            logger.info("Collection %s blocked as non-public", uri)
+            return 0, []
         except (httpx.HTTPError, ssl.SSLCertVerificationError) as ex:
             response = getattr(ex, "response", None)
             if isinstance(ex, httpx.TimeoutException) or (
@@ -1501,11 +1544,24 @@ class Identity(StatorModel):
                 )
         # Now go do webfinger with that info to see if we can get a canonical domain
         actor_url_parts = urlparse(self.actor_uri)
+        if not actor_url_parts.hostname:
+            return False
+        # A remote row cannot live on one of our own domains: the Domain row
+        # there is local, so get_remote_domain() would fail to insert it
+        host_domain = Domain.get_domain(actor_url_parts.hostname)
+        if host_domain and host_domain.local:
+            return False
         self.domain = Domain.get_remote_domain(actor_url_parts.hostname)
         if self.username:
+            queried = f"{self.username}@{actor_url_parts.hostname}"
             try:
-                webfinger_actor, webfinger_handle = self.fetch_webfinger(
-                    f"{self.username}@{actor_url_parts.hostname}"
+                webfinger_actor, webfinger_handle = self.fetch_webfinger(queried)
+                confirmed = (
+                    self.confirm_webfinger_handle(
+                        self.actor_uri, queried, webfinger_handle
+                    )
+                    if webfinger_handle and webfinger_actor == self.actor_uri
+                    else None
                 )
                 if webfinger_handle and webfinger_actor != self.actor_uri:
                     # WebFinger answered for a different actor, so the handle
@@ -1525,10 +1581,24 @@ class Identity(StatorModel):
                         self.username,
                         self.domain_id,
                     )
-                elif webfinger_handle:
+                elif confirmed:
                     webfinger_username, webfinger_domain = webfinger_handle.split("@")
                     self.username = webfinger_username
                     self.domain = Domain.get_remote_domain(webfinger_domain)
+                elif webfinger_handle:
+                    # The subject names a domain that does not vouch for this
+                    # actor. Refuted, it falls back to the host handle; merely
+                    # unchecked, a row keeps the handle it already holds.
+                    if confirmed is None and stored_username and stored_domain_id:
+                        self.username = stored_username
+                        self.domain = Domain.get_remote_domain(stored_domain_id)
+                    logger.info(
+                        "WebFinger subject %s for %s not confirmed, keeping %s@%s",
+                        webfinger_handle,
+                        self.actor_uri,
+                        self.username,
+                        self.domain_id,
+                    )
             except TryAgainLater:
                 # continue with original domain when webfinger times out
                 logger.info("WebFinger timed out: %s", self.actor_uri)

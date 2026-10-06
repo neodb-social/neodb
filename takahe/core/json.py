@@ -1,3 +1,4 @@
+import codecs
 import json
 import math
 import re
@@ -66,9 +67,16 @@ def json_from_response(response: Response) -> dict:
     for parameter in parameters:
         if "=" not in parameter:
             continue
-        key, value = parameter.split("=")
+        key, value = parameter.split("=", 1)
         if key.strip() == "charset":
-            charset = value.strip()
+            charset = value.strip().strip('"')
+
+    if charset:
+        try:
+            codecs.lookup(charset)
+        except LookupError:
+            # An unknown charset is the sender's mistake; let httpx infer one
+            charset = None
 
     if charset:
         return clean_json(json.loads(response.content.decode(charset)))

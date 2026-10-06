@@ -2,7 +2,7 @@ from urllib.parse import urlparse
 
 import httpx
 from activities.models import Emoji, PostAttachment
-from core.files import SSRFAttemptError, make_safe_client
+from core.files import SSRFAttemptError, check_url_safety, make_safe_client
 from django.conf import settings
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -10,6 +10,23 @@ from django.templatetags.static import static
 from django.views.generic import View
 
 from users.models import Identity
+
+
+def is_public_http_url(url: str) -> bool:
+    """
+    Whether url is http(s) on a host that resolves only to global addresses.
+
+    nginx fetches accelerated URLs itself, out of reach of the httpx hook, so
+    the view has to vet them before handing them over.
+    """
+    try:
+        request = httpx.Request("GET", url)
+        if request.url.scheme not in ("http", "https") or not request.url.host:
+            return False
+        check_url_safety(request)
+    except httpx.InvalidURL, httpx.ConnectError, SSRFAttemptError, UnicodeError:
+        return False
+    return True
 
 
 class BaseProxyView(View):
@@ -20,8 +37,16 @@ class BaseProxyView(View):
     def get(self, request, **kwargs):
         self.kwargs = kwargs
         remote_url = self.get_remote_url()
+        try:
+            scheme = urlparse(remote_url or "").scheme
+        except ValueError:
+            raise Http404()
+        if scheme not in ("http", "https"):
+            raise Http404()
         # See if we can do the nginx trick or a normal forward
         if request.headers.get("x-takahe-accel") and not request.GET.get("no_accel"):
+            if not is_public_http_url(remote_url):
+                raise Http404()
             bits = urlparse(remote_url)
             redirect_url = (
                 f"/__takahe_accel__/{bits.scheme}/{bits.hostname}/{bits.path}"

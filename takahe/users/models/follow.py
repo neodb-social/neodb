@@ -359,7 +359,7 @@ class Follow(StatorModel):
         # If it's a string, do the reference resolve
         if isinstance(data, str):
             bits = data.strip("/").split("/")
-            if bits[-2] != "follow":
+            if len(bits) < 2 or bits[-2] != "follow" or not bits[-1].isdigit():
                 raise cls.DoesNotExist(f"Unknown Follow object URI: {data}")
             return Follow.objects.get(pk=bits[-1])
         # Otherwise, do object resolve

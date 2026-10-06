@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from core.files import SSRFAttemptError, make_safe_client
 from core.json import clean_json
 from core.models import Config
 from stator.models import State, StateField, StateGraph, StatorModel
@@ -209,10 +210,8 @@ class Domain(StatorModel):
 
         nodeinfo20_url = f"https://{self.domain}/nodeinfo/2.0"
 
-        with httpx.Client(
-            timeout=settings.SETUP.REMOTE_TIMEOUT,
-            headers={"User-Agent": settings.TAKAHE_USER_AGENT},
-        ) as client:
+        # The nodeinfo href is the remote server's to choose
+        with make_safe_client(timeout=settings.SETUP.REMOTE_TIMEOUT) as client:
             try:
                 response = client.get(
                     f"https://{self.domain}/.well-known/nodeinfo",
@@ -226,6 +225,7 @@ class Domain(StatorModel):
                 ssl.SSLError,
                 UnicodeDecodeError,
                 idna.IDNAError,
+                SSRFAttemptError,
             ):
                 # idna.IDNAError: non-IDNA2008 host, raised from httpx.URL.host.
                 return None
@@ -254,6 +254,7 @@ class Domain(StatorModel):
                 ssl.SSLCertVerificationError,
                 UnicodeDecodeError,
                 idna.IDNAError,
+                SSRFAttemptError,
             ) as ex:
                 response = getattr(ex, "response", None)
                 if (

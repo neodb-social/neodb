@@ -1,16 +1,39 @@
 import json
+import logging
 from typing import TYPE_CHECKING, Optional
 
+import httpx
 import requests
 from django.conf import settings
 from django.db import models
 from pywebpush import webpush
 
+from core.files import SSRFAttemptError, check_url_safety
 from core.models import Config
 from stator.models import State, StateField, StateGraph, StatorModel
 
 if TYPE_CHECKING:
     from users.models import Identity
+
+logger = logging.getLogger(__name__)
+
+PUSH_TIMEOUT = 10
+
+
+def is_valid_push_endpoint(endpoint: str) -> bool:
+    """
+    Whether a client-supplied push endpoint is https on a public host, so a
+    subscription cannot point the server at its own network.
+    """
+    try:
+        request = httpx.Request("POST", endpoint)
+        if request.url.scheme != "https" or not request.url.host:
+            return False
+        check_url_safety(request)
+    except httpx.InvalidURL, httpx.ConnectError, SSRFAttemptError, UnicodeError:
+        return False
+    return True
+
 
 PushPolicy = models.TextChoices(
     "PushPolicy",
@@ -144,9 +167,14 @@ class PushNotificationStates(StateGraph):
             # Notifications are not configured.
             return cls.failed
 
+        if not is_valid_push_endpoint(sub.endpoint):
+            logger.info("Push endpoint %s refused", sub.endpoint)
+            return cls.failed
+
         try:
             session = requests.Session()
-            session.verify = False
+            # A redirect would take the POST past the endpoint check
+            session.max_redirects = 0
             webpush(
                 {"endpoint": sub.endpoint, "keys": sub.keys},
                 json.dumps(instance.to_webpush_json()).encode("utf-8"),
@@ -155,6 +183,7 @@ class PushNotificationStates(StateGraph):
                 headers={
                     "content-type": "application/octet-stream",
                 },
+                timeout=PUSH_TIMEOUT,
                 requests_session=session,
             )
             return cls.sent

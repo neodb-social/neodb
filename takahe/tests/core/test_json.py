@@ -1,4 +1,5 @@
 import httpx
+import pytest
 
 from core.json import clean_json, find_ap_alternate, json_from_response
 
@@ -136,3 +137,16 @@ def test_json_from_response_cleans_escapes():
         headers=[("content-type", "application/activity+json; charset=utf-8")],
     )
     assert json_from_response(response) == expected
+
+
+@pytest.mark.parametrize("charset", ["bogus", "a=b"])
+def test_json_from_response_ignores_unknown_charset(charset):
+    """An unusable charset parameter does not fail the caller."""
+    response = _resp(
+        "https://remote.example/users/a",
+        content=b'{"id": "https://remote.example/users/a"}',
+        headers=[
+            ("content-type", f"application/activity+json; charset={charset}"),
+        ],
+    )
+    assert json_from_response(response) == {"id": "https://remote.example/users/a"}
