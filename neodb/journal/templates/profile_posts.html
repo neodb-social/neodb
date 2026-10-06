@@ -9,7 +9,7 @@
   {% if forloop.last %}
     <div class="htmx-indicator post-list-more"
          hx-get="{% url 'journal:profile_posts_data' user_name %}?last={{ post.boost_pk|default:post.pk }}"
-         hx-trigger="revealed"
+         hx-trigger="intersect once"
          hx-swap="outerHTML">
       <i class="fa-solid fa-compact-disc fa-spin loading"></i>
     </div>
