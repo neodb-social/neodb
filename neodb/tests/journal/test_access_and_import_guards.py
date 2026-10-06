@@ -111,6 +111,17 @@ class TestDynamicCollectionViewer:
         collection.ap_total_items()
         assert self.viewers == [None]
 
+    def test_owner_tracks_private_only_results(self, monkeypatch):
+        owner = self.owner.identity
+        monkeypatch.setattr(
+            Collection,
+            "get_item_ids",
+            lambda c, viewer=None: [1] if viewer == owner else [],
+        )
+        collection = Collection.objects.get(pk=self.collection.pk)
+        assert collection.trackable is False
+        assert collection.is_trackable_for(owner) is True
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestPostInteractionVisibility:

@@ -1,3 +1,4 @@
+import httpx
 import pytest
 from django.conf import settings
 
@@ -58,6 +59,17 @@ def test_push_to_internal_endpoint_not_sent(api_token, sent):
         PushNotificationStates.handle_sending(notification)
         == PushNotificationStates.failed
     )
+    assert sent == []
+
+
+@pytest.mark.django_db
+def test_push_dns_failure_is_retried(api_token, sent, monkeypatch):
+    def unresolvable(request) -> None:
+        raise httpx.ConnectError("Cannot resolve host")
+
+    monkeypatch.setattr("api.models.push.check_url_safety", unresolvable)
+    notification = _notification(api_token, "https://push.example.com/abc")
+    assert PushNotificationStates.handle_sending(notification) is None
     assert sent == []
 
 

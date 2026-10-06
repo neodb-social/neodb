@@ -20,19 +20,29 @@ logger = logging.getLogger(__name__)
 PUSH_TIMEOUT = 10
 
 
-def is_valid_push_endpoint(endpoint: str) -> bool:
+def check_push_endpoint(endpoint: str) -> bool | None:
     """
     Whether a client-supplied push endpoint is https on a public host, so a
-    subscription cannot point the server at its own network.
+    subscription cannot point the server at its own network. None means the
+    host could not be resolved right now, which is not a verdict.
     """
     try:
         request = httpx.Request("POST", endpoint)
-        if request.url.scheme != "https" or not request.url.host:
-            return False
-        check_url_safety(request)
-    except httpx.InvalidURL, httpx.ConnectError, SSRFAttemptError, UnicodeError:
+    except httpx.InvalidURL, UnicodeError:
         return False
+    if request.url.scheme != "https" or not request.url.host:
+        return False
+    try:
+        check_url_safety(request)
+    except SSRFAttemptError:
+        return False
+    except httpx.ConnectError:
+        return None
     return True
+
+
+def is_valid_push_endpoint(endpoint: str) -> bool:
+    return check_push_endpoint(endpoint) is True
 
 
 PushPolicy = models.TextChoices(
@@ -167,9 +177,13 @@ class PushNotificationStates(StateGraph):
             # Notifications are not configured.
             return cls.failed
 
-        if not is_valid_push_endpoint(sub.endpoint):
+        endpoint_ok = check_push_endpoint(sub.endpoint)
+        if endpoint_ok is False:
             logger.info("Push endpoint %s refused", sub.endpoint)
             return cls.failed
+        if endpoint_ok is None:
+            # DNS hiccup on a valid provider: leave it for the next attempt
+            return
 
         try:
             session = requests.Session()

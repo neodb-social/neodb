@@ -288,7 +288,7 @@ def collection_retrieve(
         request.user.is_authenticated
         and (following or request.user.identity == collection.owner)
         and not featured_since
-        and collection.trackable
+        and collection.is_trackable_for(request.user.identity)
     )
     # Deferred: catalog.views pulls in users.views, which reaches back into
     # journal.views via journal.importers, so a module-level import here is a
@@ -305,7 +305,7 @@ def collection_retrieve(
         if counts.get(c.value) and c.value in cats
     ]
     stats = {}
-    if featured_since and collection.trackable:
+    if featured_since and collection.is_trackable_for(request.user.identity):
         stats = collection.get_stats(request.user.identity)
         stats["wishlist_deg"] = (
             round(stats["wishlist"] / stats["total"] * 360) if stats["total"] else 0

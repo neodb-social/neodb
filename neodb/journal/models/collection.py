@@ -157,10 +157,15 @@ class Collection(List):
 
     @property
     def trackable(self):
+        return self.is_trackable_for(None)
+
+    def is_trackable_for(self, viewer: APIdentity | None) -> bool:
+        # a dynamic collection may hold only pieces its viewer can see, so
+        # the owner's own view must not go by the anonymous result
         if self.is_dynamic:
-            return len(self.item_ids) > 0
+            return len(self.item_ids_for(viewer)) > 0
         else:
-            return self.query_result and self.query_result.pages == 1
+            return bool(self.query_result and self.query_result.pages == 1)
 
     @property
     def html_content(self):
