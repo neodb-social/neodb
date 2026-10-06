@@ -209,8 +209,8 @@ class FediverseHtmlParser(HTMLParser):
         if pushed and tag == "li" and not self._fresh_p:
             self.text_output += "\n"
 
-    def handle_emoji_img(self, attrs: dict[str, str | None]) -> None:
-        alt = attrs.get("alt") or ""
+    def handle_emoji_img(self, attrs: dict[str, str]) -> None:
+        alt = attrs.get("alt", "")
         m = self.IMG_EMOJI_REGEX.match(alt.strip())
         if not m:
             return
@@ -227,8 +227,10 @@ class FediverseHtmlParser(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         is_block = tag in self.PASSTHROUGH_BLOCKS or tag in self.REWRITE_TO_STRONG_P
+        # A valueless attribute such as <a href> parses as None.
+        attr_map = {k: v or "" for k, v in attrs}
         if tag == "img":
-            self.handle_emoji_img(dict(attrs))
+            self.handle_emoji_img(attr_map)
         elif self._pending_a is not None:
             # Keep link labels plain. Markup opened inside <a> would be emitted
             # ahead of the link that handle_endtag builds from the buffer.
@@ -241,7 +243,7 @@ class FediverseHtmlParser(HTMLParser):
                 self.text_output += "\n"
         elif tag == "a":
             self.flush_data()
-            self._pending_a = {"attrs": dict(attrs), "content": ""}
+            self._pending_a = {"attrs": attr_map, "content": ""}
         elif is_block:
             self.flush_data()
             self.open_block(tag)
@@ -266,16 +268,17 @@ class FediverseHtmlParser(HTMLParser):
                 self.text_output += "\n\n"
         elif tag == "a":
             if self._pending_a:
-                href = self._pending_a["attrs"].get("href", "#")
+                href = self._pending_a["attrs"].get("href") or "#"
                 content = self._pending_a["content"].strip()
                 has_ellipsis = "ellipsis" in self._pending_a["attrs"].get("class", "")
+                hashtag = self.HASHTAG_REGEX.fullmatch(content)
                 # Is it a mention?
                 if content.lower().lstrip("@") in self.mention_matches:
                     self.html_output += self.create_mention(content, href)
                     self.text_output += content
                 # Is it a hashtag?
-                elif self.HASHTAG_REGEX.match(content):
-                    self.html_output += self.create_hashtag(content)
+                elif hashtag:
+                    self.html_output += self.create_hashtag(hashtag.group(1))
                     self.text_output += content
                 elif content:
                     # Shorten the link if we need to
@@ -368,10 +371,12 @@ class FediverseHtmlParser(HTMLParser):
         """
         hashtag = hashtag.lstrip("#")
         self.hashtags.add(hashtag.lower())
+        path = html.escape(f"/tags/{hashtag.lower()}/")
+        label = html.escape(hashtag)
         if self.uri_domain:
-            return f'<a href="https://{self.uri_domain}/tags/{hashtag.lower()}/" class="mention hashtag" rel="tag">#{hashtag}</a>'
+            return f'<a href="https://{html.escape(self.uri_domain)}{path}" class="mention hashtag" rel="tag">#{label}</a>'
         else:
-            return f'<a href="/tags/{hashtag.lower()}/" rel="tag">#{hashtag}</a>'
+            return f'<a href="{path}" rel="tag">#{label}</a>'
 
     def create_emoji(self, shortcode) -> str:
         """
