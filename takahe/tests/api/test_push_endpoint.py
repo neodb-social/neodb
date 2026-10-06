@@ -20,6 +20,7 @@ from api.models.push import (
         "https://10.0.0.1/push",
         "ftp://1.1.1.1/push",
         "not a url",
+        "https://xn--zz/push",
     ],
 )
 def test_push_endpoint_refused(endpoint):

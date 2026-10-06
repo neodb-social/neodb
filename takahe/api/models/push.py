@@ -28,13 +28,11 @@ def check_push_endpoint(endpoint: str) -> bool | None:
     """
     try:
         request = httpx.Request("POST", endpoint)
-    except httpx.InvalidURL, UnicodeError:
-        return False
-    if request.url.scheme != "https" or not request.url.host:
-        return False
-    try:
+        # .host decodes punycode and raises a UnicodeError on a bad label
+        if request.url.scheme != "https" or not request.url.host:
+            return False
         check_url_safety(request)
-    except SSRFAttemptError:
+    except httpx.InvalidURL, UnicodeError, SSRFAttemptError:
         return False
     except httpx.ConnectError:
         return None
