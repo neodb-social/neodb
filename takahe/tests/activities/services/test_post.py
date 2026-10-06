@@ -110,3 +110,29 @@ def test_pin_as(identity: Identity, identity2: Identity, config_system):
         ).count()
         == 5
     )
+
+
+@pytest.mark.django_db
+def test_post_context_hides_invisible_ancestors(
+    identity: Identity, other_identity: Identity, identity2: Identity, config_system
+):
+    root = Post.create_local(
+        author=other_identity,
+        content="<p>followers only</p>",
+        visibility=Post.Visibilities.followers,
+    )
+    middle = Post.create_local(
+        author=identity,
+        content="<p>public reply</p>",
+        visibility=Post.Visibilities.public,
+        reply_to=root,
+    )
+    leaf = Post.create_local(
+        author=identity,
+        content="<p>public leaf</p>",
+        visibility=Post.Visibilities.public,
+        reply_to=middle,
+    )
+    assert PostService(leaf).context(None)[0] == [middle]
+    assert PostService(leaf).context(identity2)[0] == [middle]
+    assert PostService(leaf).context(other_identity)[0] == [middle, root]

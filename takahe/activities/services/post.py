@@ -107,14 +107,21 @@ class PostService:
         If identity is provided, includes mentions/followers-only posts they
         can see. Otherwise, shows unlisted and above only.
         """
-        # Retrieve ancestors via parent walk
+        # Retrieve ancestors via parent walk, stopping at the first one the
+        # viewer cannot see
         ancestors: list[Post] = []
         ancestor = self.post
         while ancestor.in_reply_to and len(ancestors) < num_ancestors:
             object_uri = ancestor.in_reply_to
             reason = ancestor.object_uri
-            ancestor = self.queryset().filter(object_uri=object_uri).first()
+            ancestor = (
+                self.queryset()
+                .visible_to(identity=identity, include_replies=True)
+                .filter(object_uri=object_uri)
+                .first()
+            )
             if ancestor is None:
+                # Only schedules a fetch when the parent is not stored at all
                 try:
                     Post.ensure_object_uri(object_uri, reason=reason)
                 except ValueError:
