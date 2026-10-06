@@ -4,6 +4,7 @@ import httpx
 from activities.models import Emoji, PostAttachment
 from core.files import SSRFAttemptError, check_url_safety, make_safe_client
 from django.conf import settings
+from django.core.cache import cache
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.templatetags.static import static
@@ -12,21 +13,37 @@ from django.views.generic import View
 from users.models import Identity
 
 
+HOST_VERDICT_TTL = 300
+
+
 def is_public_http_url(url: str) -> bool:
     """
     Whether url is http(s) on a host that resolves only to global addresses.
 
     nginx fetches accelerated URLs itself, out of reach of the httpx hook, so
-    the view has to vet them before handing them over.
+    the view has to vet them before handing them over. nginx never caches the
+    accel redirect, so this runs on every proxy request; the verdict per host
+    and port is memoized for a short while to avoid a DNS lookup each time.
     """
     try:
         request = httpx.Request("GET", url)
         if request.url.scheme not in ("http", "https") or not request.url.host:
             return False
-        check_url_safety(request)
-    except httpx.InvalidURL, httpx.ConnectError, SSRFAttemptError, UnicodeError:
+        port = request.url.port or (443 if request.url.scheme == "https" else 80)
+        key = f"mediaproxy:host_ok:{request.url.host}:{port}"
+        verdict = cache.get(key)
+        if verdict is None:
+            try:
+                check_url_safety(request)
+            except SSRFAttemptError:
+                verdict = False
+            else:
+                verdict = True
+            cache.set(key, verdict, HOST_VERDICT_TTL)
+        return verdict
+    except httpx.InvalidURL, httpx.ConnectError, UnicodeError:
+        # a host that does not resolve right now is refused but not remembered
         return False
-    return True
 
 
 class BaseProxyView(View):

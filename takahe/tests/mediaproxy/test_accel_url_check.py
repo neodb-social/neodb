@@ -1,3 +1,5 @@
+import socket
+
 import pytest
 
 from mediaproxy.views import is_public_http_url
@@ -24,6 +26,42 @@ def test_is_public_http_url_refuses(url):
 
 def test_is_public_http_url_accepts_public_address():
     assert is_public_http_url("https://1.1.1.1/icon.png")
+
+
+def test_is_public_http_url_memoizes_verdict_per_host(settings, monkeypatch):
+    settings.CACHES = {
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
+    }
+    lookups: list[str] = []
+    real_getaddrinfo = socket.getaddrinfo
+
+    def counting_getaddrinfo(host, *args, **kwargs):
+        lookups.append(host)
+        return real_getaddrinfo(host, *args, **kwargs)
+
+    monkeypatch.setattr(socket, "getaddrinfo", counting_getaddrinfo)
+    assert is_public_http_url("https://1.1.1.1/a.png")
+    assert is_public_http_url("https://1.1.1.1/b.png")
+    assert not is_public_http_url("https://10.0.0.1/a.png")
+    assert not is_public_http_url("https://10.0.0.1/b.png")
+    assert lookups == ["1.1.1.1", "10.0.0.1"]
+
+
+def test_is_public_http_url_does_not_cache_resolution_failure(settings, monkeypatch):
+    settings.CACHES = {
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
+    }
+    calls = 0
+
+    def failing_getaddrinfo(host, *args, **kwargs):
+        nonlocal calls
+        calls += 1
+        raise socket.gaierror("no such host")
+
+    monkeypatch.setattr(socket, "getaddrinfo", failing_getaddrinfo)
+    assert not is_public_http_url("https://nx.example/a.png")
+    assert not is_public_http_url("https://nx.example/a.png")
+    assert calls == 2
 
 
 @pytest.mark.django_db
