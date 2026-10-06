@@ -148,7 +148,7 @@
           <li>
             <a href="#discover_top" class="on">{% trans "All" %}</a>
           </li>
-          {% if for_you_items or circles_items %}
+          {% if load_personal_rows %}
             <li>
               <a href="#recommendations">{% trans "For you" %}</a>
             </li>
@@ -182,71 +182,8 @@
         <section class="entity-sort dc-mod"
                  id="recommendations"
                  data-title="{% trans 'For you' %}"
-                 {% if not for_you_items and not circles_items %}style="display:none;"{% endif %}>
-          {% if for_you_items %}
-            <div class="dc-mod" id="for_you">
-              <header class="dc-mh">
-                <h2>{% trans "For you" %}</h2>
-                <span class="dc-sub">{% trans "Because of what is on your shelf." %}</span>
-                <span class="action">
-                  <a class="dc-more"
-                     href="{% url 'catalog:discover_for_you' %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
-                  <button class="dc-nav dc-scroll"
-                          type="button"
-                          aria-label="{% trans 'Scroll left' %}"
-                          _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-                    <i class="fa-solid fa-chevron-left"></i>
-                  </button>
-                  <button class="dc-nav dc-scroll"
-                          type="button"
-                          aria-label="{% trans 'Scroll right' %}"
-                          _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-                    <i class="fa-solid fa-chevron-right"></i>
-                  </button>
-                </span>
-              </header>
-              <ul class="dc-cards">
-                {% for item in for_you_items %}
-                  {% include "_item_cover_card.html" with reco_dismiss=1 %}
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
-          {% if circles_items %}
-            <div class="dc-mod" id="from_circles">
-              <header class="dc-mh">
-                <h2>{% trans "From people you follow" %}</h2>
-                <span class="dc-sub">{% trans "Marked recently by people you follow." %}</span>
-                <span class="action">
-                  <a class="dc-more"
-                     href="{% url 'catalog:discover_from_circles' %}">{% trans "See all" %} <i class="fa-solid fa-arrow-right"></i></a>
-                  <button class="dc-nav dc-scroll"
-                          type="button"
-                          aria-label="{% trans 'Scroll left' %}"
-                          _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-                    <i class="fa-solid fa-chevron-left"></i>
-                  </button>
-                  <button class="dc-nav dc-scroll"
-                          type="button"
-                          aria-label="{% trans 'Scroll right' %}"
-                          _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-                    <i class="fa-solid fa-chevron-right"></i>
-                  </button>
-                </span>
-              </header>
-              <ul class="dc-cards">
-                {% for item in circles_items %}
-                  {% include "_item_cover_card.html" with reco_dismiss=1 %}
-                {% endfor %}
-              </ul>
-            </div>
-          {% endif %}
-          {% if not for_you_items and not circles_items %}
-            <header class="dc-mh">
-              <h2>{% trans "For you" %}</h2>
-              <span class="dc-sub">{% trans "Recommendations appear here once you mark a few things or follow people." %}</span>
-            </header>
-          {% endif %}
+                 {% if load_personal_rows %}hx-get="{% url 'catalog:discover_personal' %}" hx-trigger="load" hx-swap="innerHTML"{% else %}style="display:none;"{% endif %}>
+          {% if load_personal_rows %}<i class="fa-solid fa-compact-disc fa-spin loading"></i>{% endif %}
         </section>
         {% for shelf in shelves %}{{ shelf.html }}{% endfor %}
         {% if frag.originals %}{{ frag.originals.html }}{% endif %}
@@ -316,6 +253,14 @@
           if (target && target.style.display === 'none') {
             a.parentElement.style.display = 'none';
           }
+        });
+        // the personal rows arrive after the page; with none to show, the
+        // section and its chip go
+        document.getElementById('recommendations').addEventListener('htmx:afterSwap', e => {
+          if (e.target.querySelector('.dc-cards')) return;
+          e.target.style.display = 'none';
+          const chip = document.querySelector('.dc-chips a[href="#recommendations"]');
+          if (chip) chip.parentElement.style.display = 'none';
         });
         </script>
         {% include "_layout_editor.html" with name="discover" %}

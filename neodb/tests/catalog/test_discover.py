@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 from types import SimpleNamespace
+from typing import Sequence
 
 import pytest
 from django.core.cache import cache
@@ -12,6 +13,7 @@ from django.utils import timezone
 from catalog.jobs.discover import DiscoverGenerator
 from catalog.models import (
     Edition,
+    Item,
     ItemCredit,
     Movie,
     People,
@@ -47,6 +49,12 @@ def _member_client(user: User) -> Client:
     client = Client()
     client.force_login(user, backend="mastodon.auth.OAuth2Backend")
     return client
+
+
+def _fresh(items: Sequence[Item]) -> list[Item]:
+    """The items read back, as views get them; save() caches role_credits."""
+    by_id = {i.pk: i for i in Item.objects.filter(pk__in=[i.pk for i in items])}
+    return [by_id[i.pk] for i in items]
 
 
 def _mark_by_many(item, n: int, prefix: str) -> list[User]:
@@ -207,7 +215,7 @@ class TestDiscoverPage:
         site_config.enable_recommendations = True
         books = [Edition.objects.create(title=f"Reco {i}") for i in range(3)]
         monkeypatch.setattr(
-            "catalog.views.view.for_you", lambda user, limit: list(books)
+            "catalog.views.view.for_you", lambda user, limit, seeds: list(books)
         )
         member = User.register(email="reco@example.com", username="reco")
         Mark(member.identity, Movie.objects.create(title="Seen")).update(
@@ -216,11 +224,12 @@ class TestDiscoverPage:
         client = _member_client(member)
 
         content = client.get("/discover/").content.decode()
-        assert 'id="for_you"' in content
+        assert 'hx-get="/discover/personal/"' in content
         # both rows sit in one layout-editable section under the old id
         assert content.index('<div class="sortable">') < content.index(
             'id="recommendations"'
         )
+        assert 'id="for_you"' in client.get("/discover/personal/").content.decode()
 
         # the old single "recommendations" section, hidden in the layout editor
         member.preference.discover_layout = [
@@ -228,10 +237,108 @@ class TestDiscoverPage:
         ]
         member.preference.save(update_fields=["discover_layout"])
         content = client.get("/discover/").content.decode()
-        assert 'id="for_you"' not in content
-        assert 'id="from_circles"' not in content
+        assert 'hx-get="/discover/personal/"' not in content
         # the section stays in the page so the editor can show it again
         assert 'id="recommendations"' in content
+        content = client.get("/discover/personal/").content.decode()
+        assert 'id="for_you"' not in content
+        assert 'id="from_circles"' not in content
+
+    def test_personal_rows_load_after_the_page(self, site_config, monkeypatch):
+        site_config.enable_recommendations = True
+
+        def no_reco(*args, **kwargs):
+            raise AssertionError("the page computed recommendations")
+
+        monkeypatch.setattr("catalog.views.view.for_you", no_reco)
+        monkeypatch.setattr("catalog.views.view.from_your_circles", no_reco)
+        member = User.register(email="lazy@example.com", username="lazy")
+        response = _member_client(member).get("/discover/")
+        assert response.status_code == 200
+        assert 'hx-get="/discover/personal/"' in response.content.decode()
+
+    def test_personal_rows_need_login(self, site_config):
+        assert Client().get("/discover/personal/").status_code == 302
+
+    def test_personal_rows_are_short_cards_without_dismiss(
+        self, site_config, monkeypatch
+    ):
+        site_config.enable_recommendations = True
+        books = [Edition.objects.create(title=f"Reco {i}") for i in range(20)]
+        seen: dict = {}
+
+        def fake_for_you(user, limit, seeds):
+            seen.update(limit=limit, seeds=seeds)
+            return books[:limit]
+
+        monkeypatch.setattr("catalog.views.view.for_you", fake_for_you)
+        member = User.register(email="short@example.com", username="short")
+        content = _member_client(member).get("/discover/personal/").content.decode()
+        assert seen == {"limit": 12, "seeds": False}
+        assert content.count('<li class="dc-card"') == 12
+        assert "dismiss_recommendation" not in content
+        assert "Because of <a" not in content
+
+    def test_personal_rows_queries_do_not_grow_with_cards(
+        self, site_config, monkeypatch
+    ):
+        site_config.enable_recommendations = True
+        items = []
+        for i in range(12):
+            item = (Movie if i % 2 else Edition).objects.create(title=f"Reco {i}")
+            for r in range(3):
+                ItemCredit.objects.create(
+                    item=item,
+                    person=People.objects.create(
+                        localized_name=[{"lang": "en", "text": f"P{i}-{r}"}]
+                    ),
+                    role="director" if i % 2 else "author",
+                    name=f"P{i}-{r}",
+                )
+            items.append(item)
+        count = {"n": 4}
+        monkeypatch.setattr(
+            "catalog.views.view.for_you",
+            lambda user, limit, seeds: _fresh(items[: count["n"]]),
+        )
+        client = _member_client(User.register(email="q@example.com", username="q"))
+
+        def queries() -> int:
+            with (
+                CaptureQueriesContext(connections["default"]) as default,
+                CaptureQueriesContext(connections["takahe"]) as takahe,
+            ):
+                assert client.get("/discover/personal/").status_code == 200
+            return len(default) + len(takahe)
+
+        queries()
+        few = queries()
+        count["n"] = 12
+        assert queries() == few
+
+    def test_cards_localize_only_the_credit_they_show(self, site_config, monkeypatch):
+        site_config.enable_recommendations = True
+        movie = Movie.objects.create(title="Crowded Film")
+        director = People.objects.create(
+            localized_name=[{"lang": "en", "text": "Lead Director"}]
+        )
+        ItemCredit.objects.create(
+            item=movie, person=director, role="director", name="Snapshot"
+        )
+        actor = People.objects.create(localized_name=[{"lang": "en", "text": "Actor"}])
+        ItemCredit.objects.create(item=movie, person=actor, role="actor", name="A")
+        others = [Edition.objects.create(title=f"Other {i}") for i in range(2)]
+        monkeypatch.setattr(
+            "catalog.views.view.for_you",
+            lambda user, limit, seeds: _fresh([movie, *others]),
+        )
+        client = _member_client(User.register(email="l@example.com", username="l"))
+        with CaptureQueriesContext(connections["default"]) as ctx:
+            content = client.get("/discover/personal/?lang=en").content.decode()
+        assert "Lead Director" in content
+        names = [q["sql"] for q in ctx.captured_queries if "localized_name" in q["sql"]]
+        assert len(names) == 1
+        assert f"IN ({director.pk})" in names[0]
 
     def test_new_member_gets_onboarding_until_first_mark(self, site_config):
         member = User.register(email="fresh@example.com", username="fresh")
@@ -391,6 +498,30 @@ class TestDiscoverPosts:
 
         member = _member_client(posts).get("/discover/popular-posts/")
         assert "public thoughts" in member.content.decode()
+
+    def test_queries_do_not_grow_with_posts(self, site_config):
+        site_config.discover_show_popular_posts = True
+        post_ids = []
+        for i in range(6):
+            author = User.register(email=f"many{i}@example.com", username=f"many{i}")
+            mark = Mark(author.identity, Movie.objects.create(title=f"Film {i}"))
+            mark.update(ShelfType.COMPLETE, comment_text=f"note {i}", visibility=0)
+            post_ids.append(mark.all_post_ids)
+        member = User.register(email="reader@example.com", username="reader")
+
+        def queries(client: Client, n: int) -> int:
+            cache.set("popular_posts", [pk for ids in post_ids[:n] for pk in ids])
+            client.get("/discover/popular-posts/")
+            with (
+                CaptureQueriesContext(connections["default"]) as default,
+                CaptureQueriesContext(connections["takahe"]) as takahe,
+            ):
+                content = client.get("/discover/popular-posts/").content.decode()
+            assert f"note {n - 1}" in content
+            return len(default) + len(takahe)
+
+        for client in (Client(), _member_client(member)):
+            assert queries(client, 2) == queries(client, 6)
 
 
 class TestTrendsStatuses:

@@ -72,11 +72,12 @@ from ..recommendation import (
 )
 from .search import visible_categories
 from ..sites import WikiData
+from ..templatetags.discover import attach_primary_credit_names
 
 NUM_COMMENTS_ON_ITEM_PAGE = 10
 # personal rows on the discover page: how many cards to fetch, and the fewest
 # worth showing as a row at all
-RECO_ROW_SIZE = 24
+RECO_ROW_SIZE = 12
 MIN_RECO_ROW = 3
 CIRCLES_PAGE_SIZE = 60
 POSTS_ON_DISCOVER = 20
@@ -776,7 +777,7 @@ def _prepare_reco_cards(items: list[Item]) -> None:
         Item.credits_prefetch(),
     )
     Rating.attach_to_items(items)
-    Item.attach_localized_credit_names(items)
+    attach_primary_credit_names(items)
 
 
 #: template, its context, the items whose credit names it shows, and how
@@ -870,7 +871,7 @@ def _discover_fragments(
         else:
             fragments[name] = fragment
     if missing:
-        Item.attach_localized_credit_names(
+        attach_primary_credit_names(
             item for _name, section in missing for item in section[2]
         )
         rendered: dict[str, dict] = {}
@@ -928,33 +929,15 @@ def discover(request):
     if SiteConfig.system.discover_show_popular_tags:
         builders["tags"] = _tags_section
 
-    for_you_items: list[Item] = []
-    circles_items: list[Item] = []
+    load_personal_rows = False
     is_new_member = False
     if request.user.is_authenticated:
         layout = request.user.preference.discover_layout
         identity = request.user.identity
         announcements = []
-        pref = request.user.preference
-        # before the split, one "recommendations" section sat in the layout
-        # editor; a member who hid it keeps both personal rows hidden
-        hid_reco = any(
-            e.get("id") == "recommendations" and not e.get("visibility", True)
-            for e in layout
-        )
-        if not hid_reco and pref.show_recommendations("for_you"):
-            for_you_items = _in_visible_categories(
-                for_you(request.user, limit=RECO_ROW_SIZE), visible
-            )
-            if len(for_you_items) < MIN_RECO_ROW:
-                for_you_items = []
-        if not hid_reco and pref.show_recommendations("from_circles"):
-            circles_items = _in_visible_categories(
-                from_your_circles(request.user, limit=RECO_ROW_SIZE), visible
-            )
-            if len(circles_items) < MIN_RECO_ROW:
-                circles_items = []
-        _prepare_reco_cards(for_you_items + circles_items)
+        # the page loads the personal rows afterwards, so their queries and
+        # cards do not hold up the shared sections
+        load_personal_rows = bool(_personal_row_kinds(request.user))
         # a member with nothing on any shelf and nobody followed gets the
         # onboarding module in place of empty personal rows
         is_new_member = (
@@ -1003,8 +986,7 @@ def discover(request):
             "frag": frag,
             "shelves": shelves,
             "hidden_categories": hidden_categories,
-            "for_you_items": for_you_items,
-            "circles_items": circles_items,
+            "load_personal_rows": load_personal_rows,
             "is_new_member": is_new_member,
             "show_posts": show_posts,
             "catalog_stats": catalog_stats,
@@ -1012,6 +994,46 @@ def discover(request):
             "layout": layout,
             "updated": updated or timezone.now(),
         },
+    )
+
+
+def _personal_row_kinds(user) -> list[str]:
+    """The personal discover rows a member gets: "for_you", "from_circles"."""
+    pref = user.preference
+    # before the split, one "recommendations" section sat in the layout
+    # editor; a member who hid it keeps both personal rows hidden
+    if any(
+        e.get("id") == "recommendations" and not e.get("visibility", True)
+        for e in pref.discover_layout
+    ):
+        return []
+    return [k for k in ("for_you", "from_circles") if pref.show_recommendations(k)]
+
+
+@login_required
+def discover_personal(request):
+    """The personal rows of the discover page, which loads them after itself."""
+    kinds = _personal_row_kinds(request.user)
+    visible = _visible_category_values(request)
+    for_you_items: list[Item] = []
+    circles_items: list[Item] = []
+    if "for_you" in kinds:
+        for_you_items = _in_visible_categories(
+            for_you(request.user, limit=RECO_ROW_SIZE, seeds=False), visible
+        )
+        if len(for_you_items) < MIN_RECO_ROW:
+            for_you_items = []
+    if "from_circles" in kinds:
+        circles_items = _in_visible_categories(
+            from_your_circles(request.user, limit=RECO_ROW_SIZE), visible
+        )
+        if len(circles_items) < MIN_RECO_ROW:
+            circles_items = []
+    _prepare_reco_cards(for_you_items + circles_items)
+    return render(
+        request,
+        "_discover_personal.html",
+        {"for_you_items": for_you_items, "circles_items": circles_items},
     )
 
 
@@ -1101,6 +1123,17 @@ def discover_collections(request):
     )
 
 
+def _hidden_from_guests(identity_ids: set[int]) -> set[int]:
+    """Local members among ``identity_ids`` whose posts guests may not see."""
+    if not identity_ids:
+        return set()
+    return set(
+        APIdentity.objects.filter(pk__in=identity_ids, local=True)
+        .filter(Q(anonymous_viewable=False) | Q(deleted__isnull=False))
+        .values_list("pk", flat=True)
+    )
+
+
 @require_http_methods(["GET"])
 def discover_popular_posts(request):
     """Posts for the discover page, for members and anonymous visitors alike.
@@ -1122,7 +1155,7 @@ def discover_popular_posts(request):
     else:
         popular_posts = None
     posts = []
-    hidden_authors: list[int] = []
+    hidden_authors: set[int] = set()
     if popular_posts is not None:
         popular_posts = Takahe.exclude_authors(
             popular_posts, SiteConfig.system.discover_exclude_posts_from
@@ -1131,11 +1164,11 @@ def discover_popular_posts(request):
             popular_posts = popular_posts.not_blocked_by(viewer.takahe_identity)
         else:
             # same rule as a single post page: public posts only, and none
-            # from local members who keep their profile behind a login
-            hidden_authors = list(
-                APIdentity.objects.filter(local=True)
-                .filter(Q(anonymous_viewable=False) | Q(deleted__isnull=False))
-                .values_list("pk", flat=True)
+            # from local members who keep their profile behind a login; only
+            # the authors of the curated posts are checked, as the whole list
+            # of such members slows the posts query down
+            hidden_authors = _hidden_from_guests(
+                set(popular_posts.values_list("author_id", flat=True))
             )
             popular_posts = popular_posts.filter(visibility=0).exclude(
                 author_id__in=hidden_authors
@@ -1143,6 +1176,7 @@ def discover_popular_posts(request):
         # a blocked (restricted) identity is only visible to itself
         popular_posts = (
             popular_posts.exclude(author__restriction=2)
+            .prefetch_related("author__domain")
             .annotate(
                 author_row=Window(
                     expression=RowNumber(),
@@ -1158,6 +1192,9 @@ def discover_popular_posts(request):
         else:
             # a quoted post gets the same checks as the post itself; the
             # template falls back to the quote link when it is dropped
+            hidden_authors |= _hidden_from_guests(
+                {p.quoted_post_.author_id for p in posts if p.quoted_post_}
+            )
             for post in posts:
                 quoted = post.quoted_post_
                 if quoted and (

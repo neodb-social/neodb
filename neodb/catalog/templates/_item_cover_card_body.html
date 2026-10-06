@@ -25,9 +25,6 @@
     {% with credit=item|primary_credit %}<span class="dc-meta">{{ credit }}</span>{% endwith %}
   {% endif %}
 </a>
-{% if item.reco_seed_items %}
-  <div class="dc-because">{% include "_reco_seeds.html" %}</div>
-{% endif %}
 {% if show_progress_badges %}
   {% if can_update_progress %}
     <a href="#"
@@ -52,15 +49,4 @@
       {% endif %}
     </span>
   {% endif %}
-{% endif %}
-{% if reco_dismiss %}
-  <button type="button"
-          class="dc-card-dismiss"
-          title="{% trans 'Not interested' %}"
-          aria-label="{% trans 'Not interested' %}"
-          hx-post="{% url 'catalog:dismiss_recommendation' item.uuid %}"
-          hx-target="closest li"
-          hx-swap="innerHTML">
-    <i class="fa-solid fa-xmark"></i>
-  </button>
 {% endif %}

@@ -8,11 +8,7 @@ from common.utils import get_uuid_or_404
 
 from ..models import Item, RecommendationDismissal
 from ..recommendation import dismiss_item, restore_item
-from .view import _discover_list_page, _prepare_reco_cards, prepare_list_items
-
-
-def _is_list(request) -> bool:
-    return request.POST.get("layout") == "list"
+from .view import _discover_list_page, prepare_list_items
 
 
 @login_required
@@ -20,10 +16,7 @@ def _is_list(request) -> bool:
 def dismiss_recommendation(request, item_uuid: str):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     dismiss_item(request.user, item)
-    template = (
-        "_reco_dismissed_row.html" if _is_list(request) else "_reco_dismissed_body.html"
-    )
-    return render(request, template, {"item": item})
+    return render(request, "_reco_dismissed_row.html", {"item": item})
 
 
 @login_required
@@ -33,13 +26,8 @@ def restore_recommendation(request, item_uuid: str):
     restore_item(request.user, item)
     if request.POST.get("remove"):
         return HttpResponse()
-    if _is_list(request):
-        prepare_list_items(request, [item])
-        return render(request, "_list_item.html", {"item": item, "reco_dismiss": True})
-    _prepare_reco_cards([item])
-    return render(
-        request, "_item_cover_card_body.html", {"item": item, "reco_dismiss": True}
-    )
+    prepare_list_items(request, [item])
+    return render(request, "_list_item.html", {"item": item, "reco_dismiss": True})
 
 
 def _items_in_order(ids) -> list[Item]:

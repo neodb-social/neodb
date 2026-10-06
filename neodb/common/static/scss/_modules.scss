@@ -452,11 +452,9 @@ a:hover .dc-cover img {
 }
 
 // progress badge, a link on the owner's own shelf; same scrim look as the
-// rating badge, in the opposite corner of the cover. The recommendation
-// dismiss button wears the same scrim.
+// rating badge, in the opposite corner of the cover.
 .dc-progress-badge,
-a.dc-progress-badge,
-.dc-card-dismiss {
+a.dc-progress-badge {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
@@ -478,57 +476,6 @@ a.dc-progress-badge,
   }
 }
 
-// hide / restore a recommended card; shown on hover where there is one
-.dc-card-dismiss {
-  top: 0.4rem;
-  right: 0.4rem;
-  display: grid;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-
-  .dc-card:hover &,
-  &:focus-visible {
-    opacity: 1;
-  }
-
-  @media (hover: none) {
-    opacity: 1;
-  }
-}
-
-// a dismissed card keeps its <li>, so a snapped shelf row does not jump
-.dc-cover.dismissed {
-  box-shadow: none;
-  border: 1px dashed var(--dc-border);
-  background: transparent;
-
-  .dc-dismissed-note {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    padding: 0.5rem;
-    color: var(--dc-muted);
-    font-size: var(--dc-fs-sm);
-    text-align: center;
-  }
-}
-
-.dc-title.dismissed {
-  display: block;
-  margin-top: 0.5rem;
-  color: var(--dc-muted);
-}
-
 .dc-title {
   font-size: var(--dc-fs-md);
   font-weight: 600;
@@ -546,16 +493,6 @@ a.dc-progress-badge,
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-// "Because of X": the seed title is the point, so it may take two lines
-.dc-because {
-  font-size: var(--dc-fs-sm);
-  color: var(--dc-muted);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 // collections: a mosaic of member covers
