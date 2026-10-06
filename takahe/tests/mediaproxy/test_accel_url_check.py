@@ -1,10 +1,24 @@
 import socket
 
 import pytest
+from django.core.cache import cache
 
-from mediaproxy.views import is_public_http_url
+from mediaproxy import views
+from mediaproxy.views import public_http_url_verdict
 
 ACCEL = {"HTTP_X_TAKAHE_ACCEL": "1"}
+
+
+def make_unresolvable(monkeypatch: pytest.MonkeyPatch) -> list[str]:
+    # patch only after fixtures have saved rows: the job queue resolves redis
+    lookups: list[str] = []
+
+    def failing_getaddrinfo(host, *args, **kwargs):
+        lookups.append(host)
+        raise socket.gaierror("no such host")
+
+    monkeypatch.setattr(socket, "getaddrinfo", failing_getaddrinfo)
+    return lookups
 
 
 @pytest.mark.parametrize(
@@ -17,21 +31,21 @@ ACCEL = {"HTTP_X_TAKAHE_ACCEL": "1"}
         "file:///etc/passwd",
         "gopher://1.1.1.1/x",
         "http:///nohost",
-        "https://xn--ls8h.la/a.png",
     ],
 )
-def test_is_public_http_url_refuses(url):
-    assert not is_public_http_url(url)
+def test_verdict_refuses(url):
+    assert public_http_url_verdict(url) is False
 
 
-def test_is_public_http_url_accepts_public_address():
-    assert is_public_http_url("https://1.1.1.1/icon.png")
+def test_verdict_never_accepts_invalid_idna_host():
+    assert public_http_url_verdict("https://xn--ls8h.la/a.png") is not True
 
 
-def test_is_public_http_url_memoizes_verdict_per_host(settings, monkeypatch):
-    settings.CACHES = {
-        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
-    }
+def test_verdict_accepts_public_address():
+    assert public_http_url_verdict("https://1.1.1.1/icon.png") is True
+
+
+def test_verdict_memoized_per_host(monkeypatch):
     lookups: list[str] = []
     real_getaddrinfo = socket.getaddrinfo
 
@@ -40,28 +54,39 @@ def test_is_public_http_url_memoizes_verdict_per_host(settings, monkeypatch):
         return real_getaddrinfo(host, *args, **kwargs)
 
     monkeypatch.setattr(socket, "getaddrinfo", counting_getaddrinfo)
-    assert is_public_http_url("https://1.1.1.1/a.png")
-    assert is_public_http_url("https://1.1.1.1/b.png")
-    assert not is_public_http_url("https://10.0.0.1/a.png")
-    assert not is_public_http_url("https://10.0.0.1/b.png")
+    assert public_http_url_verdict("https://1.1.1.1/a.png") is True
+    assert public_http_url_verdict("https://1.1.1.1/b.png") is True
+    assert public_http_url_verdict("https://10.0.0.1/a.png") is False
+    assert public_http_url_verdict("https://10.0.0.1/b.png") is False
     assert lookups == ["1.1.1.1", "10.0.0.1"]
 
 
-def test_is_public_http_url_does_not_cache_resolution_failure(settings, monkeypatch):
-    settings.CACHES = {
-        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
+def test_verdict_unresolved_host_is_none_and_memoized_briefly(monkeypatch):
+    unresolvable = make_unresolvable(monkeypatch)
+    assert public_http_url_verdict("https://nx.example/a.png") is None
+    assert public_http_url_verdict("https://nx.example/b.png") is None
+    assert unresolvable == ["nx.example"]
+
+
+def test_verdict_ttls(monkeypatch):
+    ttls: dict[str, tuple[object, int]] = {}
+    real_set = cache.set
+
+    def recording_set(key, value, timeout, *args, **kwargs):
+        ttls[key] = (value, timeout)
+        return real_set(key, value, timeout, *args, **kwargs)
+
+    monkeypatch.setattr(views.cache, "set", recording_set)
+    public_http_url_verdict("https://1.1.1.1/a.png")
+    public_http_url_verdict("https://10.0.0.1/a.png")
+
+    make_unresolvable(monkeypatch)
+    public_http_url_verdict("https://nx.example/a.png")
+    assert ttls == {
+        "mediaproxy:host_ok:1.1.1.1:443": (True, 300),
+        "mediaproxy:host_ok:10.0.0.1:443": (False, 300),
+        "mediaproxy:host_ok:nx.example:443": ("nores", 60),
     }
-    calls = 0
-
-    def failing_getaddrinfo(host, *args, **kwargs):
-        nonlocal calls
-        calls += 1
-        raise socket.gaierror("no such host")
-
-    monkeypatch.setattr(socket, "getaddrinfo", failing_getaddrinfo)
-    assert not is_public_http_url("https://nx.example/a.png")
-    assert not is_public_http_url("https://nx.example/a.png")
-    assert calls == 2
 
 
 @pytest.mark.django_db
@@ -74,11 +99,40 @@ def test_accel_refuses_internal_image_url(client, remote_identity):
 
 
 @pytest.mark.django_db
+def test_accel_unresolvable_image_host_is_uncached_503(
+    client, remote_identity, monkeypatch
+):
+    remote_identity.image_uri = "https://nx.example/header.png"
+    remote_identity.save()
+    make_unresolvable(monkeypatch)
+    response = client.get(f"/proxy/identity_image/{remote_identity.pk}/", **ACCEL)
+    assert response.status_code == 503
+    assert response.headers["Cache-Control"] == "no-store"
+    assert response.headers["X-Accel-Expires"] == "0"
+    assert "X-Takahe-RealUri" not in response.headers
+
+
+@pytest.mark.django_db
 def test_accel_icon_falls_back_to_default_avatar(client, remote_identity):
     remote_identity.icon_uri = "http://10.0.0.1/icon.png"
     remote_identity.save()
     response = client.get(f"/proxy/identity_icon/{remote_identity.pk}/", **ACCEL)
     assert response.status_code == 302
+    assert response.headers["Cache-Control"] == "public, max-age=3600"
+    assert "X-Takahe-RealUri" not in response.headers
+
+
+@pytest.mark.django_db
+def test_accel_unresolvable_icon_host_falls_back_uncached(
+    client, remote_identity, monkeypatch
+):
+    remote_identity.icon_uri = "https://nx.example/icon.png"
+    remote_identity.save()
+    make_unresolvable(monkeypatch)
+    response = client.get(f"/proxy/identity_icon/{remote_identity.pk}/", **ACCEL)
+    assert response.status_code == 302
+    assert response.headers["Cache-Control"] == "no-store"
+    assert response.headers["X-Accel-Expires"] == "0"
     assert "X-Takahe-RealUri" not in response.headers
 
 

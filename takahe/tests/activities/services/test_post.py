@@ -1,8 +1,10 @@
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from activities.models import Post, PostInteraction
 from activities.services import PostService
-from users.models import Identity
+from users.models import Block, Identity
 
 
 @pytest.mark.django_db
@@ -136,3 +138,21 @@ def test_post_context_hides_invisible_ancestors(
     assert PostService(leaf).context(None)[0] == [middle]
     assert PostService(leaf).context(identity2)[0] == [middle]
     assert PostService(leaf).context(other_identity)[0] == [middle, root]
+
+
+@pytest.mark.django_db
+def test_post_context_looks_up_blocks_once(
+    identity: Identity, identity2: Identity, config_system
+):
+    root = Post.create_local(author=identity, content="<p>root</p>")
+    middle = Post.create_local(author=identity, content="<p>middle</p>", reply_to=root)
+    leaf = Post.create_local(author=identity, content="<p>leaf</p>", reply_to=middle)
+    Post.create_local(author=identity, content="<p>child</p>", reply_to=leaf)
+    Post.create_local(author=identity, content="<p>grandchild</p>", reply_to=leaf)
+    block_table = f'"{Block._meta.db_table}"'
+    with CaptureQueriesContext(connection) as ctx:
+        ancestors, descendants = PostService(leaf).context(identity2)
+    assert ancestors == [middle, root]
+    assert len(descendants) == 2
+    block_queries = [q for q in ctx.captured_queries if block_table in q["sql"]]
+    assert len(block_queries) == 2

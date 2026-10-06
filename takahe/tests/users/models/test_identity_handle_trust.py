@@ -8,9 +8,16 @@ from users.models import Domain, Identity
 from users.services import IdentityService
 
 
-def _webfinger(httpx_mock: HTTPXMock, handle: str, subject: str, actor: str) -> None:
+def _webfinger(
+    httpx_mock: HTTPXMock,
+    handle: str,
+    subject: str,
+    actor: str,
+    is_reusable: bool = False,
+) -> None:
     domain = handle.split("@")[1]
     httpx_mock.add_response(
+        is_reusable=is_reusable,
         url=f"https://{domain}/.well-known/webfinger?resource=acct:{handle}",
         headers={"Content-Type": "application/json"},
         json={
@@ -22,8 +29,15 @@ def _webfinger(httpx_mock: HTTPXMock, handle: str, subject: str, actor: str) -> 
     )
 
 
-def _actor(httpx_mock: HTTPXMock, actor_uri: str, username: str, **extra) -> None:
+def _actor(
+    httpx_mock: HTTPXMock,
+    actor_uri: str,
+    username: str,
+    is_reusable: bool = False,
+    **extra,
+) -> None:
     httpx_mock.add_response(
+        is_reusable=is_reusable,
         url=actor_uri,
         headers={"Content-Type": "application/activity+json"},
         json={
@@ -226,3 +240,94 @@ def test_fetch_nodeinfo_does_not_follow_non_public_href(monkeypatch, httpx_mock)
 
     assert domain.fetch_nodeinfo() is None
     assert [r.url.host for r in httpx_mock.get_requests()] == ["nodeinfo.test"]
+
+
+def _webfinger_requests(httpx_mock: HTTPXMock, host: str) -> int:
+    return len(
+        [
+            r
+            for r in httpx_mock.get_requests()
+            if r.url.host == host and r.url.path == "/.well-known/webfinger"
+        ]
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_confirm_webfinger_handle_memoizes_confirmation(httpx_mock, config_system):
+    actor_uri = "https://social.split.test/users/alice/"
+    _webfinger(httpx_mock, "alice@split.test", "alice@split.test", actor_uri)
+
+    for _ in range(2):
+        assert Identity.confirm_webfinger_handle(
+            actor_uri, "alice@social.split.test", "alice@split.test"
+        )
+
+    assert _webfinger_requests(httpx_mock, "split.test") == 1
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_confirm_webfinger_handle_memoizes_refutation(httpx_mock, config_system):
+    actor_uri = "https://evil.test/users/eve"
+    _webfinger(
+        httpx_mock,
+        "someone@victim.test",
+        "someone@victim.test",
+        "https://victim.test/users/someone",
+    )
+
+    for _ in range(2):
+        assert (
+            Identity.confirm_webfinger_handle(
+                actor_uri, "eve@evil.test", "someone@victim.test"
+            )
+            is False
+        )
+
+    assert _webfinger_requests(httpx_mock, "victim.test") == 1
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_confirm_webfinger_handle_does_not_memoize_unchecked(httpx_mock, config_system):
+    httpx_mock.add_response(
+        url="https://split.test/.well-known/webfinger?resource=acct:alice@split.test",
+        status_code=404,
+        is_reusable=True,
+    )
+
+    for _ in range(2):
+        assert (
+            Identity.confirm_webfinger_handle(
+                "https://social.split.test/users/alice/",
+                "alice@social.split.test",
+                "alice@split.test",
+            )
+            is None
+        )
+
+    assert _webfinger_requests(httpx_mock, "split.test") == 2
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_fetch_actor_refresh_reuses_confirmation(httpx_mock, config_system):
+    actor_uri = "https://social.split.test/users/alice/"
+    identity = Identity.objects.create(actor_uri=actor_uri, local=False)
+    _actor(httpx_mock, actor_uri, "alice", is_reusable=True)
+    _webfinger(
+        httpx_mock,
+        "alice@social.split.test",
+        "alice@split.test",
+        actor_uri,
+        is_reusable=True,
+    )
+    _webfinger(httpx_mock, "alice@split.test", "alice@split.test", actor_uri)
+
+    assert identity.fetch_actor()
+    assert identity.fetch_actor()
+
+    identity = Identity.objects.get(pk=identity.pk)
+    assert (identity.username, identity.domain_id) == ("alice", "split.test")
+    assert _webfinger_requests(httpx_mock, "split.test") == 1

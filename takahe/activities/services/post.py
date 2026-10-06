@@ -107,6 +107,8 @@ class PostService:
         If identity is provided, includes mentions/followers-only posts they
         can see. Otherwise, shows unlisted and above only.
         """
+        # visible_to() runs its block lookups when called, so build it once
+        visible = self.queryset().visible_to(identity=identity, include_replies=True)
         # Retrieve ancestors via parent walk, stopping at the first one the
         # viewer cannot see
         ancestors: list[Post] = []
@@ -114,12 +116,7 @@ class PostService:
         while ancestor.in_reply_to and len(ancestors) < num_ancestors:
             object_uri = ancestor.in_reply_to
             reason = ancestor.object_uri
-            ancestor = (
-                self.queryset()
-                .visible_to(identity=identity, include_replies=True)
-                .filter(object_uri=object_uri)
-                .first()
-            )
+            ancestor = visible.filter(object_uri=object_uri).first()
             if ancestor is None:
                 # Only schedules a fetch when the parent is not stored at all
                 try:
@@ -138,17 +135,9 @@ class PostService:
         seen: set[str] = set()
         while queue and len(descendants) < num_descendants:
             node = queue.pop()
-            child_queryset = (
-                self.queryset()
-                .filter(in_reply_to=node.object_uri)
-                .order_by("published")
+            child_queryset = visible.filter(in_reply_to=node.object_uri).order_by(
+                "published"
             )
-            if identity:
-                child_queryset = child_queryset.visible_to(
-                    identity=identity, include_replies=True
-                )
-            else:
-                child_queryset = child_queryset.unlisted(include_replies=True)
             for child in child_queryset:
                 if child.pk not in seen:
                     descendants.append(child)

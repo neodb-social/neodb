@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import ssl
 from functools import cached_property, partial
@@ -32,6 +33,7 @@ from core.uris import (
     StaticAbsoluteUrl,
 )
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, models, transaction
 from django.db.models.functions import Upper
@@ -52,6 +54,9 @@ logger = logging.getLogger(__name__)
 # Width of Identity's remote-sourced CharField columns (name, username,
 # profile_uri, inbox_uri, ...).
 _REMOTE_FIELD_MAX_LENGTH = 500
+
+WEBFINGER_CONFIRMED_TTL = 7 * 24 * 3600
+WEBFINGER_REFUTED_TTL = 3600
 
 
 def _remote_text(value, max_length: int = _REMOTE_FIELD_MAX_LENGTH) -> str | None:
@@ -1320,16 +1325,28 @@ class Identity(StatorModel):
         claimed = Domain.get_domain(claimed_domain)
         if claimed and claimed.local:
             return False
+        # every refresh of a split-domain actor would repeat these requests
+        digest = hashlib.sha256(f"{actor_uri}\n{subject.lower()}".encode()).hexdigest()
+        cache_key = f"webfinger_confirm:{digest}"
+        cached = cache.get(cache_key)
+        if isinstance(cached, bool):
+            return cached
         try:
             confirmed_actor, confirmed_subject = cls.fetch_webfinger(subject)
         except TryAgainLater, ValueError:
             return None
         if confirmed_actor is None:
             return None
-        return (
+        confirmed = (
             confirmed_actor == actor_uri
             and (confirmed_subject or "").lower() == subject.lower()
         )
+        cache.set(
+            cache_key,
+            confirmed,
+            WEBFINGER_CONFIRMED_TTL if confirmed else WEBFINGER_REFUTED_TTL,
+        )
+        return confirmed
 
     @classmethod
     def fetch_collection(cls, client: httpx.Client, uri: str) -> tuple[int, list[dict]]:

@@ -321,7 +321,10 @@ class Inbox(FederatedView):
         # creating a row for every sender, or failing on one of our own.
         actor_host = Domain(domain=urlparse(document["actor"]).hostname or "")
         domain_blocked = actor_host.recursively_blocked() or bool(
-            identity.domain and identity.domain.recursively_blocked()
+            identity.domain_id
+            and identity.domain_id.lower() != actor_host.domain
+            and identity.domain
+            and identity.domain.recursively_blocked()
         )
         if identity.blocked or domain_blocked:
             # I love to lie! Throw it away!
