@@ -11,6 +11,18 @@ from core.files import blurhash_image, resize_image
 from ..decorators import scope_required
 
 
+def _media_extension(content_type: str) -> str | None:
+    if not content_type.startswith(("video/", "audio/")):
+        return None
+    extension = mimetypes.guess_extension(content_type)
+    if not extension:
+        return None
+    guessed_type, _ = mimetypes.guess_type(f"attachment{extension}")
+    if not guessed_type or not guessed_type.startswith(("video/", "audio/")):
+        return None
+    return extension
+
+
 @scope_required("write:media")
 @api_view.post
 def upload_media(
@@ -21,16 +33,19 @@ def upload_media(
 ) -> schemas.MediaAttachment:
     content_type = getattr(file, "content_type", "") or ""
     if content_type.startswith("image/") or not content_type:
-        main_file = resize_image(
-            file,
-            size=(2000, 2000),
-            cover=False,
-        )
-        thumbnail_file = resize_image(
-            file,
-            size=(400, 225),
-            cover=True,
-        )
+        try:
+            main_file = resize_image(
+                file,
+                size=(2000, 2000),
+                cover=False,
+            )
+            thumbnail_file = resize_image(
+                file,
+                size=(400, 225),
+                cover=True,
+            )
+        except OSError:
+            raise ApiError(400, "Unsupported image file")
         attachment = PostAttachment.objects.create(
             blurhash=blurhash_image(thumbnail_file),
             mimetype="image/webp",
@@ -49,20 +64,19 @@ def upload_media(
             thumbnail_file,
         )
     else:
+        # Media is served from the site origin by extension, so the stored
+        # name must come from an allowed media type, never the client name.
+        extension = _media_extension(content_type)
+        if extension is None:
+            raise ApiError(400, f"Unsupported media type {content_type}")
         attachment = PostAttachment.objects.create(
             mimetype=content_type,
             name=description or None,
             state=PostAttachmentStates.fetched,
             author=request.identity,
         )
-        # Ensure filename has a proper extension so the web server
-        # serves it with the correct Content-Type header.
-        filename = file.name or "attachment"
-        if "." not in filename.rsplit("/", 1)[-1]:
-            ext = mimetypes.guess_extension(content_type) or ""
-            filename = filename + ext
         attachment.file.save(
-            filename,
+            f"attachment{extension}",
             file,
         )
     attachment.save()
