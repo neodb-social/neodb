@@ -1397,7 +1397,12 @@ class Identity(StatorModel):
             if status_code in [408, 429, 504]:
                 raise TryAgainLater()
             if status_code == 410 and self.pk:
-                # Their account got deleted, so let's do the same.
+                # Their account got deleted, so let's do the same. neodb must
+                # hear of it as it does for a Delete, or the identity's pieces
+                # stay visible with no takahe row behind them.
+                settings.NEODB_MQ.enqueue(
+                    "takahe.ap_handlers.identity_deleted", self.pk
+                )
                 Identity.objects.filter(pk=self.pk).delete()
             if status_code < 500 and status_code not in [401, 403, 404, 406, 410]:
                 logger.info(

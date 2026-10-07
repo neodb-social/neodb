@@ -1263,3 +1263,33 @@ def test_a_merged_alias_is_never_refetched(httpx_mock, config_system):
     assert Identity.by_actor_uri(alias.actor_uri).pk == canonical.pk
     # And stator leaves it alone rather than retrying the retired endpoint
     assert IdentityStates.handle_outdated(alias) == IdentityStates.updated
+
+
+@pytest.mark.django_db
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_a_gone_actor_is_handed_to_neodb_before_its_row_goes(
+    httpx_mock, config_system, monkeypatch
+):
+    """
+    A 410 deletes the row like an incoming Delete does, so neodb has to be told
+    the same way, or the identity's pieces outlive it and every page that
+    checks their owner fails on the missing row.
+    """
+    domain = Domain.get_remote_domain("remote.example")
+    gone = Identity.objects.create(
+        actor_uri="https://remote.example/users/gone",
+        username="gone",
+        domain=domain,
+        local=False,
+    )
+    httpx_mock.add_response(url=gone.actor_uri, status_code=410)
+    enqueued = []
+    monkeypatch.setattr(
+        "django.conf.settings.NEODB_MQ",
+        type("Queue", (), {"enqueue": lambda self, *a, **kw: enqueued.append(a)})(),
+    )
+
+    assert gone.fetch_actor() is False
+
+    assert not Identity.objects.filter(pk=gone.pk).exists()
+    assert enqueued == [("takahe.ap_handlers.identity_deleted", gone.pk)]

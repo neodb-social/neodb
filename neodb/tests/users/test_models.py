@@ -7,10 +7,11 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 
 from catalog.models import Edition
 from common.models import SiteConfig
-from journal.models import Mark, ShelfType
+from journal.models import Collection, Mark, ShelfType
 from takahe.models import Domain, Identity
 from takahe.utils import Takahe
 from users.models import APIdentity, User
@@ -219,6 +220,31 @@ class TestRemoteAPIdentity:
             icon_uri="https://lemmy.example/pictrs/image/books.png"
         )
         assert identity.avatar == f"/proxy/identity_icon/{identity.pk}/"
+
+    def test_owner_whose_takahe_row_is_gone_hides_its_pieces(self):
+        """takahe deletes the row of a remote actor that answers 410 before
+        neodb clears the APIdentity; its pieces must not 500 in between."""
+        owner = self._make_remote(actor_type="person")
+        collection = Collection.objects.create(
+            owner=owner, title="Orphaned", brief="", visibility=0, local=False
+        )
+        Identity.objects.filter(pk=owner.pk).delete()
+        owner = APIdentity.objects.get(pk=owner.pk)
+        viewer = User.register(username="viewer")
+
+        assert owner.is_active is False
+        assert collection.is_visible_to(viewer) is False
+        client = Client()
+        assert client.get(collection.url).status_code == 403
+        client.force_login(viewer, backend="mastodon.auth.OAuth2Backend")
+        assert client.get(collection.url).status_code == 403
+
+    def test_cleared_remote_owner_is_inactive(self):
+        owner = self._make_remote(actor_type="person")
+        owner.deleted = timezone.now()
+        owner.save()
+
+        assert owner.is_active is False
 
 
 @pytest.mark.django_db(databases="__all__")
