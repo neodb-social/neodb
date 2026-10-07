@@ -112,11 +112,13 @@ class Subscription:
         return [self.stream, self.argument] if self.argument else [self.stream]
 
     @classmethod
-    def parse(cls, params: dict, token: Token) -> "Subscription":
+    def parse(
+        cls, params: dict, token: Token, *, check_access: bool = True
+    ) -> "Subscription":
         stream = params.get("stream")
         if not isinstance(stream, str) or stream not in STREAMS:
             raise StreamError("Unknown stream type")
-        if not cls(stream).allowed(token):
+        if check_access and not cls(stream).allowed(token):
             raise StreamError("Insufficient scope", 403)
         argument = ""
         if stream == "list":
@@ -128,7 +130,12 @@ class Subscription:
                 or int(argument) > 2**63 - 1
             ):
                 raise StreamError("List not found", 404)
-            if not List.objects.filter(pk=argument, identity=token.identity).exists():
+            if (
+                check_access
+                and not List.objects.filter(
+                    pk=argument, identity=token.identity
+                ).exists()
+            ):
                 raise StreamError("List not found", 404)
         elif stream.startswith("hashtag"):
             argument = params.get("tag", "")
@@ -537,7 +544,11 @@ class StreamingApplication:
                                     )
                                     sub = await database_sync_to_async(
                                         Subscription.parse
-                                    )(command, token)
+                                    )(
+                                        command,
+                                        token,
+                                        check_access=command["type"] == "subscribe",
+                                    )
                                     if command["type"] == "subscribe":
                                         if (
                                             len(subscriptions) >= MAX_SUBSCRIPTIONS

@@ -397,6 +397,46 @@ async def test_websocket_multiplex_and_invalid_commands(api_token, identity) -> 
 
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction=True)
+@pytest.mark.parametrize("change", ["delete_list", "remove_scope"])
+async def test_unsubscribe_after_losing_list_access(
+    api_token, identity, change: str
+) -> None:
+    alist = await sync_to_async(List.objects.create)(
+        identity=identity, title="Mine", replies_policy="list", exclusive=False
+    )
+    list_id = str(alist.pk)
+    client = connection(
+        query=f"access_token={api_token.token}&stream=list&list={list_id}"
+    )
+    await client.send_input({"type": "websocket.connect"})
+    assert (await client.receive_output(timeout=5))["type"] == "websocket.accept"
+    try:
+        if change == "delete_list":
+            await sync_to_async(alist.delete)()
+        else:
+            api_token.scopes = ["read:notifications"]
+            await sync_to_async(api_token.save)()
+        await client.send_input(
+            {
+                "type": "websocket.receive",
+                "text": json.dumps(
+                    {"type": "unsubscribe", "stream": "list", "list": list_id}
+                ),
+            }
+        )
+        await client.send_input({"type": "websocket.receive", "text": "[]"})
+        assert json.loads((await client.receive_output())["text"])["status"] == 400
+        counts = await sync_to_async(publisher(redis_url()).pubsub_numsub)(
+            channel("posts")
+        )
+        assert counts[0][1] == 0
+        assert await client.receive_nothing()
+    finally:
+        await disconnect(client)
+
+
+@pytest.mark.asyncio
+@pytest.mark.django_db(transaction=True)
 async def test_sse_and_revocation(api_token, identity, other_identity) -> None:
     client = connection(
         path=PREFIX + "/user", query=f"access_token={api_token.token}", websocket=False
