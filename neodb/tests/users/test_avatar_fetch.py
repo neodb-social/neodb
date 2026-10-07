@@ -1,5 +1,5 @@
 import io
-from collections.abc import Iterator
+from collections.abc import Generator, Iterator
 from contextlib import contextmanager
 from types import SimpleNamespace
 from typing import Any
@@ -42,7 +42,7 @@ def _serve(
     response: FakeStream,
 ) -> None:
     @contextmanager
-    def fake_stream(method: str, url: str, **kwargs: Any) -> Iterator[FakeStream]:
+    def fake_stream(method: str, url: str, **kwargs: Any) -> Generator[FakeStream]:
         calls.append({"url": url, **kwargs})
         yield response
 

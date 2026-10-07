@@ -110,7 +110,8 @@ class PostService:
         # visible_to() runs its block lookups when called, so build it once
         visible = self.queryset().visible_to(identity=identity, include_replies=True)
         # Retrieve ancestors via parent walk, stopping at the first one the
-        # viewer cannot see
+        # viewer cannot see, so a public reply to a direct message does not
+        # reveal the message
         ancestors: list[Post] = []
         ancestor = self.post
         while ancestor.in_reply_to and len(ancestors) < num_ancestors:
@@ -127,15 +128,6 @@ class PostService:
                     )
                 break
             if ancestor.state in [PostStates.deleted, PostStates.deleted_fanned_out]:
-                break
-            # A public reply to a direct message must not reveal the message
-            visible = Post.objects.filter(pk=ancestor.pk)
-            visible = (
-                visible.visible_to(identity=identity, include_replies=True)
-                if identity
-                else visible.unlisted(include_replies=True)
-            )
-            if not visible.exists():
                 break
             ancestors.append(ancestor)
         # Retrieve descendants via breadth-first-search
