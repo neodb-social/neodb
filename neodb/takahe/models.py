@@ -1176,6 +1176,7 @@ class Post(models.Model):
         author_id: int
         application_id: int | None
         preview_card_id: int | None
+        conversation_id: int | None
         interactions: "models.QuerySet[PostInteraction]"
         attachments: "models.QuerySet[PostAttachment]"
 

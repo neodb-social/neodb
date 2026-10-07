@@ -151,6 +151,16 @@ body {
       .nav-dropdown .notification-dot {
         top: 1em;
         right: 0.5em;
+
+        &.messages-dot {
+          top: 50%;
+          right: 0.3em;
+          transform: translateY(-50%);
+        }
+      }
+
+      .nav-dropdown li:has(> .messages-dot) {
+        position: relative;
       }
 
       .pending-dot {

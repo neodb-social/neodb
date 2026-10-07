@@ -131,6 +131,10 @@
                 <a href="{% url 'social:notification' %}">{% trans "Notification" %}</a>
                 <span class="notification-dot"></span>
               </li>
+              <li>
+                <a href="{% url 'social:conversations' %}">{% trans "Messages" %}</a>
+                <span class="notification-dot messages-dot"></span>
+              </li>
               <li id="pending-menu" style="display:none">
                 <a href="{% url 'users:crossposts' %}"><i class="fa-solid fa-triangle-exclamation"></i> {% trans "Pending" %}</a>
               </li>

@@ -1,9 +1,35 @@
 from django.urls import path
 
+from .conversations import (
+    conversation,
+    conversation_dismiss,
+    conversation_new,
+    conversation_reply,
+    conversation_unread,
+    conversations,
+)
 from .views import *
 
 app_name = "social"
 urlpatterns = [
+    path("messages/", conversations, name="conversations"),
+    path("messages/new", conversation_new, name="conversation_new"),
+    path("messages/<int:conversation_id>/", conversation, name="conversation"),
+    path(
+        "messages/<int:conversation_id>/reply",
+        conversation_reply,
+        name="conversation_reply",
+    ),
+    path(
+        "messages/<int:conversation_id>/unread",
+        conversation_unread,
+        name="conversation_unread",
+    ),
+    path(
+        "messages/<int:conversation_id>/dismiss",
+        conversation_dismiss,
+        name="conversation_dismiss",
+    ),
     path("", feed, name="feed"),
     path("focus", focus, name="focus"),
     path("local", local, name="local"),

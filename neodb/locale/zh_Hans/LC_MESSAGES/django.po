@@ -9781,3 +9781,108 @@ msgstr "通行密钥未找到"
 #: users/views/webauthn.py:260
 msgid "Name is required"
 msgstr "名称不能为空"
+
+#: common/templates/_header.html:135 social/templates/conversation.html:9
+#: social/templates/conversation.html:18
+#: social/templates/conversation_new.html:17
+#: social/templates/conversations.html:9 social/templates/conversations.html:17
+msgid "Messages"
+msgstr "私信"
+
+#: social/conversations.py:105
+#, python-brace-format
+msgid "@{handle} is not known here yet, try again in a moment."
+msgstr "本站暂时还不认识 @{handle}，请稍后再试。"
+
+#: social/conversations.py:114
+#, python-brace-format
+msgid "@{handle} was not found."
+msgstr "找不到 @{handle}。"
+
+#: social/conversations.py:121
+#, python-brace-format
+msgid "You cannot send messages to @{handle}."
+msgstr "你无法给 @{handle} 发私信。"
+
+#: social/conversations.py:133
+msgid "Conversation not found"
+msgstr "找不到对话"
+
+#: social/conversations.py:171 social/conversations.py:232
+msgid "Message cannot be empty."
+msgstr "消息不能为空。"
+
+#: social/conversations.py:173
+msgid "Add at least one recipient."
+msgstr "请至少添加一位收件人。"
+
+#: social/templates/conversation.html:32
+msgid "Mark as unread"
+msgstr "标为未读"
+
+#: social/templates/conversation.html:41
+msgid "Remove from list"
+msgstr "从列表中移除"
+
+#: social/templates/conversation.html:50
+msgid "Earlier messages"
+msgstr "更早的消息"
+
+#: social/templates/conversation.html:101
+msgid "Write a message"
+msgstr "写消息"
+
+#: social/templates/conversation.html:102
+#: social/templates/conversation_new.html:45
+msgid "Message"
+msgstr "消息"
+
+#: social/templates/conversation.html:106
+#, python-format
+msgid "Pixelfed users do not receive messages sent to more than %(count)s people."
+msgstr "Pixelfed 用户收不到发给超过 %(count)s 人的消息。"
+
+#: social/templates/conversation.html:111
+#: social/templates/conversation_new.html:50
+msgid "Send"
+msgstr "发送"
+
+#: social/templates/conversation_new.html:8
+#: social/templates/conversation_new.html:19
+#: social/templates/conversations.html:21
+#: social/templates/conversations.html:70
+msgid "New message"
+msgstr "新私信"
+
+#: social/templates/conversation_new.html:39
+#, python-format
+msgid "Separate people with spaces. Pixelfed users do not receive messages sent to more than %(count)s people."
+msgstr "多个用户请用空格分隔。Pixelfed 用户收不到发给超过 %(count)s 人的消息。"
+
+#: social/templates/conversation_new.html:49
+msgid "Only the people in a conversation can see its messages, but messages are not end-to-end encrypted."
+msgstr "只有对话中的人能看到其中的消息，但消息并非端到端加密。"
+
+#: social/templates/conversations.html:45
+msgid "You:"
+msgstr "你："
+
+#: social/templates/conversations.html:53
+msgid "Unread"
+msgstr "未读"
+
+#: social/templates/conversations.html:63
+msgid "Older conversations"
+msgstr "更早的对话"
+
+#: social/templates/conversations.html:68
+msgid "No messages yet. Only the people in a conversation can see its messages, but messages are not end-to-end encrypted."
+msgstr "还没有私信。只有对话中的人能看到其中的消息，但消息并非端到端加密。"
+
+#: social/templates/event/mentioned.html:3
+msgid "sent you a message"
+msgstr "给你发了私信"
+
+#: social/templates/event/mentioned.html:4
+msgid "Open conversation"
+msgstr "打开对话"
