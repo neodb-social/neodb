@@ -8,36 +8,6 @@ NeoDB also supports a subset of Mastodon API, details can be found in [Mastodon 
 
 Both sets of APIs can be accessed with the same access token.
 
-## Streaming
-
-The Mastodon streaming API is off by default. Administrators can enable it with
-`TAKAHE_STREAMING_ENABLED=True`. When enabled, it supports WebSocket connections at `/api/v1/streaming`
-and server-sent events at `/api/v1/streaming/{stream}` (replace colons in stream
-names with slashes). Discover its URL in `urls.streaming_api` on the v1 instance
-endpoint or `configuration.urls.streaming` on v2.
-
-Supported streams are `user`, `user:notification`, `public` (including local,
-remote, and media variants), `hashtag`, `hashtag:local`, `list`, and `direct`.
-They deliver status creation, edits and deletion, notifications, and direct
-conversation updates. WebSocket clients can subscribe and unsubscribe to
-multiple streams on one connection. Hashtag and list subscriptions require a
-`tag` or `list` parameter respectively.
-
-Use a user access token with `read:statuses` and/or `read:notifications` as
-appropriate. Tokens can be supplied as a Bearer header, WebSocket subprotocol,
-or legacy `access_token` query parameter. All streams require authentication.
-Events are delivered while connected; reconnecting clients should refresh via
-the REST API. The Compose configuration routes only streaming requests to the
-separate `takahe-streaming` ASGI service and keeps REST and federation on
-`takahe-web` with Gunicorn. Both services use the configured Redis service for
-event delivery across workers.
-
-Streaming defaults to one worker (`TAKAHE_STREAMING_WORKER_NUM`), with at most
-four database threads per worker (`TAKAHE_STREAMING_DB_THREADS`). Include these
-connections in the database connection budget alongside REST, stator, and other
-services when increasing either setting. Streaming can be disabled independently
-of REST; see [Enable or disable streaming](configuration.md#enable-or-disable-streaming).
-
 ## How to authorize
 
 ### Create an application
