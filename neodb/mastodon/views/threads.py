@@ -27,6 +27,8 @@ logger = logging.getLogger(__name__)
 @require_http_methods(["POST"])
 def threads_login(request: HttpRequest):
     """start login process via threads"""
+    if not request.user.is_authenticated and not SiteConfig.system.enable_login_threads:
+        return render_error(request, _("Threads login is disabled."))
     if not verify_login_proof(request, "threads"):
         return render_error(request, _("Security check failed. Please try again."))
     sentry_count("login.attempt", attributes={"type": "threads"})
@@ -50,6 +52,8 @@ def threads_disconnect(request):
 @require_http_methods(["GET"])
 def threads_oauth(request: HttpRequest):
     """handle redirect back from threads"""
+    if not request.user.is_authenticated and not SiteConfig.system.enable_login_threads:
+        return render_error(request, _("Threads login is disabled."))
     code = request.GET.get("code")
     if not code:
         return render_error(

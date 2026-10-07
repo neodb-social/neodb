@@ -1,3 +1,4 @@
+import io
 import logging
 import re
 from datetime import timedelta
@@ -17,8 +18,10 @@ from django.urls import reverse
 from django.utils import timezone, translation
 from django.utils.deconstruct import deconstructible
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
 
 from common.models import SiteConfig
+from common.validators import is_valid_url
 from mastodon.models import (
     BlueskyAccount,
     EmailAccount,
@@ -312,22 +315,12 @@ class User(AbstractUser):
                 url = threads.threads_profile_picture_url
             elif bluesky and bluesky.avatar:
                 url = bluesky.avatar
-            if url:
-                try:
-                    r = httpx.get(
-                        url, timeout=SiteConfig.system.downloader_request_timeout
-                    )
-                except Exception as e:
-                    logger.warning(
-                        f"fetch icon failed: {identity} {url}",
-                        extra={"exception": e},
-                    )
-                    r = None
-                if r:
-                    name = str(self.pk) + "-" + url.split("/")[-1].split("?")[0][-100:]
-                    f = ContentFile(r.content, name=name)
-                    identity.icon.save(name, f, save=False)
-                    changed = True
+            icon = _fetch_avatar(url) if url else None
+            if icon:
+                content, ext = icon
+                name = f"{self.pk}.{ext}"
+                identity.icon.save(name, ContentFile(content, name=name), save=False)
+                changed = True
         if changed:
             identity.save()
             Takahe.update_state(identity, "outdated")
@@ -448,6 +441,50 @@ class User(AbstractUser):
                 old.on_disconnect()
             except Exception as e:
                 logger.warning(f"{old} on_disconnect error {e}")
+
+
+_AVATAR_MAX_BYTES = 10 * 1024 * 1024
+_AVATAR_FORMATS = {"JPEG": "jpg", "PNG": "png", "GIF": "gif", "WEBP": "webp"}
+
+
+def _fetch_avatar(url: str) -> tuple[bytes, str] | None:
+    """Download a remote avatar; return (bytes, extension) or None if unusable.
+
+    The URL comes from a third-party server, so it is vetted like any other
+    outbound fetch, redirects are not followed, and the body is kept only if
+    it decodes as a raster image; the stored extension comes from the decoded
+    format, never from the URL.
+    """
+    if not is_valid_url(url):
+        logger.warning(f"fetch icon skipped, not a public URL: {url}")
+        return None
+    try:
+        with httpx.stream(
+            "GET",
+            url,
+            timeout=SiteConfig.system.downloader_request_timeout,
+            follow_redirects=False,
+        ) as r:
+            if r.status_code != 200:
+                raise ValueError(f"HTTP {r.status_code}")
+            content_type = r.headers.get("content-type", "")
+            if not content_type.lower().startswith("image/"):
+                raise ValueError(f"content type {content_type}")
+            buf = bytearray()
+            for chunk in r.iter_bytes():
+                buf += chunk
+                if len(buf) > _AVATAR_MAX_BYTES:
+                    raise ValueError("too large")
+        content = bytes(buf)
+        with Image.open(io.BytesIO(content)) as img:
+            img.verify()
+            ext = _AVATAR_FORMATS.get(img.format or "")
+        if not ext:
+            raise ValueError(f"image format {img.format}")
+    except Exception as e:
+        logger.warning(f"fetch icon failed: {url}", extra={"exception": e})
+        return None
+    return content, ext
 
 
 def _check_auto_promote_superuser(user: User, account: SocialAccount) -> None:

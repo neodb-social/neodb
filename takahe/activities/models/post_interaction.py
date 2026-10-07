@@ -532,6 +532,16 @@ class PostInteraction(StatorModel):
                 # post row (we are always inside a transaction here via
                 # handle_ap) so concurrent duplicate announces serialize.
                 if type == cls.Types.boost:
+                    # A boost would fan a private post out to the booster's
+                    # followers; only its author may boost it.
+                    if (
+                        post.visibility
+                        not in [Post.Visibilities.public, Post.Visibilities.unlisted]
+                        and post.author_id != identity.pk
+                    ):
+                        raise ActorMismatchError(
+                            f"Cannot boost non-public post {post.pk}"
+                        )
                     post = Post.objects.select_for_update().get(pk=post.pk)
                     existing = cls.objects.filter(
                         identity=identity,

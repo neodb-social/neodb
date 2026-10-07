@@ -10,7 +10,12 @@ from django.utils import timezone
 from catalog.models import ItemCategory
 from journal.models import Mark, Note, Review
 
-from .base import BaseImporter
+from .base import (
+    BaseImporter,
+    MAX_TEXT_EXPORT_MEMBERS,
+    MAX_TEXT_EXPORT_SIZE,
+    extract_zip_safely,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -264,15 +269,9 @@ class CsvImporter(BaseImporter):
 
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:
-                for member in zipref.namelist():
-                    member_path = os.path.realpath(os.path.join(tmpdirname, member))
-                    if not member_path.startswith(
-                        os.path.realpath(tmpdirname) + os.sep
-                    ) and member_path != os.path.realpath(tmpdirname):
-                        raise ValueError(
-                            f"Zip member {member} would extract outside target directory"
-                        )
-                zipref.extractall(tmpdirname)
+                extract_zip_safely(
+                    zipref, tmpdirname, MAX_TEXT_EXPORT_SIZE, MAX_TEXT_EXPORT_MEMBERS
+                )
 
                 # Count total rows in all CSV files first
                 total_rows = 0

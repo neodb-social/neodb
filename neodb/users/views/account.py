@@ -101,6 +101,8 @@ def login_proof(request: HttpRequest) -> JsonResponse:
         return JsonResponse({"error": "Unknown login method"}, status=400)
     if method == "mastodon" and not SiteConfig.system.enable_login_mastodon:
         return JsonResponse({"error": "Mastodon login is disabled"}, status=400)
+    if method == "threads" and not SiteConfig.system.enable_login_threads:
+        return JsonResponse({"error": "Threads login is disabled"}, status=400)
     response = JsonResponse(create_login_proof_challenge(request, method))
     response["Cache-Control"] = "no-store, private"
     return response
@@ -172,6 +174,11 @@ def _handle_email_change(request, form):
     return None
 
 
+def _consume_invite(request: HttpRequest) -> None:
+    if SiteConfig.system.invite_only:
+        Takahe.consume_invite(str(request.session.get("invite") or ""))
+
+
 def _handle_new_user_registration(request, form, verified_account, email_readonly):
     username = form.cleaned_data["username"]
     pref = {
@@ -193,6 +200,7 @@ def _handle_new_user_registration(request, form, verified_account, email_readonl
     except ValidationError as e:
         form.add_error("username", e.message)
         return None
+    _consume_invite(request)
     auth_login(request, new_user)
     record_activity("register", "web")
 
@@ -462,6 +470,7 @@ def register(request: HttpRequest):
                         "secondary_msg": _("Username already taken. Please try again."),
                     },
                 )
+            _consume_invite(request)
             auth_login(request, new_user)
             record_activity("register", "web")
             return render(request, "users/welcome.html")

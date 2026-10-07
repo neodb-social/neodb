@@ -6,6 +6,7 @@ import zipfile
 from contextlib import ExitStack
 from datetime import timedelta
 from random import randint
+from urllib.parse import urlparse
 
 import pytz
 from django.utils.dateparse import parse_datetime
@@ -15,12 +16,35 @@ from markdownify import markdownify as md
 from catalog.common import *
 from catalog.common.downloaders import *
 from catalog.models import *
+from common.validators import is_valid_url
 from journal.models import *
 from users.models import *
+
+from .base import (
+    MAX_TEXT_EXPORT_MEMBERS,
+    MAX_TEXT_EXPORT_SIZE,
+    extract_zip_safely,
+)
 
 logger = logging.getLogger(__name__)
 
 _tz_sh = pytz.timezone("Asia/Shanghai")
+
+_LETTERBOXD_HOSTS = ("letterboxd.com", "boxd.it")
+
+
+def _is_letterboxd_url(url: str) -> bool:
+    """URLs come from the uploaded CSV, so only Letterboxd may be fetched."""
+    try:
+        parts = urlparse(url)
+    except ValueError:
+        return False
+    host = (parts.hostname or "").lower()
+    if parts.scheme not in ("http", "https") or not any(
+        host == h or host.endswith("." + h) for h in _LETTERBOXD_HOSTS
+    ):
+        return False
+    return get_mock_mode() or is_valid_url(url)
 
 
 class LetterboxdImporter(Task):
@@ -48,6 +72,9 @@ class LetterboxdImporter(Task):
 
     @classmethod
     def get_item_by_url(cls, url):
+        if not _is_letterboxd_url(url):
+            logger.warning(f"Not a Letterboxd URL: {url}")
+            return None
         try:
             h = BasicDownloader(url).download().html()
         except Exception:
@@ -70,6 +97,9 @@ class LetterboxdImporter(Task):
                 logger.error(f"Unable to parse {url}")
                 return None
             u2 = schema_data["itemReviewed"]["sameAs"]
+            if not _is_letterboxd_url(u2):
+                logger.error(f"Not a Letterboxd URL: {u2}")
+                return None
             try:
                 h = BasicDownloader(u2).download().html()
             except Exception:
@@ -212,15 +242,9 @@ class LetterboxdImporter(Task):
         with zipfile.ZipFile(filename, "r") as zipref:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 logger.debug(f"Extracting {filename} to {tmpdirname}")
-                for member in zipref.namelist():
-                    member_path = os.path.realpath(os.path.join(tmpdirname, member))
-                    if not member_path.startswith(
-                        os.path.realpath(tmpdirname) + os.sep
-                    ) and member_path != os.path.realpath(tmpdirname):
-                        raise ValueError(
-                            f"Zip member {member} would extract outside target directory"
-                        )
-                zipref.extractall(tmpdirname)
+                extract_zip_safely(
+                    zipref, tmpdirname, MAX_TEXT_EXPORT_SIZE, MAX_TEXT_EXPORT_MEMBERS
+                )
                 if os.path.exists(tmpdirname + "/reviews.csv"):
                     with open(tmpdirname + "/reviews.csv") as f:
                         reader = csv.DictReader(f, delimiter=",")

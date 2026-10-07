@@ -65,6 +65,7 @@ class AnnouncementDelete(DeleteView):
     extra_context = {"section": "announcements"}
 
 
+@method_decorator(admin_required, name="dispatch")
 class AnnouncementPublish(HTMXActionView):
     """
     Marks the announcement as published.
@@ -77,6 +78,7 @@ class AnnouncementPublish(HTMXActionView):
         announcement.save()
 
 
+@method_decorator(admin_required, name="dispatch")
 class AnnouncementUnpublish(HTMXActionView):
     """
     Marks the announcement as unpublished.

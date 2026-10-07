@@ -353,6 +353,7 @@ class TestAccountMigration:
         client.force_login(self.user)
         with (
             mock.patch("httpx.get") as self.refresh,
+            mock.patch("takahe.utils.is_valid_url", return_value=True),
             mock.patch.object(Identity, "fetch_webfinger", return_value=(None, None)),
             mock.patch.object(Takahe, "fetch_remote_identity") as self.fetch,
         ):

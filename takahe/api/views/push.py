@@ -5,6 +5,7 @@ from api.views import get_object_or_404
 from api import schemas
 from api.decorators import scope_required
 from api.models import PushSubscription
+from api.models.push import is_valid_push_endpoint
 from hatchway import ApiError, QueryOrBody, api_view
 
 
@@ -18,6 +19,8 @@ def create_subscription(
     # First, check the server is set up to do push notifications
     if not settings.SETUP.VAPID_PRIVATE_KEY:
         raise Http404("Push not available")
+    if not is_valid_push_endpoint(subscription.endpoint):
+        raise ApiError(422, "Push endpoint must be https on a public host")
     # Then, register this with our token
     request.token.subscribe(
         subscription.endpoint,

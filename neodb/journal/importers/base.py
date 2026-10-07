@@ -1,7 +1,10 @@
 import datetime
 import logging
+import os
+import zipfile
 from typing import Dict, List, Literal, Optional
 
+import filetype
 from django.conf import settings
 from django.utils.dateparse import parse_datetime
 
@@ -11,6 +14,63 @@ from journal.models import ShelfType
 from users.models import Task
 
 logger = logging.getLogger(__name__)
+
+# same set the upload endpoints accept (journal.apis.attachment)
+IMPORT_IMAGE_TYPES = {
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "image/avif",
+}
+_MAX_BUNDLE_SIZE = 2 * 1024 * 1024 * 1024
+_MAX_BUNDLE_MEMBERS = 100_000
+# for importers of plain-text exports (CSV, Letterboxd, Trakt)
+MAX_TEXT_EXPORT_SIZE = 512 * 1024 * 1024
+MAX_TEXT_EXPORT_MEMBERS = 10_000
+
+
+def sniff_media(content: str | bytes, allow_av: bool = False) -> tuple[str, str] | None:
+    """``(extension, mimetype)`` detected from the bytes of a file path or
+    a buffer, or None unless it is an allowed image (or audio / video when
+    ``allow_av``). Archive names and declared types are attacker-chosen, and
+    a kept ``.html`` / ``.svg`` would be served as active content."""
+    try:
+        kind = filetype.guess(content)
+    except Exception:
+        return None
+    if not kind:
+        return None
+    if kind.mime in IMPORT_IMAGE_TYPES or (
+        allow_av and kind.mime.startswith(("audio/", "video/"))
+    ):
+        return kind.extension, kind.mime
+    return None
+
+
+def extract_zip_safely(
+    zipref: zipfile.ZipFile,
+    dest: str,
+    max_size: int = _MAX_BUNDLE_SIZE,
+    max_members: int = _MAX_BUNDLE_MEMBERS,
+) -> None:
+    """``extractall`` after refusing traversal and archives whose declared
+    size or member count is over the limit; zipfile stops reading a member
+    at its declared size, so the declared total bounds what is written."""
+    infos = zipref.infolist()
+    if len(infos) > max_members:
+        raise ValueError(f"Zip has too many members ({len(infos)})")
+    if sum(i.file_size for i in infos) > max_size:
+        raise ValueError("Zip is too large when extracted")
+    base = os.path.realpath(dest)
+    for info in infos:
+        member_path = os.path.realpath(os.path.join(base, info.filename))
+        if not member_path.startswith(base + os.sep) and member_path != base:
+            raise ValueError(
+                f"Zip member {info.filename} would extract outside target directory"
+            )
+    zipref.extractall(dest)
+
 
 _PREFERRED_SITES = [
     SiteName.Fediverse,

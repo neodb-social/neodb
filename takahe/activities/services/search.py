@@ -1,6 +1,7 @@
 import logging
 
 import httpx
+from core.exceptions import ActivityPubError
 from core.files import SSRFAttemptError
 from core.json import find_ap_alternate, json_from_response
 from core.ld import canonicalise, get_first_concrete_type
@@ -153,7 +154,7 @@ class SearchService:
             # Try and retrieve the post by URI
             # (we do not trust the JSON we just got - fetch from source!)
             try:
-                return Post.by_object_uri(
+                post = Post.by_object_uri(
                     document["id"], fetch=True, fetch_as=self.identity
                 )
             except Post.DoesNotExist:
@@ -164,6 +165,16 @@ class SearchService:
                 # escape the view and turn the search into a 500.
                 logger.info("Timed out fetching post at %r", uri)
                 return None
+            except ActivityPubError:
+                return None
+            # The URI may name a stored post the searcher cannot see
+            if (
+                not Post.objects.filter(pk=post.pk)
+                .visible_to(self.identity, include_replies=True)
+                .exists()
+            ):
+                return None
+            return post
 
         # Dunno what it is
         else:

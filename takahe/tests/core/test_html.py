@@ -432,3 +432,43 @@ def test_parser_mention_without_profile_uri(remote_identity):
     assert 'href="/@test@remote.test/"' in parser.html
     assert parser.plain_text == "hi @test@remote.test"
     assert parser.mentions == {"test@remote.test"}
+
+
+@pytest.mark.parametrize(
+    "link_text",
+    [
+        "#t&lt;img src=x onerror=alert(1)&gt;",
+        '#t"onmouseover="alert(1)',
+    ],
+)
+def test_parser_hashtag_link_text_is_escaped(link_text):
+    """
+    Link text that only starts like a hashtag is a plain link, not markup
+    """
+
+    parser = FediverseHtmlParser(
+        f'<a href="https://example.com/">{link_text}</a>', find_hashtags=True
+    )
+    assert "<img" not in parser.html
+    assert 'href="https://example.com/"' in parser.html
+    assert '"onmouseover' not in parser.html
+    assert parser.hashtags == set()
+
+
+def test_parser_create_hashtag_escapes():
+    parser = FediverseHtmlParser("", uri_domain='a.example"><b')
+    assert parser.create_hashtag('#a"<b>') == (
+        '<a href="https://a.example&quot;&gt;&lt;b/tags/a&quot;&lt;b&gt;/"'
+        ' class="mention hashtag" rel="tag">#a&quot;&lt;b&gt;</a>'
+    )
+
+
+def test_parser_valueless_link_attributes():
+    """
+    <a href> and <a class> parse as None, which must not crash the render
+    """
+
+    parser = FediverseHtmlParser("<a href>x</a>")
+    assert parser.html == '<a href="#" rel="nofollow">x</a>'
+    parser = FediverseHtmlParser('<a class href="https://a.example/">x</a>')
+    assert parser.html == '<a href="https://a.example/" rel="nofollow">x</a>'

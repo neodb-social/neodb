@@ -99,7 +99,7 @@
           <div class="owner-info">
             <div class="info">
               <p>
-                {% for cat, count in collection.item_count_by_category.items %}
+                {% for cat, count in counts.items %}
                   {% if count %}
                     <span>{% prural_items count cat %}</span>&nbsp;&nbsp;
                   {% endif %}

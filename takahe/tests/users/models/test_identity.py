@@ -966,8 +966,9 @@ def test_fetch_actor_adopts_canonical_domain_when_webfinger_loops_back(
 ):
     """
     A server whose actors live on one host but whose handles use another is
-    legitimate, and webfinger looping back to this actor proves it. The
-    loop-back guard must not break that canonicalisation.
+    legitimate, and webfinger looping back to this actor, confirmed by the
+    handle domain's own webfinger, proves it. The loop-back guard must not
+    break that canonicalisation.
     """
     identity = Identity.objects.create(
         actor_uri="https://backend.example/users/michael",
@@ -990,6 +991,23 @@ def test_fetch_actor_adopts_canonical_domain_when_webfinger_loops_back(
     )
     httpx_mock.add_response(
         url="https://backend.example/.well-known/webfinger?resource=acct:michael@backend.example",
+        json={
+            "subject": "acct:michael@news.example",
+            "links": [
+                {
+                    "rel": "self",
+                    "type": "application/activity+json",
+                    "href": "https://backend.example/users/michael",
+                },
+            ],
+        },
+    )
+    httpx_mock.add_response(
+        url="https://news.example/.well-known/host-meta",
+        status_code=404,
+    )
+    httpx_mock.add_response(
+        url="https://news.example/.well-known/webfinger?resource=acct:michael@news.example",
         json={
             "subject": "acct:michael@news.example",
             "links": [

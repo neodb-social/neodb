@@ -3,6 +3,7 @@ import time
 import pytest
 from api.models import Application, Token
 from core.models import Config
+from django.core.cache import cache
 from django.test import Client
 from stator.runner import StatorModel, StatorRunner
 
@@ -82,6 +83,17 @@ def _test_settings(settings):
     }
     settings.SETUP.MAIN_DOMAIN = "example.com"
     settings.MAIN_DOMAIN = "example.com"
+
+
+@pytest.fixture(autouse=True)
+def _isolated_cache(settings):
+    # A fresh in-process cache per test: the dev cluster's redis cache outlives
+    # a run and is shared with RQ, and CI's dummy one memoizes nothing.
+    # Set the backend first, so clear() never reaches redis (FLUSHDB).
+    settings.CACHES = {
+        "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
+    }
+    cache.clear()
 
 
 @pytest.fixture

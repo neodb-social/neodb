@@ -1163,6 +1163,7 @@ class Post(StatorModel):
             ValueError,
             JsonLdError,
             ActivityPubFormatError,
+            ActorMismatchError,
             Post.DoesNotExist,
         ):
             return None
@@ -1529,6 +1530,18 @@ class Post(StatorModel):
     ### ActivityPub (inbound) ###
 
     @staticmethod
+    def _attributed_to_uris(value) -> list[str]:
+        """Every URI named by an AS ``attributedTo`` value, in order."""
+        values = value if isinstance(value, list) else [value]
+        uris: list[str] = []
+        for v in values:
+            if isinstance(v, dict):
+                v = v.get("id")
+            if isinstance(v, str):
+                uris.append(v)
+        return uris
+
+    @staticmethod
     def _primary_attributed_to(value):
         """Normalize an AS ``attributedTo`` value to a single URI string.
 
@@ -1542,12 +1555,7 @@ class Post(StatorModel):
         unrecognizable so the caller's structural check can raise.
         """
         if isinstance(value, list):
-            uris: list[str] = []
-            for v in value:
-                if isinstance(v, dict):
-                    v = v.get("id")
-                if isinstance(v, str):
-                    uris.append(v)
+            uris = Post._attributed_to_uris(value)
             if not uris:
                 return None
             # Pick the first candidate already known locally that's not
@@ -1598,6 +1606,7 @@ class Post(StatorModel):
             # object, or an array of either. WriteFreely emits
             # ``[author_person, blog_group]`` for blog posts; the author
             # is conventionally first, so we take the head.
+            attributed_uris = cls._attributed_to_uris(data.get("attributedTo"))
             data["attributedTo"] = cls._primary_attributed_to(data.get("attributedTo"))
             data["type"] = cls._primary_post_type(data.get("type"))
             # Ensure data has the primary fields of all Posts
@@ -1664,6 +1673,15 @@ class Post(StatorModel):
                     raise TryAgainLater()
             else:
                 raise cls.DoesNotExist(f"No post with ID {data['id']}", data)
+        if update and not created:
+            # Only the stored author may change a post, and local posts
+            # never take their content from inbound documents.
+            if post.local:
+                raise ActorMismatchError(f"Remote data for local post {post.pk}")
+            if not any(post.author.is_actor_uri(uri) for uri in attributed_uris):
+                raise ActorMismatchError(
+                    f"Object attributedTo does not include the author of post {post.pk}"
+                )
         if update or created:
             post.type = data["type"]
             url, _ = get_ap_link(data.get("url"), preferred_media_type="text/html")
@@ -1947,6 +1965,21 @@ class Post(StatorModel):
                     ap_data = canonicalise(
                         json_data, include_security=True, outbound=False
                     )
+                    # A server may answer with a canonical id that differs
+                    # in path, but never with a document of another host.
+                    fetched_id = ap_data.get("id")
+                    fetched_host = (
+                        urlparse(fetched_id).hostname
+                        if isinstance(fetched_id, str)
+                        else None
+                    )
+                    if (
+                        not fetched_host
+                        or fetched_host != urlparse(object_uri).hostname
+                    ):
+                        raise cls.DoesNotExist(
+                            f"Document at {object_uri} has an id on another host"
+                        )
                     ap_data["_fetch_depth"] = fetch_depth
                     post = cls.by_ap(
                         ap_data,
@@ -1957,6 +1990,10 @@ class Post(StatorModel):
                 except (json.JSONDecodeError, ValueError, JsonLdError) as err:
                     raise cls.DoesNotExist(
                         f"Invalid ld+json response for {object_uri}"
+                    ) from err
+                except ActorMismatchError as err:
+                    raise cls.DoesNotExist(
+                        f"Document at {object_uri} cannot update its post"
                     ) from err
                 # We may need to fetch the author too
                 if post.author.state == IdentityStates.outdated:
@@ -2045,6 +2082,33 @@ class Post(StatorModel):
             )
 
     @classmethod
+    def _ensure_actor_attributed(cls, data: dict, verb: str) -> None:
+        """
+        Checks the signed actor of a Create/Update against its object.
+
+        WriteFreely sends ``attributedTo: [author, blog]`` and the outer
+        ``actor`` may be either one, so any entry may sign. by_ap stores
+        the post under the primary entry though, so that one must be on
+        the actor's own host.
+        """
+        attributed = data["object"]["attributedTo"]
+        actor = data["actor"]
+        if actor not in cls._attributed_to_uris(attributed):
+            raise ActorMismatchError(
+                f"{verb} actor does not match its Post object", data
+            )
+        primary = cls._primary_attributed_to(attributed)
+        actor_host = urlparse(actor).hostname
+        if (
+            not actor_host
+            or not isinstance(primary, str)
+            or urlparse(primary).hostname != actor_host
+        ):
+            raise ActorMismatchError(
+                f"{verb} actor is not on the host of its Post author", data
+            )
+
+    @classmethod
     def handle_create_ap(cls, data):
         """
         Handles an incoming create request
@@ -2052,20 +2116,7 @@ class Post(StatorModel):
         from . import TimelineEvent
 
         with transaction.atomic():
-            # Ensure the Create actor is among the Post's attributedTo
-            # entries. WriteFreely sends a list ``[author, blog]`` and the
-            # outer ``actor`` may be either one; accept any match rather
-            # than only the first URI.
-            attributed = data["object"]["attributedTo"]
-            if not isinstance(attributed, list):
-                attributed = [attributed]
-            attributed_ids = {cls._primary_attributed_to(v) for v in attributed} - {
-                None
-            }
-            if data["actor"] not in attributed_ids:
-                raise ActorMismatchError(
-                    "Create actor does not match its Post object", data
-                )
+            cls._ensure_actor_attributed(data, "Create")
             # Create it, stator will fan it out locally
             post = cls.by_ap(
                 data["object"], create=True, update=True, fetch_author=True
@@ -2080,19 +2131,7 @@ class Post(StatorModel):
         Handles an incoming update request
         """
         with transaction.atomic():
-            # Ensure the Update actor is among the Post's attributedTo
-            # entries (see ``handle_create_ap`` for the WriteFreely-list
-            # rationale).
-            attributed = data["object"]["attributedTo"]
-            if not isinstance(attributed, list):
-                attributed = [attributed]
-            attributed_ids = {cls._primary_attributed_to(v) for v in attributed} - {
-                None
-            }
-            if data["actor"] not in attributed_ids:
-                raise ActorMismatchError(
-                    "Update actor does not match its Post object", data
-                )
+            cls._ensure_actor_attributed(data, "Update")
             # Find it and update it
             try:
                 cls.by_ap(data["object"], create=False, update=True)

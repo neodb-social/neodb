@@ -185,10 +185,7 @@ def post_status(request, details: PostStatusSchema) -> schemas.Status:
     }
     reply_post = None
     if details.in_reply_to_id:
-        try:
-            reply_post = Post.objects.get(pk=details.in_reply_to_id)
-        except Post.DoesNotExist:
-            pass
+        reply_post = post_for_id(request, details.in_reply_to_id)
     # Quoting is explicit only: the client must pass quoted_status_id
     # (Mastodon 4.5+) or its quote_id alias. URLs in the text stay text.
     quote_post = None
@@ -432,6 +429,13 @@ def reblogged_by(
 @api_view.post
 def reblog_status(request, id: str) -> schemas.Status:
     post = post_for_id(request, id)
+    # A boost is announced publicly to the booster's followers, so only
+    # public posts can be boosted by others, and direct posts never.
+    if post.visibility == Post.Visibilities.mentioned or (
+        post.visibility not in (Post.Visibilities.public, Post.Visibilities.unlisted)
+        and post.author_id != request.identity.pk
+    ):
+        raise ApiError(403, "This action is not allowed")
     service = PostService(post)
     service.boost_as(request.identity)
     interactions = PostInteraction.get_post_interactions([post], request.identity)

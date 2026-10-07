@@ -161,6 +161,9 @@ env = environ.FileAwareEnv(
     SKIP_MIGRATIONS=(list, []),
     TAKAHE_REMOTE_PRUNE_HORIZON=(int, 92),
     NEODB_HIDDEN_CATEGORIES=(list, []),
+    # reverse proxies in front of the bundled nginx that append to
+    # X-Forwarded-For; 0 ignores the header and uses the peer address
+    NEODB_TRUSTED_PROXY_DEPTH=(int, 1),
 )
 
 # ====== End of user configuration variables ======
@@ -723,6 +726,8 @@ CORS_ALLOW_HEADERS = (*default_headers,)
 
 DEACTIVATE_AFTER_UNREACHABLE_DAYS = 365
 
+TRUSTED_PROXY_DEPTH: int = env("NEODB_TRUSTED_PROXY_DEPTH")
+
 DEFAULT_RELAY_SERVER = "https://relay.neodb.net/inbox"
 
 SENTRY_DSN: str = env("NEODB_SENTRY_DSN")
@@ -732,6 +737,9 @@ if SENTRY_DSN:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.logging import ignore_logger
+    from sentry_sdk.scrubber import DEFAULT_DENYLIST, EventScrubber
+
+    from common.sentry import SENTRY_EXTRA_DENYLIST, before_breadcrumb, before_send
 
     ignore_logger("podcastparser")
     # A bad Host header is a client error, not a bug. The null handler in
@@ -750,6 +758,14 @@ if SENTRY_DSN:
         ],
         release=NEODB_VERSION,
         send_default_pii=True,
+        event_scrubber=EventScrubber(
+            denylist=[*DEFAULT_DENYLIST, *SENTRY_EXTRA_DENYLIST],
+            recursive=True,
+            send_default_pii=True,
+        ),
+        before_send=before_send,
+        before_send_transaction=before_send,
+        before_breadcrumb=before_breadcrumb,
         traces_sample_rate=SENTRY_SAMPLE_RATE,
         _experiments={"enable_logs": True},
     )

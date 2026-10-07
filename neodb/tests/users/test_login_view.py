@@ -258,6 +258,9 @@ class TestLoginProof:
         assert calls == [("alice@example.org", "login")]
 
     def test_proof_is_bound_to_session_and_method(self, client, proof, monkeypatch):
+        enabled = SiteConfig.system.model_copy(update={"enable_login_threads": True})
+        monkeypatch.setattr(SiteConfig, "system", enabled)
+        monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
         threads_calls = []
         monkeypatch.setattr(
             Threads,
@@ -307,7 +310,9 @@ class TestLoginProof:
     def test_mastodon_threads_and_bluesky_accept_valid_proofs(
         self, client, proof, monkeypatch
     ):
-        enabled = SiteConfig.system.model_copy(update={"enable_login_bluesky": True})
+        enabled = SiteConfig.system.model_copy(
+            update={"enable_login_bluesky": True, "enable_login_threads": True}
+        )
         monkeypatch.setattr(SiteConfig, "system", enabled)
         monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
         calls = []

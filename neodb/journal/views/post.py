@@ -51,6 +51,17 @@ def _can_view_post(post: Post, owner: APIdentity, viewer: APIdentity | None) -> 
     return -1
 
 
+def _get_viewable_post(request: AuthedHttpRequest, post_id: int) -> Post:
+    post = Takahe.get_post(post_id)
+    if not post or post.state in ["deleted", "deleted_fanned_out"]:
+        raise BadRequest(_("Invalid parameter"))
+    # APIdentity shares its pk with the takahe Identity, so skip loading that
+    owner = APIdentity.objects.filter(pk=post.author_id).first()
+    if not owner or _can_view_post(post, owner, request.user.identity) < 0:
+        raise PermissionDenied(_("Insufficient permission"))
+    return post
+
+
 def piece_replies(request: AuthedHttpRequest, piece_uuid: str):
     # Anonymous viewers can still load the replies panel (list only — the
     # compose form in ``replies.html`` is gated on ``request.user.is_authenticated``
@@ -119,17 +130,14 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
         raise BadRequest(_("Invalid parameter"))
     if not content:
         raise BadRequest(_("Invalid parameter"))
-    post = Takahe.get_post(post_id)
-    if post:
-        mentions_to_prepend = post.reply_prepend(request.user.identity.takahe_identity)
-        if mentions_to_prepend and not content.startswith(mentions_to_prepend):
-            content = mentions_to_prepend + content
+    post = _get_viewable_post(request, post_id)
+    mentions_to_prepend = post.reply_prepend(request.user.identity.takahe_identity)
+    if mentions_to_prepend and not content.startswith(mentions_to_prepend):
+        content = mentions_to_prepend + content
     Takahe.reply_post(post_id, request.user.identity.pk, content, visibility)
     record_activity("post", "web")
     replies = Takahe.get_replies_for_posts([post_id], request.user.identity.pk)
-    reply_prepend = ""
-    if post:
-        reply_prepend = post.reply_prepend(request.user.identity.takahe_identity)
+    reply_prepend = post.reply_prepend(request.user.identity.takahe_identity)
     return render(
         request,
         "replies.html",
@@ -225,9 +233,12 @@ def post_quote(request: AuthedHttpRequest, post_id: int):
 @login_required
 def post_boost(request: AuthedHttpRequest, post_id: int):
     # classic_crosspost = request.user.preference.mastodon_repost_mode == 1
-    post = Takahe.get_post(post_id)
-    if not post:
-        raise BadRequest(_("Invalid parameter"))
+    post = _get_viewable_post(request, post_id)
+    if post.author_id != request.user.identity.pk and post.visibility not in [
+        Takahe.Visibilities.public,
+        Takahe.Visibilities.unlisted,
+    ]:
+        raise PermissionDenied(_("Insufficient permission"))
     boost = Takahe.boost_post(post_id, request.user.identity.pk)
     if boost and boost.state == "new":
         if request.user.mastodon and request.user.preference.mastodon_boost_enabled:
@@ -251,6 +262,7 @@ def post_pin(request: AuthedHttpRequest, post_id: int):
 @require_http_methods(["POST"])
 @login_required
 def post_like(request: AuthedHttpRequest, post_id: int):
+    _get_viewable_post(request, post_id)
     Takahe.like_post(post_id, request.user.identity.pk)
     return render(request, "action_like_post.html", {"post": Takahe.get_post(post_id)})
 

@@ -1,7 +1,8 @@
 import logging
 import re
+from urllib.parse import urlparse
 
-from core.exceptions import ActivityPubFormatError
+from core.exceptions import ActivityPubFormatError, ActorMismatchError
 from django.db import models
 from stator.models import State, StateField, StateGraph, StatorModel
 
@@ -123,16 +124,32 @@ class Relay(StatorModel):
     @classmethod
     def is_ap_message_for_relay(cls, message) -> bool:
         return (
-            re.match(r".+/relay/(\d+)/#(follow|unfollow)$", message["object"]["id"])
+            re.match(
+                r".+/relay/(\d+)/#(follow|unfollow)$",
+                str(message["object"].get("id") or ""),
+            )
             is not None
         )
 
     @classmethod
     def get_by_ap(cls, message) -> "Relay":
-        m = re.match(r".+/relay/(\d+)/#(follow|unfollow)$", message["object"]["id"])
+        m = re.match(
+            r".+/relay/(\d+)/#(follow|unfollow)$",
+            str(message["object"].get("id") or ""),
+        )
         if not m:
             raise ActivityPubFormatError("Not a valid relay follow response")
-        return cls.objects.get(pk=int(m[1]))
+        relay = cls.objects.filter(pk=int(m[1])).first()
+        if relay is None:
+            raise ActivityPubFormatError("Unknown relay in follow response")
+        # Only the relay may answer for itself. It is known by its inbox
+        # alone, so the signed actor has to be served from the same host.
+        actor_host = urlparse(str(message.get("actor") or "")).hostname
+        if not actor_host or actor_host != urlparse(relay.inbox_uri).hostname:
+            raise ActorMismatchError(
+                f"{message.get('actor')} cannot answer for relay {relay.inbox_uri}"
+            )
+        return relay
 
     @classmethod
     def handle_accept_ap(cls, message):

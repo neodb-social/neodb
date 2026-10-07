@@ -1,7 +1,6 @@
 import concurrent.futures
 import logging
 
-import httpx
 from django.conf import settings
 from django.db import models, transaction
 from django.template.defaultfilters import linebreaks_filter
@@ -14,7 +13,7 @@ from activities.models import (
     PostInteractionStates,
 )
 from core.exceptions import ActivityPubError
-from core.files import resize_image
+from core.files import make_safe_client, resize_image
 from core.html import FediverseHtmlParser
 from stator.exceptions import TryAgainLater
 from users.models import (
@@ -435,10 +434,8 @@ class IdentityService:
             ),
         ]
         future_actions = {}
-        with httpx.Client(
-            timeout=settings.SETUP.REMOTE_TIMEOUT,
-            headers={"User-Agent": settings.TAKAHE_USER_AGENT},
-        ) as client:
+        # Every URL here comes from the remote actor document
+        with make_safe_client(timeout=settings.SETUP.REMOTE_TIMEOUT) as client:
             # TODO: move this to a global pool, or use stator executor
             with concurrent.futures.ThreadPoolExecutor(
                 max_workers=len(pipeline)

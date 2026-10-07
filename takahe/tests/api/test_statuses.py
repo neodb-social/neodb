@@ -1,6 +1,12 @@
 import pytest
 
-from activities.models import Post, PostAttachment, PostAttachmentStates
+from activities.models import (
+    Post,
+    PostAttachment,
+    PostAttachmentStates,
+    PostInteraction,
+)
+from users.models import Follow
 
 
 @pytest.mark.django_db
@@ -255,3 +261,59 @@ def test_get_quotes_of_status(api_client, identity):
     response = api_client.get(f"/api/v1/statuses/{original.pk}/quotes").json()
     assert len(response) == 1
     assert response[0]["id"] == str(quote.pk)
+
+
+@pytest.mark.django_db
+def test_reply_to_invisible_post(api_client, identity, other_identity, config_system):
+    hidden = Post.create_local(
+        author=other_identity,
+        content="Followers only",
+        visibility=Post.Visibilities.followers,
+    )
+    response = api_client.post(
+        "/api/v1/statuses",
+        content_type="application/json",
+        data={"status": "Reply", "in_reply_to_id": str(hidden.pk)},
+    )
+    assert response.status_code == 404
+    assert not Post.objects.filter(in_reply_to=hidden.object_uri).exists()
+
+    visible = Post.create_local(author=other_identity, content="Public")
+    response = api_client.post(
+        "/api/v1/statuses",
+        content_type="application/json",
+        data={"status": "Reply", "in_reply_to_id": str(visible.pk)},
+    )
+    assert response.status_code == 200
+    assert response.json()["in_reply_to_id"] == str(visible.pk)
+
+
+@pytest.mark.django_db
+def test_reblog_requires_public_visibility(
+    api_client, identity, other_identity, config_system
+):
+    # Following makes the followers-only post visible, so the refusal is
+    # what blocks the boost, not the lookup.
+    Follow.objects.create(source=identity, target=other_identity, state="accepted")
+    private = Post.create_local(
+        author=other_identity,
+        content="Followers only",
+        visibility=Post.Visibilities.followers,
+    )
+    assert api_client.get(f"/api/v1/statuses/{private.pk}").status_code == 200
+    response = api_client.post(f"/api/v1/statuses/{private.pk}/reblog")
+    assert response.status_code == 403
+    assert not PostInteraction.objects.filter(
+        post=private, type=PostInteraction.Types.boost
+    ).exists()
+
+    own = Post.create_local(
+        author=identity, content="Mine", visibility=Post.Visibilities.followers
+    )
+    response = api_client.post(f"/api/v1/statuses/{own.pk}/reblog")
+    assert response.status_code == 200
+
+    public = Post.create_local(author=other_identity, content="Public")
+    response = api_client.post(f"/api/v1/statuses/{public.pk}/reblog")
+    assert response.status_code == 200
+    assert response.json()["reblogged"] is True

@@ -613,6 +613,12 @@ class Identity(models.Model):
         user = self.users.first()
         return user.pk if user else None
 
+    @staticmethod
+    def _check_webfinger_request(request: httpx.Request) -> None:
+        # Runs on every redirect hop, not just the first URL
+        if not is_valid_url(str(request.url)):
+            raise ValueError(f"Refusing to fetch {request.url}")
+
     @classmethod
     def fetch_webfinger_url(cls, domain: str) -> str:
         """
@@ -625,6 +631,7 @@ class Identity(models.Model):
         with httpx.Client(
             timeout=SiteConfig.system.mastodon_timeout,
             headers={"User-Agent": settings.TAKAHE_USER_AGENT},
+            event_hooks={"request": [cls._check_webfinger_request]},
         ) as client:
             try:
                 response = client.get(
@@ -643,7 +650,7 @@ class Identity(models.Model):
                     )
                     if template:
                         return template  # type: ignore
-            except httpx.RequestError, etree.ParseError:
+            except httpx.RequestError, etree.ParseError, ValueError:
                 pass
 
         return f"https://{domain}/.well-known/webfinger?resource={{uri}}"
@@ -687,6 +694,7 @@ class Identity(models.Model):
         with httpx.Client(
             timeout=SiteConfig.system.mastodon_timeout,
             headers={"User-Agent": settings.TAKAHE_USER_AGENT},
+            event_hooks={"request": [cls._check_webfinger_request]},
         ) as client:
             try:
                 response = client.get(
@@ -695,6 +703,8 @@ class Identity(models.Model):
                     headers={"Accept": "application/json"},
                 )
                 response.raise_for_status()
+            except ValueError:
+                return None, None
             except (httpx.HTTPError, ssl.SSLCertVerificationError) as ex:
                 response = getattr(ex, "response", None)
                 if (
@@ -733,6 +743,35 @@ class Identity(models.Model):
             # Server returning wrong payload structure
             pass
         return None, None
+
+    @classmethod
+    def confirm_webfinger_handle(
+        cls, actor_uri: str, queried: str, subject: str
+    ) -> bool | None:
+        """
+        Whether actor_uri may take the WebFinger subject returned for the
+        queried handle: True if confirmed, False if refuted, None if it could
+        not be checked. Mirrors takahe's Identity.confirm_webfinger_handle.
+        """
+        parts = subject.split("@")
+        if len(parts) != 2 or not parts[0]:
+            return None
+        claimed_domain = parts[1].lower()
+        if claimed_domain == queried.split("@")[-1].lower():
+            return True
+        claimed = Domain.get_domain(claimed_domain)
+        if claimed and claimed.local:
+            return False
+        try:
+            confirmed_actor, confirmed_subject = cls.fetch_webfinger(subject)
+        except ValueError:
+            return None
+        if confirmed_actor is None:
+            return None
+        return (
+            confirmed_actor == actor_uri
+            and (confirmed_subject or "").lower() == subject.lower()
+        )
 
     @classmethod
     def by_username_and_domain(
@@ -777,8 +816,9 @@ class Identity(models.Model):
                 )
         except cls.DoesNotExist:
             if fetch and not local:
-                actor_uri, handle = cls.fetch_webfinger(f"{username}@{domain}")
-                if handle is None:
+                queried = f"{username}@{domain}"
+                actor_uri, handle = cls.fetch_webfinger(queried)
+                if handle is None or actor_uri is None:
                     return None
                 # See if this actually does match an existing actor
                 try:
@@ -786,7 +826,10 @@ class Identity(models.Model):
                 except cls.DoesNotExist:
                     pass
                 # OK, make one
-                username, domain = handle.split("@")
+                if cls.confirm_webfinger_handle(actor_uri, queried, handle):
+                    username, claimed_domain = handle.split("@")
+                    if claimed_domain.lower() != domain:
+                        domain_instance = Domain.get_remote_domain(claimed_domain)
                 if not domain_instance:
                     domain_instance = Domain.get_remote_domain(domain)
                 return cls.objects.create(

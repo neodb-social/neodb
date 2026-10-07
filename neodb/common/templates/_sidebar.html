@@ -38,7 +38,8 @@
                   <h6 class="nickname">{{ identity.display_name }}</h6>
                   <div>
                     <span class="handler">@{{ identity.full_handle }}</span>
-                    <span class="action inline"><span><small><a _="on click call navigator.clipboard.writeText('@{{ identity.full_handle }}') then halt"><i class="fa-regular fa-copy"></i></a></small></span></span>
+                    <span class="action inline"><span><small><a data-handle="@{{ identity.full_handle }}"
+   _="on click call navigator.clipboard.writeText(@data-handle) then halt"><i class="fa-regular fa-copy"></i></a></small></span></span>
                   </div>
                 </hgroup>
               </div>

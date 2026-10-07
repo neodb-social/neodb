@@ -340,7 +340,9 @@ def collection_list_items(request, collection_uuid: str):
     if not c.is_visible_to(request.user):
         raise HttpError(403, "Permission denied")
     if c.is_dynamic:
-        items = c.query_result.items if c.query_result else []
+        viewer = request.user.identity if request.user.is_authenticated else None
+        r = c.get_query_result(viewer)
+        items = r.items if r else []
         members = [{"item": i, "note": ""} for i in items]
         return members
     else:
@@ -517,7 +519,8 @@ def user_collection_list_items(request, collection_uuid: str):
     if c.owner != request.user.identity and not c.is_editable_by(request.user):
         raise HttpError(403, "Permission denied")
     if c.is_dynamic:
-        items = c.query_result.items if c.query_result else []
+        r = c.get_query_result(request.user.identity)
+        items = r.items if r else []
         members = [{"item": i, "note": ""} for i in items]
         return members
     else:
@@ -810,7 +813,7 @@ def get_featured_collection_stats(request, collection_uuid: str):
         return Status(404, {"message": "Collection not found"})
     if not c.is_visible_to(request.user):
         return Status(403, {"message": "Permission denied"})
-    items = c.item_ids
+    items = c.item_ids_for(request.user.identity)
     stats = {"total": len(items)}
     for st in ShelfType:
         stats[st.value] = 0

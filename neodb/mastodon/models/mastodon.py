@@ -6,7 +6,7 @@ import secrets
 import string
 import typing
 from enum import StrEnum
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import django_rq
 import requests
@@ -46,6 +46,9 @@ class TootVisibilityEnum(StrEnum):
 def _request(method: str, url: str, **kwargs: typing.Any) -> requests.Response:
     # resolved at call time so a runtime SiteConfig change applies at once
     kwargs.setdefault("timeout", SiteConfig.system.mastodon_timeout)
+    # is_valid_url vets only the first URL; a redirect could point anywhere,
+    # so a 3xx is returned to the caller, which treats it as a failure
+    kwargs["allow_redirects"] = False
     return requests.request(method, url, **kwargs)
 
 
@@ -347,7 +350,8 @@ def verify_account(site, token):
 
 
 def get_related_acct_list(site, token, api):
-    url = "https://" + get_api_domain(site) + api
+    api_domain = get_api_domain(site)
+    url = "https://" + api_domain + api
     results = []
     while url:
         try:
@@ -376,7 +380,15 @@ def get_related_acct_list(site, token, api):
                     for ls in response.headers["Link"].split(","):
                         li = ls.strip().split(";")
                         if li[1].strip() == 'rel="next"':
-                            url = li[0].strip().replace(">", "").replace("<", "")
+                            next_url = li[0].strip().replace(">", "").replace("<", "")
+                            # the bearer token goes along, so stay on the API host
+                            parsed = urlparse(next_url)
+                            if (
+                                parsed.scheme == "https"
+                                and (parsed.hostname or "").lower()
+                                == api_domain.lower()
+                            ):
+                                url = next_url
         except Exception as e:
             logger.warning(f"Error GET {url} : {e}")
             url = None

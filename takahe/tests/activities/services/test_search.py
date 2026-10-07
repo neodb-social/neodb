@@ -262,3 +262,36 @@ def test_search_identities_handle_handles_try_again_later(
 
     service = SearchService("nobody@remote.example", identity)
     assert service.search_identities_handle() == []
+
+
+@pytest.mark.django_db
+def test_search_url_hides_post_invisible_to_searcher(
+    monkeypatch, identity: Identity, identity2: Identity, config_system
+):
+    post = Post.create_local(
+        author=identity,
+        content="<p>followers only</p>",
+        visibility=Post.Visibilities.followers,
+    )
+    url = post.object_uri
+
+    def fake_signed_request(self, method, uri, body=None):
+        return httpx.Response(
+            200,
+            headers={"Content-Type": "application/activity+json"},
+            json={
+                "@context": "https://www.w3.org/ns/activitystreams",
+                "id": url,
+                "type": "Note",
+                "attributedTo": identity.actor_uri,
+                "content": "<p>followers only</p>",
+            },
+            request=httpx.Request("GET", uri),
+        )
+
+    monkeypatch.setattr(SystemActor, "signed_request", fake_signed_request)
+    monkeypatch.setattr(Identity, "signed_request", fake_signed_request)
+
+    assert SearchService(url, None).search_url() is None
+    assert SearchService(url, identity2).search_all()["posts"] == []
+    assert SearchService(url, identity).search_url() == post

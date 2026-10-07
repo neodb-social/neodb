@@ -315,16 +315,22 @@ class Inbox(FederatedView):
                 return HttpResponse(status=202)
 
         # See if it's from a blocked user or domain - without calling
-        # fetch_actor, which would fetch data from potentially bad actor
-        domain = identity.domain
-        if not domain:
-            actor_url_parts = urlparse(document["actor"])
-            domain = Domain.get_remote_domain(actor_url_parts.hostname)
-        if identity.blocked or domain.recursively_blocked():
+        # fetch_actor, which would fetch data from potentially bad actor.
+        # The handle domain comes from WebFinger, so the host serving the
+        # actor is checked too. An unsaved Domain checks a host without
+        # creating a row for every sender, or failing on one of our own.
+        actor_host = Domain(domain=urlparse(document["actor"]).hostname or "")
+        domain_blocked = actor_host.recursively_blocked() or bool(
+            identity.domain_id
+            and identity.domain_id.lower() != actor_host.domain
+            and identity.domain
+            and identity.domain.recursively_blocked()
+        )
+        if identity.blocked or domain_blocked:
             # I love to lie! Throw it away!
             logger.info(
                 "Inbox: Discarded message from blocked %s %s",
-                "domain" if domain.recursively_blocked() else "user",
+                "domain" if domain_blocked else "user",
                 identity.actor_uri,
             )
             return HttpResponse(status=202)
