@@ -31,6 +31,13 @@ class Conversation(models.Model):
         related_name="+",
     )
 
+    # Sent as both `context` and `conversation` on outbound posts. Ours when a
+    # local post started the conversation, otherwise the first one a peer sent.
+    # Not unique: a remote reply that drops a mention keeps the peer's context
+    # but forms a different participant set here, as it does on Mastodon,
+    # GoToSocial and Pixelfed.
+    uri = models.CharField(max_length=500, blank=True, null=True, db_index=True)
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -38,6 +45,28 @@ class Conversation(models.Model):
         indexes = [
             models.Index(fields=["updated"]),
         ]
+
+    @staticmethod
+    def local_uri_for(conversation_id: int, actor_uri: str) -> str:
+        return f"{actor_uri}conversations/{conversation_id}/"
+
+    @staticmethod
+    def remote_uri_from(data: dict) -> str | None:
+        """
+        The conversation URI a peer sent with a post: `conversation` first,
+        since Mastodon threads root posts by it, then `context`.
+        """
+        from core.ld import get_str_or_id
+
+        for key in ("conversation", "context"):
+            value = get_str_or_id(data.get(key))
+            if (
+                value
+                and len(value) <= 500
+                and value.split(":", 1)[0].lower() in ("https", "http", "tag")
+            ):
+                return value
+        return None
 
     @staticmethod
     def compute_participant_hash(identity_ids: set[int]) -> str:
@@ -60,10 +89,14 @@ class Conversation(models.Model):
         return conversation
 
     @classmethod
-    def update_for_post(cls, post: "models.Model") -> None:
+    def update_for_post(
+        cls, post: "models.Model", remote_uri: str | None = None
+    ) -> None:
         """
         Called after a direct-visibility post is saved to assign it to a
         conversation and update membership state.
+
+        remote_uri is the conversation URI an inbound post carried.
         """
         from activities.models.post import Post
 
@@ -76,10 +109,22 @@ class Conversation(models.Model):
         conversation = cls.get_or_create_for_participants(participant_ids)
         Post.objects.filter(pk=post.pk).update(conversation=conversation)
         post.conversation = conversation
+        update_fields = []
+        if not conversation.uri:
+            if post.local:
+                conversation.uri = cls.local_uri_for(
+                    conversation.pk, post.author.actor_uri
+                )
+            else:
+                conversation.uri = remote_uri
+            if conversation.uri:
+                update_fields.append("uri")
         # Update last_post if this post is newer
         if conversation.last_post_id is None or post.pk > conversation.last_post_id:
             conversation.last_post = post
-            conversation.save(update_fields=["last_post", "updated"])
+            update_fields.append("last_post")
+        if update_fields:
+            conversation.save(update_fields=update_fields + ["updated"])
         # Create/update memberships
         for pid in participant_ids:
             is_author = pid == post.author_id
@@ -91,8 +136,9 @@ class Conversation(models.Model):
             if created:
                 continue
             updates = []
-            if not is_author and not membership.unread:
-                membership.unread = True
+            # Writing in a conversation means having read it, as on Mastodon
+            if membership.unread != (not is_author):
+                membership.unread = not is_author
                 updates.append("unread")
             if membership.dismissed:
                 membership.dismissed = False

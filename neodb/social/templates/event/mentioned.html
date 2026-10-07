@@ -1,6 +1,13 @@
 {% load i18n %}
-{% trans "mentioned you" %}
-<blockquote class="reply_to_post">
-  {% include "_event_post.html" with post=event.post hide_actions=1 %}
-</blockquote>
+{% if event.conversation_id %}
+  {% trans "sent you a message" %}
+  <a href="{% url 'social:conversation' event.conversation_id %}">{% trans "Open conversation" %}</a>
+{% else %}
+  {% trans "mentioned you" %}
+{% endif %}
+{% if event.post %}
+  <blockquote class="reply_to_post">
+    {% include "_event_post.html" with post=event.post hide_actions=1 %}
+  </blockquote>
+{% endif %}
 {% include "_event_post.html" with post=event.reply %}

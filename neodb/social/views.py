@@ -367,10 +367,13 @@ class NotificationEvent:
         self.identity = APIdentity.from_takahe(tle.subject_identity)
         self.post = tle.subject_post
         self.seen = tle.seen
+        self.conversation_id = None
         if self.type == "mentioned":
             # for reply, self.post is the original post
             self.reply = self.post
             self.replies = [self.post]
+            if self.reply and self.reply.visibility == Post.Visibilities.mentioned:
+                self.conversation_id = self.reply.conversation_id
             self.post = self.post.in_reply_to_post() if self.post else None
         self.piece = Piece.get_by_post_id(self.post.id) if self.post else None
         self.item = self.piece.item if hasattr(self.piece, "item") else None
@@ -434,6 +437,7 @@ def events(request):
 def unread_notifications_status(request):
     if not request.user.is_authenticated:
         has_unread = False
+        has_unread_messages = False
         has_crosspost_failure = False
     else:
         has_unread = (
@@ -441,6 +445,7 @@ def unread_notifications_status(request):
             .filter(seen=False)
             .exists()
         )
+        has_unread_messages = Takahe.has_unread_conversations(request.user.identity.pk)
         has_crosspost_failure = CrosspostRetry.objects.filter(
             user=request.user
         ).exists()
@@ -449,6 +454,7 @@ def unread_notifications_status(request):
         "notification_status.html",
         {
             "has_unread": has_unread,
+            "has_unread_messages": has_unread_messages,
             "has_crosspost_failure": has_crosspost_failure,
         },
     )

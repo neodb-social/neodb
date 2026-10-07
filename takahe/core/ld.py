@@ -716,6 +716,10 @@ def canonicalise(
                 "toot": "http://joinmastodon.org/ns#",
                 "votersCount": "toot:votersCount",
                 "featured": {"@id": "toot:featured", "@type": "@id"},
+                "ostatus": "http://ostatus.org#",
+                "conversation": {"@id": "ostatus:conversation", "@type": "@id"},
+                "litepub": "http://litepub.social/ns#",
+                "directMessage": "litepub:directMessage",
             }
         )
 

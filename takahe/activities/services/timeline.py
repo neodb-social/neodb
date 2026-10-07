@@ -191,12 +191,24 @@ class TimelineService:
 
     def conversations(self) -> models.QuerySet:
         """Return conversations for the current identity, excluding dismissed ones."""
-        from activities.models.conversation import Conversation
+        from activities.models.conversation import (
+            Conversation,
+            ConversationMembership,
+        )
 
         return (
             Conversation.objects.filter(
                 memberships__identity=self.identity,
                 memberships__dismissed=False,
+                last_post__isnull=False,
+            )
+            .annotate(
+                viewer_unread=models.Subquery(
+                    ConversationMembership.objects.filter(
+                        conversation=models.OuterRef("pk"),
+                        identity=self.identity,
+                    ).values("unread")[:1]
+                )
             )
             .select_related(
                 "last_post",
@@ -211,7 +223,7 @@ class TimelineService:
                 "last_post__mentions__domain",
                 "last_post__emojis",
             )
-            .order_by("-id")
+            .order_by("-last_post_id")
         )
 
     def bookmarks(self) -> models.QuerySet[Post]:

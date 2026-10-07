@@ -1,0 +1,130 @@
+{% load i18n %}
+{% load humanize %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="feed-page nav-page-feed">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans "Messages" %}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        <header class="dc-mh">
+          <h1>
+            <a href="{% url 'social:conversations' %}">{% trans "Messages" %}</a>
+          </h1>
+          <span class="dc-sub dc-conversation-people">
+            {% for other in entry.others %}
+              <a href="{{ other.url }}"
+                 title="@{{ other.handle }}">{{ other.display_name }}</a>{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          </span>
+          <span class="action">
+            <form method="post"
+                  action="{% url 'social:conversation_unread' entry.pk %}">
+              {% csrf_token %}
+              <button type="submit"
+                      class="dc-nav outline secondary"
+                      title="{% trans 'Mark as unread' %}">
+                <i class="fa-regular fa-envelope"></i>
+              </button>
+            </form>
+            <form method="post"
+                  action="{% url 'social:conversation_dismiss' entry.pk %}">
+              {% csrf_token %}
+              <button type="submit"
+                      class="dc-nav outline secondary"
+                      title="{% trans 'Remove from list' %}">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </form>
+          </span>
+        </header>
+        {% if earlier_before %}
+          <p>
+            <a class="dc-more"
+               href="{% url 'social:conversation' entry.pk %}?before={{ earlier_before }}">{% trans "Earlier messages" %}</a>
+          </p>
+        {% endif %}
+        <ol class="dc-messages">
+          {% for post, author, html in chat_messages %}
+            <li class="{% if post.author_id == viewer_pk %}mine{% endif %}"
+                {% if forloop.last %}id="latest"{% endif %}>
+              <a class="avatar" href="{{ author.url }}" title="@{{ author.handle }}">
+                <img src="{{ author.avatar }}" alt="">
+              </a>
+              <div class="dc-message">
+                <div class="dc-message-byline">
+                  <a href="{{ author.url }}" class="nickname">{{ author.display_name }}</a>
+                  <a href="{% url 'journal:post_view' author.handle post.pk %}"
+                     title="{{ post.published|date:'DATETIME_FORMAT' }}">
+                    <time datetime="{{ post.published|date:'c' }}">{{ post.published|naturaltime }}</time>
+                  </a>
+                </div>
+                {% if post.summary %}
+                  <div class="dc-message-summary">{{ post.summary }}</div>
+                {% endif %}
+                <div class="dc-message-body{% if post.summary or post.sensitive %} spoiler{% endif %}"
+                     {% if post.summary or post.sensitive %}_="on click toggle .revealed on me"{% endif %}>
+                  <div class="dc-message-content content">{{ html }}</div>
+                  <div class="attachments">
+                    {% for attachment in post.attachments.all %}
+                      {% if attachment.is_image %}
+                        <a href="{{ attachment.full_url.relative }}"
+                           target="_blank"
+                           rel="noopener">
+                          <img src="{{ attachment.thumbnail_url.relative }}"
+                               alt="{{ attachment.name|default:'' }}"
+                               class="preview">
+                        </a>
+                      {% elif attachment.is_video %}
+                        <video src="{{ attachment.full_url.relative }}"
+                               controls
+                               preload="metadata"
+                               class="preview">
+                        </video>
+                      {% elif attachment.is_audio %}
+                        <audio src="{{ attachment.full_url.relative }}" controls preload="metadata">
+                        </audio>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </li>
+          {% endfor %}
+        </ol>
+        {% if can_reply %}
+          <form class="dc-message-compose"
+                method="post"
+                action="{% url 'social:conversation_reply' entry.pk %}">
+            {% csrf_token %}
+            <textarea name="content"
+                      rows="3"
+                      required
+                      placeholder="{% trans 'Write a message' %}"
+                      aria-label="{% trans 'Message' %}"></textarea>
+            <div class="dc-message-compose-row">
+              <small>
+                {% if entry.size > group_size_hint %}
+                  {% blocktrans trimmed with count=group_size_hint %}
+                    Pixelfed users do not receive messages sent to more than {{ count }} people.
+                  {% endblocktrans %}
+                {% endif %}
+              </small>
+              <button type="submit" class="dc-btn">{% trans "Send" %}</button>
+            </div>
+          </form>
+        {% else %}
+          <p class="dc-empty">{% trans "You cannot send messages in this conversation." %}</p>
+        {% endif %}
+      </div>
+      {% include "_sidebar.html" with show_profile=1 bottom=1 collapse_profile=1 identity=request.user.identity %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

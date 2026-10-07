@@ -1,0 +1,177 @@
+// direct conversations: the list on /timeline/messages/ and one conversation
+.dc-conversations {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid var(--dc-border);
+  }
+
+  .dc-conversation-link {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 0.2rem;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .dc-conversation-avatars {
+    display: flex;
+    flex: 0 0 auto;
+
+    img {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--pico-background-color);
+    }
+
+    img + img {
+      margin-left: -1.2rem;
+    }
+  }
+
+  .dc-conversation-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .dc-conversation-names,
+  .dc-conversation-preview {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .dc-conversation-preview {
+    color: var(--dc-muted);
+    font-size: var(--dc-fs-sm);
+  }
+
+  .dc-conversation-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3rem;
+    flex: 0 0 auto;
+    color: var(--dc-muted);
+    font-size: var(--dc-fs-sm);
+  }
+
+  li.unread .dc-conversation-names {
+    font-weight: 700;
+    color: var(--dc-strong);
+  }
+}
+
+.dc-unread-dot {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background-color: var(--pico-primary);
+}
+
+.dc-conversation-people a {
+  color: inherit;
+}
+
+.dc-messages {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+
+  > li {
+    list-style: none;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin: 0 0 0.9rem;
+    padding: 0;
+
+    .avatar img {
+      width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    &.mine {
+      flex-direction: row-reverse;
+
+      .dc-message {
+        background: var(--pico-primary-focus);
+      }
+
+      .dc-message-byline {
+        justify-content: flex-end;
+      }
+    }
+  }
+
+  .dc-message {
+    min-width: 0;
+    max-width: 85%;
+    padding: 0.5rem 0.8rem;
+    border-radius: var(--dc-radius-lg);
+    background: var(--dc-surface-2);
+    overflow-wrap: anywhere;
+
+    img.preview,
+    video.preview {
+      max-width: 100%;
+      max-height: 20rem;
+      margin-top: 0.4rem;
+      border-radius: var(--dc-radius);
+    }
+  }
+
+  .dc-message-byline {
+    display: flex;
+    gap: 0.6rem;
+    font-size: var(--dc-fs-sm);
+    color: var(--dc-muted);
+
+    a {
+      color: inherit;
+    }
+  }
+
+  .dc-message-content p:last-child {
+    margin-bottom: 0;
+  }
+
+  .dc-message-summary {
+    font-weight: 600;
+  }
+}
+
+.dc-message-compose {
+  textarea {
+    margin-bottom: 0.4rem;
+  }
+
+  .dc-message-compose-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+
+    small {
+      color: var(--dc-muted);
+    }
+
+    button {
+      width: auto;
+      flex: 0 0 auto;
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{% load i18n %}
+{% load humanize %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="feed-page nav-page-feed">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans "Messages" %}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body>
+    {% include "_header.html" %}
+    <main>
+      <div class="grid__main">
+        <header class="dc-mh">
+          <h1>{% trans "Messages" %}</h1>
+          <span class="action">
+            <a class="dc-btn" href="{% url 'social:conversation_new' %}">
+              <i class="fa-regular fa-pen-to-square"></i>
+              {% trans "New message" %}
+            </a>
+          </span>
+        </header>
+        {% if entries %}
+          <ul class="dc-conversations">
+            {% for entry in entries %}
+              <li class="{% if entry.unread %}unread{% endif %}">
+                <a class="dc-conversation-link"
+                   href="{% url 'social:conversation' entry.pk %}">
+                  <span class="dc-conversation-avatars">
+                    {% for other in entry.others|slice:":3" %}
+                      <img src="{{ other.avatar }}" alt="">
+                    {% endfor %}
+                  </span>
+                  <span class="dc-conversation-body">
+                    <span class="dc-conversation-names">
+                      {% for other in entry.others %}
+                        {{ other.display_name }}{% if not forloop.last %},{% endif %}
+                      {% endfor %}
+                    </span>
+                    <span class="dc-conversation-preview">
+                      {% if entry.last_post.author_id == request.user.identity.pk %}
+                        {% trans "You:" %}
+                      {% endif %}
+                      {{ entry.preview }}
+                    </span>
+                  </span>
+                  <span class="dc-conversation-meta">
+                    <time datetime="{{ entry.last_post.published|date:'c' }}">{{ entry.last_post.published|naturaltime }}</time>
+                    {% if entry.unread %}
+                      <span class="dc-unread-dot" title="{% trans 'Unread' %}"></span>
+                    {% endif %}
+                  </span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+          {% if next_before %}
+            <p>
+              <a class="dc-more"
+                 href="{% url 'social:conversations' %}?before={{ next_before }}">{% trans "Older conversations" %}</a>
+            </p>
+          {% endif %}
+        {% else %}
+          <div class="dc-empty">
+            <p>{% trans "No messages yet. Only the people in a conversation can see its messages, but messages are not end-to-end encrypted." %}</p>
+            <p class="dc-cta">
+              <a class="dc-btn" href="{% url 'social:conversation_new' %}">{% trans "New message" %}</a>
+            </p>
+          </div>
+        {% endif %}
+      </div>
+      {% include "_sidebar.html" with show_profile=1 bottom=1 collapse_profile=1 identity=request.user.identity %}
+    </main>
+    {% include "_footer.html" %}
+  </body>
+</html>

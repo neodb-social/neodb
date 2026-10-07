@@ -297,7 +297,9 @@ def status_source(request, id: str) -> schemas.StatusSource:
 def status_context(request, id: str) -> schemas.Context:
     post = post_for_id(request, id)
     service = PostService(post)
-    ancestors, descendants = service.context(request.identity)
+    # Clients load a direct conversation from its last status, so walk as far
+    # as Mastodon does for logged-out viewers; each hop costs queries here.
+    ancestors, descendants = service.context(request.identity, num_ancestors=40)
     interactions = PostInteraction.get_post_interactions(
         ancestors + descendants, request.identity
     )

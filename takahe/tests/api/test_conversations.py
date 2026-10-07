@@ -212,3 +212,51 @@ def test_conversation_participant_hash_deterministic():
     h1 = Conversation.compute_participant_hash({1, 2, 3})
     h2 = Conversation.compute_participant_hash({3, 1, 2})
     assert h1 == h2
+
+
+def _dm(api_client, handle: str, text: str, reply_to: str | None = None) -> dict:
+    data = {"status": f"@{handle} {text}", "visibility": "direct"}
+    if reply_to:
+        data["in_reply_to_id"] = reply_to
+    return api_client.post(
+        "/api/v1/statuses", content_type="application/json", data=data
+    ).json()
+
+
+@pytest.mark.django_db
+def test_conversations_ordered_by_last_activity(
+    api_client, identity, other_identity, remote_identity
+):
+    """A conversation with a new message moves to the top, as on Mastodon."""
+    old = _dm(api_client, "other@example.com", "first")
+    new = _dm(api_client, "test@remote.test", "second")
+    later = _dm(api_client, "other@example.com", "third", reply_to=old["id"])
+
+    conversations = api_client.get("/api/v1/conversations").json()
+    assert [c["last_status"]["id"] for c in conversations] == [
+        later["id"],
+        new["id"],
+    ]
+
+    # Cursors are last status ids
+    response = api_client.get("/api/v1/conversations?limit=1")
+    assert len(response.json()) == 1
+    assert f"max_id={later['id']}" in response.headers["link"]
+    next_page = api_client.get(f"/api/v1/conversations?limit=1&max_id={later['id']}")
+    assert [c["last_status"]["id"] for c in next_page.json()] == [new["id"]]
+    prev_page = api_client.get(f"/api/v1/conversations?min_id={new['id']}")
+    assert [c["last_status"]["id"] for c in prev_page.json()] == [later["id"]]
+
+
+@pytest.mark.django_db
+def test_mark_conversation_unread(api_client, identity, other_identity):
+    status = _dm(api_client, "other@example.com", "hello")
+    conv_id = str(Post.objects.get(pk=status["id"]).conversation_id)
+
+    response = api_client.post(f"/api/v1/conversations/{conv_id}/unread")
+    assert response.status_code == 200
+    assert response.json()["unread"] is True
+    assert api_client.get("/api/v1/conversations").json()[0]["unread"] is True
+
+    response = api_client.post(f"/api/v1/conversations/{conv_id}/read")
+    assert response.json()["unread"] is False

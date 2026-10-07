@@ -9668,3 +9668,112 @@ msgstr ""
 #: users/views/webauthn.py:260
 msgid "Name is required"
 msgstr ""
+
+#: common/templates/_header.html:135 social/templates/conversation.html:9
+#: social/templates/conversation.html:18
+#: social/templates/conversation_new.html:17
+#: social/templates/conversations.html:9 social/templates/conversations.html:17
+msgid "Messages"
+msgstr ""
+
+#: social/conversations.py:105
+#, python-brace-format
+msgid "@{handle} is not known here yet, try again in a moment."
+msgstr ""
+
+#: social/conversations.py:114
+#, python-brace-format
+msgid "@{handle} was not found."
+msgstr ""
+
+#: social/conversations.py:121
+#, python-brace-format
+msgid "You cannot send messages to @{handle}."
+msgstr ""
+
+#: social/conversations.py:133
+msgid "Conversation not found"
+msgstr ""
+
+#: social/conversations.py:171 social/conversations.py:232
+msgid "Message cannot be empty."
+msgstr ""
+
+#: social/conversations.py:173
+msgid "Add at least one recipient."
+msgstr ""
+
+#: social/templates/conversation.html:32
+msgid "Mark as unread"
+msgstr ""
+
+#: social/templates/conversation.html:41
+msgid "Remove from list"
+msgstr ""
+
+#: social/templates/conversation.html:50
+msgid "Earlier messages"
+msgstr ""
+
+#: social/templates/conversation.html:101
+msgid "Write a message"
+msgstr ""
+
+#: social/templates/conversation.html:102
+#: social/templates/conversation_new.html:45
+msgid "Message"
+msgstr ""
+
+#: social/templates/conversation.html:106
+#, python-format
+msgid "Pixelfed users do not receive messages sent to more than %(count)s people."
+msgstr ""
+
+#: social/templates/conversation.html:111
+#: social/templates/conversation_new.html:50
+msgid "Send"
+msgstr ""
+
+#: social/templates/conversation_new.html:8
+#: social/templates/conversation_new.html:19
+#: social/templates/conversations.html:21
+#: social/templates/conversations.html:70
+msgid "New message"
+msgstr ""
+
+#: social/templates/conversation_new.html:39
+#, python-format
+msgid "Separate people with spaces. Pixelfed users do not receive messages sent to more than %(count)s people."
+msgstr ""
+
+#: social/templates/conversation_new.html:49
+msgid "Only the people in a conversation can see its messages, but messages are not end-to-end encrypted."
+msgstr ""
+
+#: social/templates/conversations.html:45
+msgid "You:"
+msgstr ""
+
+#: social/templates/conversations.html:53
+msgid "Unread"
+msgstr ""
+
+#: social/templates/conversations.html:63
+msgid "Older conversations"
+msgstr ""
+
+#: social/templates/conversations.html:68
+msgid "No messages yet. Only the people in a conversation can see its messages, but messages are not end-to-end encrypted."
+msgstr ""
+
+#: social/templates/event/mentioned.html:3
+msgid "sent you a message"
+msgstr ""
+
+#: social/templates/event/mentioned.html:4
+msgid "Open conversation"
+msgstr ""
+
+#: social/conversations.py:254 social/templates/conversation.html:123
+msgid "You cannot send messages in this conversation."
+msgstr ""

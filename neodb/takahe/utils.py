@@ -1,6 +1,7 @@
 import io
 import logging
 import mimetypes
+from collections.abc import Iterable
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -10,7 +11,7 @@ from django.core.cache import cache
 from django.core.files import File
 from django.core.files.images import ImageFile
 from django.core.signing import b62_encode
-from django.db.models import Q, QuerySet
+from django.db.models import OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from PIL import Image
@@ -772,6 +773,7 @@ class Takahe:
         language: str = "",
         application_id: int | None = None,
         post_type: str | None = None,
+        mentions: Iterable[Identity] | None = None,
     ) -> Post | None:
         identity = Identity.objects.get(pk=author_pk)
         post = (
@@ -818,6 +820,7 @@ class Takahe:
                 language=language,
                 application_id=application_id,
                 post_type=post_type or "Note",
+                mentions=mentions,
             )
             TimelineEvent.objects.get_or_create(
                 identity=identity,
@@ -1176,6 +1179,101 @@ class Takahe:
         if excl_self:
             qs = qs.exclude(subject_identity_id=identity_id)
         return qs
+
+    @staticmethod
+    def get_conversations(identity_pk: int) -> QuerySet[Conversation]:
+        """Direct conversations of an identity, most recently active first"""
+        return (
+            Conversation.objects.filter(
+                memberships__identity_id=identity_pk,
+                memberships__dismissed=False,
+                last_post__isnull=False,
+            )
+            .annotate(
+                viewer_unread=Subquery(
+                    ConversationMembership.objects.filter(
+                        conversation=OuterRef("pk"), identity_id=identity_pk
+                    ).values("unread")[:1]
+                )
+            )
+            .select_related("last_post", "last_post__author__domain")
+            .prefetch_related(
+                "participants",
+                "participants__domain",
+                "last_post__attachments",
+                "last_post__emojis",
+                "last_post__mentions__domain",
+            )
+            .order_by("-last_post_id")
+        )
+
+    @staticmethod
+    def get_conversation(
+        identity_pk: int, conversation_pk: int
+    ) -> tuple[Conversation, ConversationMembership] | None:
+        membership = (
+            ConversationMembership.objects.select_related("conversation")
+            .filter(identity_id=identity_pk, conversation_id=conversation_pk)
+            .first()
+        )
+        if not membership:
+            return None
+        return membership.conversation, membership
+
+    @staticmethod
+    def get_conversation_posts(
+        conversation_pk: int, before_pk: int | None = None, limit: int = 50
+    ) -> list[Post]:
+        """The latest posts of a conversation, oldest first"""
+        qs = (
+            Post.objects.not_hidden()
+            .filter(conversation_id=conversation_pk)
+            .select_related("author", "author__domain")
+            .prefetch_related("attachments", "emojis")
+            .order_by("-id")
+        )
+        if before_pk:
+            qs = qs.filter(id__lt=before_pk)
+        return list(reversed(qs[:limit]))
+
+    @staticmethod
+    def set_conversation_unread(
+        membership: ConversationMembership, unread: bool
+    ) -> None:
+        if membership.unread != unread:
+            membership.unread = unread
+            membership.save(update_fields=["unread", "updated"])
+
+    @staticmethod
+    def dismiss_conversation(membership: ConversationMembership) -> None:
+        membership.dismissed = True
+        membership.save(update_fields=["dismissed", "updated"])
+
+    @staticmethod
+    def has_unread_conversations(identity_pk: int) -> bool:
+        return ConversationMembership.objects.filter(
+            identity_id=identity_pk,
+            unread=True,
+            dismissed=False,
+            conversation__last_post__isnull=False,
+        ).exists()
+
+    @staticmethod
+    def post_in_conversation(
+        author_pk: int, conversation: Conversation, content: str
+    ) -> Post | None:
+        """
+        A message to every other participant, replying to the latest one so
+        Mastodon and GoToSocial keep it in the same thread
+        """
+        recipients = [p for p in conversation.participants.all() if p.pk != author_pk]
+        return Takahe.post(
+            author_pk,
+            content,
+            Takahe.Visibilities.mentioned,
+            reply_to_pk=conversation.last_post_id,
+            mentions=recipients,
+        )
 
     @staticmethod
     def _identity_handles_q(handles: list[str], prefix: str = "") -> Q:
