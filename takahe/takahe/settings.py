@@ -115,6 +115,12 @@ class Settings(BaseSettings):
     #: Set a secret key used to protect the stator. Randomized by default.
     STATOR_TOKEN: str = Field(default_factory=lambda: secrets.token_hex(128))
 
+    #: Enable the optional Mastodon streaming API and event publishing.
+    STREAMING_ENABLED: bool = False
+
+    #: Maximum concurrent database work per streaming worker.
+    STREAMING_DB_THREADS: int = Field(default=4, ge=1)
+
     #: If set, a list of allowed values for the HOST header. The default value
     #: of '*' means any host will be accepted.
     ALLOWED_HOSTS: list[str] = Field(default_factory=lambda: ["*"])

@@ -4,6 +4,7 @@ import markdown_it
 import pycountry
 from django.conf import settings
 from django.core.cache import cache
+from django.http import HttpRequest
 from django.utils import timezone
 
 from activities.models import Post
@@ -14,10 +15,16 @@ from activities.models.post_types import (
     POLL_MIN_EXPIRATION,
 )
 from api import schemas
+from api.streaming_events import streaming_enabled
 from core.models import Config
 from hatchway import api_view
 from takahe.neodb import __version__ as __neodb_version__
 from users.models import Domain, Identity
+
+
+def streaming_url(request: HttpRequest) -> str:
+    scheme = "wss" if request.is_secure() else "ws"
+    return f"{scheme}://{request.get_host()}"
 
 
 def _build_rules(policy_rules: str | None) -> list[dict]:
@@ -59,7 +66,9 @@ def instance_info_v1(request) -> dict:
         "description": "",
         "email": "",
         "version": f"4.0.4 (compatible; NeoDB {__neodb_version__})",
-        "urls": {},
+        "urls": {"streaming_api": streaming_url(request)}
+        if streaming_enabled()
+        else {},
         "stats": stats,
         "thumbnail": request.config.site_banner,
         "languages": ["en"],
@@ -141,7 +150,9 @@ def instance_info_v2(request) -> dict:
         },
         "languages": ["en"],
         "configuration": {
-            "urls": {},
+            "urls": {"streaming": streaming_url(request)}
+            if streaming_enabled()
+            else {},
             "vapid": {
                 "public_key": settings.SETUP.VAPID_PUBLIC_KEY,
             },

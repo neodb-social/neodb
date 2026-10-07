@@ -1777,6 +1777,7 @@ dependencies = [
     { name = "uvicorn" },
     { name = "validators" },
     { name = "webauthn" },
+    { name = "websockets" },
     { name = "whitenoise" },
 ]
 
@@ -1871,6 +1872,7 @@ requires-dist = [
     { name = "uvicorn", specifier = ">=0.29.0" },
     { name = "validators", specifier = ">=0.34.0" },
     { name = "webauthn", specifier = ">=2.0.0,<3" },
+    { name = "websockets", specifier = ">=13" },
     { name = "whitenoise", specifier = ">=6.6.0" },
 ]
 

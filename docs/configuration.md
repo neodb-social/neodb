@@ -54,6 +54,7 @@ These settings require infrastructure access or process restart and cannot be ma
  - `NEODB_PORT` - the port to expose the main web server on
  - `NEODB_IMAGE` - docker image to pull from
  - `TAKAHE_NO_FEDERATION` - disable federation (test/development only)
+ - `TAKAHE_STREAMING_ENABLED` - enable the optional streaming API (default `False`; requires process restart)
  - `NEODB_SENTRY_DSN`, `NEODB_SENTRY_SAMPLE_RATE` - Sentry error reporting for NeoDB. Requires restart.
  - `TAKAHE_SENTRY_DSN` - Sentry DSN for takahe container
  - `NEODB_ADMIN_HANDLES` - comma-separated list of handles to auto-promote to superuser on registration, in `type:handle` format (e.g. `mastodon:user@mastodon.social,email:admin@example.com`). Supported types: `mastodon`, `email`, `bluesky`, `threads`.
@@ -80,11 +81,44 @@ For a high-traffic instance, raise these settings to higher values in `.env`, as
  - `NEODB_API_WORKER_NUM`
  - `NEODB_RQ_WORKER_NUM`
  - `TAKAHE_WEB_WORKER_NUM`
+ - `TAKAHE_STREAMING_WORKER_NUM` (default 1)
+ - `TAKAHE_STREAMING_DB_THREADS` (default 4 per streaming worker)
  - `TAKAHE_STATOR_CONCURRENCY`
  - `TAKAHE_STATOR_CONCURRENCY_PER_MODEL`
 
 Further scaling up with multiple nodes (e.g. via Kubernetes) is beyond the scope of this document, but consider running db/redis/typesense separately, and then duplicating web/worker/stator containers as long as connections and mounts are properly configured; `migration` only runs once on start or upgrade, and it should be kept that way.
 
+
+## Enable or disable streaming
+
+The Mastodon streaming API is **off by default**. An administrator can enable it
+by setting `TAKAHE_STREAMING_ENABLED=True` in `.env` and recreating
+`takahe-web`, `takahe-stator`, and `takahe-streaming`. Restart `nginx` after
+recreating web services so it resolves their new container addresses.
+
+To turn it off, set `TAKAHE_STREAMING_ENABLED=False` and recreate those services.
+Disabled instances do not publish streaming events or advertise a streaming URL.
+REST, OAuth, and federation remain enabled, and clients can use their normal
+non-streaming API calls.
+
+For an immediate emergency stop without restarting REST:
+
+```sh
+docker compose stop takahe-streaming
+```
+
+This closes streaming connections and releases the streaming worker's memory.
+Also set the environment flag to `False` and apply it to the publishing services
+to stop event publishing and remove streaming from instance discovery. Do not
+stop `takahe-web` or run `docker compose down` for the emergency stop.
+
+To start the service again after explicitly enabling the environment flag, use
+`docker compose up -d takahe-streaming` and restart `nginx` if the container was
+recreated. For development, use the corresponding `dev-` service names.
+
+Standalone Takahe uses the same `TAKAHE_STREAMING_ENABLED` environment variable.
+Apply it to the WSGI, stator, and ASGI processes and restart them after changes;
+no NeoDB configuration or database toggle is required.
 
 ## Other Maintenance Tasks
 

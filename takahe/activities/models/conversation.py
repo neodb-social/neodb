@@ -2,6 +2,7 @@ import hashlib
 
 from django.db import models
 
+from api.streaming_events import publish
 from core.snowflake import Snowflake
 
 
@@ -145,6 +146,9 @@ class Conversation(models.Model):
                 updates.append("dismissed")
             if updates:
                 membership.save(update_fields=updates + ["updated"])
+
+        for pid in participant_ids:
+            publish(f"user:{pid}", {"kind": "conversation", "id": conversation.pk})
 
 
 class ConversationMembership(models.Model):

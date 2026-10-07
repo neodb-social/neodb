@@ -11,6 +11,7 @@ from urllib.parse import quote, urlparse
 
 import httpx
 import urlman
+from api.streaming_events import publish_post
 from core.exceptions import ActivityPubFormatError, ActorMismatchError
 from core.html import ContentRenderer, FediverseHtmlParser
 from core.json import json_from_response
@@ -225,13 +226,16 @@ class PostStates(StateGraph):
         """
         # Only fan out if the post was published in the last day or it's local
         # (we don't want to fan out anything older that that which is remote)
-        if instance.local or (timezone.now() - instance.published) < datetime.timedelta(
-            days=settings.FANOUT_LIMIT_DAYS
-        ):
+        recent = instance.local or (
+            timezone.now() - instance.published
+        ) < datetime.timedelta(days=settings.FANOUT_LIMIT_DAYS)
+        if recent:
             cls.targets_fan_out(instance, FanOut.Types.post)
         instance.ensure_hashtags()
         if instance.type not in instance.CONVERTED_TYPES:
             _attach_preview_card(instance.pk, instance.content)
+        if recent:
+            publish_post(instance, "update")
         if cls.needs_question_tracking(instance):
             return cls.question_open
         return cls.fanned_out
@@ -279,6 +283,7 @@ class PostStates(StateGraph):
         from .post_interaction import PostInteraction, PostInteractionStates
         from .timeline_event import TimelineEvent
 
+        publish_post(instance, "delete")
         TimelineEvent.objects.filter(subject_post=instance).delete()
         Bookmark.objects.filter(post=instance).delete()
         if instance.local:
@@ -316,6 +321,7 @@ class PostStates(StateGraph):
         instance.ensure_hashtags()
         if instance.type not in instance.CONVERTED_TYPES:
             _attach_preview_card(instance.pk, instance.content)
+        publish_post(instance, "status.update")
         if cls.needs_question_tracking(instance):
             question = instance.type_data
             if instance.local and question.last_distributed_tally != question.tally:
@@ -2160,7 +2166,9 @@ class Post(StatorModel):
                 False,
                 self.type_data["object"] if self.type_data else {},
             )
-        self.delete()
+        with transaction.atomic():
+            publish_post(self, "delete")
+            self.delete()
 
     @classmethod
     def handle_delete_ap(cls, data):
