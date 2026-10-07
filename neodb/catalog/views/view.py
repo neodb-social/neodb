@@ -385,11 +385,11 @@ def _prefetch_mark_list(members: list["ShelfMember"], user) -> None:
     item_map = {m.item_id: m.item for m in members}
     if q:
         for c in Comment.objects.filter(q):
-            c.owner = owner_map.get(c.owner_id)
+            c.owner = owner_map[c.owner_id]
             c.item = item_map.get(c.item_id)
             comments_by_key[(c.owner_id, c.item_id)] = c
         for r in Rating.objects.filter(q):
-            r.owner = owner_map.get(r.owner_id)
+            r.owner = owner_map[r.owner_id]
             r.item = item_map.get(r.item_id)
             ratings_by_key[(r.owner_id, r.item_id)] = r
     # Prefetch latest_post for Comments

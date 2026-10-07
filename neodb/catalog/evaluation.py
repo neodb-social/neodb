@@ -16,7 +16,7 @@ Known approximations, all of them as of now rather than as of T:
 
 import random
 import time
-from collections.abc import Hashable, Iterator, Mapping, Sequence
+from collections.abc import Generator, Hashable, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
@@ -81,7 +81,7 @@ def parse_overrides(pairs: Sequence[str]) -> dict[str, OverrideValue]:
 
 
 @contextmanager
-def site_overrides(overrides: Mapping[str, OverrideValue]) -> Iterator[None]:
+def site_overrides(overrides: Mapping[str, OverrideValue]) -> Generator[None]:
     """Apply settings to this process only, on a copy swapped back afterwards."""
     saved = SiteConfig.system
     SiteConfig.system = saved.model_copy(update=dict(overrides))
