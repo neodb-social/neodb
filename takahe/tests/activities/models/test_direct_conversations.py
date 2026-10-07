@@ -343,6 +343,79 @@ def test_signed_fetch_by_participant_server_actor(
 
 @pytest.mark.django_db
 @pytest.mark.usefixtures("_enable_federation")
+def test_signed_fetch_by_unknown_instance_actor(
+    httpx_mock: HTTPXMock, identity: Identity, keypair, config_system
+):
+    """A participant server's actor we have never seen is fetched, then trusted."""
+    _remote("mastodon.test", "alice")
+    dm = Post.create_local(
+        author=identity,
+        content="@alice@mastodon.test hi",
+        visibility=Post.Visibilities.mentioned,
+    )
+    path = _post_path(dm)
+    actor_uri = "https://mastodon.test/actor"
+    headers = _signed_get(
+        httpx_mock, path, keypair["private_key"], actor_uri + "#main-key"
+    )
+    httpx_mock.add_response(
+        url=actor_uri,
+        headers={"Content-Type": "application/activity+json"},
+        json={
+            "@context": [
+                "https://www.w3.org/ns/activitystreams",
+                "https://w3id.org/security/v1",
+            ],
+            "id": actor_uri,
+            "type": "Application",
+            "preferredUsername": "mastodon.test",
+            "inbox": actor_uri + "/inbox",
+            "publicKey": {
+                "id": actor_uri + "#main-key",
+                "owner": actor_uri,
+                "publicKeyPem": keypair["public_key"],
+            },
+        },
+    )
+    httpx_mock.add_response(
+        url="https://mastodon.test/.well-known/webfinger?resource=acct:mastodon.test@mastodon.test",
+        status_code=404,
+    )
+    httpx_mock.add_response(
+        url="https://mastodon.test/.well-known/host-meta", status_code=404
+    )
+    client = Client(HTTP_HOST="example.com")
+    assert client.get(path, **headers).status_code == 200
+    assert Identity.objects.filter(actor_uri=actor_uri).exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures("_enable_federation")
+def test_signed_fetch_by_unknown_outsider_is_not_fetched(
+    httpx_mock: HTTPXMock, identity: Identity, keypair, config_system
+):
+    _remote("mastodon.test", "alice")
+    dm = Post.create_local(
+        author=identity,
+        content="@alice@mastodon.test hi",
+        visibility=Post.Visibilities.mentioned,
+    )
+    path = _post_path(dm)
+    headers = _signed_get(
+        httpx_mock,
+        path,
+        keypair["private_key"],
+        "https://elsewhere.test/actor#main-key",
+    )
+    assert Client(HTTP_HOST="example.com").get(path, **headers).status_code == 404
+    assert not Identity.objects.filter(
+        actor_uri__startswith="https://elsewhere"
+    ).exists()
+    assert len(httpx_mock.get_requests()) == 1
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures("_enable_federation")
 def test_signed_fetch_refused(
     httpx_mock: HTTPXMock,
     identity: Identity,

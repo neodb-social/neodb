@@ -207,10 +207,15 @@ def test_mention_notification_links_to_conversation():
 
 
 def test_profile_message_button_opens_messages():
-    _, client = _member("alice")
+    alice, client = _member("alice")
     bob, _ = _member("bob")
     content = client.get(bob.identity.url).content.decode()
     assert reverse("social:conversation_new") + "?to=@bob%40" in content
+
+    # the button fills in the full handle of a local member
+    _start(client, f"@{bob.identity.full_handle}", "hello")
+    post = Post.objects.get(author_id=alice.identity.pk)
+    assert list(post.mentions.values_list("pk", flat=True)) == [bob.identity.pk]
 
 
 def test_message_html_drops_leading_mentions():

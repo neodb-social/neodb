@@ -40,7 +40,8 @@ def signed_fetcher(request: HttpRequest, fetch_domains: set[str]) -> Identity | 
         host = (urlparse(actor_uri).hostname or "").lower()
         if actor_uri == key_id or host not in fetch_domains:
             return None
-        signer = signer or Identity.by_actor_uri(actor_uri, create=True)
+        # transient: nothing is stored unless the actor fetch succeeds
+        signer = signer or Identity.by_actor_uri(actor_uri, create=True, transient=True)
         try:
             if not signer.fetch_actor() or not signer.public_key:
                 return None
