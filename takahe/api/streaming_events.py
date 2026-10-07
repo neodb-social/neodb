@@ -118,6 +118,17 @@ def publish_post(post: "Post", event: str) -> None:
                 },
             )
         )
+    if event != "delete" and post.conversation_id:
+        # Stator also processes direct messages written by NeoDB's mirror models.
+        messages.extend(
+            (
+                f"user:{identity_id}",
+                {"kind": "conversation", "id": post.conversation_id},
+            )
+            for identity_id in post.conversation.participants.filter(
+                local=True
+            ).values_list("pk", flat=True)
+        )
     publish_many(messages)
 
 

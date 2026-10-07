@@ -20,7 +20,7 @@ from activities.models import (
     PostStates,
     TimelineEvent,
 )
-from activities.models.conversation import Conversation
+from activities.models.conversation import Conversation, ConversationMembership
 from api import schemas
 from api.models import Token
 from api.streaming import (
@@ -619,6 +619,52 @@ def test_author_stream_is_published_from_post_processing(
         messages.reset_mock()
         TimelineEvent.add_post(identity, post)
         messages.assert_not_called()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("mirror_write", [False, True])
+def test_conversation_stream_is_published_from_post_processing(
+    api_token, identity, other_identity, remote_identity, mirror_write: bool
+) -> None:
+    post = make_post(identity, visibility=Post.Visibilities.mentioned)
+    post.mentions.add(other_identity, remote_identity)
+    participants = {identity.pk, other_identity.pk, remote_identity.pk}
+    with patch("api.streaming_events.publish_many") as messages:
+        if mirror_write:
+            conversation = Conversation.get_or_create_for_participants(participants)
+            ConversationMembership.objects.bulk_create(
+                [
+                    ConversationMembership(conversation=conversation, identity_id=pk)
+                    for pk in participants
+                ]
+            )
+            Conversation.objects.filter(pk=conversation.pk).update(last_post=post)
+            Post.objects.filter(pk=post.pk).update(conversation=conversation)
+        else:
+            Conversation.update_for_post(post)
+        messages.assert_not_called()
+        post.refresh_from_db()
+        with (
+            patch.object(PostStates, "targets_fan_out"),
+            patch("activities.models.post._attach_preview_card"),
+        ):
+            for handler in (PostStates.handle_new, PostStates.handle_edited):
+                handler(post)
+                conversations = [
+                    (name, payload)
+                    for name, payload in messages.call_args.args[0]
+                    if payload["kind"] == "conversation"
+                ]
+                assert {name for name, _ in conversations} == {
+                    f"user:{identity.pk}",
+                    f"user:{other_identity.pk}",
+                }
+                assert len(conversations) == 2
+                events = render(api_token, "direct", conversations[0][1])
+                assert len(events) == 1
+                assert json.loads(events[0]["payload"])["last_status"]["id"] == str(
+                    post.pk
+                )
 
 
 @pytest.mark.django_db
