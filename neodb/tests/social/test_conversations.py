@@ -206,6 +206,86 @@ def test_mention_notification_links_to_conversation():
     assert "reply_to_post" not in content
 
 
+def test_typed_handle_does_not_add_a_recipient():
+    alice, alice_client = _member("alice")
+    bob, _ = _member("bob")
+    carol, _ = _member("carol")
+
+    _start(alice_client, "@bob", "ask @carol about it")
+    first = Post.objects.get(author_id=alice.identity.pk)
+    assert list(first.mentions.values_list("pk", flat=True)) == [bob.identity.pk]
+
+    alice_client.post(
+        reverse("social:conversation_reply", args=[first.conversation_id]),
+        {"content": "or @carol could join"},
+    )
+    reply = Post.objects.filter(author_id=alice.identity.pk).latest("id")
+    assert reply.conversation_id == first.conversation_id
+    assert not ConversationMembership.objects.filter(
+        identity_id=carol.identity.pk
+    ).exists()
+
+
+def test_reply_refused_after_a_block():
+    alice, alice_client = _member("alice")
+    bob, _ = _member("bob")
+    _start(alice_client, "@bob", "hello")
+    conversation_id = Post.objects.get(author_id=alice.identity.pk).conversation_id
+    bob.identity.block(alice.identity)
+
+    content = alice_client.get(
+        reverse("social:conversation", args=[conversation_id])
+    ).content.decode()
+    assert "You cannot send messages in this conversation." in content
+    assert reverse("social:conversation_reply", args=[conversation_id]) not in content
+
+    response = alice_client.post(
+        reverse("social:conversation_reply", args=[conversation_id]),
+        {"content": "still there?"},
+    )
+    assert response.status_code == 403
+    assert Post.objects.filter(author_id=alice.identity.pk).count() == 1
+
+
+def test_edit_keeps_recipients():
+    alice, alice_client = _member("alice")
+    bob, _ = _member("bob")
+    _start(alice_client, "@bob", "helo")
+    post = Post.objects.get(author_id=alice.identity.pk)
+
+    Takahe.post(
+        alice.identity.pk, "hello", Takahe.Visibilities.mentioned, post_pk=post.pk
+    )
+
+    post.refresh_from_db()
+    assert "hello" in post.content
+    assert list(post.mentions.values_list("pk", flat=True)) == [bob.identity.pk]
+
+
+def test_content_warning_hides_message():
+    alice, _ = _member("alice")
+    bob, bob_client = _member("bob")
+    post = Takahe.post(
+        alice.identity.pk,
+        "the ending is a twist",
+        Takahe.Visibilities.mentioned,
+        summary="spoiler for chapter 9",
+        sensitive=True,
+        mentions=[Takahe.get_identity(bob.identity.pk)],
+    )
+    assert post
+
+    listing = bob_client.get(reverse("social:conversations")).content.decode()
+    assert "spoiler for chapter 9" in listing
+    assert "the ending is a twist" not in listing
+
+    content = bob_client.get(
+        reverse("social:conversation", args=[post.conversation_id])
+    ).content.decode()
+    assert 'class="dc-message-body spoiler"' in content
+    assert "on click toggle .revealed on me" in content
+
+
 def test_profile_message_button_opens_messages():
     alice, client = _member("alice")
     bob, _ = _member("bob")

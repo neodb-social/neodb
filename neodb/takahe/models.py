@@ -1459,18 +1459,20 @@ class Post(models.Model):
         language: str = "",
         application_id=None,
         post_type: str = "Note",
-        mentions: Iterable[Identity] = (),
+        mentions: Iterable[Identity] | None = None,
     ) -> "Post":
         with transaction.atomic():
-            # Find mentions in this post
-            explicit_mentions = mentions
-            mentions = cls.mentions_from_content(content, author)
-            mentions.update(m for m in explicit_mentions if m.pk != author.pk)
-            if reply_to:
-                mentions.add(reply_to.author)
-                # Maintain local-only for replies
-                if reply_to.visibility == reply_to.Visibilities.local_only:
-                    visibility = reply_to.Visibilities.local_only
+            if mentions is not None:
+                # Exactly the chosen recipients: an @handle typed in a message
+                # must not widen who receives it
+                mentioned = {m for m in mentions if m.pk != author.pk}
+            else:
+                mentioned = cls.mentions_from_content(content, author)
+                if reply_to:
+                    mentioned.add(reply_to.author)
+            # Maintain local-only for replies
+            if reply_to and reply_to.visibility == reply_to.Visibilities.local_only:
+                visibility = reply_to.Visibilities.local_only
             # Find emoji in this post
             emojis = Emoji.emojis_from_content(content, None)
             # Strip all unwanted HTML and apply linebreaks filter, grabbing hashtags on the way
@@ -1518,7 +1520,7 @@ class Post(models.Model):
             with transaction.atomic(using="takahe"):
                 # Make the Post object
                 post = cls.objects.create(**post_obj)
-                post.mentions.set(mentions)
+                post.mentions.set(mentioned)
                 post.emojis.set(emojis)
                 post.object_uri = post.urls.object_uri
                 post.url = post.absolute_object_uri()
@@ -1570,7 +1572,10 @@ class Post(models.Model):
             self.summary = summary or None
             self.sensitive = bool(sensitive)
             self.edited = edited or timezone.now()
-            self.mentions.set(self.mentions_from_content(content, self.author))
+            # A direct post's audience is fixed once sent: its recipients may
+            # not appear in the text, and the edit must still reach them
+            if self.visibility != self.Visibilities.mentioned:
+                self.mentions.set(self.mentions_from_content(content, self.author))
             self.emojis.set(Emoji.emojis_from_content(content, None))
             if attachments is not None:
                 self.attachments.set(attachments or [])  # type: ignore

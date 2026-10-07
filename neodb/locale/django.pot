@@ -9773,3 +9773,7 @@ msgstr ""
 #: social/templates/event/mentioned.html:4
 msgid "Open conversation"
 msgstr ""
+
+#: social/conversations.py:254 social/templates/conversation.html:123
+msgid "You cannot send messages in this conversation."
+msgstr ""

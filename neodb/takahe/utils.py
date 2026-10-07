@@ -773,7 +773,7 @@ class Takahe:
         language: str = "",
         application_id: int | None = None,
         post_type: str | None = None,
-        mentions: Iterable[Identity] = (),
+        mentions: Iterable[Identity] | None = None,
     ) -> Post | None:
         identity = Identity.objects.get(pk=author_pk)
         post = (

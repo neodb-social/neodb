@@ -9886,3 +9886,7 @@ msgstr "给你发了私信"
 #: social/templates/event/mentioned.html:4
 msgid "Open conversation"
 msgstr "打开对话"
+
+#: social/conversations.py:254 social/templates/conversation.html:123
+msgid "You cannot send messages in this conversation."
+msgstr "你无法在这个对话中发送消息。"

@@ -2,7 +2,7 @@ import re
 from collections.abc import Iterable
 
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import BadRequest
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -75,6 +75,11 @@ class ConversationEntry:
     def preview(self) -> str:
         if not self.last_post:
             return ""
+        # a warned message shows its warning, never its body
+        if self.last_post.summary:
+            return Truncator(self.last_post.summary).chars(120)
+        if self.last_post.sensitive:
+            return _("Content warning")
         text = strip_tags(message_html(self.last_post)).strip()
         return Truncator(text).chars(120)
 
@@ -125,6 +130,16 @@ def _resolve_recipients(
             continue
         recipients[identity.pk] = identity
     return list(recipients.values()), errors
+
+
+def _can_reply(viewer: APIdentity, entry: ConversationEntry) -> bool:
+    """
+    Whether every other participant still accepts messages from the viewer.
+    A reply goes to all of them; dropping one would start another conversation.
+    """
+    return not any(
+        viewer.is_rejecting(other) for other in entry.others if other.pk != viewer.pk
+    )
 
 
 def _membership_or_404(
@@ -210,11 +225,13 @@ def conversation(request: AuthedHttpRequest, conversation_id: int):
         .exists()
     )
     authors = _api_identities({p.author_id: p.author for p in posts}.values())
+    entry = _entries([conv], viewer.pk)[0]
     return render(
         request,
         "conversation.html",
         {
-            "entry": _entries([conv], viewer.pk)[0],
+            "entry": entry,
+            "can_reply": _can_reply(viewer, entry),
             # not "messages", which the header renders as django.contrib.messages
             "chat_messages": [
                 (p, authors[p.author_id], message_html(p)) for p in posts
@@ -233,6 +250,10 @@ def conversation_reply(request: AuthedHttpRequest, conversation_id: int):
     content = request.POST.get("content", "").strip()
     if not content:
         raise BadRequest(_("Message cannot be empty."))
+    if not _can_reply(
+        request.user.identity, _entries([conv], request.user.identity.pk)[0]
+    ):
+        raise PermissionDenied(_("You cannot send messages in this conversation."))
     Takahe.post_in_conversation(request.user.identity.pk, conv, content)
     record_activity("post", "web")
     return redirect(reverse("social:conversation", args=[conv.pk]) + "#latest")

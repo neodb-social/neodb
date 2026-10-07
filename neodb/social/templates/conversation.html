@@ -68,51 +68,60 @@
                 {% if post.summary %}
                   <div class="dc-message-summary">{{ post.summary }}</div>
                 {% endif %}
-                <div class="dc-message-content content">{{ html }}</div>
-                {% for attachment in post.attachments.all %}
-                  {% if attachment.is_image %}
-                    <a href="{{ attachment.full_url.relative }}"
-                       target="_blank"
-                       rel="noopener">
-                      <img src="{{ attachment.thumbnail_url.relative }}"
-                           alt="{{ attachment.name|default:'' }}"
-                           class="preview">
-                    </a>
-                  {% elif attachment.is_video %}
-                    <video src="{{ attachment.full_url.relative }}"
-                           controls
-                           preload="metadata"
-                           class="preview">
-                    </video>
-                  {% elif attachment.is_audio %}
-                    <audio src="{{ attachment.full_url.relative }}" controls preload="metadata">
-                    </audio>
-                  {% endif %}
-                {% endfor %}
+                <div class="dc-message-body{% if post.summary or post.sensitive %} spoiler{% endif %}"
+                     {% if post.summary or post.sensitive %}_="on click toggle .revealed on me"{% endif %}>
+                  <div class="dc-message-content content">{{ html }}</div>
+                  <div class="attachments">
+                    {% for attachment in post.attachments.all %}
+                      {% if attachment.is_image %}
+                        <a href="{{ attachment.full_url.relative }}"
+                           target="_blank"
+                           rel="noopener">
+                          <img src="{{ attachment.thumbnail_url.relative }}"
+                               alt="{{ attachment.name|default:'' }}"
+                               class="preview">
+                        </a>
+                      {% elif attachment.is_video %}
+                        <video src="{{ attachment.full_url.relative }}"
+                               controls
+                               preload="metadata"
+                               class="preview">
+                        </video>
+                      {% elif attachment.is_audio %}
+                        <audio src="{{ attachment.full_url.relative }}" controls preload="metadata">
+                        </audio>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
               </div>
             </li>
           {% endfor %}
         </ol>
-        <form class="dc-message-compose"
-              method="post"
-              action="{% url 'social:conversation_reply' entry.pk %}">
-          {% csrf_token %}
-          <textarea name="content"
-                    rows="3"
-                    required
-                    placeholder="{% trans 'Write a message' %}"
-                    aria-label="{% trans 'Message' %}"></textarea>
-          <div class="dc-message-compose-row">
-            <small>
-              {% if entry.size > group_size_hint %}
-                {% blocktrans trimmed with count=group_size_hint %}
-                  Pixelfed users do not receive messages sent to more than {{ count }} people.
-                {% endblocktrans %}
-              {% endif %}
-            </small>
-            <button type="submit" class="dc-btn">{% trans "Send" %}</button>
-          </div>
-        </form>
+        {% if can_reply %}
+          <form class="dc-message-compose"
+                method="post"
+                action="{% url 'social:conversation_reply' entry.pk %}">
+            {% csrf_token %}
+            <textarea name="content"
+                      rows="3"
+                      required
+                      placeholder="{% trans 'Write a message' %}"
+                      aria-label="{% trans 'Message' %}"></textarea>
+            <div class="dc-message-compose-row">
+              <small>
+                {% if entry.size > group_size_hint %}
+                  {% blocktrans trimmed with count=group_size_hint %}
+                    Pixelfed users do not receive messages sent to more than {{ count }} people.
+                  {% endblocktrans %}
+                {% endif %}
+              </small>
+              <button type="submit" class="dc-btn">{% trans "Send" %}</button>
+            </div>
+          </form>
+        {% else %}
+          <p class="dc-empty">{% trans "You cannot send messages in this conversation." %}</p>
+        {% endif %}
       </div>
       {% include "_sidebar.html" with show_profile=1 bottom=1 collapse_profile=1 identity=request.user.identity %}
     </main>
