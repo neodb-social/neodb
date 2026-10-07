@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from common.models import SiteConfig
 from mastodon.models.mastodon import MastodonAccount
+from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
 
 from .preference import Preference
@@ -90,10 +91,17 @@ class APIdentity(models.Model):
         ).first()
 
     @property
-    def is_active(self):
-        return (
-            self.user.is_active if self.user else self.takahe_identity.deleted is None
-        )
+    def is_active(self) -> bool:
+        if self.user:
+            return self.user.is_active
+        if self.deleted:
+            return False
+        # takahe drops the row of a remote actor that went 410 before neodb
+        # clears this one, so a missing row is an identity on its way out
+        try:
+            return self.takahe_identity.deleted is None
+        except TakaheIdentity.DoesNotExist:
+            return False
 
     @staticmethod
     def active_q() -> models.Q:
