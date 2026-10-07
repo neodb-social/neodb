@@ -235,7 +235,6 @@ def account_statuses(
             "emojis",
             "author__inbound_follows",
             "author__outbound_follows",
-            "author__posts",
         )
         .order_by("-created")
     )
