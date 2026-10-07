@@ -771,8 +771,8 @@ def test_post_targets_to_ap(
         assert ap_dict["to"] == [identity.followers_uri]
         assert ap_dict["cc"] == [other_identity.actor_uri]
     elif visibility == Post.Visibilities.mentioned:
-        assert "to" not in ap_dict
-        assert ap_dict["cc"] == [other_identity.actor_uri]
+        assert ap_dict["to"] == [other_identity.actor_uri]
+        assert "cc" not in ap_dict
 
 
 @pytest.mark.django_db

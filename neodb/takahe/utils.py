@@ -1,6 +1,7 @@
 import io
 import logging
 import mimetypes
+from collections.abc import Iterable
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -772,6 +773,7 @@ class Takahe:
         language: str = "",
         application_id: int | None = None,
         post_type: str | None = None,
+        mentions: Iterable[Identity] = (),
     ) -> Post | None:
         identity = Identity.objects.get(pk=author_pk)
         post = (
@@ -818,6 +820,7 @@ class Takahe:
                 language=language,
                 application_id=application_id,
                 post_type=post_type or "Note",
+                mentions=mentions,
             )
             TimelineEvent.objects.get_or_create(
                 identity=identity,

@@ -4,6 +4,7 @@ import re
 import secrets
 import ssl
 import time
+from collections.abc import Iterable
 from datetime import date, timedelta
 from functools import cached_property, partial
 from typing import TYPE_CHECKING, Any, ClassVar, Optional
@@ -1457,10 +1458,13 @@ class Post(models.Model):
         language: str = "",
         application_id=None,
         post_type: str = "Note",
+        mentions: Iterable[Identity] = (),
     ) -> "Post":
         with transaction.atomic():
             # Find mentions in this post
+            explicit_mentions = mentions
             mentions = cls.mentions_from_content(content, author)
+            mentions.update(m for m in explicit_mentions if m.pk != author.pk)
             if reply_to:
                 mentions.add(reply_to.author)
                 # Maintain local-only for replies
@@ -3089,11 +3093,17 @@ class Conversation(models.Model):
         related_name="+",
     )
 
+    uri = models.CharField(max_length=500, blank=True, null=True, db_index=True)
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "activities_conversation"
+
+    @staticmethod
+    def local_uri_for(conversation_id: int, actor_uri: str) -> str:
+        return f"{actor_uri}conversations/{conversation_id}/"
 
     @staticmethod
     def compute_participant_hash(identity_ids: set[int]) -> str:
@@ -3124,9 +3134,15 @@ class Conversation(models.Model):
         conversation = cls.get_or_create_for_participants(participant_ids)
         Post.objects.filter(pk=post.pk).update(conversation=conversation)
         post.conversation = conversation
+        update_fields = []
+        if not conversation.uri and post.local:
+            conversation.uri = cls.local_uri_for(conversation.pk, post.author.actor_uri)
+            update_fields.append("uri")
         if conversation.last_post_id is None or post.pk > conversation.last_post_id:
             conversation.last_post = post
-            conversation.save(update_fields=["last_post", "updated"])
+            update_fields.append("last_post")
+        if update_fields:
+            conversation.save(update_fields=update_fields + ["updated"])
         for pid in participant_ids:
             is_author = pid == post.author_id
             membership, created = ConversationMembership.objects.get_or_create(
@@ -3137,8 +3153,8 @@ class Conversation(models.Model):
             if created:
                 continue
             updates = []
-            if not is_author and not membership.unread:
-                membership.unread = True
+            if membership.unread != (not is_author):
+                membership.unread = not is_author
                 updates.append("unread")
             if membership.dismissed:
                 membership.dismissed = False

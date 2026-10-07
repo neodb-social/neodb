@@ -1,4 +1,4 @@
-from activities.views import compose, debug, posts, timelines
+from activities.views import compose, conversations, debug, posts, timelines
 from api.views import oauth
 from core import views as core
 from django.conf import settings as djsettings
@@ -310,6 +310,10 @@ urlpatterns = [
     path(
         "@<handle>/posts/<int:post_id>/quote-auth/<int:auth_id>/",
         posts.QuoteAuthorizationView.as_view(),
+    ),
+    path(
+        "@<handle>/conversations/<int:conversation_id>/",
+        conversations.ConversationCollection.as_view(),
     ),
     # Authentication
     path("auth/login/", auth.Login.as_view(), name="login"),

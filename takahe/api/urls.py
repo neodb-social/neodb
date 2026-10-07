@@ -203,6 +203,7 @@ urlpatterns = [
     # Conversations
     path("v1/conversations", conversations.list_conversations),
     path("v1/conversations/<id>/read", conversations.mark_conversation_read),
+    path("v1/conversations/<id>/unread", conversations.mark_conversation_unread),
     path("v1/conversations/<id>", conversations.delete_conversation),
     path("v1/favourites", timelines.favourites),
     # Trends

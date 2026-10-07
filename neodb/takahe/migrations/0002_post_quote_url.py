@@ -31,6 +31,12 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("participant_hash", models.CharField(max_length=64, unique=True)),
+                (
+                    "uri",
+                    models.CharField(
+                        blank=True, db_index=True, max_length=500, null=True
+                    ),
+                ),
                 ("created", models.DateTimeField(auto_now_add=True)),
                 ("updated", models.DateTimeField(auto_now=True)),
                 (

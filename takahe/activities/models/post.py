@@ -1311,10 +1311,19 @@ class Post(StatorModel):
             self.visibility == self.Visibilities.followers and self.author.followers_uri
         ):
             value["to"].append(self.author.followers_uri)
-        # Mentions
+        # Mentions. A direct post goes `to` its recipients, which is where
+        # Mastodon, GoToSocial and Pixelfed put them.
+        mention_field = "to" if self.visibility == self.Visibilities.mentioned else "cc"
         for mention in self.mentions.all():
             value["tag"].append(mention.to_ap_tag())
-            value["cc"].append(mention.actor_uri)
+            value[mention_field].append(mention.actor_uri)
+        if (
+            self.visibility == self.Visibilities.mentioned
+            and self.conversation
+            and self.conversation.uri
+        ):
+            value["context"] = self.conversation.uri
+            value["conversation"] = self.conversation.uri
         # Hashtags
         for hashtag in self.hashtags or []:
             value["tag"].append(
@@ -1359,7 +1368,7 @@ class Post(StatorModel):
         Returns the AP JSON to create this object
         """
         object = self.to_ap()
-        return {
+        activity = {
             "to": object.get("to", []),
             "cc": object.get("cc", []),
             "type": "Create",
@@ -1367,6 +1376,9 @@ class Post(StatorModel):
             "actor": self.author.actor_uri,
             "object": object,
         }
+        if self.visibility == self.Visibilities.mentioned:
+            activity["directMessage"] = True
+        return activity
 
     def to_update_ap(self):
         """
@@ -1849,7 +1861,9 @@ class Post(StatorModel):
             if post.visibility == Post.Visibilities.mentioned:
                 from activities.models.conversation import Conversation
 
-                Conversation.update_for_post(post)
+                Conversation.update_for_post(
+                    post, remote_uri=Conversation.remote_uri_from(data)
+                )
 
             # Potentially schedule a fetch of the reply parent, and recalculate
             # its stats if it's here already.
