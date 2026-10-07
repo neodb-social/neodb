@@ -1426,6 +1426,17 @@ msgstr ""
 msgid "Undo"
 msgstr ""
 
+#: catalog/templates/_reco_seeds.html:3
+#, python-format
+msgid "Because of <a href=\"%(url)s\">%(title)s</a>"
+msgstr ""
+
+#: catalog/templates/_reco_seeds.html:7
+#, python-format
+msgid "and %(counter)s more"
+msgid_plural "and %(counter)s more"
+msgstr[0] ""
+
 #: catalog/templates/_search_suggest.html:2
 msgid "Suggestions"
 msgstr ""
@@ -4648,7 +4659,7 @@ msgid "Exclude posts from"
 msgstr ""
 
 #: common/views_manage.py:449
-msgid "Accounts (@user@domain) or domains whose posts never appear in popular posts or trends, one per line."
+msgid "Accounts (@user@domain) or domains, one per line. Their posts never appear in popular posts or trends, and their marks and collections are left out of discover and recommendations."
 msgstr ""
 
 #: common/views_manage.py:474
@@ -4731,8 +4742,8 @@ msgstr ""
 msgid "Active-user window (days)"
 msgstr ""
 
-#: common/views_manage.py:564
-msgid "Refresh personalised recommendations for users with at least one public mark in the last N days."
+#: common/views_manage.py:578
+msgid "Refresh personalised recommendations for users with at least one mark in the last N days."
 msgstr ""
 
 #: common/views_manage.py:570
@@ -4799,6 +4810,22 @@ msgstr ""
 msgid "Tags, collections and credits shared by more items than this are too broad to link items and are ignored."
 msgstr ""
 
+#: common/views_manage.py:653
+msgid "Feature shrinkage"
+msgstr ""
+
+#: common/views_manage.py:655
+msgid "Items sharing fewer tags, collections or credits than this score lower. 0 turns it off. Applies from the next similarity build."
+msgstr ""
+
+#: common/views_manage.py:662
+msgid "Collection item cap"
+msgstr ""
+
+#: common/views_manage.py:664
+msgid "Collections with more items than this are too broad to link items and are ignored. 0 uses the feature item cap."
+msgstr ""
+
 #: common/views_manage.py:638
 msgid "Tag weight"
 msgstr ""
@@ -4821,6 +4848,102 @@ msgstr ""
 
 #: common/views_manage.py:656
 msgid "Weight of shared creators, such as authors, directors and actors, in similar items, relative to shared marks at 1."
+msgstr ""
+
+#: common/views_manage.py:676
+msgid "Low rating gap"
+msgstr ""
+
+#: common/views_manage.py:678
+msgid "A mark rated this far below the user's own average counts against its similar items instead of for them."
+msgstr ""
+
+#: common/views_manage.py:684
+msgid "Negative signal weight"
+msgstr ""
+
+#: common/views_manage.py:686
+msgid "How strongly items similar to low-rated, dropped or dismissed items are pushed down. 0 turns it off."
+msgstr ""
+
+#: common/views_manage.py:692
+msgid "Seed half-life (days)"
+msgstr ""
+
+#: common/views_manage.py:694
+msgid "A mark this old counts half as much as a new one, and never less than a quarter. 0 turns it off."
+msgstr ""
+
+#: common/views_manage.py:700
+msgid "Recommendations per seed"
+msgstr ""
+
+#: common/views_manage.py:702
+msgid "At most this many recommendations led by the same mark come before the rest. 0 turns it off."
+msgstr ""
+
+#: common/views_manage.py:726
+msgid "Group editions and seasons"
+msgstr ""
+
+#: common/views_manage.py:728
+msgid "Recommend one edition of a work and one season of a show, and count marks on several of them as one."
+msgstr ""
+
+#: common/views_manage.py:733
+msgid "Diversity"
+msgstr ""
+
+#: common/views_manage.py:735
+msgid "How strongly a recommendation similar to a better one in the same category is pushed down, so that the list varies more. 0 turns it off."
+msgstr ""
+
+#: common/views_manage.py:743
+msgid "Extra seed decay"
+msgstr ""
+
+#: common/views_manage.py:745
+msgid "Each further mark that leads to the same recommendation adds this share of the previous one. 1 adds them in full."
+msgstr ""
+
+#: common/views_manage.py:752
+msgid "Cap negative signals"
+msgstr ""
+
+#: common/views_manage.py:754
+msgid "Count only the strongest low-rated, dropped or dismissed items against each recommendation, as many as count for it."
+msgstr ""
+
+#: common/views_manage.py:759
+msgid "Dismissal weight"
+msgstr ""
+
+#: common/views_manage.py:761
+msgid "How strongly items similar to dismissed items are pushed down. -1 uses the negative signal weight."
+msgstr ""
+
+#: common/views_manage.py:767
+msgid "Best rated seeds"
+msgstr ""
+
+#: common/views_manage.py:769
+msgid "Of the seed marks, this many are the user's best rated marks older than the recent ones. 0 uses only recent marks."
+msgstr ""
+
+#: common/views_manage.py:775
+msgid "Cold start seeds"
+msgstr ""
+
+#: common/views_manage.py:777
+msgid "A user with fewer marks than this, editions of a work or seasons of a show counting once, gets popular items after the recommendations within each mark's limit and before the rest. 0 turns it off."
+msgstr ""
+
+#: common/views_manage.py:785
+msgid "Wishlist seed weight"
+msgstr ""
+
+#: common/views_manage.py:787
+msgid "Weight of a wishlist mark as a seed, relative to a mark in progress or complete at 1."
 msgstr ""
 
 #: common/views_manage.py:663
@@ -4893,6 +5016,14 @@ msgstr ""
 
 #: common/views_manage.py:748
 msgid "Show the captcha only to people who register with an email address. Mastodon, Bluesky and Threads sign-ups already passed an external login and skip it. Has no effect while captcha items is 0."
+msgstr ""
+
+#: common/views_manage.py:806
+msgid "Enable email registration"
+msgstr ""
+
+#: common/views_manage.py:808
+msgid "Allow new accounts to be created with an email address. When off, email login keeps working for accounts that already have an email address linked, and other login methods can still register. Has no effect while email login is off, which happens when no email URL is set."
 msgstr ""
 
 #: common/views_manage.py:755
@@ -7061,6 +7192,10 @@ msgstr ""
 msgid "Bluesky login is disabled."
 msgstr ""
 
+#: mastodon/views/threads.py:31 mastodon/views/threads.py:56
+msgid "Threads login is disabled."
+msgstr ""
+
 #: mastodon/views/bluesky.py:47 mastodon/views/bluesky.py:59
 #: mastodon/views/bluesky.py:65 mastodon/views/bluesky.py:98
 #: mastodon/views/bluesky.py:106 mastodon/views/bluesky.py:112
@@ -8711,6 +8846,10 @@ msgstr ""
 msgid "Send verification code"
 msgstr ""
 
+#: users/templates/users/login.html:137
+msgid "Email login is only for accounts that already have an email address linked. New accounts cannot be registered with email."
+msgstr ""
+
 #: users/templates/users/login.html:151
 msgid "Domain of your instance, e.g. mastodon.social"
 msgstr ""
@@ -9295,6 +9434,14 @@ msgstr ""
 msgid "Email addresses from this domain are not accepted."
 msgstr ""
 
+#: users/views/account.py:244
+msgid "Registration with email is not available"
+msgstr ""
+
+#: users/views/account.py:246
+msgid "Only accounts that already have this email address linked can log in with it. Please use a different login method."
+msgstr ""
+
 #: users/views/account.py:279 users/views/account.py:398
 msgid "Registration is for invitation only"
 msgstr ""
@@ -9507,4 +9654,113 @@ msgstr ""
 
 #: users/views/webauthn.py:260
 msgid "Name is required"
+msgstr ""
+
+#: common/templates/_header.html:135 social/templates/conversation.html:9
+#: social/templates/conversation.html:18
+#: social/templates/conversation_new.html:17
+#: social/templates/conversations.html:9 social/templates/conversations.html:17
+msgid "Messages"
+msgstr ""
+
+#: social/conversations.py:105
+#, python-brace-format
+msgid "@{handle} is not known here yet, try again in a moment."
+msgstr ""
+
+#: social/conversations.py:114
+#, python-brace-format
+msgid "@{handle} was not found."
+msgstr ""
+
+#: social/conversations.py:121
+#, python-brace-format
+msgid "You cannot send messages to @{handle}."
+msgstr ""
+
+#: social/conversations.py:133
+msgid "Conversation not found"
+msgstr ""
+
+#: social/conversations.py:171 social/conversations.py:232
+msgid "Message cannot be empty."
+msgstr ""
+
+#: social/conversations.py:173
+msgid "Add at least one recipient."
+msgstr ""
+
+#: social/templates/conversation.html:32
+msgid "Mark as unread"
+msgstr ""
+
+#: social/templates/conversation.html:41
+msgid "Remove from list"
+msgstr ""
+
+#: social/templates/conversation.html:50
+msgid "Earlier messages"
+msgstr ""
+
+#: social/templates/conversation.html:101
+msgid "Write a message"
+msgstr ""
+
+#: social/templates/conversation.html:102
+#: social/templates/conversation_new.html:45
+msgid "Message"
+msgstr ""
+
+#: social/templates/conversation.html:106
+#, python-format
+msgid "Pixelfed users do not receive messages sent to more than %(count)s people."
+msgstr ""
+
+#: social/templates/conversation.html:111
+#: social/templates/conversation_new.html:50
+msgid "Send"
+msgstr ""
+
+#: social/templates/conversation_new.html:8
+#: social/templates/conversation_new.html:19
+#: social/templates/conversations.html:21
+#: social/templates/conversations.html:70
+msgid "New message"
+msgstr ""
+
+#: social/templates/conversation_new.html:39
+#, python-format
+msgid "Separate people with spaces. Pixelfed users do not receive messages sent to more than %(count)s people."
+msgstr ""
+
+#: social/templates/conversation_new.html:49
+msgid "Only the people in a conversation can see its messages, but messages are not end-to-end encrypted."
+msgstr ""
+
+#: social/templates/conversations.html:45
+msgid "You:"
+msgstr ""
+
+#: social/templates/conversations.html:53
+msgid "Unread"
+msgstr ""
+
+#: social/templates/conversations.html:63
+msgid "Older conversations"
+msgstr ""
+
+#: social/templates/conversations.html:68
+msgid "No messages yet. Only the people in a conversation can see its messages, but messages are not end-to-end encrypted."
+msgstr ""
+
+#: social/templates/event/mentioned.html:3
+msgid "sent you a message"
+msgstr ""
+
+#: social/templates/event/mentioned.html:4
+msgid "Open conversation"
+msgstr ""
+
+#: social/conversations.py:254 social/templates/conversation.html:123
+msgid "You cannot send messages in this conversation."
 msgstr ""
