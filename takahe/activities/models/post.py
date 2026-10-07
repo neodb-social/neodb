@@ -695,6 +695,7 @@ class Post(StatorModel):
                 name="ix_post_local_public_created",
             ),
             models.Index(fields=["url"], name="activities_post_url_idx"),
+            models.Index(fields=["author", "-id"], name="post_author_idneg"),
         ]
 
     class urls(urlman.Urls):
