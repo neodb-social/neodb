@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-10-03 13:46-0400\n"
-"PO-Revision-Date: 2026-10-03 13:42+0000\n"
+"PO-Revision-Date: 2026-10-07 13:09+0000\n"
 "Last-Translator: Havokdan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/neodb/neodb/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -1363,7 +1363,7 @@ msgstr "escrever uma análise"
 
 #: catalog/templates/_item_similar.html:13
 msgid "More like this"
-msgstr ""
+msgstr "Mais como este"
 
 #: catalog/templates/_item_user_mark_history.html:25
 msgid "No history."
@@ -1426,7 +1426,19 @@ msgstr "Ocultado das recomendações."
 #: catalog/templates/_reco_dismissed_body.html:10
 #: catalog/templates/_reco_dismissed_row.html:8
 msgid "Undo"
-msgstr ""
+msgstr "Desfazer"
+
+#: catalog/templates/_reco_seeds.html:3
+#, python-format
+msgid "Because of <a href=\"%(url)s\">%(title)s</a>"
+msgstr "Por causa de <a href=\"%(url)s\">%(title)s</a>"
+
+#: catalog/templates/_reco_seeds.html:7
+#, python-format
+msgid "and %(counter)s more"
+msgid_plural "and %(counter)s more"
+msgstr[0] "e mais %(counter)s"
+msgstr[1] "e mais %(counter)s"
 
 #: catalog/templates/_search_suggest.html:2
 msgid "Suggestions"
@@ -2544,7 +2556,7 @@ msgstr "Recomendações ocultas"
 
 #: catalog/views/recommendation.py:59
 msgid "These items are not recommended to you. Restore one to let it come back."
-msgstr ""
+msgstr "Estes itens não são recomendados para você. Restaure um deles para que volte a aparecer."
 
 #: catalog/views/search.py:113 catalog/views/search.py:205
 msgid "the internet"
@@ -4134,7 +4146,7 @@ msgstr "Paginação"
 
 #: common/templates/_pagination.html:9 common/templates/_pagination.html:13
 msgid "Previous page"
-msgstr ""
+msgstr "Página anterior"
 
 #: common/templates/_pagination.html:9 common/templates/_pagination.html:13
 msgid "Previous"
@@ -4143,7 +4155,7 @@ msgstr "Anterior"
 #: common/templates/_pagination.html:32
 #, python-format
 msgid "%(current)s of %(total)s"
-msgstr ""
+msgstr "%(current)s de %(total)s"
 
 #: common/templates/_pagination.html:38 common/templates/_pagination.html:42
 msgid "Next page"
@@ -4624,7 +4636,7 @@ msgstr "Filtrar por idiomas dos membros"
 
 #: common/views_manage.py:420
 msgid "Let members pick catalog languages in their preferences. Trending, spotlight and For you then show them only items with a title or an original language in those languages. More like this, items from people they follow, and items without a known language are not filtered. With the option above also on, trending and spotlight hold only the preferred languages to begin with."
-msgstr ""
+msgstr "Permite que os membros escolham os idiomas de catálogo em suas preferências. As seções Em alta, Destaque e Para você passam a exibir apenas itens com título ou idioma original nesses idiomas. Mais como este, itens de pessoas que o membro segue e itens sem idioma conhecido não são filtrados. Com a opção acima também ativada, as seções Em alta e Destaque já são compostas apenas pelos idiomas preferidos desde o início."
 
 #: common/views_manage.py:418
 msgid "Show local only"
@@ -4671,8 +4683,8 @@ msgid "Exclude posts from"
 msgstr "Excluir publicações de"
 
 #: common/views_manage.py:449
-msgid "Accounts (@user@domain) or domains whose posts never appear in popular posts or trends, one per line."
-msgstr "Contas (@user@domain) ou domínios cujas publicações nunca aparecem em publicações ou tendências populares, uma por linha."
+msgid "Accounts (@user@domain) or domains, one per line. Their posts never appear in popular posts or trends, and their marks and collections are left out of discover and recommendations."
+msgstr "Contas (@usuario@dominio) ou domínios, um por linha. As publicações dessas contas nunca aparecem em publicações populares ou tendências, e suas marcações e coleções ficam de fora da descoberta e das recomendações."
 
 #: common/views_manage.py:474
 msgid "Show world timeline"
@@ -4754,9 +4766,9 @@ msgstr "Trunca a contribuição de cada usuário para suas N marcações mais re
 msgid "Active-user window (days)"
 msgstr "Janela de Usuário Ativo (dias)"
 
-#: common/views_manage.py:564
-msgid "Refresh personalised recommendations for users with at least one public mark in the last N days."
-msgstr "Atualiza as recomendações personalizadas para usuários com pelo menos uma marcação pública nos últimos N dias."
+#: common/views_manage.py:578
+msgid "Refresh personalised recommendations for users with at least one mark in the last N days."
+msgstr "Atualiza as recomendações personalizadas para usuários com pelo menos uma marcação nos últimos N dias."
 
 #: common/views_manage.py:570
 msgid "Per-user seed cap (serving)"
@@ -4822,6 +4834,22 @@ msgstr "Limite de itens de destaque"
 msgid "Tags, collections and credits shared by more items than this are too broad to link items and are ignored."
 msgstr "Etiquetas, coleções e créditos compartilhados por mais itens são muito amplos para vincular itens e são ignorados."
 
+#: common/views_manage.py:653
+msgid "Feature shrinkage"
+msgstr "Atenuação de Recursos"
+
+#: common/views_manage.py:655
+msgid "Items sharing fewer tags, collections or credits than this score lower. 0 turns it off. Applies from the next similarity build."
+msgstr "Itens que compartilham menos etiquetas, coleções ou créditos do que esta pontuação recebem uma pontuação mais baixa. 0 desativa esse recurso. Aplica-se a partir da próxima construção de similaridade."
+
+#: common/views_manage.py:662
+msgid "Collection item cap"
+msgstr "Limite de Itens por Coleção"
+
+#: common/views_manage.py:664
+msgid "Collections with more items than this are too broad to link items and are ignored. 0 uses the feature item cap."
+msgstr "Coleções com mais itens do que este limite são amplas demais para vincular itens e são ignoradas. 0 usa o limite geral de itens de recursos."
+
 #: common/views_manage.py:638
 msgid "Tag weight"
 msgstr "Peso da etiqueta"
@@ -4845,6 +4873,102 @@ msgstr "Peso do crédito"
 #: common/views_manage.py:656
 msgid "Weight of shared creators, such as authors, directors and actors, in similar items, relative to shared marks at 1."
 msgstr "Peso dos criadores compartilhados, como autores, diretores e atores, em itens semelhantes, em relação às notas compartilhadas em 1."
+
+#: common/views_manage.py:676
+msgid "Low rating gap"
+msgstr "Diferença de Avaliação Baixa"
+
+#: common/views_manage.py:678
+msgid "A mark rated this far below the user's own average counts against its similar items instead of for them."
+msgstr "Uma marcação avaliada com uma nota tão abaixo da média do próprio usuário conta contra seus itens semelhantes, em vez de a favor deles."
+
+#: common/views_manage.py:684
+msgid "Negative signal weight"
+msgstr "Peso de Sinal Negativo"
+
+#: common/views_manage.py:686
+msgid "How strongly items similar to low-rated, dropped or dismissed items are pushed down. 0 turns it off."
+msgstr "Com que intensidade os itens semelhantes a itens com avaliação baixa, abandonados ou descartados são rebaixados. 0 desativa esse recurso."
+
+#: common/views_manage.py:692
+msgid "Seed half-life (days)"
+msgstr "Meia-vida da Semente (dias)"
+
+#: common/views_manage.py:694
+msgid "A mark this old counts half as much as a new one, and never less than a quarter. 0 turns it off."
+msgstr "Uma marcação com esta idade conta pela metade do valor de uma nova, e nunca menos que um quarto. 0 desativa esse recurso."
+
+#: common/views_manage.py:700
+msgid "Recommendations per seed"
+msgstr "Recomendações por semente"
+
+#: common/views_manage.py:702
+msgid "At most this many recommendations led by the same mark come before the rest. 0 turns it off."
+msgstr "No máximo esta quantidade de recomendações lideradas pela mesma marcação aparece antes das demais. 0 desativa esse recurso."
+
+#: common/views_manage.py:726
+msgid "Group editions and seasons"
+msgstr "Agrupar Edições e Temporadas"
+
+#: common/views_manage.py:728
+msgid "Recommend one edition of a work and one season of a show, and count marks on several of them as one."
+msgstr "Recomenda uma edição de uma obra e uma temporada de uma série, e conta marcações em várias delas como uma só."
+
+#: common/views_manage.py:733
+msgid "Diversity"
+msgstr "Diversidade"
+
+#: common/views_manage.py:735
+msgid "How strongly a recommendation similar to a better one in the same category is pushed down, so that the list varies more. 0 turns it off."
+msgstr "Com que intensidade uma recomendação semelhante a outra melhor na mesma categoria é rebaixada, para que a lista tenha mais variedade. 0 desativa esse recurso."
+
+#: common/views_manage.py:743
+msgid "Extra seed decay"
+msgstr "Decaimento Extra de Semente"
+
+#: common/views_manage.py:745
+msgid "Each further mark that leads to the same recommendation adds this share of the previous one. 1 adds them in full."
+msgstr "Cada marcação adicional que leva à mesma recomendação soma esta fração do valor da anterior. 1 soma por completo."
+
+#: common/views_manage.py:752
+msgid "Cap negative signals"
+msgstr "Limitar Sinais Negativos"
+
+#: common/views_manage.py:754
+msgid "Count only the strongest low-rated, dropped or dismissed items against each recommendation, as many as count for it."
+msgstr "Considera apenas os itens mais fortes entre os com avaliação baixa, abandonados ou descartados contra cada recomendação, até o limite definido."
+
+#: common/views_manage.py:759
+msgid "Dismissal weight"
+msgstr "Peso de Descarte"
+
+#: common/views_manage.py:761
+msgid "How strongly items similar to dismissed items are pushed down. -1 uses the negative signal weight."
+msgstr "Com que intensidade os itens semelhantes a itens descartados são rebaixados. -1 usa o peso de sinal negativo."
+
+#: common/views_manage.py:767
+msgid "Best rated seeds"
+msgstr "Melhores Sementes Avaliadas"
+
+#: common/views_manage.py:769
+msgid "Of the seed marks, this many are the user's best rated marks older than the recent ones. 0 uses only recent marks."
+msgstr "Dentre as marcações-semente, esta quantidade corresponde às marcações mais bem avaliadas do usuário, anteriores às mais recentes. 0 usa apenas marcações recentes."
+
+#: common/views_manage.py:775
+msgid "Cold start seeds"
+msgstr "Sementes de Início a Frio"
+
+#: common/views_manage.py:777
+msgid "A user with fewer marks than this, editions of a work or seasons of a show counting once, gets popular items after the recommendations within each mark's limit and before the rest. 0 turns it off."
+msgstr "Um usuário com menos marcações do que este número (contando edições de uma obra ou temporadas de uma série apenas uma vez) recebe itens populares após as recomendações dentro do limite de cada marcação e antes do restante. 0 desativa esse recurso."
+
+#: common/views_manage.py:785
+msgid "Wishlist seed weight"
+msgstr "Peso de Semente da Lista de Desejos"
+
+#: common/views_manage.py:787
+msgid "Weight of a wishlist mark as a seed, relative to a mark in progress or complete at 1."
+msgstr "Peso de uma marcação da lista de desejos como semente, em relação a uma marcação em andamento ou concluída, que vale 1."
 
 #: common/views_manage.py:663
 msgid "Master switch"
@@ -4916,7 +5040,15 @@ msgstr "Captcha de registro apenas para cadastro por e-mail"
 
 #: common/views_manage.py:748
 msgid "Show the captcha only to people who register with an email address. Mastodon, Bluesky and Threads sign-ups already passed an external login and skip it. Has no effect while captcha items is 0."
-msgstr ""
+msgstr "Exibir o captcha apenas para pessoas que se registram com um endereço de e-mail. Cadastros via Mastodon, Bluesky e Threads já passaram por um login externo e não precisam dele. Não tem efeito enquanto os itens de captcha forem 0."
+
+#: common/views_manage.py:806
+msgid "Enable email registration"
+msgstr "Ativar registro por e-mail"
+
+#: common/views_manage.py:808
+msgid "Allow new accounts to be created with an email address. When off, email login keeps working for accounts that already have an email address linked, and other login methods can still register. Has no effect while email login is off, which happens when no email URL is set."
+msgstr "Permitir que novas contas sejam criadas com um endereço de e-mail. Quando desativado, o login por e-mail continua funcionando para contas que já possuem um endereço de e-mail vinculado, e outros métodos de login ainda podem registrar novas contas. Não tem efeito enquanto o login por e-mail estiver desativado, o que ocorre quando nenhuma URL de e-mail é definida."
 
 #: common/views_manage.py:755
 msgid "Enable Mastodon login"
@@ -7144,6 +7276,10 @@ msgstr "Nova Publicação"
 msgid "Bluesky login is disabled."
 msgstr "O login via Bluesky está desativado."
 
+#: mastodon/views/threads.py:31 mastodon/views/threads.py:56
+msgid "Threads login is disabled."
+msgstr "O login do Threads está desabilitado."
+
 #: mastodon/views/bluesky.py:47 mastodon/views/bluesky.py:59
 #: mastodon/views/bluesky.py:65 mastodon/views/bluesky.py:98
 #: mastodon/views/bluesky.py:106 mastodon/views/bluesky.py:112
@@ -7814,7 +7950,7 @@ msgstr "Os livros são correspondidos por ISBN ou ASIN com o catálogo local e, 
 
 #: users/templates/users/_hardcover_section.html:38
 msgid "Each book keeps its privacy setting from Hardcover: public books are imported as public, followers-only books as followers only, and private books as mentioned only."
-msgstr ""
+msgstr "Cada livro mantém sua configuração de privacidade do Hardcover: livros públicos são importados como públicos, livros restritos a seguidores como somente para seguidores, e livros privados como somente menção."
 
 #: users/templates/users/_hardcover_section.html:41
 #: users/templates/users/_rym_section.html:38
@@ -7825,13 +7961,13 @@ msgstr "Você também pode reenviar um arquivo CSV correspondido baixado anterio
 #: users/templates/users/import/hardcover.html:21
 #: users/templates/users/import/storygraph.html:18
 msgid "Reading status, star rating and review of each book."
-msgstr ""
+msgstr "Status de leitura, avaliação em estrelas e resenha de cada livro."
 
 #: users/templates/users/import/hardcover.html:22
 #: users/templates/users/import/rym.html:19
 #: users/templates/users/import/storygraph.html:19
 msgid "Rows that you set to skip in the preview."
-msgstr ""
+msgstr "Linhas que você definiu para pular na visualização."
 
 #: users/templates/users/_hardcover_section.html:45
 #: users/templates/users/_rym_section.html:42
@@ -7851,11 +7987,11 @@ msgstr "O que é importado"
 
 #: users/templates/users/_import_rules.html:8
 msgid "What is skipped"
-msgstr ""
+msgstr "O que é pulado"
 
 #: users/templates/users/_import_rules.html:14
 msgid "Data you already have"
-msgstr ""
+msgstr "Dados que você já tem"
 
 #: users/templates/users/_import_rules.html:20
 msgid "Importing again"
@@ -7932,19 +8068,19 @@ msgstr "Os álbuns são correspondidos por título + artista (e ano, se disponí
 
 #: users/templates/users/import/rym.html:18
 msgid "Status, rating and review of each album."
-msgstr ""
+msgstr "Status, avaliação e análise de cada álbum."
 
 #: users/templates/users/import/rym.html:20
 msgid "Existing marks, ratings and reviews are replaced with the values in the preview, also when the status moves back."
-msgstr ""
+msgstr "As marcações, avaliações e análises existentes são substituídas pelos valores na visualização, mesmo quando o status retrocede."
 
 #: users/templates/users/import/steam.html:5
 msgid "Log in with Steam to confirm your Steam ID."
-msgstr ""
+msgstr "Entre com a Steam para confirmar seu ID da Steam."
 
 #: users/templates/users/import/steam.html:6
 msgid "Choose what to import on the next page, then start the import."
-msgstr ""
+msgstr "Escolha o que importar na próxima página e, em seguida, inicie a importação."
 
 #: users/templates/users/_storygraph_section.html:5
 #: users/templates/users/_storygraph_section.html:23
@@ -8437,7 +8573,7 @@ msgstr "Gerenciamento de Dados"
 
 #: users/templates/users/data.html:19
 msgid "Recent activity"
-msgstr ""
+msgstr "Atividade recente"
 
 #: users/templates/users/data.html:39
 msgid "Import marks and reviews from Doufen / NiceDB"
@@ -8458,11 +8594,11 @@ msgstr "Um arquivo do Douban exportado pelo <a href=\"https://doubak.com\" targe
 
 #: users/templates/users/import/douban.html:15
 msgid "Marks, ratings, tags, comments and reviews."
-msgstr ""
+msgstr "Marcações, avaliações, etiquetas, comentários e análises."
 
 #: users/templates/users/import/douban.html:16
 msgid "Depends on the import method below."
-msgstr ""
+msgstr "Depende do método de importação abaixo."
 
 #: users/templates/users/import/douban.html:17
 #: users/templates/users/import/goodreads.html:17
@@ -8473,7 +8609,7 @@ msgstr ""
 #: users/templates/users/import/trakt.html:16
 #: users/templates/users/import/wordpress.html:16
 msgid "Safe. Nothing is imported twice."
-msgstr ""
+msgstr "Seguro. Nada é importado duas vezes."
 
 #: users/templates/users/data.html:49 users/templates/users/data.html:272
 msgid "Import method"
@@ -8513,13 +8649,13 @@ msgstr "Livros marcados como quero-ler / lendo-atualmente / lido / não-terminei
 
 #: users/templates/users/import/goodreads.html:15
 msgid "Books on your own custom shelves."
-msgstr ""
+msgstr "Livros em suas próprias prateleiras personalizadas."
 
 #: users/templates/users/import/goodreads.html:16
 #: users/templates/users/import/hardcover.html:23
 #: users/templates/users/import/storygraph.html:20
 msgid "A status never moves back, for example from complete to wishlist. Changed comments and reviews are updated."
-msgstr ""
+msgstr "Um status nunca retrocede, por exemplo, de concluído para lista de desejos. Comentários e análises alterados são atualizados."
 
 #: users/templates/users/data.html:150
 msgid "Import from Letterboxd"
@@ -8540,11 +8676,11 @@ msgstr "os seguintes arquivos dentro do arquivo zip serão processados: <code>re
 #: users/templates/users/import/letterboxd.html:15
 #: users/templates/users/import/trakt.html:15
 msgid "Only forward status changes are imported, for example from wishlist to complete. A mark that is already complete is not changed."
-msgstr ""
+msgstr "Apenas mudanças de status para frente são importadas, por exemplo, de lista de desejos para concluído. Uma marcação que já está concluída não é alterada."
 
 #: users/templates/users/import/letterboxd.html:16
 msgid "Marks are safe, but the lists are created again as new collections."
-msgstr ""
+msgstr "As marcações são seguras, mas as listas são criadas novamente como novas coleções."
 
 #: users/templates/users/data.html:165
 msgid "Exported file does not indicate whether a list is private, unlisted or public, so all imported marks, reviews and collections will be created with the visibility selected below"
@@ -8601,7 +8737,7 @@ msgstr "Um arquivo Douban exportado por <a href=\"https://doubak.com\" target=\"
 
 #: users/templates/users/import/neodb.html:14
 msgid "Marks, ratings, comments, tags, reviews and notes. An NDJSON archive also has collections, articles, and your display name and bio."
-msgstr ""
+msgstr "Marcações, avaliações, comentários, etiquetas, análises e anotações. Um arquivo NDJSON também contém coleções, artigos, além do seu nome de exibição e biografia."
 
 #: users/templates/users/import/neodb.html:15
 msgid "Posts."
@@ -8609,11 +8745,11 @@ msgstr "Publicações."
 
 #: users/templates/users/import/neodb.html:16
 msgid "A record is updated only when the copy in the archive is newer than yours."
-msgstr ""
+msgstr "Um registro só é atualizado quando a cópia no arquivo é mais recente que a sua."
 
 #: users/templates/users/import/neodb.html:17
 msgid "Safe for records that did not change. A collection, article or review that was renamed after the export is imported again as a new entry."
-msgstr ""
+msgstr "Seguro para registros que não foram alterados. Uma coleção, artigo ou análise que foi renomeada após a exportação é importada novamente como uma nova entrada."
 
 #: users/templates/users/data.html:343
 msgid "Detected format"
@@ -8633,7 +8769,7 @@ msgstr "Erro ao detectar o formato"
 
 #: users/templates/users/import/opml.html:5
 msgid "Export your subscriptions from your podcast app as an OPML file."
-msgstr ""
+msgstr "Exporte suas assinaturas do seu aplicativo de podcast como um arquivo OPML."
 
 #: users/templates/users/import/opml.html:7
 msgid "Upload the <code>.opml</code> or <code>.xml</code> file below."
@@ -8641,15 +8777,15 @@ msgstr "Envie abaixo o arquivo <code>.opml</code> ou <code>.xml</code>."
 
 #: users/templates/users/import/opml.html:12
 msgid "Each podcast in the file, marked as listening or added to a new collection."
-msgstr ""
+msgstr "Cada podcast no arquivo, marcado como ouvindo ou adicionado a uma nova coleção."
 
 #: users/templates/users/import/opml.html:13
 msgid "Podcasts that you already marked are not changed."
-msgstr ""
+msgstr "Podcasts que você já marcou não são alterados."
 
 #: users/templates/users/import/opml.html:14
 msgid "Safe when you mark as listening. Each import as a new collection creates another collection."
-msgstr ""
+msgstr "Seguro quando você marca como ouvindo. Cada importação como nova coleção cria outra coleção."
 
 #: users/templates/users/data.html:483
 msgid "Export marks, reviews and notes in CSV"
@@ -8657,7 +8793,7 @@ msgstr "Exportar marcações, análise e notas em CSV"
 
 #: users/templates/users/data.html:53
 msgid "Use this to open your data in a spreadsheet."
-msgstr ""
+msgstr "Use isto para abrir seus dados em uma planilha."
 
 #: users/templates/users/data.html:490
 msgid "Export everything in NDJSON"
@@ -8665,7 +8801,7 @@ msgstr "Exportar tudo em NDJSON"
 
 #: users/templates/users/data.html:45
 msgid "Use this to move to another NeoDB server, or to keep a full backup."
-msgstr ""
+msgstr "Use isto para migrar para outro servidor NeoDB, ou para manter um backup completo."
 
 #: users/templates/users/data.html:500
 msgid "Your articles are exchanged as WordPress posts in the WXR format, which WordPress and most blogging tools can read and write. Marks, reviews and notes are not included: use the NeoDB archive above for those."
@@ -8677,7 +8813,7 @@ msgstr "Título do artigo, corpo, trecho, etiquetas, datas e imagem em destaque 
 
 #: users/templates/users/import/wordpress.html:15
 msgid "An article with the same title and date is skipped."
-msgstr ""
+msgstr "Um artigo com o mesmo título e data é ignorado."
 
 #: users/templates/users/data.html:506
 msgid "The body is converted between Markdown and HTML, so formatting is kept but the text is not character-for-character identical."
@@ -8689,11 +8825,11 @@ msgstr "Exportar artigos no formato WordPress"
 
 #: users/templates/users/data.html:72
 msgid "Social graph"
-msgstr ""
+msgstr "Gráfico social"
 
 #: users/templates/users/data.html:74
 msgid "Following, followers, mutes and blocks are exported as CSV files on the account page, where you can also move your account."
-msgstr ""
+msgstr "Seguindo, seguidores, silenciados e bloqueados são exportados como arquivos CSV na página da conta, onde você também pode migrar sua conta."
 
 #: users/templates/users/data.html:82
 msgid "Import marks and reviews"
@@ -8812,7 +8948,7 @@ msgstr "Voltar"
 #: users/templates/users/import/_base.html:30
 #: users/templates/users/steam_import.html:22
 msgid "An import is still running. Wait for it to finish before you start a new one."
-msgstr ""
+msgstr "Uma importação ainda está em andamento. Aguarde a conclusão antes de iniciar uma nova."
 
 #: users/templates/users/login.html:5
 msgid "Checking your browser..."
@@ -8841,6 +8977,10 @@ msgstr "Insira seu endereço de e-mail"
 #: users/templates/users/login.html:132
 msgid "Send verification code"
 msgstr "Enviar código de verificação"
+
+#: users/templates/users/login.html:137
+msgid "Email login is only for accounts that already have an email address linked. New accounts cannot be registered with email."
+msgstr "O login por e-mail é apenas para contas que já possuem um endereço de e-mail vinculado. Não é possível registrar novas contas com e-mail."
 
 #: users/templates/users/login.html:151
 msgid "Domain of your instance, e.g. mastodon.social"
@@ -9056,7 +9196,7 @@ msgstr "Idiomas de catálogo preferidos"
 
 #: users/templates/users/preferences.html:211
 msgid "Trending items and For you show only items with a title or an original language in these languages. More like this, items from people you follow, and items without a known language are not filtered. Select none to see all."
-msgstr ""
+msgstr "As seções Em alta e Para você exibem apenas itens com título ou idioma original nesses idiomas. Mais como este, itens de pessoas que você segue e itens sem idioma conhecido não são filtrados. Não selecione nenhum para ver todos."
 
 #: users/templates/users/preferences.html:201
 msgid "Disable these sources in external search"
@@ -9205,7 +9345,7 @@ msgstr "exportar"
 
 #: users/templates/users/data.html:38
 msgid "Export your data"
-msgstr ""
+msgstr "Exportar seus dados"
 
 #: users/templates/users/data.html:40
 msgid "NeoDB archive"
@@ -9342,15 +9482,15 @@ msgstr "Para importar da Steam, os detalhes dos seus jogos devem estar visíveis
 
 #: users/templates/users/import/steam.html:13
 msgid "Games in your wishlist and library. The status of a library game is estimated from its play time."
-msgstr ""
+msgstr "Jogos na sua lista de desejos e biblioteca. O status de um jogo da biblioteca é estimado a partir do tempo de jogo."
 
 #: users/templates/users/import/steam.html:14
 msgid "Games with a status that you do not select, and games on your ignore list."
-msgstr ""
+msgstr "Jogos com um status que você não selecionou, e jogos na sua lista de ignorados."
 
 #: users/templates/users/import/steam.html:15
 msgid "A mark that is already complete, or a move back to wishlist, is skipped, unless you allow reverse status changes in the settings."
-msgstr ""
+msgstr "Uma marcação que já está concluída, ou um retorno para lista de desejos, é ignorada, a menos que você permita mudanças de status reversas nas configurações."
 
 #: users/templates/users/storygraph_import.html:9
 #: users/templates/users/storygraph_import.html:26
@@ -9428,6 +9568,14 @@ msgstr "Este endereço de e-mail já está em uso."
 #: users/views/account.py:145
 msgid "Email addresses from this domain are not accepted."
 msgstr "Endereços de e-mail deste domínio não são aceitos."
+
+#: users/views/account.py:244
+msgid "Registration with email is not available"
+msgstr "O registro por e-mail não está disponível"
+
+#: users/views/account.py:246
+msgid "Only accounts that already have this email address linked can log in with it. Please use a different login method."
+msgstr "Apenas contas que já possuem este endereço de e-mail vinculado podem fazer login com ele. Use um método de login diferente."
 
 #: users/views/account.py:279 users/views/account.py:398
 msgid "Registration is for invitation only"
@@ -9642,3 +9790,112 @@ msgstr "Chave de acesso não encontrada"
 #: users/views/webauthn.py:260
 msgid "Name is required"
 msgstr "O nome é obrigatório"
+
+#: common/templates/_header.html:135 social/templates/conversation.html:9
+#: social/templates/conversation.html:18
+#: social/templates/conversation_new.html:17
+#: social/templates/conversations.html:9 social/templates/conversations.html:17
+msgid "Messages"
+msgstr "Mensagens"
+
+#: social/conversations.py:105
+#, python-brace-format
+msgid "@{handle} is not known here yet, try again in a moment."
+msgstr "@{handle} ainda não é conhecido aqui, tente novamente em alguns instantes."
+
+#: social/conversations.py:114
+#, python-brace-format
+msgid "@{handle} was not found."
+msgstr "@{handle} não foi encontrado."
+
+#: social/conversations.py:121
+#, python-brace-format
+msgid "You cannot send messages to @{handle}."
+msgstr "Você não pode enviar mensagens para @{handle}."
+
+#: social/conversations.py:133
+msgid "Conversation not found"
+msgstr "Conversa não encontrada"
+
+#: social/conversations.py:171 social/conversations.py:232
+msgid "Message cannot be empty."
+msgstr "A mensagem não pode estar vazia."
+
+#: social/conversations.py:173
+msgid "Add at least one recipient."
+msgstr "Adicione pelo menos um destinatário."
+
+#: social/templates/conversation.html:32
+msgid "Mark as unread"
+msgstr "Marcar como não lido"
+
+#: social/templates/conversation.html:41
+msgid "Remove from list"
+msgstr "Remover da lista"
+
+#: social/templates/conversation.html:50
+msgid "Earlier messages"
+msgstr "Mensagens anteriores"
+
+#: social/templates/conversation.html:101
+msgid "Write a message"
+msgstr "Escreva uma mensagem"
+
+#: social/templates/conversation.html:102
+#: social/templates/conversation_new.html:45
+msgid "Message"
+msgstr "Mensagem"
+
+#: social/templates/conversation.html:106
+#, python-format
+msgid "Pixelfed users do not receive messages sent to more than %(count)s people."
+msgstr "Os usuários do Pixelfed não recebem mensagens enviadas para mais de %(count)s pessoas."
+
+#: social/templates/conversation.html:111
+#: social/templates/conversation_new.html:50
+msgid "Send"
+msgstr "Enviar"
+
+#: social/templates/conversation_new.html:8
+#: social/templates/conversation_new.html:19
+#: social/templates/conversations.html:21
+#: social/templates/conversations.html:70
+msgid "New message"
+msgstr "Nova mensagem"
+
+#: social/templates/conversation_new.html:39
+#, python-format
+msgid "Separate people with spaces. Pixelfed users do not receive messages sent to more than %(count)s people."
+msgstr "Separe as pessoas com espaços. Os usuários do Pixelfed não recebem mensagens enviadas para mais de %(count)s pessoas."
+
+#: social/templates/conversation_new.html:49
+msgid "Only the people in a conversation can see its messages, but messages are not end-to-end encrypted."
+msgstr "Somente as pessoas em uma conversa podem ver suas mensagens, mas as mensagens não são criptografadas de ponta a ponta."
+
+#: social/templates/conversations.html:45
+msgid "You:"
+msgstr "Você:"
+
+#: social/templates/conversations.html:53
+msgid "Unread"
+msgstr "Não lido"
+
+#: social/templates/conversations.html:63
+msgid "Older conversations"
+msgstr "Conversas mais antigas"
+
+#: social/templates/conversations.html:68
+msgid "No messages yet. Only the people in a conversation can see its messages, but messages are not end-to-end encrypted."
+msgstr "Nenhuma mensagem ainda. Somente as pessoas em uma conversa podem ver suas mensagens, mas as mensagens não são criptografadas de ponta a ponta."
+
+#: social/templates/event/mentioned.html:3
+msgid "sent you a message"
+msgstr "te mandei uma mensagem"
+
+#: social/templates/event/mentioned.html:4
+msgid "Open conversation"
+msgstr "Conversa aberta"
+
+#: social/conversations.py:254 social/templates/conversation.html:123
+msgid "You cannot send messages in this conversation."
+msgstr "Você não pode enviar mensagens nesta conversa."
