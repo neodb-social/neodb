@@ -16,7 +16,7 @@ import os
 import shutil
 import tempfile
 import uuid
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 
 from django.conf import settings
@@ -166,7 +166,7 @@ def download_media_file(path: str, dest_dir: str) -> str:
 
 
 @contextmanager
-def local_media_file(path: str, writable: bool = False) -> Iterator[str]:
+def local_media_file(path: str, writable: bool = False) -> Generator[str]:
     """Yield a filesystem path for a stored file.
 
     On a local backend that is the file itself. On a remote one it is a
@@ -188,7 +188,7 @@ def local_media_file(path: str, writable: bool = False) -> Iterator[str]:
 
 
 @contextmanager
-def media_file_writer(key: str) -> Iterator[str]:
+def media_file_writer(key: str) -> Generator[str]:
     """Yield a filesystem path to write; its content ends up stored at ``key``.
 
     On a local backend the file is written in place, so a large export is not

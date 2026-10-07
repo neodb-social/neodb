@@ -1,7 +1,7 @@
 import logging
 import mimetypes
 import re
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from functools import cached_property
 from typing import TYPE_CHECKING, Any
@@ -216,7 +216,7 @@ class Collection(List):
         return member
 
     @contextmanager
-    def defer_member_updates(self) -> Iterator[None]:
+    def defer_member_updates(self) -> Generator[None]:
         """Collapse many member mutations into one federation/index update."""
         depth = getattr(self, "_defer_member_updates_depth", 0)
         if depth == 0:

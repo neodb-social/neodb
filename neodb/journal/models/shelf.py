@@ -362,7 +362,7 @@ class ShelfMember(ListMember):
     # Indexing happens via explicit update_index() calls after the flow
     # settles, and via the hooks on Comment, Rating and Tag.
     if TYPE_CHECKING:
-        parent: models.ForeignKey["ShelfMember", "Shelf"]
+        parent: models.ForeignKey["Shelf", "Shelf"]
         owner_id: int
         item_id: int
         _tags: list[str]
@@ -370,7 +370,7 @@ class ShelfMember(ListMember):
 
     webhook_event = "mark"
 
-    parent = models.ForeignKey(  # type: ignore
+    parent = models.ForeignKey(
         "Shelf", related_name="members", on_delete=models.CASCADE
     )
 

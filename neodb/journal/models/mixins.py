@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AnonymousUser
-    from django.db.models import ForeignKey
+    from django.db.models import ForeignKey, PositiveSmallIntegerField
 
     from users.models import APIdentity, User
 
@@ -19,10 +19,9 @@ class UserOwnedObjectMixin:
     """
 
     if TYPE_CHECKING:
-        owner: ForeignKey[Piece, APIdentity]
-        # owner: ForeignKey[APIdentity, Piece]
+        owner: ForeignKey[APIdentity, APIdentity]
         owner_id: int
-        visibility: int
+        visibility: PositiveSmallIntegerField[int, int]
 
     def is_visible_to(
         self: "Piece",
