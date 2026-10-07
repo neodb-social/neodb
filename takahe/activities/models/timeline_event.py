@@ -1,7 +1,8 @@
-from django.db import OperationalError, models
+from django.db import OperationalError, models, transaction
 from django.utils import timezone
 
 from api.models.push import PushType
+from api.streaming_events import publish, streaming_enabled
 from core.ld import format_ld_date
 from stator.exceptions import TryAgainLater
 from users.models import Bookmark, Identity
@@ -277,12 +278,24 @@ class TimelineEvent(models.Model):
                 subject_identity_id=interaction.identity_id,
             ).delete()
         elif interaction.type == interaction.Types.boost:
-            cls.objects.filter(
-                identity=identity,
-                type__in=[cls.Types.boosted, cls.Types.boost],
-                subject_post_id=interaction.post_id,
-                subject_identity_id=interaction.identity_id,
-            ).delete()
+            with transaction.atomic():
+                events = cls.objects.filter(
+                    identity=identity,
+                    type__in=[cls.Types.boosted, cls.Types.boost],
+                    subject_post_id=interaction.post_id,
+                    subject_identity_id=interaction.identity_id,
+                )
+                delivered = (
+                    identity.local
+                    and streaming_enabled()
+                    and events.filter(type=cls.Types.boost).exists()
+                )
+                events.delete()
+                if delivered:
+                    publish(
+                        f"user:{identity.pk}",
+                        {"kind": "delete", "id": str(interaction.pk)},
+                    )
 
     @classmethod
     def delete_follow(cls, target, source):

@@ -78,6 +78,7 @@ dependencies = [
     "redis>=7.4,<8",
     "rq>=2.1.0",
     "uvicorn>=0.29.0",
+    "websockets>=13",
     "whitenoise>=6.6.0",
 ]
 
