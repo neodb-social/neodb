@@ -220,7 +220,7 @@ class MastodonImporter(BaseImporter):
     delivered to followers or peers.
     """
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         app_label = "journal"  # workaround bug in TypedModel
 
     _zip: zipfile.ZipFile | None = None

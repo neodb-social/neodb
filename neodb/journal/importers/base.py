@@ -84,7 +84,7 @@ _PREFERRED_SITES = [
 
 
 class BaseImporter(Task):
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         app_label = "journal"  # workaround bug in TypedModel
 
     ImportResult = Literal["imported", "skipped", "failed"]

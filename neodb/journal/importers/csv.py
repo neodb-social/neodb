@@ -38,7 +38,7 @@ _CSV_MEMBER_NAMES = frozenset(
 
 
 class CsvImporter(BaseImporter):
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         app_label = "journal"  # workaround bug in TypedModel
 
     @classmethod

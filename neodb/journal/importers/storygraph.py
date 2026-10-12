@@ -78,7 +78,7 @@ def _site_url_prefix() -> str:
 
 
 class StoryGraphImporter(Task):
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         app_label = "journal"  # workaround bug in TypedModel
 
     TaskQueue = "import"

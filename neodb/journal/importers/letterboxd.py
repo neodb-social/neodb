@@ -48,7 +48,7 @@ def _is_letterboxd_url(url: str) -> bool:
 
 
 class LetterboxdImporter(Task):
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         app_label = "journal"  # workaround bug in TypedModel
 
     TaskQueue = "import"

@@ -50,7 +50,7 @@ class InvalidSteamIDException(Exception):
 
 
 class SteamImporter(BaseImporter):
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         app_label = "journal"
 
     def __init__(self, *args, **kwargs):

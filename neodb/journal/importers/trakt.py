@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class TraktImporter(Task):
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         app_label = "journal"
 
     TaskQueue = "import"

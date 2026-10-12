@@ -25,7 +25,7 @@ class TagMember(ListMember):
         parent: models.ForeignKey["TagMember", "Tag"]
     parent = models.ForeignKey("Tag", related_name="members", on_delete=models.CASCADE)  # type: ignore
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         unique_together = [["parent", "item"]]
 
     @cached_property
@@ -60,7 +60,7 @@ class Tag(List):
     )
     pinned = models.BooleanField(default=False, null=True)
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         unique_together = [["owner", "title"]]
         indexes = [models.Index(fields=["owner", "pinned"])]
 

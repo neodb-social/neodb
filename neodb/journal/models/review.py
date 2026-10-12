@@ -46,7 +46,7 @@ class Review(Content):
     title = models.CharField(max_length=500, blank=False, null=False)
     body = models.TextField()
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         indexes = [
             models.Index(fields=["remote_id"], name="review_remote_id_idx"),
         ]

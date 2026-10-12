@@ -707,7 +707,7 @@ def test_collection_cover_api(tmp_path):
     png = buf.getvalue()
 
     def upload(path, content, auth_token, filename="cover.png"):
-        extra = {"HTTP_AUTHORIZATION": f"Bearer {auth_token}"} if auth_token else {}
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
         return client.put(
             path,
             data=encode_multipart(
@@ -715,7 +715,7 @@ def test_collection_cover_api(tmp_path):
                 {"cover": SimpleUploadedFile(filename, content, "image/png")},
             ),
             content_type=MULTIPART_CONTENT,
-            **extra,
+            headers=headers,
         )
 
     with override_settings(MEDIA_ROOT=str(tmp_path)):
@@ -783,7 +783,7 @@ def test_article_cover_api(tmp_path):
     png = buf.getvalue()
 
     def upload(path, content, auth_token, filename="cover.png"):
-        extra = {"HTTP_AUTHORIZATION": f"Bearer {auth_token}"} if auth_token else {}
+        headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
         return client.put(
             path,
             data=encode_multipart(
@@ -791,7 +791,7 @@ def test_article_cover_api(tmp_path):
                 {"cover": SimpleUploadedFile(filename, content, "image/png")},
             ),
             content_type=MULTIPART_CONTENT,
-            **extra,
+            headers=headers,
         )
 
     with override_settings(MEDIA_ROOT=str(tmp_path)):
@@ -2095,8 +2095,10 @@ class TestItemPostsApi:
         )
 
     def fetch(self, query="", auth=False):
-        headers = {"HTTP_AUTHORIZATION": f"Bearer {self.token}"} if auth else {}
-        response = Client().get(f"/api/item/{self.item.uuid}/posts/{query}", **headers)
+        headers = {"Authorization": f"Bearer {self.token}"} if auth else {}
+        response = Client().get(
+            f"/api/item/{self.item.uuid}/posts/{query}", headers=headers
+        )
         assert response.status_code == 200
         return response.json()
 
@@ -2153,8 +2155,8 @@ class TestItemPostsApi:
         params = {"url": self.item.absolute_url}
         if limit:
             params["limit"] = limit
-        headers = {"HTTP_AUTHORIZATION": f"Bearer {self.token}"} if auth else {}
-        response = Client().get("/api/v1/timelines/link", params, **headers)
+        headers = {"Authorization": f"Bearer {self.token}"} if auth else {}
+        response = Client().get("/api/v1/timelines/link", params, headers=headers)
         assert response.status_code == 200
         return [int(p["id"]) for p in response.json()]
 

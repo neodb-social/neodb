@@ -48,7 +48,7 @@ class List(Piece):
     metadata = models.JSONField(default=dict)
     remote_id = models.CharField(max_length=200, null=True, default=None)
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         abstract = True
 
     # MEMBER_CLASS = None  # subclass must override this
@@ -488,7 +488,7 @@ class ListMember(Piece):
         m = Mark(self.owner, self.item)
         return m
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         abstract = True
 
     def __str__(self):

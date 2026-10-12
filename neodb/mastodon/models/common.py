@@ -60,7 +60,7 @@ class SocialAccount(TypedModel):
     last_refresh = models.DateTimeField(default=None, null=True)
     last_reachable = models.DateTimeField(default=None, null=True)
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         indexes = [
             models.Index(fields=["type", "handle"], name="index_social_type_handle"),
             models.Index(

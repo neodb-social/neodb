@@ -114,7 +114,8 @@ def deprecated_field() -> Any:
 class PageNumberPagination(NinjaPageNumberPagination):
     items_attribute = "data"
 
-    class Output(Schema):
+    # Ninja permits replacing the output schema, including its items field.
+    class Output(Schema):  # ty: ignore[invalid-attribute-override]
         data: list[Any]
         pages: int
         count: int

@@ -376,7 +376,7 @@ class ShelfMember(ListMember):
 
     objects = ShelfMemberManager()
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         unique_together = [["owner", "item"]]
         indexes = [
             models.Index(fields=["parent_id", "visibility", "created_time"]),
@@ -700,7 +700,7 @@ class Shelf(List):
     if TYPE_CHECKING:
         members: models.QuerySet[ShelfMember]
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         unique_together = [["owner", "shelf_type"]]
 
     MEMBER_CLASS = ShelfMember

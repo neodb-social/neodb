@@ -625,5 +625,5 @@ class Series(Item):
     # douban_serie = LookupIdDescriptor(IdType.DoubanBook_Serie)
     # goodreads_serie = LookupIdDescriptor(IdType.Goodreads_Serie)
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         proxy = True

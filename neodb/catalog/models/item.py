@@ -471,7 +471,7 @@ class Item(PolymorphicModel):
         schema=LOCALIZED_DESCRIPTION_SCHEMA,
     )
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         indexes = [
             models.Index(fields=["primary_lookup_id_type", "primary_lookup_id_value"])
         ]
@@ -534,7 +534,7 @@ class Item(PolymorphicModel):
         return lookup_id_type, lookup_id_value.strip()
 
     @property
-    def parent_item(self) -> Self | None:
+    def parent_item(self) -> "Item | None":
         return None
 
     @property

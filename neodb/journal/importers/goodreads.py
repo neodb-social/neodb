@@ -25,7 +25,7 @@ SHELF_MAP = {
 
 
 class GoodreadsImporter(Task):
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         app_label = "journal"  # workaround bug in TypedModel
 
     TaskQueue = "import"

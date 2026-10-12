@@ -41,7 +41,7 @@ def _fetch_remote_image(url, identity_id):
 
 
 class DoubanImporter(Task):
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         app_label = "journal"  # workaround bug in TypedModel
 
     TaskQueue = "import"

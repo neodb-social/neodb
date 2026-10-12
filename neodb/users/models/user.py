@@ -129,7 +129,8 @@ class User(AbstractUser):
     identity: "APIdentity"
     preference: "Preference"
     social_accounts: "models.QuerySet[SocialAccount]"
-    objects: ClassVar[UserManager] = UserManager()
+    # Email-only registration uses our BaseUserManager, not Django's UserManager.
+    objects: ClassVar[UserManager] = UserManager()  # ty: ignore[invalid-attribute-override]
     username_validator = UsernameValidator()
     username = models.CharField(
         _("username"),
@@ -151,7 +152,7 @@ class User(AbstractUser):
         default="en",
     )
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         constraints = [
             models.UniqueConstraint(
                 Lower("username"),

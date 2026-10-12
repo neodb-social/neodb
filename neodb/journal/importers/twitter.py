@@ -120,7 +120,7 @@ class TwitterImporter(BaseImporter):
     sees them as new and nothing is delivered to followers or peers.
     """
 
-    class Meta:
+    class Meta:  # ty: ignore[invalid-attribute-override]
         app_label = "journal"  # workaround bug in TypedModel
 
     _zip: zipfile.ZipFile | None = None
