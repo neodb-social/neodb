@@ -5,7 +5,6 @@ from collections.abc import Iterable
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any, TypeVar
 
-import httpx
 from blurhash_rs import blurhash_encode
 from django.conf import settings
 from django.core.cache import cache
@@ -592,6 +591,8 @@ class Takahe:
     @staticmethod
     def refresh_remote_identity(identity_pk: int) -> None:
         """Fetch latest actor data for a remote identity to refresh aliases etc."""
+        from .auth import sign_get
+
         identity = Identity.objects.get(pk=identity_pk)
         if identity.local:
             return
@@ -599,14 +600,9 @@ class Takahe:
             logger.warning(f"refresh {identity.actor_uri} skipped: not a public URL")
             return
         try:
-            response = httpx.get(
+            response = sign_get(
                 identity.actor_uri,
-                headers={
-                    "Accept": "application/activity+json",
-                    "User-Agent": settings.TAKAHE_USER_AGENT,
-                },
                 timeout=SiteConfig.system.mastodon_timeout,
-                follow_redirects=False,
             )
             if response.status_code == 200:
                 data = response.json()
