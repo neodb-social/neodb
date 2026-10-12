@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from takahe.models import Domain, Identity
+from takahe.models import Domain, Identity, RsaKeys
 from takahe.utils import Takahe
 
 
@@ -30,8 +30,14 @@ def test_private_actor_uri_is_not_fetched(remote_identity: Identity) -> None:
 
 @pytest.mark.django_db(databases="__all__")
 def test_refresh_does_not_follow_redirects(remote_identity: Identity) -> None:
+    private_key, _ = RsaKeys.generate_keypair()
     with (
         mock.patch("takahe.utils.is_valid_url", return_value=True),
+        mock.patch("common.validators.is_valid_url", return_value=True),
+        mock.patch(
+            "takahe.auth._system_actor_signing_keys",
+            return_value=("https://example.org/actor/#main-key", private_key),
+        ),
         mock.patch("httpx.get") as get,
     ):
         get.return_value.status_code = 200
