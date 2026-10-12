@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class OPMLImporter(Task):
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         app_label = "journal"  # workaround bug in TypedModel
 
     TaskQueue = "import"

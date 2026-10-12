@@ -144,7 +144,7 @@ class Article(Piece):
         upload_to=piece_cover_path, default=MISSING_COVER, blank=True
     )
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         indexes = [
             models.Index(fields=["owner", "created_time"]),
             models.Index(fields=["remote_id"], name="article_remote_id_idx"),

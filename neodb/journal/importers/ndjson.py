@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 class NdjsonImporter(BaseImporter):
     """Importer for NDJSON files exported from NeoDB."""
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         app_label = "journal"  # workaround bug in TypedModel
 
     def __init__(self, *args, **kwargs):

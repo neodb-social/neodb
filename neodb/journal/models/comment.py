@@ -22,7 +22,7 @@ class Comment(Content):
     index_when_save = True
     text = models.TextField(blank=False, null=False)
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         indexes = [
             models.Index(fields=["remote_id"], name="comment_remote_id_idx"),
         ]

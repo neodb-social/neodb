@@ -31,7 +31,7 @@ def _get_source_url(item):
 #     user.preference.export_status["marks_pending"] = True
 #     user.preference.save(update_fields=["export_status"])
 class DoufenExporter(Task):
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         app_label = "journal"  # workaround bug in TypedModel
 
     TaskQueue = "export"

@@ -1422,14 +1422,14 @@ class Content(Piece):
     def brief_description(self) -> str:
         raise NotImplementedError("subclass should override this")
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         abstract = True
 
 
 class Debris(Content):
     class_name = CharField(max_length=50)
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         indexes = [
             models.Index(fields=["remote_id"], name="debris_remote_id_idx"),
         ]

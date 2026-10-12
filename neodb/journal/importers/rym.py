@@ -123,7 +123,7 @@ def _site_url_prefix() -> str:
 
 
 class RymImporter(Task):
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         app_label = "journal"
 
     TaskQueue = "import"

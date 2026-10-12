@@ -471,7 +471,7 @@ class Item(PolymorphicModel):
         schema=LOCALIZED_DESCRIPTION_SCHEMA,
     )
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         indexes = [
             models.Index(fields=["primary_lookup_id_type", "primary_lookup_id_value"])
         ]

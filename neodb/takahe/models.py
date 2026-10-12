@@ -217,7 +217,7 @@ class User(AbstractBaseUser):
     if TYPE_CHECKING:
         identities: RelatedManager["Identity"]
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         # managed = False
         db_table = "users_user"
 

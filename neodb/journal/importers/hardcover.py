@@ -90,7 +90,7 @@ def _site_url_prefix() -> str:
 
 
 class HardcoverImporter(Task):
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         app_label = "journal"  # workaround bug in TypedModel
 
     TaskQueue = "import"

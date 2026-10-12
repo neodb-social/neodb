@@ -375,7 +375,7 @@ class PodcastEpisode(Item):
     def lookup_id_type_choices(cls):
         return []
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         indexes = [
             # Covering index: item_ptr lets child_item_ids read episode ids via
             # an index-only scan.

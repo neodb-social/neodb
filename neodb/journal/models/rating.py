@@ -48,7 +48,7 @@ def _calculate_distribution(grades: list[int], total: int) -> list[int]:
 
 
 class Rating(Content):
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         unique_together = [["owner", "item"]]
         indexes = [
             models.Index(fields=["remote_id"], name="rating_remote_id_idx"),

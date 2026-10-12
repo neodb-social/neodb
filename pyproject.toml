@@ -115,6 +115,19 @@ root = ["./neodb"]
 [tool.ty.src]
 exclude = ["takahe"]
 
+# Django consumes per-model Meta classes and permits custom managers. ty 0.0.86
+# checks them as ordinary inherited attributes; Django support: astral-sh/ty#1018.
+[[tool.ty.overrides]]
+include = [
+    "neodb/**/models/**",
+    "neodb/**/models.py",
+    "neodb/journal/importers/**",
+    "neodb/journal/exporters/**",
+]
+
+[tool.ty.overrides.rules]
+invalid-attribute-override = "ignore"
+
 [tool.djlint]
 ignore = "T002,T003,H005,H006,H019,H020,H021,H023,H030,H031,H036,H050,H052,D018"
 indent = 2

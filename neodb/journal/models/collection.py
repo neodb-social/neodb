@@ -49,7 +49,7 @@ class CollectionMember(ListMember):
 
     note = jsondata.CharField(_("note"), null=True, blank=True)
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=["parent", "item"], name="unique_collection_member"
@@ -127,7 +127,7 @@ class Collection(List):
         null=True,
     )
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         indexes = [
             models.Index(fields=["remote_id"], name="collection_remote_id_idx"),
         ]
@@ -1007,7 +1007,7 @@ class FeaturedCollection(Piece):
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         unique_together = [["owner", "target"]]
 
     @property

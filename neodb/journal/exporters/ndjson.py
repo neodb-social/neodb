@@ -43,7 +43,7 @@ _CONTENT_CLASSES = (Rating, Comment, Review, Note)
 
 
 class NdjsonExporter(Task):
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         app_label = "journal"  # workaround bug in TypedModel
 
     TaskQueue = "export"

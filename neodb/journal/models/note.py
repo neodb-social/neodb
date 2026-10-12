@@ -97,7 +97,7 @@ class Note(Content):
         ProgressType.TIMESTAMP: "{value}",
     }
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         indexes = [
             models.Index(fields=["owner", "item", "created_time"]),
             models.Index(fields=["remote_id"], name="note_remote_id_idx"),

@@ -76,7 +76,7 @@ class WordpressExporter(Task):
     WordPress's importer consumes directly.
     """
 
-    class Meta:  # ty: ignore[invalid-attribute-override]
+    class Meta:
         app_label = "journal"  # workaround bug in TypedModel
 
     TaskQueue = "export"
