@@ -682,8 +682,9 @@ class TVEpisode(Item):
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     METADATA_COPY_LIST = ["title", "brief", "season_number", "episode_number"]
 
+    # Keep titles live when parent metadata changes on this instance.
     @property
-    def display_title(self):
+    def display_title(self) -> str:  # ty: ignore[invalid-property-type-override]
         return (
             _("{season_title} E{episode_number}")
             .format(

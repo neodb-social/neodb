@@ -118,18 +118,18 @@ ENV_VARS_WITH_SITE_SETTING: dict[str, str] = {
 @method_decorator(superuser_required, name="dispatch")
 class SiteConfigSettingsPage(FormView):
     """
-    Auto-generates a settings form from ``options`` and ``layout`` dicts,
+    Auto-generates a settings form from ``form_options`` and ``layout`` dicts,
     backed by ``SiteConfig.SystemOptions`` Pydantic fields.
     """
 
     template_name = "manage/settings.html"
     section: ClassVar[str]
-    options: ClassVar[dict]
+    form_options: ClassVar[dict]
     layout: ClassVar[dict]
 
     def get_form_class(self):
         fields = {}
-        for key, details in self.options.items():
+        for key, details in self.form_options.items():
             field_info = SiteConfig.SystemOptions.model_fields[key]
             annotation = field_info.annotation
             origin = getattr(annotation, "__origin__", None)
@@ -201,7 +201,7 @@ class SiteConfigSettingsPage(FormView):
     def get_initial(self):
         config = SiteConfig.load_system()
         initial = {}
-        for key in self.options:
+        for key in self.form_options:
             value = getattr(config, key)
             field_info = SiteConfig.SystemOptions.model_fields[key]
             annotation = field_info.annotation
@@ -209,7 +209,7 @@ class SiteConfigSettingsPage(FormView):
             if origin is list:
                 initial[key] = "\n".join(str(v) for v in value) if value else ""
             elif annotation is dict or origin is dict:
-                if self.options[key].get("schema"):
+                if self.form_options[key].get("schema"):
                     # JSONFormField handles dicts natively
                     initial[key] = value or {}
                 else:
@@ -247,7 +247,7 @@ class SiteConfigSettingsPage(FormView):
                 if line.strip()
             ]
         elif annotation is dict or origin is dict:
-            if self.options[key].get("schema"):
+            if self.form_options[key].get("schema"):
                 # JSONFormField already returns a parsed dict
                 return raw_value if raw_value else {}
             raw_str = str(raw_value).strip() if raw_value else ""
@@ -265,7 +265,7 @@ class SiteConfigSettingsPage(FormView):
 
     def form_valid(self, form):
         updates = {}
-        for key in self.options:
+        for key in self.form_options:
             raw = form.cleaned_data[key]
             try:
                 updates[key] = self._convert_value(key, raw)
@@ -305,7 +305,7 @@ class BrandingSettings(SiteConfigSettingsPage):
             pass
         return response
 
-    options = {
+    form_options = {
         "site_name": {
             "title": _("Site name"),
         },
@@ -389,7 +389,7 @@ class BrandingSettings(SiteConfigSettingsPage):
 
 class DiscoverSettings(SiteConfigSettingsPage):
     section = "discover"
-    options = {
+    form_options = {
         "min_marks_for_discover": {
             "title": _("Minimum marks for Discover"),
             "help_text": _(
@@ -484,7 +484,7 @@ class DiscoverSettings(SiteConfigSettingsPage):
 
 class FeedSettings(SiteConfigSettingsPage):
     section = "feed"
-    options = {
+    form_options = {
         "feed_show_world": {
             "title": _("Show world timeline"),
             "help_text": _(
@@ -524,7 +524,7 @@ class RecommendationSettings(SiteConfigSettingsPage):
                 logger.warning(f"Failed to (re)schedule recommendation jobs: {e}")
         return response
 
-    options = {
+    form_options = {
         "enable_recommendations": {
             "title": _("Enable recommendations"),
             "help_text": _(
@@ -842,7 +842,7 @@ class AccessSettings(SiteConfigSettingsPage):
     section = "access"
     # annotated so the mix of str/int/list option values does not narrow the
     # inferred type; test_views_manage indexes into this dict
-    options: ClassVar[dict] = {
+    form_options: ClassVar[dict] = {
         "invite_only": {
             "title": _("Invite only"),
             "help_text": _(
@@ -989,7 +989,7 @@ class AccessSettings(SiteConfigSettingsPage):
 
 class FederationSettings(SiteConfigSettingsPage):
     section = "federation"
-    options = {
+    form_options = {
         "disable_default_relay": {
             "title": _("Disable default relay"),
             "help_text": _(
@@ -1048,7 +1048,7 @@ class FederationSettings(SiteConfigSettingsPage):
 
 class APIKeysSettings(SiteConfigSettingsPage):
     section = "api_keys"
-    options = {
+    form_options = {
         "spotify_api_key": {
             "title": _("Spotify API key"),
             "help_text": _("https://developer.spotify.com/"),
@@ -1168,7 +1168,7 @@ class APIKeysSettings(SiteConfigSettingsPage):
 
 class DownloaderSettings(SiteConfigSettingsPage):
     section = "downloader"
-    options = {
+    form_options = {
         "downloader_providers": {
             "title": _("Scraping providers"),
             "help_text": _("Comma-separated list of providers to try in order."),
@@ -1232,7 +1232,7 @@ class DownloaderSettings(SiteConfigSettingsPage):
 
 class AdvancedSettings(SiteConfigSettingsPage):
     section = "advanced"
-    options = {
+    form_options = {
         "alternative_domains": {
             "title": _("Alternative domains"),
             "help_text": _("One domain per line."),
@@ -1313,7 +1313,7 @@ class AdvancedSettings(SiteConfigSettingsPage):
 
 class CatalogSettings(SiteConfigSettingsPage):
     section = "catalog"
-    options = {
+    form_options = {
         "genres_movie": {
             "title": _("Movie genres"),
             "help_text": _(

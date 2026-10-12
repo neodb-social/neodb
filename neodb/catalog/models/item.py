@@ -534,7 +534,7 @@ class Item(PolymorphicModel):
         return lookup_id_type, lookup_id_value.strip()
 
     @property
-    def parent_item(self) -> Self | None:
+    def parent_item(self) -> "Item | None":
         return None
 
     @property

@@ -319,8 +319,9 @@ class PodcastEpisode(Item):
     def set_parent_item(self, value: Podcast | None):  # type:ignore
         self.program = value
 
+    # Keep titles live when parent metadata changes on this instance.
     @property
-    def display_title(self) -> str:
+    def display_title(self) -> str:  # ty: ignore[invalid-property-type-override]
         return f"{self.program.title} - {self.title}" if self.program else self.title
 
     def to_indexable_doc(self):

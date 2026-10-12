@@ -52,7 +52,7 @@ class TestSettingsCoverage:
         all_model_fields = set(SiteConfig.SystemOptions.model_fields.keys())
         ui_fields_list: list[str] = []
         for page_cls in ALL_SETTINGS_PAGES:
-            ui_fields_list.extend(page_cls.options.keys())
+            ui_fields_list.extend(page_cls.form_options.keys())
 
         ui_fields_set = set(ui_fields_list)
 
@@ -71,7 +71,7 @@ class TestSettingsCoverage:
         all_model_fields = set(SiteConfig.SystemOptions.model_fields.keys())
         ui_fields: set[str] = set()
         for page_cls in ALL_SETTINGS_PAGES:
-            ui_fields.update(page_cls.options.keys())
+            ui_fields.update(page_cls.form_options.keys())
         extra = ui_fields - all_model_fields
         assert not extra, f"Settings UI references fields not in SystemOptions: {extra}"
 
@@ -82,7 +82,7 @@ class TestSettingsCoverage:
                 layout_fields_list.extend(fields)
 
             layout_fields = set(layout_fields_list)
-            options_fields = set(page_cls.options.keys())
+            options_fields = set(page_cls.form_options.keys())
 
             duplicates = [f for f in layout_fields if layout_fields_list.count(f) > 1]
             assert not duplicates, (
@@ -400,7 +400,7 @@ class TestLanguageCodeOptions:
         assert SiteConfig.SystemOptions(language_code="zh-hant").language_code
 
     def test_offered_choices_are_supported_ui_languages(self) -> None:
-        choices = AccessSettings.options["language_code"]["choices"]
+        choices = AccessSettings.form_options["language_code"]["choices"]
 
         assert [code for code, _label in choices] == list(
             settings.SUPPORTED_UI_LANGUAGES
@@ -729,3 +729,17 @@ class TestEnvironmentPage:
         assert 'class="manage-form"' in html
         assert 'type="submit"' in html
         assert "/manage/environment/" in html
+
+    def test_form_page_options_request(self, client: Any) -> None:
+        self._login(client, superuser=True)
+
+        response = client.options("/manage/branding/")
+
+        assert response.status_code == 200
+        assert set(response.headers["Allow"].split(", ")) == {
+            "GET",
+            "POST",
+            "PUT",
+            "HEAD",
+            "OPTIONS",
+        }
