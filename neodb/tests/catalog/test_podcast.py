@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone
 
 from catalog.common import *
@@ -382,3 +383,20 @@ class TestPodcastUpdater:
         for podcast in (deleted, merged, non_rss, no_feed):
             podcast.refresh_from_db()
             assert podcast.feed_last_fetched_at is None
+
+
+@pytest.mark.django_db(databases="__all__")
+@pytest.mark.parametrize(
+    "last", ["2026-01-01%2000%3A00%3A02.000000%2B0800", "2026-02-30 00:00:00"]
+)
+def test_episode_data_ignores_malformed_cursor(client, last: str) -> None:
+    show = Podcast.objects.create(title="Cursor Show")
+    PodcastEpisode.objects.create(
+        title="Only Episode", program=show, pub_date=timezone.now()
+    )
+    url = reverse("catalog:episode_data", args=[show.uuid])
+
+    response = client.get(url, {"last": last})
+
+    assert response.status_code == 200
+    assert "Only Episode" in response.content.decode()
