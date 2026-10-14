@@ -18,6 +18,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
@@ -309,8 +310,12 @@ def people_works(request, item_path, item_uuid, role):
 def episode_data(request, item_uuid):
     item = get_object_or_404(Podcast, uid=get_uuid_or_404(item_uuid))
     qs = item.episodes.all().order_by("-pub_date")
-    if request.GET.get("last"):
-        qs = qs.filter(pub_date__lt=request.GET.get("last"))
+    try:
+        last = parse_datetime(request.GET.get("last", ""))
+    except ValueError:
+        last = None
+    if last:
+        qs = qs.filter(pub_date__lt=last)
     return render(
         request, "podcast_episode_data.html", {"item": item, "episodes": qs[:5]}
     )
