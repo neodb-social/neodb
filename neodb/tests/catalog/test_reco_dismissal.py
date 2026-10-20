@@ -2,7 +2,9 @@ import time
 from datetime import datetime, timedelta
 
 import pytest
+from django.db import connections
 from django.test import Client
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 
@@ -490,7 +492,7 @@ class TestApi:
         assert set(self._uuids("?source=following&limit=2")) == {
             b.uuid for b in followed
         }
-        assert len(self._uuids("?source=self&limit=1")) == 1
+        assert self._uuids("?source=self&limit=1") == [own[0].uuid]
 
     def test_unknown_source_is_rejected(self):
         response = Client().get(
@@ -548,6 +550,26 @@ class TestApi:
         client.delete(self.url, headers=self.auth)
         payload = client.get("/api/me/recommendations/dismissed", headers=self.auth)
         assert payload.json() == {"data": [], "count": 0, "pages": 0}
+
+    def _dismissed_list_queries(self) -> int:
+        client = Client()
+        with (
+            CaptureQueriesContext(connections["default"]) as d,
+            CaptureQueriesContext(connections["takahe"]) as t,
+        ):
+            response = client.get(
+                "/api/me/recommendations/dismissed", headers=self.auth
+            )
+        assert response.status_code == 200
+        return len(d.captured_queries) + len(t.captured_queries)
+
+    def test_dismissed_list_query_count_is_flat(self):
+        dismiss_item(self.user, self.book)
+        self._dismissed_list_queries()
+        one = self._dismissed_list_queries()
+        for i in range(4):
+            dismiss_item(self.user, Edition.objects.create(title=f"Hidden {i}"))
+        assert self._dismissed_list_queries() == one
 
     def test_dismissed_needs_token(self):
         assert Client().get("/api/me/recommendations/dismissed").status_code == 401

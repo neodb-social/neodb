@@ -885,9 +885,9 @@ def me_recommendations(
     request, limit: int = 30, source: RecommendationSource | None = None
 ):
     """
-    `source` keeps one source only, before `limit` is applied: `self` for items
-    found through the current user's own marks, `following` for items recently
-    marked by people the user follows. Without it the two are interleaved.
+    `source` keeps one source only, before `limit` is applied: `self` for the
+    current user's own For you list, `following` for items recently marked by
+    people the user follows. Without it the two are interleaved.
     """
     if not request.user.is_authenticated:
         return Status(401, {"message": "Login required"})
