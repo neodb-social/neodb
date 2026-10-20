@@ -1,8 +1,12 @@
 import time
+from datetime import datetime, timedelta
 
 import pytest
+from django.db import connections
 from django.test import Client
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
 
 from catalog.jobs.recommendation import BuildItemSimilarity
 from catalog.models import (
@@ -460,6 +464,115 @@ class TestApi:
         payload = Client().get("/api/me/recommendations", headers=self.auth).json()
         assert [d["uuid"] for d in payload["data"]] == [b.uuid for b in reversed(books)]
         assert payload["seeds"] == {b.uuid: [s.uuid for s in seeds] for b in books}
+
+    def _source_lists(self) -> tuple[list, list]:
+        own = [Edition.objects.create(title=f"Own {i}") for i in range(2)]
+        _cached_rows(self.user, own)
+        friend = User.register(email="api2@t.com", username="api_friend")
+        self.user.identity.follow(friend.identity, True)
+        followed = [Edition.objects.create(title=f"Followed {i}") for i in range(2)]
+        for b in followed:
+            _public_mark(friend.identity, b)
+        return own, followed
+
+    def _uuids(self, query: str = "") -> list[str]:
+        response = Client().get(f"/api/me/recommendations{query}", headers=self.auth)
+        assert response.status_code == 200
+        return [d["uuid"] for d in response.json()["data"]]
+
+    def test_source_keeps_one_source(self):
+        own, followed = self._source_lists()
+        assert self._uuids("?source=self") == [b.uuid for b in reversed(own)]
+        assert set(self._uuids("?source=following")) == {b.uuid for b in followed}
+        assert set(self._uuids()) == {b.uuid for b in own + followed}
+
+    def test_source_applies_before_limit(self):
+        own, followed = self._source_lists()
+        assert len(self._uuids("?limit=2")) == 2
+        assert set(self._uuids("?source=following&limit=2")) == {
+            b.uuid for b in followed
+        }
+        assert self._uuids("?source=self&limit=1") == [own[0].uuid]
+
+    def test_unknown_source_is_rejected(self):
+        response = Client().get(
+            "/api/me/recommendations?source=everyone", headers=self.auth
+        )
+        assert response.status_code == 422
+
+    def test_source_follows_opt_out(self):
+        self._source_lists()
+        self.user.preference.disable_recommendations = True
+        self.user.preference.save(update_fields=["disable_recommendations"])
+        assert self._uuids("?source=self") == []
+        assert self._uuids("?source=following") == []
+
+    def _dismiss_in_order(self, books: list) -> None:
+        now = timezone.now()
+        for n, b in enumerate(books):
+            dismiss_item(self.user, b)
+            RecommendationDismissal.objects.filter(user=self.user, item=b).update(
+                created_time=now - timedelta(minutes=len(books) - n)
+            )
+
+    def test_dismissed_lists_newest_first(self):
+        books = [Edition.objects.create(title=f"Hidden {i}") for i in range(3)]
+        self._dismiss_in_order(books)
+        other = User.register(email="api3@t.com", username="api_other")
+        dismiss_item(other, self.book)
+        response = Client().get("/api/me/recommendations/dismissed", headers=self.auth)
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["count"] == 3
+        assert payload["pages"] == 1
+        assert [d["item"]["uuid"] for d in payload["data"]] == [
+            b.uuid for b in reversed(books)
+        ]
+        times = [datetime.fromisoformat(d["created_time"]) for d in payload["data"]]
+        assert times == sorted(times, reverse=True)
+
+    def test_dismissed_pages(self):
+        books = [Edition.objects.create(title=f"Hidden {i}") for i in range(3)]
+        self._dismiss_in_order(books)
+        url = "/api/me/recommendations/dismissed?page_size=2"
+        first = Client().get(url, headers=self.auth).json()
+        second = Client().get(url + "&page=2", headers=self.auth).json()
+        assert (first["count"], first["pages"]) == (3, 2)
+        assert [d["item"]["uuid"] for d in first["data"]] == [
+            books[2].uuid,
+            books[1].uuid,
+        ]
+        assert [d["item"]["uuid"] for d in second["data"]] == [books[0].uuid]
+
+    def test_restored_item_leaves_dismissed_list(self):
+        dismiss_item(self.user, self.book)
+        client = Client()
+        client.delete(self.url, headers=self.auth)
+        payload = client.get("/api/me/recommendations/dismissed", headers=self.auth)
+        assert payload.json() == {"data": [], "count": 0, "pages": 0}
+
+    def _dismissed_list_queries(self) -> int:
+        client = Client()
+        with (
+            CaptureQueriesContext(connections["default"]) as d,
+            CaptureQueriesContext(connections["takahe"]) as t,
+        ):
+            response = client.get(
+                "/api/me/recommendations/dismissed", headers=self.auth
+            )
+        assert response.status_code == 200
+        return len(d.captured_queries) + len(t.captured_queries)
+
+    def test_dismissed_list_query_count_is_flat(self):
+        dismiss_item(self.user, self.book)
+        self._dismissed_list_queries()
+        one = self._dismissed_list_queries()
+        for i in range(4):
+            dismiss_item(self.user, Edition.objects.create(title=f"Hidden {i}"))
+        assert self._dismissed_list_queries() == one
+
+    def test_dismissed_needs_token(self):
+        assert Client().get("/api/me/recommendations/dismissed").status_code == 401
 
 
 class TestSeeAllPages:

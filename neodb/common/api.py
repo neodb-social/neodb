@@ -133,10 +133,11 @@ class PageNumberPagination(NinjaPageNumberPagination):
             # payload: pass it through with the items attribute ninja expects.
             return {self.items_attribute: [], "count": 0, "pages": 0, **queryset}
         val = super().paginate_queryset(queryset, pagination, request, **params)
+        page_size = self._get_page_size(pagination.page_size)
         return {
             "data": val["data"],
             "count": val["count"],
-            "pages": (val["count"] + self.page_size - 1) // self.page_size,
+            "pages": (val["count"] + page_size - 1) // page_size,
         }
 
 

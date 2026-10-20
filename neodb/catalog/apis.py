@@ -1,10 +1,12 @@
+from datetime import datetime
 from enum import Enum
+from typing import Any
 from urllib.parse import urlparse
 
 from django.core.cache import cache
 from django.core.paginator import Paginator
-from django.db.models import prefetch_related_objects
-from django.http import HttpResponse
+from django.db.models import QuerySet, prefetch_related_objects
+from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 from ninja import Field, Schema, Status
 from ninja.pagination import paginate
@@ -45,6 +47,7 @@ from .models import (
     PodcastEpisode,
     PodcastEpisodeSchema,
     PodcastSchema,
+    RecommendationDismissal,
     TVEpisode,
     TVEpisodeSchema,
     TVSeason,
@@ -57,6 +60,8 @@ from .recommendation import (
     blended_for_discover,
     can_show_reco,
     dismiss_item,
+    for_you,
+    from_your_circles,
     restore_item,
     similar_items,
 )
@@ -858,21 +863,43 @@ def similar_for_item(request, item_uuid: str, limit: int = 10):
     return Status(200, {"data": items, "pages": 1 if items else 0, "count": len(items)})
 
 
+class RecommendationSource(str, Enum):
+    Self = "self"
+    Following = "following"
+
+
+_SOURCE_RECO_KINDS = {
+    RecommendationSource.Self: ("for_you",),
+    RecommendationSource.Following: ("from_circles",),
+    None: ("for_you", "from_circles"),
+}
+
+
 @api.get(
     "/me/recommendations",
     response={200: PersonalRecommendationResult, 401: Result},
     summary="Personalised recommendations for the current user",
     tags=["recommendation"],
 )
-def me_recommendations(request, limit: int = 30):
+def me_recommendations(
+    request, limit: int = 30, source: RecommendationSource | None = None
+):
+    """
+    `source` keeps one source only, before `limit` is applied: `self` for the
+    current user's own For you list, `following` for items recently marked by
+    people the user follows. Without it the two are interleaved.
+    """
     if not request.user.is_authenticated:
         return Status(401, {"message": "Login required"})
-    if not (
-        can_show_reco(request.user, "for_you")
-        or can_show_reco(request.user, "from_circles")
-    ):
+    if not any(can_show_reco(request.user, k) for k in _SOURCE_RECO_KINDS[source]):
         return Status(200, NO_DATA)
-    items = blended_for_discover(request.user, limit=min(max(limit, 1), 60))
+    limit = min(max(limit, 1), 60)
+    if source == RecommendationSource.Self:
+        items = for_you(request.user, limit=limit)
+    elif source == RecommendationSource.Following:
+        items = from_your_circles(request.user, limit=limit)
+    else:
+        items = blended_for_discover(request.user, limit=limit)
     _prepare_reco_items(request, items)
     seeds = {
         i.uuid: [s.uuid for s in i.reco_seed_items] for i in items if i.reco_seed_items
@@ -885,6 +912,44 @@ def me_recommendations(request, limit: int = 30):
             "count": len(items),
             "seeds": seeds,
         },
+    )
+
+
+class DismissedItemSchema(Schema):
+    item: ItemSchema
+    created_time: datetime
+
+
+class DismissalPageNumberPagination(PageNumberPagination):
+    def paginate_queryset(
+        self,
+        queryset: QuerySet,
+        pagination: PageNumberPagination.Input,
+        request: HttpRequest,
+        **params: Any,
+    ):
+        val = super().paginate_queryset(queryset, pagination, request, **params)
+        val["data"] = list(val["data"])
+        _prepare_reco_items(request, [d.item for d in val["data"]])
+        return val
+
+
+@api.get(
+    "/me/recommendations/dismissed",
+    response={200: list[DismissedItemSchema], 401: Result},
+    summary="Items the current user dismissed from recommendations",
+    tags=["recommendation"],
+)
+@paginate(DismissalPageNumberPagination)
+def list_dismissed_recommendations(request):
+    """
+    Most recently dismissed first, wherever they were dismissed. `created_time`
+    is when the item was dismissed.
+    """
+    return (
+        RecommendationDismissal.objects.filter(user=request.user)
+        .order_by("-created_time", "-pk")
+        .prefetch_related("item")
     )
 
 
