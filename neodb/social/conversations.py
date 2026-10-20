@@ -15,6 +15,7 @@ from django.views.decorators.http import require_http_methods
 from common.models.misc import int_
 from common.sentry import record_activity
 from common.utils import AuthedHttpRequest
+from common.validators import get_safe_referer_url
 from takahe.models import Conversation, ConversationMembership, Identity, Post
 from takahe.utils import Takahe
 from users.models import APIdentity
@@ -167,8 +168,16 @@ def conversations(request: AuthedHttpRequest):
         {
             "entries": entries,
             "next_before": entries[-1].last_post.pk if len(page) > PAGE_SIZE else None,
+            "has_unread": Takahe.has_unread_conversations(viewer.pk),
         },
     )
+
+
+@login_required
+@require_http_methods(["POST"])
+def conversations_read(request: AuthedHttpRequest):
+    Takahe.mark_conversations_read(request.user.identity.pk)
+    return redirect(get_safe_referer_url(request, reverse("social:conversations")))
 
 
 @login_required

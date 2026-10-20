@@ -7,6 +7,7 @@ from .conversations import (
     conversation_reply,
     conversation_unread,
     conversations,
+    conversations_read,
 )
 from .views import *
 
@@ -14,6 +15,7 @@ app_name = "social"
 urlpatterns = [
     path("messages/", conversations, name="conversations"),
     path("messages/new", conversation_new, name="conversation_new"),
+    path("messages/read", conversations_read, name="conversations_read"),
     path("messages/<int:conversation_id>/", conversation, name="conversation"),
     path(
         "messages/<int:conversation_id>/reply",

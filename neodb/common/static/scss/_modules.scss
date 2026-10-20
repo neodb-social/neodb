@@ -188,9 +188,12 @@ a.dc-count {
   }
 }
 
-// round icon button: shelf arrows, compose, notifications
+// round icon button: shelf arrows, compose, notifications;
+// button.dc-nav outranks Pico's button[type=submit] { width: 100% }, which
+// squeezed a submit button in a <form> to its icon width
 .dc-nav,
-a.dc-nav {
+a.dc-nav,
+button.dc-nav {
   position: relative;
   width: 2rem;
   height: 2rem;

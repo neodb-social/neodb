@@ -27,18 +27,14 @@
             <form method="post"
                   action="{% url 'social:conversation_unread' entry.pk %}">
               {% csrf_token %}
-              <button type="submit"
-                      class="dc-nav outline secondary"
-                      title="{% trans 'Mark as unread' %}">
+              <button type="submit" class="dc-nav" title="{% trans 'Mark as unread' %}">
                 <i class="fa-regular fa-envelope"></i>
               </button>
             </form>
             <form method="post"
                   action="{% url 'social:conversation_dismiss' entry.pk %}">
               {% csrf_token %}
-              <button type="submit"
-                      class="dc-nav outline secondary"
-                      title="{% trans 'Remove from list' %}">
+              <button type="submit" class="dc-nav" title="{% trans 'Remove from list' %}">
                 <i class="fa-regular fa-trash-can"></i>
               </button>
             </form>
