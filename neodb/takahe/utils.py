@@ -14,7 +14,7 @@ from django.core.signing import b62_encode
 from django.db.models import OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from PIL import Image
+from PIL import ExifTags, Image, ImageOps
 
 from common.models import SiteConfig
 from common.validators import is_valid_url
@@ -708,7 +708,21 @@ class Takahe:
         if len(content) > 1024 * 1024 * 5:
             raise ValueError("Image too large")
         main_file = ImageFile(io.BytesIO(content), name=filename)
-        resized_image = Image.open(io.BytesIO(content))
+        with Image.open(io.BytesIO(content)) as img:
+            width, height = img.size
+            # reduced-scale JPEG decode; 800 covers the box either way round
+            img.draft(None, (800, 800))
+            # a copy holds only the current frame, so save_all below cannot
+            # seek into the extra frames of a multi-picture JPEG (iPhone MPO)
+            resized_image = img.copy()
+        try:
+            orientation = resized_image.getexif().get(ExifTags.Base.Orientation)
+            ImageOps.exif_transpose(resized_image, in_place=True)
+            if orientation in (5, 6, 7, 8):
+                width, height = height, width
+        except Exception:
+            # malformed EXIF: a rotated thumbnail is better than no attachment
+            pass
         resized_image.thumbnail((400, 225), resample=Image.Resampling.BILINEAR)
         new_image_bytes = io.BytesIO()
         resized_image.save(new_image_bytes, format="webp", save_all=True)
@@ -716,8 +730,8 @@ class Takahe:
         hash = blurhash_encode(resized_image, x_components=4, y_components=4)
         attachment = PostAttachment.objects.create(
             mimetype=mimetype,
-            width=main_file.width,
-            height=main_file.height,
+            width=width,
+            height=height,
             name=description or None,
             state="fetched",
             author_id=author_pk,
