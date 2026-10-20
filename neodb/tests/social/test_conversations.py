@@ -175,6 +175,29 @@ def test_dismiss_and_unread():
     assert _membership(alice, conversation_id).unread is True
 
 
+def test_mark_all_as_read():
+    alice, alice_client = _member("alice")
+    bob, bob_client = _member("bob")
+    carol, carol_client = _member("carol")
+    _start(alice_client, "@bob", "one")
+    _start(carol_client, "@bob @alice", "two")
+    first = Post.objects.get(author_id=alice.identity.pk).conversation_id
+    second = Post.objects.get(author_id=carol.identity.pk).conversation_id
+    listing = reverse("social:conversations")
+    mark = reverse("social:conversations_read")
+    assert mark in bob_client.get(listing).content.decode()
+
+    assert bob_client.get(mark).status_code == 405
+    response = bob_client.post(mark)
+
+    assert response.status_code == 302
+    assert response["Location"] == listing
+    assert _membership(bob, first).unread is False
+    assert _membership(bob, second).unread is False
+    assert _membership(alice, second).unread is True
+    assert mark not in bob_client.get(listing).content.decode()
+
+
 def test_unread_status_flags_messages():
     alice, alice_client = _member("alice")
     _, bob_client = _member("bob")

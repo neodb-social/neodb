@@ -1254,6 +1254,12 @@ class Takahe:
             membership.save(update_fields=["unread", "updated"])
 
     @staticmethod
+    def mark_conversations_read(identity_pk: int) -> None:
+        ConversationMembership.objects.filter(
+            identity_id=identity_pk, unread=True
+        ).update(unread=False, updated=timezone.now())
+
+    @staticmethod
     def dismiss_conversation(membership: ConversationMembership) -> None:
         membership.dismissed = True
         membership.save(update_fields=["dismissed", "updated"])

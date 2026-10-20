@@ -16,6 +16,12 @@
         <header class="dc-mh">
           <h1>{% trans "Messages" %}</h1>
           <span class="action">
+            {% if has_unread %}
+              <form method="post" action="{% url 'social:conversations_read' %}">
+                {% csrf_token %}
+                <button type="submit" class="dc-btn outline secondary">{% trans "Mark all as read" %}</button>
+              </form>
+            {% endif %}
             <a class="dc-btn" href="{% url 'social:conversation_new' %}">
               <i class="fa-regular fa-pen-to-square"></i>
               {% trans "New message" %}
