@@ -14,7 +14,7 @@ from django.core.signing import b62_encode
 from django.db.models import OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-from PIL import ExifTags, Image, ImageOps
+from PIL import Image, ImageOps
 
 from common.models import SiteConfig
 from common.validators import is_valid_url
@@ -715,14 +715,14 @@ class Takahe:
             # a copy holds only the current frame, so save_all below cannot
             # seek into the extra frames of a multi-picture JPEG (iPhone MPO)
             resized_image = img.copy()
+        draft_size = resized_image.size
         try:
-            orientation = resized_image.getexif().get(ExifTags.Base.Orientation)
-            ImageOps.exif_transpose(resized_image, in_place=True)
-            if orientation in (5, 6, 7, 8):
-                width, height = height, width
+            resized_image = ImageOps.exif_transpose(resized_image)
         except Exception:
             # malformed EXIF: a rotated thumbnail is better than no attachment
             pass
+        if resized_image.size != draft_size:
+            width, height = height, width
         resized_image.thumbnail((400, 225), resample=Image.Resampling.BILINEAR)
         new_image_bytes = io.BytesIO()
         resized_image.save(new_image_bytes, format="webp", save_all=True)

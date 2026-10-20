@@ -1,4 +1,5 @@
 import io
+from unittest.mock import patch
 
 import pytest
 from PIL import ExifTags, Image
@@ -33,15 +34,28 @@ def test_multi_picture_jpeg(identity_pk):
     assert _thumbnail_size(a) == (300, 225)
 
 
-def test_exif_orientation(identity_pk):
-    """Orientation 6 shows the sensor's 1600x1200 as a 1200x1600 portrait."""
+def _rotated_jpeg() -> bytes:
     exif = Image.Exif()
     exif[ExifTags.Base.Orientation] = 6
     buf = io.BytesIO()
     Image.new("RGB", (1600, 1200), "red").save(buf, format="JPEG", exif=exif)
-    a = Takahe.upload_image(identity_pk, "photo.jpeg", buf.getvalue(), "image/jpeg")
+    return buf.getvalue()
+
+
+def test_exif_orientation(identity_pk):
+    """Orientation 6 shows the sensor's 1600x1200 as a 1200x1600 portrait."""
+    a = Takahe.upload_image(identity_pk, "photo.jpeg", _rotated_jpeg(), "image/jpeg")
     assert (a.width, a.height) == (1200, 1600)
     assert _thumbnail_size(a) == (169, 225)
+
+
+def test_exif_rewrite_failure_keeps_sizes_consistent(identity_pk):
+    """exif_transpose rotates first, then rewrites EXIF, which can raise."""
+    content = _rotated_jpeg()
+    with patch.object(Image.Exif, "tobytes", side_effect=ValueError("bad exif")):
+        a = Takahe.upload_image(identity_pk, "photo.jpeg", content, "image/jpeg")
+    assert (a.width, a.height) == (1600, 1200)
+    assert _thumbnail_size(a) == (300, 225)
 
 
 def test_animated_gif_thumbnail_is_resized(identity_pk):
