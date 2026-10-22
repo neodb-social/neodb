@@ -51,7 +51,7 @@ dependencies = [
     "atproto>=0.0.55",
     "discord-py>=2.4.0",
     "libsass>=0.23.0",
-    "certifi==2026.2.25",
+    "certifi==2026.10.19",
     "deepl>=1.22.0",
     "nh3>=0.3.5",
     "altcha>=2.0.2,<3",
