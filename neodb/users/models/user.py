@@ -129,7 +129,7 @@ class User(AbstractUser):
     identity: "APIdentity"
     preference: "Preference"
     social_accounts: "models.QuerySet[SocialAccount]"
-    objects: ClassVar[UserManager] = UserManager()
+    objects: ClassVar[UserManager] = UserManager()  # pyrefly: ignore[bad-override]
     username_validator = UsernameValidator()
     username = models.CharField(
         _("username"),

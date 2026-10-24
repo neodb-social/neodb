@@ -3,7 +3,7 @@ import re
 import uuid
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Container, Iterable, NamedTuple, Self
+from typing import TYPE_CHECKING, Any, ClassVar, Container, Iterable, NamedTuple, Self
 
 from auditlog.context import disable_auditlog
 from auditlog.models import LogEntry
@@ -398,7 +398,7 @@ class Item(PolymorphicModel):
         people_relations: QuerySet["ItemPeopleRelation"]
         credits: QuerySet["ItemCredit"]
         verified_creators: QuerySet["VerifiedCreator"]
-    schema = ItemSchema
+    schema: ClassVar[type[Schema]] = ItemSchema
     category: ItemCategory  # subclass must specify this
     type: ItemType  # subclass must specify this
     url_path = "item"  # subclass must specify this
@@ -1457,7 +1457,7 @@ class Item(PolymorphicModel):
         if isinstance(rd, str) and rd:
             p = parse_partial_date(rd)
             if p and p != rd:
-                self.release_date = p
+                setattr(self, "release_date", p)
                 return True
         return False
 

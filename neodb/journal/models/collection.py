@@ -804,7 +804,9 @@ class Collection(List[CollectionMember]):
             return len(self.ap_member_queryset(viewer))
         return self.members.count()
 
-    def ap_member_queryset(self, viewer: APIdentity | None = None):
+    def ap_member_queryset(  # pyrefly: ignore[bad-override]
+        self, viewer: APIdentity | None = None
+    ):
         # Dynamic collections snapshot the current search result; each page
         # call materializes the same in-memory list. Receivers see it as a
         # static ordered list.

@@ -69,7 +69,7 @@ class SteamImporter(BaseImporter):
         config: dict
 
     TaskQueue = "import"
-    DefaultMetadata: MetaData = {
+    DefaultMetadata = {
         "total": 0,
         "skipped": 0,
         "processed": 0,

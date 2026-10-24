@@ -130,7 +130,7 @@ class DoufenExporter(Task):
                 summary = (
                     ",".join(album.credit_names_by_role("artist"))
                     + " / "
-                    + (album.release_date or "")[:4]
+                    + (album.release_date or "")[:4]  # pyrefly: ignore[missing-attribute]
                 )
                 tags = ",".join(mark.tags)
                 world_rating = (album.rating / 2) if album.rating else None
@@ -214,7 +214,7 @@ class DoufenExporter(Task):
                     + " / "
                     + ",".join(game.platform or [])
                     + " / "
-                    + (game.release_date or "")
+                    + (game.release_date or "")  # pyrefly: ignore[missing-attribute]
                 )
                 tags = ",".join(mark.tags)
                 world_rating = (game.rating / 2) if game.rating else None

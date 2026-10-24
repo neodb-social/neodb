@@ -1,7 +1,7 @@
 import logging
 import shutil
 import tempfile
-from typing import Self
+from typing import Any, ClassVar, Self
 
 import django_rq
 from auditlog.context import set_actor
@@ -28,7 +28,7 @@ class TaskCancelled(Exception):
 
 class Task(TypedModel):
     TaskQueue = "default"
-    DefaultMetadata = {}
+    DefaultMetadata: ClassVar[dict[str, Any]] = {}
 
     class States(models.IntegerChoices):
         pending = 0, _("Pending")
