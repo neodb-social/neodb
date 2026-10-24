@@ -61,7 +61,8 @@ def update_scheduled_status(
             ScheduledStatus.check_time(request.identity, when, exclude_pk=scheduled.pk)
         except ScheduledStatusError as e:
             raise ApiError(422, str(e))
-        scheduled.reschedule(when)
+        if not scheduled.reschedule(when):
+            raise ApiError(404, "Record not found")
     return schemas.ScheduledStatus.from_scheduled_status(scheduled)
 
 

@@ -10,7 +10,9 @@ from activities.models import (
     ScheduledStatus,
     TimelineEvent,
 )
+from activities.services import TimelineService
 from core.ld import format_ld_date
+from users.models import List
 
 PAST = datetime.datetime(2019, 5, 4, 3, 2, 1, tzinfo=datetime.UTC)
 
@@ -114,3 +116,35 @@ def test_compose_refuses_past_time_when_backdating_is_off(
     assert response.status_code == 200
     assert b"date must be in the future" in response.content
     assert not identity.posts.exists()
+
+
+@pytest.mark.django_db
+def test_backdated_post_stays_out_of_timelines(
+    api_client, identity, other_identity, config_system
+):
+    config_system.post_backdating = True
+    # Backdated by less than the 7 day federated threshold
+    recent = timezone.now() - datetime.timedelta(days=1)
+    backdated = Post.objects.get(
+        pk=_post(api_client, status="#tag old", scheduled_at=recent.isoformat()).json()[
+            "id"
+        ]
+    )
+    current = Post.create_local(author=identity, content="#tag new")
+    alist = List.objects.create(
+        identity=other_identity, title="l", replies_policy="list", exclusive=False
+    )
+    alist.members.add(identity)
+    service = TimelineService(other_identity)
+    for queryset in [
+        service.local(),
+        service.federated(),
+        service.hashtag("tag"),
+        service.for_list(alist),
+    ]:
+        pks = set(queryset.values_list("pk", flat=True))
+        assert current.pk in pks
+        assert backdated.pk not in pks
+    # Still listed with the author's statuses
+    statuses = api_client.get(f"/api/v1/accounts/{identity.pk}/statuses").json()
+    assert str(backdated.pk) in [s["id"] for s in statuses]

@@ -65,6 +65,7 @@ class TimelineService:
         queryset = (
             PostService.queryset()
             .local_public()
+            .not_backdated()
             .filter(author__restriction=Identity.Restriction.none)
             .order_by("-id")
         )
@@ -80,6 +81,7 @@ class TimelineService:
         return (
             PostService.queryset(exclude_threshold=7)
             .public()
+            .not_backdated()
             .visible_to(self.identity)
             .filter(author__restriction=Identity.Restriction.none)
             .order_by("-id")
@@ -89,6 +91,7 @@ class TimelineService:
         return (
             PostService.queryset(exclude_threshold=7)
             .public()
+            .not_backdated()
             .visible_to(self.identity)
             .filter(author__restriction=Identity.Restriction.none)
             .tagged_with(hashtag)
@@ -267,4 +270,4 @@ class TimelineService:
             case _:
                 # The default is to show posts (and replies) from list members.
                 criteria = models.Q(author__in=members)
-        return queryset.filter(criteria).order_by("-id")
+        return queryset.filter(criteria).not_backdated().order_by("-id")

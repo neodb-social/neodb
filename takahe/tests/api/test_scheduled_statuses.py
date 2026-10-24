@@ -250,6 +250,7 @@ def test_publish_keeps_local_only(identity, config_system):
         visibility=Post.Visibilities.local_only,
     )
     assert scheduled.params["visibility"] == "public"
+    _make_due(scheduled)
     post = scheduled.publish()
     assert post is not None
     assert post.visibility == Post.Visibilities.local_only
@@ -266,6 +267,7 @@ def test_publish_drops_a_reply_to_a_deleted_post(identity, config_system):
     )
     assert scheduled.params["in_reply_to_id"] == parent.pk
     parent.delete()
+    _make_due(scheduled)
     assert scheduled.publish() is None
     assert not ScheduledStatus.objects.exists()
     assert not Post.objects.filter(content__contains="reply").exists()
@@ -278,8 +280,10 @@ def test_publish_skips_a_deleted_author(identity, config_system):
     )
     identity.deleted = timezone.now()
     identity.save()
+    _make_due(scheduled)
     scheduled.refresh_from_db()
     assert scheduled.publish() is None
+    assert not ScheduledStatus.objects.exists()
     assert not Post.objects.filter(author=identity).exists()
 
 
@@ -291,3 +295,33 @@ def test_publish_after_cancel_posts_nothing(identity, config_system):
     ScheduledStatus.objects.filter(pk=scheduled.pk).delete()
     assert scheduled.publish() is None
     assert not Post.objects.filter(author=identity).exists()
+
+
+@pytest.mark.django_db
+def test_reschedule_while_queued_holds_the_post(identity, config_system):
+    scheduled = ScheduledStatus.create(
+        author=identity, scheduled_at=_in(days=1), text="moved"
+    )
+    _make_due(scheduled)
+    # Stator loads the row while it is due...
+    queued = ScheduledStatus.objects.get(pk=scheduled.pk)
+    # ...and the author postpones it before the handler runs
+    later = _in(days=2)
+    assert scheduled.reschedule(later)
+
+    assert queued.transition_attempt() is None
+    assert not Post.objects.filter(author=identity).exists()
+    row = ScheduledStatus.objects.get(pk=scheduled.pk)
+    assert row.state == ScheduledStatusStates.scheduled
+    assert row.state_next_attempt == later
+
+
+@pytest.mark.django_db
+def test_reschedule_after_publish_reports_it_gone(identity, config_system):
+    scheduled = ScheduledStatus.create(
+        author=identity, scheduled_at=_in(days=1), text="gone"
+    )
+    _make_due(scheduled)
+    assert scheduled.publish() is not None
+    assert not scheduled.reschedule(_in(days=2))
+    assert not ScheduledStatus.objects.exists()

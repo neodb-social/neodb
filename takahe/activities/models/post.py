@@ -501,6 +501,16 @@ class PostQuerySet(models.QuerySet):
             query = query.exclude(author_id__in=rejecting_ids)
         return query
 
+    def not_backdated(self):
+        """
+        Excludes backdated local posts. They take a current id, so a
+        timeline ordered by id would show them as new.
+        """
+        return self.exclude(
+            local=True,
+            published__lt=models.F("created") - Post.BACKDATE_MARGIN,
+        )
+
     def tagged_with(self, hashtag: str | Hashtag):
         if isinstance(hashtag, str):
             tag_q = models.Q(hashtags__contains=hashtag)
@@ -891,15 +901,26 @@ class Post(StatorModel):
             "replies": self.stats.get("replies", 0) if self.stats else 0,
         }
 
+    # A local post published this long before its row was created was
+    # backdated through the client API
+    BACKDATE_MARGIN = datetime.timedelta(minutes=5)
+
     ### Local creation/editing ###
     def neodb_sync_local(
-        self: "Post", reply_to: "Post | None", content: str, create: bool
+        self: "Post",
+        reply_to: "Post | None",
+        content: str,
+        create: bool,
+        backdated: bool = False,
     ):
         if create:
             func = "takahe.ap_handlers.post_created"
         else:
             func = "takahe.ap_handlers.post_edited"
-        settings.NEODB_MQ.enqueue(func, self.pk, {"raw_content": content})
+        data: dict = {"raw_content": content}
+        if backdated:
+            data["backdated"] = True
+        settings.NEODB_MQ.enqueue(func, self.pk, data)
 
     @classmethod
     def create_local(
@@ -984,7 +1005,7 @@ class Post(StatorModel):
             post.ensure_hashtags()
             if post.type not in post.CONVERTED_TYPES:
                 _attach_preview_card(post.pk, post.content)
-        post.neodb_sync_local(reply_to, content, True)
+        post.neodb_sync_local(reply_to, content, True, backdated=bool(published))
         return post
 
     def edit_local(

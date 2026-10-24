@@ -2,6 +2,7 @@ import datetime
 from typing import Any
 
 from django.db import models
+from django.db.models.functions import Greatest
 from django.utils import timezone
 
 from activities.models.post import Post
@@ -79,9 +80,10 @@ class ScheduledStatusStates(StateGraph):
 
     @classmethod
     def handle_scheduled(cls, instance: "ScheduledStatus"):
-        if instance.scheduled_at > timezone.now():
+        if instance.scheduled_at > timezone.now() or not instance.claim():
             return None
-        instance.publish()
+        instance.create_post()
+        # The row is gone, so this transition updates nothing
         return cls.published
 
 
@@ -198,10 +200,35 @@ class ScheduledStatus(StatorModel):
             state_next_attempt=scheduled_at,
         )
 
-    def reschedule(self, scheduled_at: datetime.datetime) -> None:
+    def reschedule(self, scheduled_at: datetime.datetime) -> bool:
+        """
+        Moves a pending status to scheduled_at. Returns False when it has
+        already gone, posted or deleted.
+        """
+        updated = ScheduledStatus.objects.filter(
+            pk=self.pk, state=ScheduledStatusStates.scheduled
+        ).update(scheduled_at=scheduled_at, state_next_attempt=scheduled_at)
         self.scheduled_at = scheduled_at
         self.state_next_attempt = scheduled_at
-        self.save(update_fields=["scheduled_at", "state_next_attempt"])
+        return bool(updated)
+
+    def transition_attempt(self) -> State | None:
+        result = super().transition_attempt()
+        if result is None:
+            # Stator retries at try_interval; a row that was rescheduled
+            # while queued should wait for its new time instead
+            ScheduledStatus.objects.filter(
+                pk=self.pk, state=ScheduledStatusStates.scheduled
+            ).update(
+                state_next_attempt=Greatest(
+                    models.F("scheduled_at"),
+                    timezone.now()
+                    + datetime.timedelta(
+                        seconds=ScheduledStatusStates.scheduled.try_interval or 0
+                    ),
+                )
+            )
+        return result
 
     @property
     def visibility(self) -> int:
@@ -224,14 +251,30 @@ class ScheduledStatus(StatorModel):
         }
         return [found[i] for i in ids if i in found]
 
+    def claim(self) -> bool:
+        """
+        Deletes the row if it is still due, so only one worker posts it.
+        The check reads the stored row: it may have been rescheduled since
+        stator loaded it. Deleting first, as Mastodon does, means a failure
+        loses this status rather than posting it twice.
+        """
+        return bool(
+            ScheduledStatus.objects.filter(
+                pk=self.pk,
+                state=ScheduledStatusStates.scheduled,
+                scheduled_at__lte=timezone.now(),
+            ).delete()[0]
+        )
+
     def publish(self) -> Post | None:
-        """
-        Posts the status. The row goes first, as in Mastodon: a failure
-        loses this status rather than posting it twice. Returns None when
-        the status can no longer be posted.
-        """
-        if not ScheduledStatus.objects.filter(pk=self.pk).delete()[0]:
+        if not self.claim():
             return None
+        return self.create_post()
+
+    def create_post(self) -> Post | None:
+        """
+        Posts a claimed status. Returns None when it can no longer be posted.
+        """
         author = self.author
         if author.deleted or author.blocked:
             return None
