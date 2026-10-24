@@ -1,5 +1,6 @@
 from django import forms
 from django.utils import timezone
+from django.utils.datastructures import MultiValueDict
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
@@ -130,7 +131,14 @@ class ReviewForm(forms.ModelForm):
         ].widget.value_from_datadict(
             self.data, self.files, self.add_prefix("mark_anotherday")
         ):
-            self.fields["mark_date"].disabled = True
+            # Ignore an unselected date before validation, but keep the widget
+            # usable after an unrelated error, including without JavaScript.
+            self.data = (
+                self.data.copy()
+                if isinstance(self.data, MultiValueDict)
+                else dict(self.data)
+            )
+            self.data[self.add_prefix("mark_date")] = ""
 
     def clean(self):
         data = super().clean() or {}

@@ -194,3 +194,35 @@ def test_unchecked_review_date_ignores_stale_invalid_value(writer):
         },
     )
     assert response.status_code == 302
+
+
+@pytest.mark.parametrize("ignored_date", ["not-a-date", "1899-12-31", "2020-04-05"])
+def test_review_date_can_be_selected_after_invalid_submission_without_js(
+    writer, ignored_date
+):
+    user, book, client = writer
+    url = reverse("journal:review_create", args=[book.uuid])
+    data = {
+        "item": book.pk,
+        "title": "",
+        "body": "Keep my writing",
+        "visibility": "0",
+        "mark_date": ignored_date,
+    }
+    response = client.post(url, data)
+    assert response.status_code == 400
+    assert "title" in response.context["form"].errors
+    assert "mark_date" not in response.context["form"].errors
+    document = html.fromstring(response.content)
+    date_field = document.find('.//input[@id="id_mark_date"]')
+    assert date_field is not None
+    # A browser without JS must be able to enter and submit a date on retry.
+    assert "disabled" not in date_field.attrib
+    assert date_field.get("value", "") == ""
+    assert response.wsgi_request.POST["mark_date"] == ignored_date
+
+    data.update(title="Corrected title", mark_anotherday="on", mark_date="2021-03-04")
+    assert client.post(url, data).status_code == 302
+    review = Review.objects.get(owner=user.identity, item=book)
+    assert review.body == "Keep my writing"
+    assert timezone.localtime(review.created_time).date().isoformat() == "2021-03-04"
