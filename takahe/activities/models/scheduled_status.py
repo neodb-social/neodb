@@ -11,6 +11,7 @@ from activities.models.post_types import poll_question
 from activities.models.timeline_event import TimelineEvent
 from core.ld import format_ld_date
 from stator.models import State, StateField, StateGraph, StatorModel
+from users.models.identity import Identity
 
 # Client API visibility names. Local-only has no Mastodon name, so a
 # scheduled local-only post stores "public" plus a local_only flag.
@@ -40,7 +41,7 @@ def parse_scheduled_at(value: str) -> datetime.datetime:
 
 
 def check_backdate(
-    author,
+    author: Identity,
     published: datetime.datetime,
     text: str,
     reply_to: Post | None = None,
@@ -119,7 +120,7 @@ class ScheduledStatus(StatorModel):
     @classmethod
     def check_time(
         cls,
-        author,
+        author: Identity,
         scheduled_at: datetime.datetime,
         exclude_pk: int | None = None,
     ) -> None:
@@ -155,7 +156,7 @@ class ScheduledStatus(StatorModel):
     @classmethod
     def create(
         cls,
-        author,
+        author: Identity,
         scheduled_at: datetime.datetime,
         text: str,
         visibility: int = Post.Visibilities.public,
