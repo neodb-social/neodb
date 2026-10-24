@@ -285,7 +285,7 @@ def timeline_link(
     request,
     url: str,
     limit: int = TIMELINE_LINK_DEFAULT_LIMIT,
-) -> list[Post]:
+) -> list[dict]:
     """
     Get statuses that contain a link to the given URL (Mastodon-compatible endpoint).
 

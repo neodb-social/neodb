@@ -1,6 +1,6 @@
 import logging
 from django.conf import settings
-from django.core.checks import Error, Warning
+from django.core.checks import CheckMessage, Error, Warning
 
 from catalog.search import CatalogIndex, PeopleIndex
 from common.models import JobManager, SiteConfig
@@ -146,7 +146,7 @@ class Setup:
     def check(self):
         from redis import Redis
 
-        errors = []
+        errors: list[CheckMessage] = []
         # check env
         domain = settings.SITE_INFO.get("site_domain")
         if not domain:

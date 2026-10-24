@@ -35,6 +35,7 @@ def login_existing_user(request: HttpRequest, account: SocialAccount):
     if not user:
         return render_error(request, _("Authentication failed"), _("Invalid user."))
     existing_user = account.user
+    assert existing_user is not None
     auth_login(request, existing_user)
     user.sync_accounts_later()
     if not existing_user.username or not existing_user.identity:
@@ -62,7 +63,7 @@ def register_new_user(request: HttpRequest, account: SocialAccount):
 
 
 def reconnect_account(request, account: SocialAccount):
-    if account.user == request.user:
+    if account.user is not None and account.user == request.user:
         account.user.sync_accounts_later()
         messages.add_message(
             request,

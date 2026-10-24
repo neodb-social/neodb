@@ -199,14 +199,14 @@ def profile(request: AuthedHttpRequest, user_name):
     )
     featured_owners = [
         c.owner
-        for c in target.featured_collections.all()  # ty: ignore[unresolved-attribute]
+        for c in target.featured_collections.all()  # pyrefly: ignore[missing-attribute]
         if getattr(c, "owner_id", None)
     ]
     Takahe.prefetch_takahe_identities(
         [c.owner for c in pinned_collections if c.owner_id] + featured_owners
     )
     Collection.attach_stats_for_viewer(
-        list(target.featured_collections.all()),  # ty: ignore[unresolved-attribute]
+        list(target.featured_collections.all()),  # pyrefly: ignore[missing-attribute]
         target,
     )
     default_layout[0:0] = [
@@ -666,7 +666,7 @@ def profile_shelf_items(request: AuthedHttpRequest, user_name, category, shelf_t
             # a show on this shelf stands for its newest episode, and plays it
             episodes = PodcastEpisode.latest_by_program([item.pk for item in items])
             for item in items:
-                item.latest_episode = episodes.get(item.pk)
+                item.latest_episode = episodes.get(item.pk)  # pyrefly: ignore[missing-attribute]
     if items:
         Item.prefetch_parent_items(items)
         prefetch_related_objects(items, Item.credits_prefetch())

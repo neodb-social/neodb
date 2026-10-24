@@ -850,17 +850,22 @@ class Command(SiteCommand):
                         ]
             else:
                 # Edition has no other_title
-                subtitle = i.metadata.get("subtitle")
-                i.metadata["localized_subtitle"] = (
+                meta = i.metadata
+                assert meta is not None
+                subtitle = meta.get("subtitle")
+                meta["localized_subtitle"] = (
                     [{"lang": detect_language(subtitle), "text": subtitle}]
                     if subtitle
                     else []
                 )
-                lang = i.metadata.get("language")
+                lang = meta.get("language")
                 if isinstance(lang, str) and lang:
-                    i.metadata["language"] = [lang]
-            if i.__class__ == Podcast and i.metadata.get("host", None) is None:
-                i.metadata["host"] = i.metadata.get("hosts", [])
+                    meta["language"] = [lang]
+            if i.__class__ == Podcast:
+                meta = i.metadata
+                assert meta is not None
+                if meta.get("host", None) is None:
+                    meta["host"] = meta.get("hosts", [])
             i.localized_title = uniq(localized_title)
             localized_desc = [{"lang": detect_language(i.brief), "text": i.brief}]
             i.localized_description = localized_desc
@@ -1039,7 +1044,9 @@ class Command(SiteCommand):
                 continue
             self.stdout.write(f"! {i.show} : {i.show.absolute_url}?skipcheck=1")
             if self.fix:
-                i.show = i.show.merged_to_item
+                target = i.show.merged_to_item
+                assert isinstance(target, TVShow)
+                i.show = target
                 i.save()
 
     def handle(

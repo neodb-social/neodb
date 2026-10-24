@@ -384,6 +384,7 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
     if user.mastodon:
         # boost if possible, otherwise quote
         if not comment and user.preference.mastodon_repost_mode == 0 and post:
+            assert post.url is not None
             user.mastodon.boost_later(post.url)
         else:
             try:
@@ -424,11 +425,12 @@ def _collection_share_text(
         user_str = _("shared my collection")
     else:
         owner = collection.owner
-        owner_str = (
-            " @" + owner.user.mastodon.handle + " "
-            if user.mastodon and owner.user and owner.user.mastodon
-            else " @" + owner.handle + " "
-        )
+        if user.mastodon and owner.user and owner.user.mastodon:
+            owner_str = " @" + owner.user.mastodon.handle + " "
+        else:
+            handle = owner.handle
+            assert handle is not None
+            owner_str = " @" + handle + " "
         user_str = _("shared {username}'s collection").format(username=owner_str)
     return "\n".join(p for p in (f"{user_str}:{title}", link, comment) if p)
 
@@ -446,7 +448,7 @@ def share_collection_to_mastodon(
         raise RequestAborted()
     tags = (
         "\n"
-        + user.preference.mastodon_append_tag.replace("[category]", _("Collection"))
+        + user.preference.mastodon_append_tag.replace("[category]", _("Collection"))  # pyrefly: ignore[no-matching-overload]
         if user.preference.mastodon_append_tag
         else ""
     )
@@ -535,7 +537,7 @@ def collection_edit_items(request: AuthedHttpRequest, collection_uuid):
         Rating.attach_to_items(items)
         items_map = {i.pk: i for i in items}
         for member in members:
-            member.item = items_map.get(member.item_id)
+            member.item = items_map.get(member.item_id)  # pyrefly: ignore[bad-assignment]
     return render(
         request,
         "collection_items.html",

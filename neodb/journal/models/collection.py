@@ -84,6 +84,7 @@ class CollectionMember(ListMember):
 class Collection(List):
     if TYPE_CHECKING:
         members: models.QuerySet[CollectionMember]
+        ordered_members: models.QuerySet[CollectionMember]
         _stats_cache: dict[int, dict[str, int]]
         # card data set per instance by attach_cover_previews and the
         # discover view; templates read them, nothing persists them
@@ -261,7 +262,7 @@ class Collection(List):
         )
 
     def get_query(self, viewer, **kwargs):
-        if not self.is_dynamic:
+        if self.query is None:
             return None
         q = JournalQueryParser(self.query, **kwargs)
         q.filter_by_owner_viewer(self.owner, viewer)
@@ -336,7 +337,7 @@ class Collection(List):
             # Dynamic collections: use existing search-based pagination
             q = self.get_query(viewer, page=page_number)
             if q and category:
-                wanted = [
+                wanted: list[int | str] = [
                     cls.__name__ for cls in item_categories()[ItemCategory(category)]
                 ]
                 # The saved query may already constrain item_class (e.g.
@@ -416,7 +417,7 @@ class Collection(List):
             if items:
                 items_map = {i.pk: i for i in items}
                 for member in members:
-                    member.item = items_map.get(member.item_id)
+                    member.item = items_map.get(member.item_id)  # pyrefly: ignore[bad-assignment]
                 Item.prefetch_parent_items(items)
                 Item.prefetch_credits(items)
                 Item.prefetch_latest_episodes(items)
@@ -636,17 +637,19 @@ class Collection(List):
         # otherwise pollute the catalog with stub entries that have no
         # corresponding local catalog detail page.
         if self.local:
-            if getattr(self, "catalog_item", None) is None:
-                self.catalog_item = CatalogCollection()
+            catalog_item = getattr(self, "catalog_item", None)
+            if catalog_item is None:
+                catalog_item = CatalogCollection()
+                self.catalog_item = catalog_item
             if (
-                self.catalog_item.title != self.title
-                or self.catalog_item.brief != self.brief
-                or self.catalog_item.cover != self.cover
+                catalog_item.title != self.title
+                or catalog_item.brief != self.brief
+                or catalog_item.cover != self.cover
             ):
-                self.catalog_item.title = self.title
-                self.catalog_item.brief = self.brief
-                self.catalog_item.cover = self.cover
-                self.catalog_item.save()
+                catalog_item.title = self.title
+                catalog_item.brief = self.brief
+                catalog_item.cover = self.cover
+                catalog_item.save()
         super().save(*args, **kwargs)
 
     def get_ap_data(self):

@@ -167,7 +167,9 @@ def conversations(request: AuthedHttpRequest):
         "conversations.html",
         {
             "entries": entries,
-            "next_before": entries[-1].last_post.pk if len(page) > PAGE_SIZE else None,
+            "next_before": page[PAGE_SIZE - 1].last_post_id
+            if len(page) > PAGE_SIZE
+            else None,
             "has_unread": Takahe.has_unread_conversations(viewer.pk),
         },
     )

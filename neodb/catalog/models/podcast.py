@@ -317,11 +317,11 @@ class PodcastEpisode(Item):
         return self.program
 
     def set_parent_item(self, value: Podcast | None):  # type:ignore
-        self.program = value
+        self.program = value  # pyrefly: ignore[bad-assignment]
 
     # Keep titles live when parent metadata changes on this instance.
     @property
-    def display_title(self) -> str:  # ty: ignore[invalid-property-type-override]
+    def display_title(self) -> str:
         return f"{self.program.title} - {self.title}" if self.program else self.title
 
     def to_indexable_doc(self):

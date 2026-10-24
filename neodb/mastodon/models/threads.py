@@ -240,7 +240,7 @@ class Threads:
     @staticmethod
     def authenticate(request: HttpRequest, code: str) -> "ThreadsAccount | None":
         token, expire, uid = Threads.obtain_token(request, code)
-        if not token or not expire:
+        if not token or not expire or uid is None:
             return None
         expires_at = timezone.now() + timedelta(seconds=expire)
         existing_account = ThreadsAccount.objects.filter(

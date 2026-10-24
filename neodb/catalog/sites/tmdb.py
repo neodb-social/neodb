@@ -73,7 +73,7 @@ def _add_tvdb_id(
         pd.lookup_ids[id_type] = str(tvdb_id)
 
 
-TMDB_TO_TVDB_ID_TYPES = {
+TMDB_TO_TVDB_ID_TYPES: dict[str, IdType] = {
     IdType.TMDB_TV: IdType.TVDB_Series,
     IdType.TMDB_TVSeason: IdType.TVDB_Season,
     IdType.TMDB_TVEpisode: IdType.TVDB_Episode,
@@ -749,7 +749,7 @@ class TMDB_Person(AbstractSite):
                 continue
             media_type = entry.get("media_type")
             tmdb_id = entry.get("id")
-            template = TMDB_WORK_URL_TEMPLATES.get(media_type)
+            template = TMDB_WORK_URL_TEMPLATES.get(media_type) if media_type else None
             if template and tmdb_id:
                 urls.add(template.format(id=tmdb_id))
         return sorted(urls)

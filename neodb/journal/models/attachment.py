@@ -208,7 +208,7 @@ class Attachment(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"Attachment:{self.uid}:{self.file.name or self.remote_url}"
+        return f"Attachment:{self.uid}:{self.file.name or self.remote_url}"  # pyrefly: ignore[missing-attribute]
 
     @property
     def uuid(self) -> str:

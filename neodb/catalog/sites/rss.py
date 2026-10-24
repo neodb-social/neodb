@@ -51,7 +51,7 @@ class RSS(AbstractSite):
 
     @staticmethod
     def fetch_feed_with_metadata(
-        url: str, etag: str = "", last_modified: str = ""
+        url: str | None, etag: str = "", last_modified: str = ""
     ) -> tuple[dict | None, str, str, int]:
         """Fetch and parse an RSS feed with conditional-GET support.
 
@@ -216,5 +216,6 @@ class RSS(AbstractSite):
         if not item:
             _logger.warning(f"item for RSS {self.url} not found")
             return False
+        assert isinstance(item, Podcast)
         self.update_episodes_from_feed(item, feed)
         return True

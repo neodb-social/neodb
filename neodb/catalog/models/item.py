@@ -783,7 +783,10 @@ class Item(PolymorphicModel):
         if not languages or UNKNOWN_LANGUAGE_CODE in languages:
             return True
         return any(code in codes for code in languages) or any(
-            isinstance(t, dict) and t.get("text") and t.get("lang") in codes
+            isinstance(t, dict)
+            and t.get("text")
+            and (lang := t.get("lang")) is not None
+            and lang in codes
             for t in titles or []
         )
 
@@ -877,7 +880,9 @@ class Item(PolymorphicModel):
             if resolve_merge:
                 resolve_cnt = 5
                 while item.merged_to_item and resolve_cnt > 0:
-                    item = item.merged_to_item
+                    target = item.merged_to_item
+                    assert isinstance(target, cls)
+                    item = target
                     resolve_cnt -= 1
                 if resolve_cnt == 0:
                     logger.error(

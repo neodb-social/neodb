@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from catalog.models import Item
 from journal.models.common import (
+    Piece,
     prefetch_latest_posts,
     q_owned_parent_piece_visible_to_user,
     q_owned_piece_visible_to_user,
@@ -66,7 +67,7 @@ class Mark:
         return self.shelfmember.parent if self.shelfmember else None
 
     @property
-    def shelf_type(self) -> ShelfType | None:
+    def shelf_type(self) -> ShelfType | str | None:
         return self.shelfmember.parent.shelf_type if self.shelfmember else None
 
     @property
@@ -248,7 +249,7 @@ class Mark:
             marks[t.item_id].tags.append(t.title)
         # Batch-prefetch latest_post for all pieces to avoid N+1 queries
         # when templates access mark.shelfmember.latest_post etc.
-        pieces_to_prefetch = []
+        pieces_to_prefetch: list[Piece] = []
         for m in marks.values():
             if m.shelfmember:
                 pieces_to_prefetch.append(m.shelfmember)
@@ -329,7 +330,7 @@ class Mark:
         visibility: int,
         metadata: dict[str, Any] | None,
         created_time: datetime | None,
-        last_shelf_type: ShelfType | None,
+        last_shelf_type: ShelfType | str | None,
         last_visibility: int | None,
     ) -> tuple[bool, int, ShelfLogEntry]:
         """
@@ -378,7 +379,11 @@ class Mark:
             shelfmember_changed = True
             update_mode = 2
             shelf = self.owner.shelf_manager.get_shelf(shelf_type)
-            d = {"parent": shelf, "visibility": visibility, "position": 0}
+            d: dict[str, object] = {
+                "parent": shelf,
+                "visibility": visibility,
+                "position": 0,
+            }
             if metadata:
                 d["metadata"] = metadata
             d["created_time"] = created_time or timezone.now()
@@ -541,7 +546,7 @@ class Mark:
                 ).exists()
                 if not collision_exists:
                     raise
-                log_entry.pk = None
+                log_entry.pk = None  # pyrefly: ignore[bad-assignment]
                 log_entry.timestamp += timedelta(microseconds=1)
 
         if normalized_value:

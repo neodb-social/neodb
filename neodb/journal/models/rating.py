@@ -231,7 +231,7 @@ class Rating(Content):
                     total[s["item_id"]] += s["count"] * s["grade"]
                     votes[s["item_id"]] += s["count"]
         # Format results
-        result = {}
+        result: dict[int, dict] = {}
         for item_id in item_ids:
             count = votes[item_id]
             if count < MIN_RATING_COUNT:

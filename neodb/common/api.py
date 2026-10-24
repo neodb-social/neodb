@@ -115,7 +115,7 @@ class PageNumberPagination(NinjaPageNumberPagination):
     items_attribute = "data"
 
     # Ninja permits replacing the output schema, including its items field.
-    class Output(Schema):  # ty: ignore[invalid-attribute-override]
+    class Output(Schema):  # pyrefly: ignore[bad-override]
         data: list[Any]
         pages: int
         count: int
@@ -126,7 +126,7 @@ class PageNumberPagination(NinjaPageNumberPagination):
         pagination: NinjaPageNumberPagination.Input,
         request: HttpRequest,
         **params: Any,
-    ):
+    ) -> dict[str, Any]:
         if isinstance(queryset, dict):
             # ninja unwraps Status(code, payload) before paginating, so a view
             # returning e.g. Status(302, {"message": ...}) lands here as a bare

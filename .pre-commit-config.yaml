@@ -53,8 +53,8 @@ repos:
 
   - repo: local
     hooks:
-      - id: ty
-        name: ty
-        entry: uv run ty check
+      - id: pyrefly
+        name: pyrefly
+        entry: uv run pyrefly check
         language: system
         pass_filenames: false

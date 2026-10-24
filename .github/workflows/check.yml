@@ -24,7 +24,7 @@ jobs:
           enable-cache: true
       - name: Run pre-commit check
         run: |
-          SKIP=ty uvx --with pre_commit pre-commit run -a --show-diff-on-failure
+          SKIP=pyrefly uvx --with pre_commit pre-commit run -a --show-diff-on-failure
 
   doc:
     runs-on: ubuntu-latest
@@ -63,6 +63,6 @@ jobs:
       - name: Install Dependencies
         run: |
           uv sync
-      - name: Run ty check
+      - name: Run pyrefly check
         run: |
-          uv run ty check
+          uv run pyrefly check

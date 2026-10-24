@@ -764,7 +764,7 @@ class Takahe:
         )
         if "." not in filename.rsplit("/", 1)[-1]:
             filename += mimetypes.guess_extension(mimetype) or ""
-        attachment.file.save(filename or "attachment", content)
+        attachment.file.save(filename or "attachment", content)  # pyrefly: ignore[missing-attribute]
         return attachment
 
     @staticmethod
@@ -849,9 +849,10 @@ class Takahe:
         return Post.objects.filter(pk=post_pk).first()
 
     @staticmethod
-    def get_posts(post_pks: list[int]):
+    def get_posts(post_pks: list[int]) -> PostQuerySet:
         return (
-            Post.objects.filter(pk__in=post_pks)
+            Post.objects.get_queryset()
+            .filter(pk__in=post_pks)
             .exclude(state__in=["deleted", "deleted_fanned_out"])
             .prefetch_related("author", "attachments", "mentions")
             .select_related("application")
@@ -1337,9 +1338,10 @@ class Takahe:
         return set(Identity.objects.filter(q).values_list("pk", flat=True))
 
     @staticmethod
-    def get_public_posts(local_only=False):
+    def get_public_posts(local_only: bool = False) -> PostQuerySet:
         qs = (
-            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
+            Post.objects.get_queryset()
+            .exclude(state__in=["deleted", "deleted_fanned_out"])
             .filter(visibility__in=[0, 4])
             .filter(in_reply_to__isnull=True)
             .filter(author__restriction=0)

@@ -122,7 +122,8 @@ class IGDB(AbstractSite):
                 SiteConfig.system.igdb_client_id, _igdb_access_token()
             )
             try:
-                for attempt in range(_IGDB_MAX_429_RETRIES + 1):
+                attempt = 0
+                while True:
                     igdb_limiter().acquire(timeout=60.0)
                     try:
                         r = json.loads(_wrapper.api_request(p, q))
@@ -139,6 +140,7 @@ class IGDB(AbstractSite):
                             extra={"exception": e},
                         )
                         time.sleep(wait)
+                        attempt += 1
             except requests.exceptions.RequestException as e:
                 # Transient third-party failure (rate limit, timeout, etc.) -> warn,
                 # not a Sentry error; IGDBWrapper raises requests' HTTPError, not httpx's.

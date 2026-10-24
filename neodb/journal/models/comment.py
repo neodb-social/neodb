@@ -92,7 +92,7 @@ class Comment(Content):
     @property
     def item_url(self):
         if self.metadata.get("position"):
-            return self.item.get_url_with_position(self.metadata["position"])
+            return self.item.get_url_with_position(self.metadata["position"])  # pyrefly: ignore[missing-attribute]
         else:
             return self.item.url
 

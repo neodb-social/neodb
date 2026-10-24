@@ -87,8 +87,8 @@ dev = [
     "pre-commit>=4.0.1",
     "django-stubs>=5.1.2",
     "djlint>=1.46.4",
-    "lxml-stubs>=0.5.1",
-    "ty>=0.0.88",
+    "types-lxml>=2026.2.16",
+    "pyrefly>=1.4.0",
     "ruff>=0.15.22,<0.16",
     "pytest-django>=4.11.1",
     "coverage>=7.13.5",
@@ -109,26 +109,28 @@ dev = [
 # @ 3ac1987 + neodb-social/pyld@neodb-on-master-3ac1987.
 pyld = { git = "https://github.com/neodb-social/pyld.git", rev = "87e5e6f6a0652d39268f4a910102002ab9677843" }
 
-[tool.ty.environment]
-root = ["./neodb"]
-
-[tool.ty.src]
-exclude = ["takahe"]
+[tool.pyrefly]
+project-includes = ["neodb"]
+project-excludes = ["**/migrations/**", "neodb/tests/**"]
+search-path = ["neodb"]
 
 # Django consumes per-model Meta classes and permits custom managers and narrowed
-# relation fields. ty 0.0.88 checks them as ordinary inherited attributes; Django
-# support: astral-sh/ty#1018.
-[[tool.ty.overrides]]
-include = [
-    "neodb/**/models/**",
-    "neodb/**/models.py",
-    "neodb/journal/importers/**",
-    "neodb/journal/exporters/**",
-]
+# relation fields, which pyrefly checks as ordinary inherited attributes.
+[[tool.pyrefly.sub-config]]
+matches = "neodb/**/models/**"
+errors = { bad-override = false, bad-override-mutable-attribute = false }
 
-[tool.ty.overrides.rules]
-invalid-attribute-override = "ignore"
-invalid-mutable-override = "ignore"
+[[tool.pyrefly.sub-config]]
+matches = "neodb/**/models.py"
+errors = { bad-override = false, bad-override-mutable-attribute = false }
+
+[[tool.pyrefly.sub-config]]
+matches = "neodb/journal/importers/**"
+errors = { bad-override = false, bad-override-mutable-attribute = false }
+
+[[tool.pyrefly.sub-config]]
+matches = "neodb/journal/exporters/**"
+errors = { bad-override = false, bad-override-mutable-attribute = false }
 
 [tool.djlint]
 ignore = "T002,T003,H005,H006,H019,H020,H021,H023,H030,H031,H036,H050,H052,D018"
@@ -136,21 +138,6 @@ indent = 2
 
 [tool.isort]
 profile = "black"
-
-[tool.mypy]
-mypy_path = "neodb"
-exclude = [
-    '^takahe/',
-    '^data-svc/',
-    '^neodb/legacy/',
-    '^media/',
-    '^playground/',
-    '.*migrations.*',
-]
-plugins = ["mypy_django_plugin.main"]
-
-[tool.django-stubs]
-django_settings_module = "boofilsic.settings"
 
 [tool.ruff]
 src = ["neodb", "takahe"]

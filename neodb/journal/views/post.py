@@ -242,6 +242,7 @@ def post_boost(request: AuthedHttpRequest, post_id: int):
     boost = Takahe.boost_post(post_id, request.user.identity.pk)
     if boost and boost.state == "new":
         if request.user.mastodon and request.user.preference.mastodon_boost_enabled:
+            assert post.object_uri is not None
             request.user.mastodon.boost_later(post.object_uri)
     return render(request, "action_boost_post.html", {"post": post})
 
@@ -430,7 +431,7 @@ def post_edit(request: AuthedHttpRequest, post_id: int):
     Takahe.post(
         request.user.identity.pk,
         content,
-        post.visibility,
+        Takahe.Visibilities(post.visibility),
         summary=subject or None,
         sensitive=sensitive,
         language=language or "",
@@ -490,6 +491,7 @@ def post_view(request, handle: str, post_pk: int):
     owner = APIdentity.by_takahe_identity(post.author)
     if not owner:
         if not post.local:  # identity for remote post hasn't been sync to APIdentity
+            assert post.url is not None
             return redirect(post.url)
         raise Http404("Post not available")
     h = handle.split("@", 2)
@@ -528,6 +530,7 @@ def post_view(request, handle: str, post_pk: int):
             if post.local:
                 raise BadRequest("JSON not supported yet")
             else:
+                assert post.url is not None
                 return redirect(post.url)
         case -1:
             raise PermissionDenied()

@@ -684,7 +684,7 @@ class TVEpisode(Item):
 
     # Keep titles live when parent metadata changes on this instance.
     @property
-    def display_title(self) -> str:  # ty: ignore[invalid-property-type-override]
+    def display_title(self) -> str:
         return (
             _("{season_title} E{episode_number}")
             .format(

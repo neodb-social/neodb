@@ -234,7 +234,7 @@ def test_dpop_request_signs_and_rotates_nonce():
             httpx.Response(200, json={"ok": True}),
         ]
     )
-    request._client = stub  # ty: ignore[invalid-assignment]  # stub transport
+    request._client = stub  # stub transport
 
     response = request.get("https://pds.example/xrpc/app.bsky.actor.getProfile")
 
@@ -260,7 +260,7 @@ def test_dpop_request_refreshes_on_unexpected_401():
             httpx.Response(200, json={"ok": True}),
         ]
     )
-    request._client = stub  # ty: ignore[invalid-assignment]  # stub transport
+    request._client = stub  # stub transport
 
     response = request.get("https://pds.example/xrpc/app.bsky.actor.getProfile")
 

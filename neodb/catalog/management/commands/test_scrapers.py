@@ -65,7 +65,7 @@ class Command(SiteCommand):
             self.stdout.write(f"Test string: {test_string}")
         self.stdout.write("-" * 60)
 
-        results = []
+        results: list[tuple[str, str, str | None]] = []
 
         for provider in providers:
             self.stdout.write(f"\n[{provider}] Testing...", ending=" ")

@@ -109,7 +109,7 @@ class NdjsonExporter(Task):
                 try:
                     with default_storage.open(rel_path, "rb") as src:
                         with open(dest, "wb") as dst:
-                            shutil.copyfileobj(src, dst)
+                            shutil.copyfileobj(src, dst)  # pyrefly: ignore[bad-argument-type]
                 except Exception:
                     logger.error(f"error copying {url} to {self.attachment_path}")
                     path = None
@@ -163,7 +163,7 @@ class NdjsonExporter(Task):
         try:
             with cover.open("rb") as src:
                 with open(dest, "wb") as dst:
-                    shutil.copyfileobj(src, dst)
+                    shutil.copyfileobj(src, dst)  # pyrefly: ignore[bad-argument-type]
         except Exception as e:
             logger.error(
                 f"error copying cover {basename} to {dest}", extra={"exception": e}
@@ -174,12 +174,12 @@ class NdjsonExporter(Task):
     def _bundle_post_attachments(self, post: Post) -> list[dict[str, str]]:
         attachments = []
         for a in post.attachments.all():
-            basename = os.path.basename(a.file.name or "")
+            basename = os.path.basename(a.file.name or "")  # pyrefly: ignore[missing-attribute]
             if not basename:
                 continue
             dest, path = self._bundle_path(basename)
             try:
-                with a.file.open("rb") as src:
+                with a.file.open("rb") as src:  # pyrefly: ignore[missing-attribute]
                     with open(dest, "wb") as dst:
                         shutil.copyfileobj(src, dst)
             except Exception as e:

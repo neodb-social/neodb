@@ -173,7 +173,9 @@ class SearchResult:
     def __init__(self, index: "Index", response: SearchResponse):
         self.index = index
         self.response = response
-        self.request_params = response.get("request_params", {})
+        request_params = response.get("request_params", {})
+        assert isinstance(request_params, dict)
+        self.request_params = request_params
         self.page_size = self.request_params.get("per_page", 1)
         self.total = response.get("found", 0)
         self.page = response.get("page", 1)

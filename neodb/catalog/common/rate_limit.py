@@ -135,6 +135,7 @@ class RedisRateLimiter:
             return None
         if isinstance(result, bytes):
             result = result.decode()
+        assert isinstance(result, str)
         return float(result)
 
     def _local_fallback_sleep(self) -> None:

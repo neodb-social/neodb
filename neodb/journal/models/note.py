@@ -17,6 +17,8 @@ from .renderers import render_text
 from .shelf import ShelfMember
 
 if TYPE_CHECKING:
+    from django_stubs_ext import StrOrPromise
+
     from takahe.models import PostAttachment
 
 _progress = re.compile(
@@ -74,7 +76,7 @@ class Note(Content):
     progress_value = models.CharField(
         max_length=500, blank=True, null=True, default=None
     )
-    _progress_display_template = {
+    _progress_display_template: dict[str, "StrOrPromise"] = {
         ProgressType.PAGE: _("Page {value}"),
         ProgressType.CHAPTER: _("Chapter {value}"),
         # ProgressType.SECTION: _("Section {value}"),
@@ -86,7 +88,7 @@ class Note(Content):
         ProgressType.PERCENTAGE: "{value}%",
         ProgressType.TIMESTAMP: "{value}",
     }
-    _progress_short_display_template = {
+    _progress_short_display_template: dict[str, str] = {
         ProgressType.PAGE: "p{value}",
         ProgressType.CHAPTER: "ch{value}",
         ProgressType.PART: "pt{value}",
@@ -324,10 +326,10 @@ class Note(Content):
                     attachments.append(pa)
         return attachments
 
-    def to_post_params(self):
+    def to_post_params(self) -> dict[str, Any]:
         footer = f'\n<p>—<br><a href="{self.item.absolute_url}">{self.item.display_title}</a> {self.progress_display}\n</p>'
         post = self.shelfmember.latest_post if self.shelfmember else None
-        params = {
+        params: dict[str, Any] = {
             "summary": self.title,
             "content": self.content,
             "append_content": footer,

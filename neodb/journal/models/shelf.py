@@ -685,9 +685,9 @@ def attach_reading_progress(members: Iterable[ShelfMember]) -> None:
         if not progress:
             continue
         item = member.item
-        item.reading_progress = progress.progress_display
-        item.reading_progress_short = progress.progress_short_display
-        item.reading_progress_percent = progress.progress_percentage(
+        item.reading_progress = progress.progress_display  # pyrefly: ignore[missing-attribute]
+        item.reading_progress_short = progress.progress_short_display  # pyrefly: ignore[missing-attribute]
+        item.reading_progress_percent = progress.progress_percentage(  # pyrefly: ignore[missing-attribute]
             getattr(item, "pages", None)
         )
 
@@ -1141,7 +1141,7 @@ class ShelfManager:
         return stats
 
     def get_calendar_data(self, max_visiblity: int):
-        shelf_id = self.get_shelf(ShelfType.COMPLETE).pk
+        shelf_id = self.shelf_list[ShelfType.COMPLETE].pk
         timezone_offset = timezone.localtime(timezone.now()).strftime("%z")
         timezone_offset = timezone_offset[: len(timezone_offset) - 2]
         calendar_data = {}
