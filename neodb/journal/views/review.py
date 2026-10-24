@@ -1,4 +1,5 @@
 import mimetypes
+from datetime import datetime, time
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -8,7 +9,6 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.dateparse import parse_datetime
 from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
@@ -123,7 +123,7 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
             {
                 "form": form,
                 "item": item,
-                "date_today": timezone.localdate().isoformat(),
+                "review": review,
             },
         )
     else:
@@ -134,10 +134,11 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
         )
         if form.is_valid():
             mark_date = None
-            if request.POST.get("mark_anotherday"):
-                dt = parse_datetime(request.POST.get("mark_date", "") + " 20:00:00")
-                mark_date = (
-                    dt.replace(tzinfo=timezone.get_current_timezone()) if dt else None
+            if form.cleaned_data.get("mark_anotherday"):
+                mark_date = datetime.combine(
+                    form.cleaned_data["mark_date"],
+                    time(20),
+                    tzinfo=timezone.get_current_timezone(),
                 )
             body = form.instance.body
             if form.cleaned_data.get("leading_space"):
@@ -158,7 +159,12 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
             record_activity("review", "web")
             return redirect(reverse("journal:review_retrieve", args=[review.uuid]))
         else:
-            raise BadRequest(_("Invalid parameter"))
+            return render(
+                request,
+                "review_edit.html",
+                {"form": form, "item": item, "review": review},
+                status=400,
+            )
 
 
 def user_review_list(request, user_name, item_category):

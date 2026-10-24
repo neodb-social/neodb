@@ -30,7 +30,13 @@ from .atproto import (
 from .attachment import link_attachments_to_piece
 from .common import Content
 from .rating import Rating
-from .renderers import has_spoiler, render_md, render_post_with_macro, render_rating
+from .renderers import (
+    cached_body_property,
+    has_spoiler,
+    render_md,
+    render_post_with_macro,
+    render_rating,
+)
 from .shelf import ShelfManager
 
 _RE_HTML_TAG = re.compile(r"<[^>]*>")
@@ -59,13 +65,13 @@ class Review(Content):
     def brief_description(self):
         return self.plain_content[:155]
 
-    @property
+    @cached_body_property
     def html_content(self):
         return render_md(self.body)
 
-    @property
+    @cached_body_property
     def plain_content(self):
-        html = render_md(self.body)
+        html = self.html_content
         text = _RE_HTML_TAG.sub(
             " ", _RE_SPOILER_TAG.sub("***", html.replace("\n", " "))
         )

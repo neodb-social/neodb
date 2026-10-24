@@ -1,67 +1,96 @@
-{% load static %}
-{% load i18n %}
-{% load mastodon %}
+{% load static i18n mastodon %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" class="content-page">
+<html lang="{{ LANGUAGE_CODE }}" class="article-editor-page">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-      {{ site_name }} -
-      {% if article %}
-        {% trans "Edit article" %}
-      {% else %}
-        {% trans "Compose article" %}
-      {% endif %}
-    </title>
+    <title>{{ site_name }} - {% if article %}{% trans "Edit article" %}{% else %}{% trans "Compose article" %}{% endif %}</title>
     {% include "common_libs.html" %}
   </head>
   <body>
     {% include "_header.html" %}
     <main>
-      <div>
-        <article>
-          <form method="post" class="review-form" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.id }}
-            {{ form.title }}
-            <label for="{{ form.cover.id_for_label }}">{{ form.cover.label }}</label>
-            {{ form.cover }}
-            {{ form.summary }}
-            {{ form.body }}
-            {{ form.tags }}
-            <div class="post-options">
-              <div role="group">
-                {{ form.visibility }}
-                {{ form.language }}
-              </div>
-              <label for="id_share_to_mastodon"
-                     title="{{ form.share_to_mastodon.help_text }}">
-                {{ form.share_to_mastodon }}
-                {{ form.share_to_mastodon.label }}
-              </label>
-              <label for="id_sensitive">
-                {{ form.sensitive }}
-                {{ form.sensitive.label }}
-              </label>
-              <label for="id_leading_space" title="{{ form.leading_space.help_text }}">
-                {{ form.leading_space }}
-                {{ form.leading_space.label }}
-              </label>
+      <form method="post"
+            class="article-editor-form"
+            enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.id }}
+        <header class="article-editor-top">
+          <a href="{% url 'journal:user_article_list' request.user.identity.handle %}">← {% trans "My articles" %}</a>
+          <span class="article-editor-state">
+            {% if article %}
+              {% trans "Edit article" %}
+            {% else %}
+              {% trans "Not published" %}
+            {% endif %}
+          </span>
+          <div>
+            <button type="button"
+                    class="outline secondary"
+                    data-article-preview
+                    data-write-label="{% trans 'Write' %}"
+                    data-preview-label="{% trans 'Preview' %}"
+                    aria-pressed="false"
+                    hidden>{% trans "Preview" %}</button>
+            <a href="#article-publish-settings"
+               role="button"
+               class="dc-btn"
+               data-article-publish>{% if article %}{% trans "Save changes" %}{% else %}{% trans "Continue to publish" %}{% endif %} →</a>
+          </div>
+        </header>
+        {% if form.errors %}<div class="article-form-errors" role="alert"><p>{% trans "Please correct the errors below." %}</p>{{ form.non_field_errors }}{{ form.id.errors }}</div>{% endif %}
+        <div class="article-editor-layout">
+          <div class="article-writing-canvas">
+            <details class="article-cover-field"
+                     {% if article.cover_image_url or form.cover.errors %}open{% endif %}>
+              <summary>
+                {% if article.cover_image_url %}
+                  {% trans "Featured image" %}
+                {% else %}
+                  {% trans "Add a cover image" %}
+                {% endif %}
+              </summary>
+              <label for="{{ form.cover.id_for_label }}">{{ form.cover.label }}</label>
+              {{ form.cover }}{{ form.cover.errors }}
+            </details>
+            <label class="article-sr-only" for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+            {{ form.title }}{{ form.title.errors }}
+            <label class="article-sr-only" for="{{ form.summary.id_for_label }}">{{ form.summary.label }}</label>
+            {{ form.summary }}{{ form.summary.errors }}
+            <label class="article-sr-only" for="{{ form.body.id_for_label }}">{{ form.body.label }}</label>
+            {{ form.body }}{{ form.body.errors }}
+            <p class="article-editor-help">{% trans "Markdown supported. Add images using the toolbar or paste them into your article." %}</p>
+          </div>
+          <details class="article-publish-settings"
+                   id="article-publish-settings"
+                   {% if form.errors %}open{% endif %}>
+            <summary>{% trans "Publishing settings" %}</summary>
+            <div>
+              <label for="{{ form.visibility.id_for_label }}">{{ form.visibility.label }}</label>
+              {{ form.visibility }}{{ form.visibility.errors }}
+              {% include "_article_tag_picker.html" %}
+              <label for="{{ form.language.id_for_label }}">{{ form.language.label }}</label>
+              {{ form.language }}{{ form.language.errors }}
+              <label for="{{ form.share_to_mastodon.id_for_label }}"
+                     title="{{ form.share_to_mastodon.help_text }}">{{ form.share_to_mastodon }}{{ form.share_to_mastodon.label }}</label>{{ form.share_to_mastodon.errors }}
+              <label for="{{ form.sensitive.id_for_label }}">{{ form.sensitive }}{{ form.sensitive.label }}</label>{{ form.sensitive.errors }}
+              <details><summary>{% trans "More options" %}</summary><label for="{{ form.leading_space.id_for_label }}"
+       title="{{ form.leading_space.help_text }}">{{ form.leading_space }}{{ form.leading_space.label }}</label>{{ form.leading_space.errors }}</details>
+              <button type="submit">
+                {% if article %}
+                  {% trans "Save changes" %}
+                {% else %}
+                  {% trans "Publish article" %}
+                {% endif %}
+              </button>
             </div>
-            <input class="button" type="submit" value="{% trans 'Save' %}">
-          </form>
-          {% include "markdown_editor.html" %}
-        </article>
-      </div>
-      {% include "_sidebar.html" with show_profile=1 collapse_profile=1 identity=request.user.identity %}
+          </details>
+        </div>
+      </form>
+      {% include "markdown_editor.html" with article_editor=True %}
     </main>
-    <script>
-      $(".spoiler").on('click', function() {
-        $(this).toggleClass('revealed');
-      });
-    </script>
+    <script src="{% static 'js/article.js' %}"></script>
     {% include "_footer.html" %}
   </body>
 </html>

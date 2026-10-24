@@ -1,0 +1,22 @@
+{% load i18n %}
+<div class="article-tag-picker"
+     data-tag-picker
+     data-remove-label="{% trans 'Remove tag' %}"
+     data-limit-label="{% trans 'Too many tags or too much text. Remove a tag to continue.' %}">
+  <label for="{{ form.tags.id_for_label }}">{% trans "Tags" %}</label>
+  {{ form.tags }}{{ form.tags.errors }}
+  <div data-tag-controls hidden>
+    <div class="article-selected-tags" data-selected-tags></div>
+    <div class="article-tag-entry">
+      <input type="text"
+             id="article-tag-entry"
+             placeholder="{% trans 'Find or add a tag' %}"
+             aria-describedby="article-tag-help"
+             autocomplete="off">
+      <button type="button" class="outline" data-add-tag>{% trans "Add" %}</button>
+    </div>
+    <small id="article-tag-help">{% trans "Choose a tag below, or type a new one and press Enter." %}</small>
+    <div class="article-tag-suggestions" data-tag-suggestions></div>
+  </div>
+  {{ tag_suggestions|json_script:"article-tag-suggestions" }}
+</div>

@@ -1,0 +1,118 @@
+{% load i18n mastodon duration %}
+<main>
+  <div class="article-reading-column">
+    {% if article.classname == "review" %}
+      <a class="article-back" href="{{ article.item.url }}">← {{ article.item.display_title }}</a>
+    {% elif request.user.is_authenticated or article.owner.local and article.owner.anonymous_viewable and not article.owner.restricted %}
+      <a class="article-back"
+         href="{% url 'journal:user_article_list' article.owner.handle %}">← {% blocktrans with name=article.owner.display_name %}Articles by {{ name }}{% endblocktrans %}</a>
+    {% endif %}
+    <article class="article-story">
+      <header>
+        <h1><span id="{{ article.classname }}_{{ article.uuid }}_title">{{ article.title }}</span></h1>
+        {% if article.classname == "article" and article.display_summary %}<p class="article-deck">{{ article.display_summary }}</p>{% endif %}
+        <div class="article-byline">
+          <a class="article-author" href="{{ article.owner.url }}">
+            <img src="{{ article.owner.avatar|relative_uri }}"
+                 alt=""
+                 width="40"
+                 height="40">
+            <span>{{ article.owner.display_name }}<small><time datetime="{{ article.created_time|date:'c' }}">{{ article.created_time|date }}</time>{% if article.reading_time %} · {% blocktrans count counter=article.reading_time %}{{ counter }} min read{% plural %}{{ counter }} min read{% endblocktrans %}{% endif %}</small></span>
+          </a>
+          {% if request.user.is_authenticated and request.user.identity == article.owner %}
+            <a class="article-edit-link" href="{{ article.edit_url }}">{% trans "Edit" %}</a>
+          {% endif %}
+        </div>
+      </header>
+      {% if article.classname == "review" %}
+        {% include "_review_subject.html" with item=article.item review=article %}
+      {% endif %}
+      {% if article.sensitive %}
+        <p id="article_{{ article.uuid }}_reveal_wrap"
+           class="article-reveal-wrap">
+          <button class="outline article-reveal"
+                  type="button"
+                  _="on click hide #article_{{ article.uuid }}_reveal_wrap then remove @hidden from #article_{{ article.uuid }}_content"><i class="fa-regular fa-eye" aria-hidden="true"></i> {% trans "This article may contain sensitive content. Click to reveal." %}</button>
+        </p>
+      {% endif %}
+      <div id="{{ article.classname }}_{{ article.uuid }}_content"
+           class="markdown-content article-prose"
+           data-article-content
+           data-contents-label="{% trans 'Contents' %}"
+           {% if article.sensitive %}hidden{% endif %}>
+        {% if request.user.is_authenticated or article.owner.anonymous_viewable %}
+          {% if article.classname == "article" and article.cover_image_url %}
+            <img class="article-cover"
+                 src="{{ article.display_cover_image_url }}"
+                 alt="{{ article.title }}">
+          {% endif %}
+          {{ article.html_content|safe }}
+        {% else %}
+          <p class="empty">{% trans "The author has set it to be viewable only by logged-in users." %}</p>
+        {% endif %}
+      </div>
+      <footer>
+        {% if article.normalized_tags %}
+          <ul class="article-story-tags">
+            {% for tag in article.normalized_tags %}
+              <li>{% if request.user.is_authenticated or article.owner.local and article.owner.anonymous_viewable and not article.owner.restricted %}<a href="{% url 'journal:user_article_list' article.owner.handle %}?tag={{ tag|urlencode }}">{{ tag }}</a>{% else %}{{ tag }}{% endif %}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        <div class="article-story-actions">
+          {% if article.latest_post %}
+            <span class="action inline">
+              {% include "action_like_post.html" with post=article.latest_post %}
+              {% include "action_boost_post.html" with post=article.latest_post %}
+              <span><a hx-get="{% url 'journal:piece_replies' article.uuid %}"
+   hx-swap="outerHTML"
+   hx-trigger="click once"
+   hx-target="#replies_{{ article.latest_post.pk }}"><span class="metrics">{{ article.latest_post.stats.replies|default:'' }}</span> {% trans "Reply" %}</a></span>
+              <span><a hx-get="{% url 'journal:post_quote' article.latest_post.pk %}"
+   hx-swap="outerHTML"
+   hx-trigger="click once"
+   hx-target="#quote_{{ article.latest_post.pk }}"><span class="metrics">{{ quotes_count|default:'' }}</span> {% trans "Quote" %}</a></span>
+              {% if translate_enabled and request.user.is_authenticated %}
+                <span><a title="{% trans 'Translate' %}"
+   {% if article.classname == "review" %}hx-post="{% url 'journal:review_translate' article.uuid %}"{% else %}hx-post="{% url 'journal:article_translate' article.uuid %}"{% endif %}
+   hx-trigger="click once"
+   hx-target="#{{ article.classname }}_{{ article.uuid }}_content"><i class="fa-solid fa-language" aria-hidden="true"></i><span class="article-sr-only">{% trans "Translate" %}</span></a></span>
+              {% endif %}
+              {% if request.user.is_authenticated and request.user.identity == article.owner %}
+                {% firstof article.edit_url as piece_edit_url %}
+              {% endif %}
+              {% include "_post_action_menu.html" with post=article.latest_post piece=article piece_edit_url=piece_edit_url %}
+              {% include "action_open_post.html" with post=article.latest_post %}
+            </span>
+          {% endif %}
+          <button type="button"
+                  class="article-copy-link outline secondary"
+                  data-copy-article="{{ article.absolute_url }}"
+                  data-copied-label="{% trans 'Link copied' %}">{% trans "Copy link" %}</button>
+          <span class="article-sr-only" data-copy-status role="status"></span>
+          {% if request.user.is_authenticated and request.user.identity == article.owner %}
+            <a href="{{ article.delete_url }}">{% trans "Delete" %}</a>
+          {% endif %}
+        </div>
+        <div class="article-author-end">
+          <a class="article-author" href="{{ article.owner.url }}">
+          <img src="{{ article.owner.avatar|relative_uri }}"
+               alt=""
+               width="40"
+               height="40"><span>{{ article.owner.display_name }}<small>@{{ article.owner.full_handle }}</small></span></a>
+          {% if request.user.is_authenticated or article.owner.local and article.owner.anonymous_viewable and not article.owner.restricted %}
+            {% if article.classname == "review" %}
+              <a href="{% url 'journal:user_review_list' article.owner.handle article.item.category %}">{% trans "More reviews" %} →</a>
+            {% else %}
+              <a href="{% url 'journal:user_article_list' article.owner.handle %}">{% trans "More articles" %} →</a>
+            {% endif %}
+          {% endif %}
+        </div>
+      </footer>
+    </article>
+    {% if article.latest_post %}
+      <div id="quote_{{ article.latest_post.pk }}" hidden></div>
+      <div id="replies_{{ article.latest_post.pk }}" hidden></div>
+    {% endif %}
+  </div>
+</main>

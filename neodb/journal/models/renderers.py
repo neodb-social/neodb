@@ -1,4 +1,5 @@
 import re
+from functools import wraps
 from html import unescape
 from typing import cast
 from urllib.parse import urlparse
@@ -39,6 +40,26 @@ def convert_leading_space_in_md(body: str) -> str:
 
 def render_md(s: str) -> str:
     return cast(str, _markdown(s))
+
+
+def cached_body_property(func):
+    """Reuse body-derived presentation values on a single model instance.
+
+    Unlike cached_property, edits to body invalidate all derived values. Never
+    use this for values that also depend on other fields (e.g. a summary).
+    """
+
+    @wraps(func)
+    def get_value(instance):
+        body, values = instance.__dict__.get("_body_cache", (None, {}))
+        if body != instance.body:
+            values = {}
+            instance.__dict__["_body_cache"] = (instance.body, values)
+        if func.__name__ not in values:
+            values[func.__name__] = func(instance)
+        return values[func.__name__]
+
+    return property(get_value)
 
 
 # Public: the NDJSON exporter/importer and the image migration command all

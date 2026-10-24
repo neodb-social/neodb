@@ -9951,3 +9951,171 @@ msgstr "開放註冊"
 #| msgid "You may not be able to undo this operation."
 msgid "You cannot send messages in this conversation."
 msgstr "本操作可能無法撤銷。"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Articles by %(name)s"
+msgstr "%(name)s 的文章"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Browse by tag"
+msgstr "依標籤瀏覽"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "All tags"
+msgstr "全部標籤"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "All articles"
+msgstr "全部文章"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Clear filters"
+msgstr "清除篩選"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "All dates"
+msgstr "全部時間"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Browse by date"
+msgstr "依日期瀏覽"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Months in %(year)s"
+msgstr "%(year)s 年的月份"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Months"
+msgstr "月份"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Latest article"
+msgstr "最新文章"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "No articles match these filters."
+msgstr "沒有符合篩選條件的文章。"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "View all articles"
+msgstr "檢視全部文章"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "A home for your words"
+msgstr "讓文字有個家"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Write about a book, a film, or whatever is on your mind."
+msgstr "寫一本書、一部電影，或任何你想記錄的事。"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "More articles"
+msgstr "更多文章"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Contents"
+msgstr "目錄"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Copy link"
+msgstr "複製連結"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Link copied"
+msgstr "連結已複製"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "My articles"
+msgstr "我的文章"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Not published"
+msgstr "尚未發佈"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Write"
+msgstr "撰寫"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Preview"
+msgstr "預覽"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Save changes"
+msgstr "儲存變更"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Continue to publish"
+msgstr "繼續發佈"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Featured image"
+msgstr "封面圖片"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Add a cover image"
+msgstr "新增封面"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Markdown supported. Add images using the toolbar or paste them into your article."
+msgstr "支援 Markdown。可使用工具列新增圖片，或將圖片貼到文章中。"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Publishing settings"
+msgstr "發佈設定"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "More options"
+msgstr "更多選項"
+
+#: journal/templates/user_article_list.html journal/templates/article_edit.html journal/templates/_article_reading.html
+msgid "Publish article"
+msgstr "發佈文章"
+
+#: journal/templates/review_edit.html journal/templates/_article_reading.html journal/forms.py
+msgid "Edit review"
+msgstr "編輯評論"
+
+#: journal/templates/review_edit.html journal/templates/_article_reading.html journal/forms.py
+msgid "More reviews"
+msgstr "更多評論"
+
+#: journal/templates/review_edit.html journal/templates/_article_reading.html journal/forms.py
+msgid "Publish review"
+msgstr "發佈評論"
+
+#: journal/templates/review_edit.html journal/templates/_article_reading.html journal/forms.py
+msgid "Markdown supported. Add images using the toolbar or paste them into your review."
+msgstr "支援 Markdown。使用工具列新增圖片，或將圖片貼到評論中。"
+
+#: journal/templates/review_edit.html journal/templates/_article_reading.html journal/forms.py
+msgid "Review date"
+msgstr "評論日期"
+
+#: journal/templates/review_edit.html journal/templates/_article_reading.html journal/forms.py
+msgid "Please choose a review date."
+msgstr "請選擇評論日期。"
+
+#: journal/templates/review_edit.html journal/templates/_article_reading.html journal/forms.py
+msgid "Choose a date between 1900 and today."
+msgstr "請選擇 1900 年至今天之間的日期。"
+
+#: journal/templates/_article_tag_picker.html
+msgid "Remove tag"
+msgstr "移除標籤"
+
+#: journal/templates/_article_tag_picker.html
+msgid "Too many tags or too much text. Remove a tag to continue."
+msgstr "標籤過多或文字過長。請移除一個標籤後繼續。"
+
+#: journal/templates/_article_tag_picker.html
+msgid "Find or add a tag"
+msgstr "尋找或新增標籤"
+
+#: journal/templates/_article_tag_picker.html
+msgid "Choose a tag below, or type a new one and press Enter."
+msgstr "選擇下方標籤，或輸入新標籤並按 Enter。"
+
+#: journal/templates/profile_articles.html
+msgid "View all"
+msgstr "查看全部"

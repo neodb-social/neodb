@@ -933,38 +933,52 @@ a.dc-progress-badge {
   font-size: var(--dc-fs-sm);
 }
 
-// compact, text-only preview of recent articles (articles have no cover)
+// Three equally weighted article rows within the existing profile module.
+.profile-articles-header {
+  .action { display: flex; align-items: center; gap: 1rem; }
+  .profile-articles-all { font-size: var(--dc-fs-sm); white-space: nowrap; }
+}
+
 .article-preview {
   list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
-  gap: var(--dc-gap);
+  display: block;
   margin: 0;
   padding: 0.25rem 0 0.6rem;
 
   > li {
     margin: 0;
-    padding: 0.8rem 1rem;
+    padding: 1rem 0;
     list-style: none;
-    border: 1px solid var(--dc-border);
-    border-radius: var(--dc-radius);
-    background: var(--dc-surface);
-    line-height: 1.4;
+    border-bottom: 1px solid var(--dc-border);
+    line-height: 1.6;
     min-width: 0;
   }
 
+  > li:first-child { padding-top: 0; }
+  > li:last-child { border-bottom: 0; padding-bottom: 0; }
+
   .title {
-    font-weight: 700;
+    font-weight: 600;
+    font-size: var(--dc-fs-base);
+    overflow-wrap: anywhere;
     color: var(--dc-strong);
     text-decoration: none;
   }
 
+  .title:hover { color: var(--pico-primary); }
+
   .meta {
     color: var(--dc-muted);
-    margin-left: 0.4rem;
-    white-space: nowrap;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-top: .45rem;
     font-size: var(--dc-fs-sm);
   }
+
+  .preview-tags { display: inline-flex; flex-wrap: wrap; gap: .65rem; margin-left: .35rem; min-width: 0; }
+  .preview-tags a, .preview-tags span { overflow-wrap: anywhere; }
 
   .excerpt {
     margin: 0.3rem 0 0;
@@ -973,12 +987,11 @@ a.dc-progress-badge {
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
   }
 
   > li.empty {
-    border-style: dashed;
     color: var(--dc-muted);
     font-style: normal;
     font-size: var(--dc-fs-sm);

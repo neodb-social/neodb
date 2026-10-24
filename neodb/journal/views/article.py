@@ -1,10 +1,17 @@
+import re
+from collections import Counter
+from datetime import date
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.syndication.views import Feed
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import formats
 from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
@@ -19,13 +26,13 @@ from common.utils import (
     get_uuid_or_404,
     target_identity_required,
 )
-from takahe.utils import Takahe
 from users.middlewares import activate_language_for_user
 from users.models.apidentity import APIdentity
 
 from ..forms import ArticleForm
 from ..models import Article
-from ..models.common import prefetch_latest_posts, q_owned_piece_visible_to_user
+from ..models.article import _normalize_tags
+from ..models.common import q_owned_piece_visible_to_user
 from ..models.renderers import convert_leading_space_in_md
 from .common import (
     conditional_get_for_anonymous,
@@ -39,6 +46,32 @@ def _parse_tags(raw: str) -> list[str]:
     if not raw:
         return []
     return [t.strip() for t in raw.split(",") if t and t.strip()]
+
+
+def _article_tag_suggestions(owner) -> list[str]:
+    # Only the signed-in author's vocabulary, including their private articles.
+    # Fetch each stored tag set once, even for authors with long histories.
+    # DISTINCT ON picks its newest article; the outer query restores recency.
+    latest_tag_sets = (
+        Article.objects.filter(owner=owner)
+        .order_by("tags", "-edited_time", "-id")
+        .distinct("tags")
+        .values("pk")
+    )
+    suggestions = {}
+    for tags in (
+        Article.objects.filter(pk__in=latest_tag_sets)
+        .order_by("-edited_time", "-id")
+        .values_list("tags", flat=True)
+        .iterator()
+    ):
+        if not isinstance(tags, list):
+            continue
+        for tag in _normalize_tags(tags):
+            suggestions[tag] = None
+            if len(suggestions) == 100:
+                return list(suggestions)
+    return list(suggestions)
 
 
 @login_required
@@ -74,6 +107,7 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
             {
                 "form": form,
                 "article": article,
+                "tag_suggestions": _article_tag_suggestions(request.user.identity),
             },
         )
     form = (
@@ -87,7 +121,11 @@ def article_edit(request: AuthedHttpRequest, article_uuid: str | None = None):
         return render(
             request,
             "article_edit.html",
-            {"form": form, "article": article},
+            {
+                "form": form,
+                "article": article,
+                "tag_suggestions": _article_tag_suggestions(request.user.identity),
+            },
             status=400,
         )
     body = form.cleaned_data["body"]
@@ -260,6 +298,51 @@ def user_article_list(request: AuthedHttpRequest, user_name):
         # otherwise be free to swap places between page requests.
         .order_by("-created_time", "-id")
     )
+    # Aggregate repeated tag sets in SQL, then use the same canonicalization
+    # as article links (including deduplication and the 30-tag limit). Expanding
+    # raw tags and counting them would overcount legacy spelling variants.
+    raw_selected_tag = request.GET.get("tag", "").strip()
+    selected_tag = next(iter(_normalize_tags([raw_selected_tag])), raw_selected_tag)
+    tag_counts = Counter()
+    matching_tag_sets = []
+    for row in (
+        queryset.order_by().values("tags").annotate(total=Count("id")).iterator()
+    ):
+        tags = _normalize_tags(row["tags"]) if isinstance(row["tags"], list) else []
+        tag_counts.update(dict.fromkeys(tags, row["total"]))
+        if selected_tag and selected_tag in tags:
+            matching_tag_sets.append(row["tags"])
+    archive_years = {}
+    months = (
+        queryset.order_by()
+        .annotate(month=TruncMonth("created_time"))
+        .values("month")
+        .annotate(total=Count("id"))
+        .order_by("-month")
+    )
+    for row in months:
+        month = row["month"]
+        year = archive_years.setdefault(
+            month.year, {"value": str(month.year), "months": []}
+        )
+        year["months"].append(
+            {"value": month.strftime("%Y-%m"), "label": formats.date_format(month, "F")}
+        )
+    selected_date = request.GET.get("date", "")
+    date_label = ""
+    match = re.fullmatch(r"([0-9]{4})(?:-(0[1-9]|1[0-2]))?", selected_date)
+    if match and 0 < int(match[1]) < 9999:
+        year, month = int(match[1]), int(match[2]) if match[2] else None
+        queryset = queryset.filter(created_time__year=year)
+        if month:
+            queryset = queryset.filter(created_time__month=month)
+        date_label = formats.date_format(
+            date(year, month or 1, 1), "YEAR_MONTH_FORMAT" if month else "Y"
+        )
+    else:
+        selected_date = ""
+    if selected_tag:
+        queryset = queryset.filter(tags__in=matching_tag_sets)
     paginator = CustomPaginator(queryset, request)
     # ``get_page`` never raises: it clamps an out-of-range number to the last
     # page and an unparseable one to the first. The links are therefore built
@@ -267,11 +350,6 @@ def user_article_list(request: AuthedHttpRequest, user_name):
     # highlighted is what is on screen.
     page = paginator.get_page(int_(request.GET.get("page", default=1), 1))
     articles = list(page)
-    # Both prefetches run over one page, not the whole archive.
-    prefetch_latest_posts(articles)
-    if request.user.is_authenticated:
-        posts = [a.latest_post for a in articles if a.latest_post]
-        Takahe.prefetch_interaction_flags(posts, request.user.identity.pk)
     return render(
         request,
         "user_article_list.html",
@@ -280,6 +358,20 @@ def user_article_list(request: AuthedHttpRequest, user_name):
             "identity": target,
             "articles": articles,
             "total": paginator.count,
+            "article_tags": [
+                {"name": tag, "count": count}
+                for tag, count in sorted(
+                    tag_counts.items(), key=lambda pair: (-pair[1], pair[0].casefold())
+                )
+            ],
+            "archive_years": list(archive_years.values()),
+            "selected_tag": selected_tag,
+            "selected_date": selected_date,
+            "date_label": date_label,
+            "is_filtered": bool(selected_tag or selected_date),
+            "show_featured": page.number == 1
+            and not selected_tag
+            and not selected_date,
             # one page needs no page links, and the template hides the block
             # when there is no generator
             "pagination": PageLinksGenerator(

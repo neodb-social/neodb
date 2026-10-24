@@ -1,5 +1,7 @@
 """Tests for the article list page (``journal:user_article_list``)."""
 
+from datetime import datetime, timezone as datetime_timezone
+
 import pytest
 from django.test import Client
 from django.urls import reverse
@@ -125,10 +127,87 @@ def test_tag_links_are_url_encoded():
 
     content = client.get(_url(user)).content.decode()
 
-    assert "q=tag%3A%22R%26D%22" in content
-    assert "q=tag%3A%22C%23%22" in content
+    assert "tag=R%26D" in content
+    assert "tag=C%23" in content
     # the raw form would end the query at "&" and start a fragment at "#"
     assert "q=tag:&quot;R&amp;D&quot;" not in content
+
+    # Readers use the author's archive, not their own journal search.
+    public = Client().get(_url(user)).content.decode()
+    assert "tag=R%26D" in public
+    filtered = Client().get(_url(user), {"tag": "R&D"})
+    assert filtered.context["total"] == 1
+
+
+def _dated_article(owner, title, year, month, **kwargs):
+    article = _article(owner, title, **kwargs)
+    Article.objects.filter(pk=article.pk).update(
+        created_time=datetime(year, month, 15, 12, tzinfo=datetime_timezone.utc)
+    )
+    return article
+
+
+def test_tag_and_date_filter_before_pagination(monkeypatch):
+    import common.utils
+
+    monkeypatch.setattr(common.utils, "ITEMS_PER_PAGE", 1)
+    monkeypatch.setattr(common.utils, "ITEMS_PER_PAGE_OPTIONS", [1])
+    user, client = _member("filterer")
+    first = _dated_article(user.identity, "September A", 2026, 9, tags=["Reading"])
+    second = _dated_article(user.identity, "September B", 2026, 9, tags=["Reading"])
+    _dated_article(user.identity, "October", 2026, 10, tags=["Reading"])
+    _dated_article(user.identity, "Cinema", 2026, 9, tags=["Film"])
+    _dated_article(user.identity, "Last year", 2025, 9, tags=["Reading"])
+    response = client.get(_url(user), {"tag": "Reading", "date": "2026-09"})
+    assert response.context["total"] == 2
+    assert response.context["articles"] == [second]
+    assert not response.context["show_featured"]
+    html = response.content.decode()
+    assert "tag=Reading&amp;date=2026-09&amp;page=2" in html
+    page_two = client.get(_url(user), {"tag": "Reading", "date": "2026-09", "page": 2})
+    assert page_two.context["articles"] == [first]
+    assert client.get(_url(user), {"date": "2026"}).context["total"] == 4
+    assert client.get(_url(user), {"tag": "Film", "date": "2025"}).context["total"] == 0
+    # A facet selection resets the page while preserving the other filter.
+    assert '?tag=Film&amp;date=2026-09"' in page_two.content.decode()
+
+
+def test_archive_facets_do_not_leak_private_articles():
+    owner, own_client = _member("privatearchive")
+    _, visitor = _member("archivevisitor")
+    _dated_article(owner.identity, "Public", 2026, 9, tags=["Public tag"])
+    hidden = _dated_article(owner.identity, "Private", 2024, 3, tags=["Secret tag"])
+    Article.objects.filter(pk=hidden.pk).update(visibility=2)
+    for client in (Client(), visitor):
+        response = client.get(_url(owner))
+        assert response.context["article_tags"] == [{"name": "Public tag", "count": 1}]
+        assert [year["value"] for year in response.context["archive_years"]] == ["2026"]
+        assert (
+            client.get(_url(owner), {"tag": "Secret tag", "date": "2024"}).context[
+                "total"
+            ]
+            == 0
+        )
+    own = own_client.get(_url(owner))
+    assert len(own.context["article_tags"]) == 2
+    assert (
+        own_client.get(_url(owner), {"tag": "Secret tag", "date": "2024-03"}).context[
+            "total"
+        ]
+        == 1
+    )
+
+
+@pytest.mark.parametrize(
+    "date_value", ["oops", "2026-13", "2026-00", "0000", "9999", "2026-09-01"]
+)
+def test_invalid_archive_date_is_ignored(date_value):
+    owner, client = _member("invaliddate")
+    _article(owner.identity, "Still visible")
+    response = client.get(_url(owner), {"date": date_value})
+    assert response.status_code == 200
+    assert response.context["selected_date"] == ""
+    assert response.context["total"] == 1
 
 
 def test_list_page_is_empty_for_a_user_without_articles():
@@ -176,3 +255,48 @@ def test_review_plain_text_decodes_character_references():
     assert review is not None
     assert "Features & interaction, a > b." in review.plain_content
     assert "&amp;" not in review.brief_description
+
+
+def test_legacy_tags_share_facets_links_and_filters():
+    user, client = _member("legacytags")
+    first = _article(user.identity, "Legacy")
+    second = _article(user.identity, "Current", tags=["Film noir"])
+    # Older/imported rows can bypass canonicalization.
+    Article.objects.filter(pk=first.pk).update(
+        tags=["#Film  noir", "Film noir", "  #Film noir ", None]
+    )
+    response = client.get(_url(user))
+    assert response.context["article_tags"] == [{"name": "Film noir", "count": 2}]
+    filtered = client.get(_url(user), {"tag": "Film noir"})
+    assert {article.pk for article in filtered.context["articles"]} == {
+        first.pk,
+        second.pk,
+    }
+    assert filtered.context["total"] == 2
+    suggestions = client.get(reverse("journal:article_compose")).context[
+        "tag_suggestions"
+    ]
+    assert suggestions == ["Film noir"]
+
+
+def test_archive_uses_thumbnails_and_does_not_prefetch_post_interactions(monkeypatch):
+    from unittest.mock import Mock
+    import common.templatetags.thumb as thumbnail_tags
+    from takahe.utils import Takahe
+
+    user, client = _member("thumbnails")
+    local = _article(user.identity, "Photo")
+    Article.objects.filter(pk=local.pk).update(cover="large-photo.jpg")
+    remote = _article(user.identity, "Remote image")
+    Article.objects.filter(pk=remote.pk).update(
+        metadata={"cover_url": "https://remote.example/cover.jpg"}
+    )
+    thumbnail = Mock(return_value="/small-photo.jpg")
+    interactions = Mock()
+    monkeypatch.setattr(thumbnail_tags, "thumbnail_url", thumbnail)
+    monkeypatch.setattr(Takahe, "prefetch_interaction_flags", interactions)
+    content = client.get(_url(user)).content.decode()
+    assert 'src="/small-photo.jpg"' in content
+    assert 'src="https://remote.example/cover.jpg"' in content
+    assert thumbnail.call_args.args[1] == "normal"
+    interactions.assert_not_called()

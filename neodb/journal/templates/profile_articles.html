@@ -1,16 +1,18 @@
 {% load i18n %}
 {% load l10n %}
-<header class="dc-mh">
+<header class="dc-mh profile-articles-header">
   <h2>
-    <a href="{{ url }}">{{ title }}</a>
+    {% if can_browse_articles %}<a href="{{ url }}">{{ title }}</a>{% else %}{{ title }}{% endif %}
   </h2>
-  <a class="dc-count" href="{{ url }}" title="{% trans 'Show all' %}">{{ total }}</a>
+  <span class="dc-count">{{ total }}</span>
   <span class="action">
+    {% if can_browse_articles %}<a class="profile-articles-all" href="{{ url }}">{% trans "View all" %} →</a>{% endif %}
     {% if show_create_button %}
       <a class="dc-nav"
          href="{% url 'journal:article_compose' %}"
+         aria-label="{% trans 'Compose article' %}"
          title="{% trans 'Compose article' %}">
-        <i class="fa-solid fa-pen-to-square"></i>
+        <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
       </a>
     {% endif %}
   </span>
@@ -19,8 +21,19 @@
   {% for article in articles %}
     <li>
       <a href="{{ article.url }}" class="title">{{ article.title }}</a>
-      <small class="meta">{{ article.created_time|date }}</small>
       {% if article.teaser %}<p class="excerpt">{{ article.teaser }}</p>{% endif %}
+      <div class="meta">
+        <time datetime="{{ article.created_time|date:'c' }}">{{ article.created_time|date }}</time>
+        <span aria-hidden="true">·</span>
+        <span>{% blocktrans count counter=article.reading_time %}{{ counter }} min read{% plural %}{{ counter }} min read{% endblocktrans %}</span>
+        {% if article.normalized_tags %}
+          <span class="preview-tags">
+            {% for tag in article.normalized_tags|slice:':2' %}
+              {% if can_browse_articles %}<a href="{{ url }}?tag={{ tag|urlencode }}">{{ tag }}</a>{% else %}<span>{{ tag }}</span>{% endif %}
+            {% endfor %}
+          </span>
+        {% endif %}
+      </div>
     </li>
   {% empty %}
     {% if show_create_button %}
