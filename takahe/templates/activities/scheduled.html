@@ -1,0 +1,38 @@
+{% extends "settings/base.html" %}
+
+{% block subtitle %}Scheduled posts{% endblock %}
+
+{% block settings_content %}
+    <div class="view-options">
+        <span class="spacer"></span>
+        <a href="{% url "compose" handle=identity.handle %}" class="button"><i class="fa-solid fa-plus"></i> Schedule a post</a>
+    </div>
+    <table class="items">
+        {% for scheduled in scheduled_posts %}
+            <tr>
+                <td class="icon">
+                    <i class="fa-solid fa-clock"></i>
+                </td>
+                <td class="name">
+                    {% if scheduled.params.spoiler_text %}<strong>{{ scheduled.params.spoiler_text }}</strong><br>{% endif %}
+                    {{ scheduled.params.text|truncatechars:200 }}
+                    {% if scheduled.params.media_ids %}<br><small>{{ scheduled.params.media_ids|length }} media attached</small>{% endif %}
+                </td>
+                <td class="stat">
+                    <time datetime="{{ scheduled.scheduled_at|date:"c" }}" _="init make a Date from @datetime called d then set my.textContent to d.toLocaleString()">{{ scheduled.scheduled_at|date:"Y-m-d H:i" }} UTC</time>
+                </td>
+                <td class="actions">
+                    <form action="." method="post">
+                        <input type="hidden" name="id" value="{{ scheduled.pk }}">
+                        {% csrf_token %}
+                        <button class="delete" onclick="return confirm('Delete this scheduled post?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% empty %}
+            <tr class="empty">
+                <td>You have no scheduled posts.</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

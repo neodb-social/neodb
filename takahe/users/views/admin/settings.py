@@ -46,6 +46,10 @@ class BasicSettings(AdminSettingsPage):
             "title": "Minimum Posting Interval",
             "help_text": "The minimum number of seconds a user must wait between posts",
         },
+        "post_backdating": {
+            "title": "Allow backdated posts",
+            "help_text": "Lets users import old posts by posting with a past scheduled time.\nBackdated posts are not sent to followers and do not appear in timelines or notifications.",
+        },
         "content_warning_text": {
             "title": "Content Warning Feature Name",
             "help_text": "What the feature that lets users provide post summaries is called",
@@ -135,6 +139,7 @@ class BasicSettings(AdminSettingsPage):
             "post_length",
             "max_media_attachments",
             "post_minimum_interval",
+            "post_backdating",
             "content_warning_text",
             "hashtag_unreviewed_are_public",
             "emoji_unreviewed_are_public",

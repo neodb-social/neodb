@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Literal
 
 from django.http import HttpRequest
@@ -18,6 +17,14 @@ from activities.models.post_types import (
     POLL_MAX_OPTION_CHARS,
     POLL_MAX_OPTIONS,
     POLL_MIN_EXPIRATION,
+    poll_question,
+)
+from activities.models.scheduled_status import (
+    API_VISIBILITIES,
+    ScheduledStatus,
+    ScheduledStatusError,
+    check_backdate,
+    parse_scheduled_at,
 )
 from activities.services import PostService
 from core import sentry
@@ -60,16 +67,9 @@ class PostPollSchema(Schema):
             )
 
     def dict(self):
-        return {
-            "type": "Question",
-            "mode": "anyOf" if self.multiple else "oneOf",
-            "options": [
-                {"name": name, "type": "Note", "votes": 0} for name in self.options
-            ],
-            "voter_count": 0,
-            "hide_totals": self.hide_totals,
-            "end_time": timezone.now() + timedelta(seconds=self.expires_in),
-        }
+        return poll_question(
+            self.options, self.expires_in, self.multiple, self.hide_totals
+        )
 
 
 class PostStatusSchema(Schema):
@@ -117,32 +117,6 @@ def post_for_id(request: HttpRequest, id: str) -> Post:
     return get_object_or_404(queryset, pk=id)
 
 
-def _clamp_quote_visibility(requested: int, quoted: int) -> int:
-    """
-    Ensure the quoting post's visibility does not exceed the quoted post's.
-    Ordering: public(0) > unlisted(1) > local_only(4) > followers(2) > mentioned(3).
-    Exception: local_only can only be quoted as local_only or mentioned.
-    """
-    V = Post.Visibilities
-    # Map visibility to a numeric "openness" rank (higher = more public)
-    rank = {V.public: 4, V.unlisted: 3, V.local_only: 2, V.followers: 1, V.mentioned: 0}
-    # Ordered from most public to least
-    ordered = [V.public, V.unlisted, V.local_only, V.followers, V.mentioned]
-    max_rank = rank.get(quoted, 0)
-    # Special case: local_only can only be quoted as local_only or mentioned
-    if quoted == V.local_only and requested not in (V.local_only, V.mentioned):
-        return V.local_only
-    if rank.get(requested, 0) <= max_rank:
-        return requested
-    # Clamp down to the most public allowed visibility
-    for v in ordered:
-        if rank[v] <= max_rank:
-            if quoted == V.local_only and v not in (V.local_only, V.mentioned):
-                continue
-            return v
-    return V.mentioned
-
-
 def _resolve_owned_attachments(
     request: HttpRequest, media_ids: list[str]
 ) -> list[PostAttachment]:
@@ -162,7 +136,9 @@ def _resolve_owned_attachments(
 
 @scope_required("write:statuses")
 @api_view.post
-def post_status(request, details: PostStatusSchema) -> schemas.Status:
+def post_status(
+    request, details: PostStatusSchema
+) -> schemas.Status | schemas.ScheduledStatus:
     # Check text length
     if details.status and len(details.status) > request.config.post_length:
         raise ApiError(400, "Status is too long")
@@ -176,13 +152,25 @@ def post_status(request, details: PostStatusSchema) -> schemas.Status:
         details.poll.validate_limits()
     # Grab attachments
     attachments = _resolve_owned_attachments(request, details.media_ids)
-    # Create the Post
-    visibility_map = {
-        "public": Post.Visibilities.public,
-        "unlisted": Post.Visibilities.unlisted,
-        "private": Post.Visibilities.followers,
-        "direct": Post.Visibilities.mentioned,
-    }
+    scheduled_at = None
+    backdate = None
+    if details.scheduled_at:
+        try:
+            scheduled_at = parse_scheduled_at(details.scheduled_at)
+            # Mastodon posts a status scheduled in the past right away;
+            # with backdating on, the past time becomes its publish time
+            if scheduled_at <= timezone.now():
+                if request.config.post_backdating:
+                    backdate = scheduled_at
+                scheduled_at = None
+            else:
+                ScheduledStatus.check_time(request.identity, scheduled_at)
+        except ScheduledStatusError as e:
+            raise ApiError(422, str(e))
+    if scheduled_at:
+        # Media is held unattached until the status posts
+        if any(a.post_id for a in attachments):
+            raise ApiError(422, "Validation failed: Media is already attached")
     reply_post = None
     if details.in_reply_to_id:
         reply_post = post_for_id(request, details.in_reply_to_id)
@@ -200,10 +188,38 @@ def post_status(request, details: PostStatusSchema) -> schemas.Status:
         if quote_post is None:
             raise ApiError(404, "Quoted status not found")
     status_text = details.status or ""
+    if backdate:
+        try:
+            check_backdate(
+                request.identity,
+                backdate,
+                status_text,
+                reply_post,
+                quote_post,
+                details.poll,
+            )
+        except ScheduledStatusError as e:
+            raise ApiError(422, str(e))
+    visibility = API_VISIBILITIES[details.visibility]
+    if scheduled_at:
+        scheduled = ScheduledStatus.create(
+            author=request.identity,
+            scheduled_at=scheduled_at,
+            text=status_text,
+            visibility=visibility,
+            spoiler_text=details.spoiler_text,
+            sensitive=details.sensitive,
+            language=details.language,
+            media_ids=[str(a.pk) for a in attachments],
+            poll=details.poll.model_dump() if details.poll else None,
+            in_reply_to_id=str(reply_post.pk) if reply_post else None,
+            quoted_status_id=str(quote_post.pk) if quote_post else None,
+            application=request.token.application if request.token else None,
+        )
+        return schemas.ScheduledStatus.from_scheduled_status(scheduled)
     # Enforce: quoting post visibility must not exceed quoted post visibility
-    visibility = visibility_map[details.visibility]
     if quote_post:
-        visibility = _clamp_quote_visibility(visibility, quote_post.visibility)
+        visibility = Post.clamp_quote_visibility(visibility, quote_post.visibility)
     post = Post.create_local(
         author=request.identity,
         content=status_text,
@@ -216,9 +232,11 @@ def post_status(request, details: PostStatusSchema) -> schemas.Status:
         question=details.poll.dict() if details.poll else None,
         language=details.language,
         application=request.token.application if request.token else None,
+        published=backdate,
     )
     # Add their own timeline event for immediate visibility
-    TimelineEvent.add_post(request.identity, post)
+    if not backdate:
+        TimelineEvent.add_post(request.identity, post)
     sentry.record_activity("post", "api")
     return schemas.Status.from_post(post, identity=request.identity)
 
@@ -564,9 +582,3 @@ def status_quotes(
         request=request,
         include_params=["limit", "id"],
     )
-
-
-@scope_required("read:statuses")
-@api_view.get
-def scheduled_statuses(request) -> list:
-    return []

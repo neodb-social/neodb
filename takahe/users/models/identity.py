@@ -255,6 +255,7 @@ class IdentityStates(StateGraph):
             PostInteraction,
             PostInteractionStates,
             PostStates,
+            ScheduledStatus,
             TimelineEvent,
         )
 
@@ -293,6 +294,7 @@ class IdentityStates(StateGraph):
         List.objects.filter(identity=instance).delete()
         Marker.objects.filter(identity=instance).delete()
         FeatureAuthorization.objects.filter(identity=instance).delete()
+        ScheduledStatus.objects.filter(author=instance).delete()
         # Media uploaded through the API and never attached to a post has no
         # post to cascade from, so nothing would ever collect it. Deleting
         # the rows reclaims the files through the post_delete receiver. The

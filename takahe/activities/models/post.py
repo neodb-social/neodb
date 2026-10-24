@@ -915,7 +915,15 @@ class Post(StatorModel):
         question: dict | None = None,
         language: str | None = None,
         application=None,
+        published: datetime.datetime | None = None,
     ) -> "Post":
+        """
+        A past published time backdates the post: it starts out fanned out,
+        so it is never federated, put in timelines or notified.
+        """
+        backdated = {}
+        if published:
+            backdated = {"published": published, "state": PostStates.fanned_out}
         with transaction.atomic():
             # Find mentions in this post
             mentions = cls.mentions_from_content(content, author)
@@ -948,6 +956,7 @@ class Post(StatorModel):
                 quote_url=quote.object_uri if quote else None,
                 language=language,
                 application=application,
+                **backdated,
             )
             post.object_uri = post.urls.object_uri
             post.url = post.absolute_object_uri()
@@ -970,6 +979,11 @@ class Post(StatorModel):
             # Recalculate parent stats for replies
             if reply_to:
                 reply_to.calculate_stats()
+        if published:
+            # The parts of PostStates.handle_new that reach no one else
+            post.ensure_hashtags()
+            if post.type not in post.CONVERTED_TYPES:
+                _attach_preview_card(post.pk, post.content)
         post.neodb_sync_local(reply_to, content, True)
         return post
 
@@ -1046,6 +1060,38 @@ class Post(StatorModel):
         self.type = Post.Types.question
         self.type_data = new_data
         self.calculate_type_data(save=False)
+
+    @classmethod
+    def clamp_quote_visibility(cls, requested: int, quoted: int) -> int:
+        """
+        Ensure the quoting post's visibility does not exceed the quoted post's.
+        Ordering: public(0) > unlisted(1) > local_only(4) > followers(2) > mentioned(3).
+        Exception: local_only can only be quoted as local_only or mentioned.
+        """
+        V = cls.Visibilities
+        # Map visibility to a numeric "openness" rank (higher = more public)
+        rank = {
+            V.public: 4,
+            V.unlisted: 3,
+            V.local_only: 2,
+            V.followers: 1,
+            V.mentioned: 0,
+        }
+        # Ordered from most public to least
+        ordered = [V.public, V.unlisted, V.local_only, V.followers, V.mentioned]
+        max_rank = rank.get(quoted, 0)
+        # Special case: local_only can only be quoted as local_only or mentioned
+        if quoted == V.local_only and requested not in (V.local_only, V.mentioned):
+            return V.local_only
+        if rank.get(requested, 0) <= max_rank:
+            return requested
+        # Clamp down to the most public allowed visibility
+        for v in ordered:
+            if rank[v] <= max_rank:
+                if quoted == V.local_only and v not in (V.local_only, V.mentioned):
+                    continue
+                return v
+        return V.mentioned
 
     @classmethod
     def mentions_from_content(cls, content, author) -> set[Identity]:
