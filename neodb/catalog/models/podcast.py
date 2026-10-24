@@ -317,7 +317,9 @@ class PodcastEpisode(Item):
         return self.program
 
     def set_parent_item(self, value: Podcast | None):  # type:ignore
-        self.program = value  # pyrefly: ignore[bad-assignment]
+        # program is NOT NULL, so a soft delete (which clears the parent) keeps it
+        if value is not None:
+            self.program = value
 
     # Keep titles live when parent metadata changes on this instance.
     @property
