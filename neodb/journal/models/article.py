@@ -22,7 +22,7 @@ from users.models import APIdentity
 from .atproto import DOCUMENT_NSID, build_document
 from .attachment import link_attachments_to_piece
 from .common import Piece, VisibilityType
-from .renderers import render_md, sanitize_md_images
+from .renderers import cached_body_property, render_md, sanitize_md_images
 from .tag import Tag as TagModel
 
 logger = logging.getLogger(__name__)
@@ -177,11 +177,11 @@ class Article(Piece):
             return url
         return (self.metadata or {}).get("cover_url") or None
 
-    @property
+    @cached_body_property
     def html_content(self) -> str:
         return render_md(self.body)
 
-    @property
+    @cached_body_property
     def plain_content(self) -> str:
         html = self.html_content.replace("\n", " ")
         # Mask spoiler blocks first, then strip remaining HTML tags. Mirrors
@@ -219,7 +219,7 @@ class Article(Piece):
         never leaks its body into a list."""
         return self.display_summary or self.excerpt
 
-    @property
+    @cached_body_property
     def reading_time(self) -> int:
         """Estimated minutes to read, never less than one.
 

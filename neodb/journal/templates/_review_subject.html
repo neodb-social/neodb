@@ -1,0 +1,16 @@
+{% load i18n thumb duration %}
+<section class="review-subject" aria-label="{% trans 'Review' %}">
+  <a class="review-subject-cover"
+     href="{{ item.url }}"
+     tabindex="-1"
+     aria-hidden="true">
+    <img src="{{ item.cover|thumb:'normal' }}" alt="" width="64" height="88">
+  </a>
+  <div>
+    <p class="dc-eyebrow">{{ item.category.label }} · {% trans "Review" %}</p>
+    <a class="review-subject-title" href="{{ item.url }}">{{ item.display_title }}</a>
+    {% if item.year %}<small>({{ item.year }})</small>{% endif %}
+    {% if item.subtitle %}<p class="review-subject-subtitle">{{ item.subtitle }}</p>{% endif %}
+    {% if review.rating_grade %}<div class="review-subject-rating">{{ review.rating_grade|rating_star }}</div>{% endif %}
+  </div>
+</section>

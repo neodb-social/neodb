@@ -97,5 +97,35 @@ Paste or upload an image ![](https://upload.wikimedia.org/wikipedia/en/8/80/Wiki
     });
     el.removeAttribute("required");
     mde.codemirror.on("change", function() { mde.codemirror.save(); });
+    {% if article_editor %}
+    var previewButton = document.querySelector('[data-article-preview]');
+    if (previewButton) {
+      previewButton.hidden = false;
+      previewButton.addEventListener('click', function() {
+        mde.togglePreview();
+        syncArticlePreview();
+      });
+      function syncArticlePreview() {
+        var previewing = mde.isPreviewActive();
+        previewButton.setAttribute('aria-pressed', String(previewing));
+        previewButton.textContent = previewing ? previewButton.dataset.writeLabel : previewButton.dataset.previewLabel;
+      }
+      // EasyMDE creates this pane lazily on the first preview. Observe its
+      // own class, never CodeMirror's cursor/selection DOM or the whole form.
+      var editorWrapper = el.closest('form').querySelector('.CodeMirror');
+      var previewObserver = new MutationObserver(syncArticlePreview);
+      function watchPreviewPane() {
+        var pane = editorWrapper.querySelector('.editor-preview');
+        if (pane) {
+          previewObserver.observe(pane, { attributes: true, attributeFilter: ['class'] });
+          paneCreationObserver.disconnect();
+          syncArticlePreview();
+        }
+      }
+      var paneCreationObserver = new MutationObserver(watchPreviewPane);
+      paneCreationObserver.observe(editorWrapper, { childList: true });
+      watchPreviewPane();
+    }
+    {% endif %}
   });
 </script>

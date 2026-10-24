@@ -1,5 +1,6 @@
 from django import forms
 from django.utils import timezone
+from django.utils.datastructures import MultiValueDict
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext_lazy as _
 
@@ -54,6 +55,14 @@ def post_language_initial(user: User, piece: Piece | None = None) -> str:
 VISIBILITY_WIDGET_ATTRS = {"aria-label": _("Visibility")}
 
 
+class SingleLineTitleField(forms.CharField):
+    """Normalize textarea line endings before applying the length validator."""
+
+    def to_python(self, value):
+        text = super().to_python(value)
+        return " ".join(text.splitlines()) if text else text
+
+
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
@@ -64,10 +73,11 @@ class ReviewForm(forms.ModelForm):
 
     # Labels are pinned for screen-reader / form-error association; the visible
     # UI surfaces them as ``placeholder`` + ``aria-label`` instead.
-    title = forms.CharField(
+    title = SingleLineTitleField(
         label=_("Title"),
-        widget=forms.TextInput(
-            attrs={"placeholder": _("Title"), "aria-label": _("Title")}
+        max_length=500,
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Title"), "aria-label": _("Title"), "rows": 2}
         ),
     )
     body = forms.CharField(
@@ -102,6 +112,43 @@ class ReviewForm(forms.ModelForm):
         widget=forms.Select(attrs=VISIBILITY_WIDGET_ATTRS),
     )
     language = PostLanguageField()
+    mark_anotherday = forms.BooleanField(label=_("Change review date"), required=False)
+    mark_date = forms.DateField(
+        label=_("Review date"),
+        required=False,
+        widget=forms.DateInput(
+            format="%Y-%m-%d", attrs={"type": "date", "min": "1900-01-01"}
+        ),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        today = timezone.localdate()
+        self.fields["mark_date"].widget.attrs["max"] = today.isoformat()
+        self.fields["mark_date"].initial = today
+        if self.is_bound and not self.fields[
+            "mark_anotherday"
+        ].widget.value_from_datadict(
+            self.data, self.files, self.add_prefix("mark_anotherday")
+        ):
+            # Ignore an unselected date before validation, but keep the widget
+            # usable after an unrelated error, including without JavaScript.
+            self.data = (
+                self.data.copy()
+                if isinstance(self.data, MultiValueDict)
+                else dict(self.data)
+            )
+            self.data[self.add_prefix("mark_date")] = ""
+
+    def clean(self):
+        data = super().clean() or {}
+        if data.get("mark_anotherday") and "mark_date" not in self.errors:
+            value = data.get("mark_date")
+            if value is None:
+                self.add_error("mark_date", _("Please choose a review date."))
+            elif value.year < 1900 or value > timezone.localdate():
+                self.add_error("mark_date", _("Choose a date between 1900 and today."))
+        return data
 
 
 class ArticleForm(forms.ModelForm):
@@ -113,11 +160,11 @@ class ArticleForm(forms.ModelForm):
 
     # Labels are pinned for screen-reader / form-error association; the visible
     # UI surfaces them as ``placeholder`` + ``aria-label`` instead.
-    title = forms.CharField(
+    title = SingleLineTitleField(
         label=_("Title"),
         max_length=500,
-        widget=forms.TextInput(
-            attrs={"placeholder": _("Title"), "aria-label": _("Title")}
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Title"), "aria-label": _("Title"), "rows": 2}
         ),
     )
     summary = forms.CharField(

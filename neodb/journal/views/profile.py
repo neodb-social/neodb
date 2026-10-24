@@ -485,7 +485,7 @@ def profile_liked_collections(request: AuthedHttpRequest, user_name):
 
 # Number of recent articles shown inline in the profile shelf preview; the
 # full set is reachable via the "see all" link to ``user_article_list``.
-_ARTICLE_PREVIEW_COUNT = 5
+_ARTICLE_PREVIEW_COUNT = 3
 
 
 @require_http_methods(["GET", "HEAD"])
@@ -499,7 +499,9 @@ def profile_articles(request: AuthedHttpRequest, user_name):
         return HttpResponse()
 
     qv = q_owned_piece_visible_to_user(request.user, target)
-    articles = Article.objects.filter(owner=target).filter(qv).order_by("-created_time")
+    articles = (
+        Article.objects.filter(owner=target).filter(qv).order_by("-created_time", "-id")
+    )
     # Fetch one past the preview limit so a short result set yields the exact
     # total without a separate COUNT query; only count when the page is full.
     preview = list(articles[: _ARTICLE_PREVIEW_COUNT + 1])
@@ -517,6 +519,7 @@ def profile_articles(request: AuthedHttpRequest, user_name):
             "articles": preview[:_ARTICLE_PREVIEW_COUNT],
             "total": total,
             "show_create_button": target.user == request.user,
+            "can_browse_articles": request.user.is_authenticated or target.local,
         },
     )
 

@@ -134,7 +134,7 @@ def test_profile_articles_shelf_preview():
     assert "Second Article" in content
     assert 'class="article-preview"' in content
     # see-all count reflects the visible total
-    assert ">2</a>" in content
+    assert 'class="dc-count">2</span>' in content
 
     # The profile page lazy-loads the shelf via htmx rather than a bare link.
     profile_response = client.get(identity.url)
@@ -214,3 +214,45 @@ def test_profile_follow_counts():
     content = owner_client.get(alice.url).content.decode()
     assert following_url in content
     assert followers_url in content
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_compact_profile_articles_limit_order_tags_and_privacy():
+    from django.utils import timezone
+    from lxml import html
+
+    owner = User.register(email="compact@example.com", username="compact")
+    stamp = timezone.now()
+    articles = [
+        Article.update_local_article(
+            owner=owner.identity,
+            title=f"Article {i}",
+            body="Some writing",
+            visibility=0,
+            tags=["R&D", "reading", "third-tag"],
+        )
+        for i in range(4)
+    ]
+    Article.objects.filter(pk__in=[article.pk for article in articles]).update(
+        created_time=stamp
+    )
+    private = Article.update_local_article(
+        owner=owner.identity, title="Private article", body="Secret", visibility=2
+    )
+    url = reverse("journal:profile_articles", args=[owner.identity.handle])
+    response = Client().get(url)
+    assert response.context["total"] == 4
+    assert [article.pk for article in response.context["articles"]] == [
+        article.pk for article in reversed(articles[1:])
+    ]
+    document = html.fromstring(response.content)
+    assert document.xpath('count(//ul[@class="article-preview"]/li)') == 3
+    assert document.xpath('//a[contains(@href,"?tag=R%26D")]')
+    assert not document.xpath('//a[contains(@href,"third-tag")]')
+    assert "min read" in response.content.decode()
+    assert "Private article" not in response.content.decode()
+    client = Client()
+    client.force_login(owner, backend="mastodon.auth.OAuth2Backend")
+    own = client.get(url)
+    assert own.context["total"] == 5
+    assert own.context["articles"][0].pk == private.pk
