@@ -938,6 +938,7 @@ class TestCollectionVisibilityFlipPostSort:
                 f"all_post_ids={c.all_post_ids}"
             )
             assert c.latest_post.state not in ("deleted", "deleted_fanned_out")
+            assert c.latest_post_id is not None
             seen_post_ids.append(c.latest_post_id)
 
         # Only one post should be alive at the end; prior ones must be

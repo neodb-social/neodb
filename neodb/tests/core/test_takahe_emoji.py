@@ -14,13 +14,16 @@ which every ``STORAGES`` override does. These patch the field's own storage.
 from unittest import mock
 
 import pytest
+from django.db.models import ImageField
 
 from takahe.models import Emoji
 
 
 @pytest.fixture
 def store():
-    return Emoji.file.field.storage
+    field = Emoji._meta.get_field("file")
+    assert isinstance(field, ImageField)
+    return field.storage
 
 
 @pytest.fixture

@@ -161,7 +161,8 @@ def download_media_file(path: str, dest_dir: str) -> str:
     key = media_key(path)
     local = os.path.join(dest_dir, os.path.basename(key) or "file")
     with default_storage.open(key, "rb") as src, open(local, "wb") as dst:
-        shutil.copyfileobj(src, dst)
+        for chunk in src.chunks():
+            dst.write(chunk)
     return local
 
 

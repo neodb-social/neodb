@@ -506,7 +506,7 @@ class ContentRenderer:
         )
         return mark_safe(parser.html)
 
-    def render_identity_summary(self, html: str, identity) -> str:
+    def render_identity_summary(self, html: str | None, identity) -> str:
         """
         Given identity summary HTML, normalises it and renders it for presentation.
         """

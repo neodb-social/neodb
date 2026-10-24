@@ -129,7 +129,7 @@ class User(AbstractUser):
     identity: "APIdentity"
     preference: "Preference"
     social_accounts: "models.QuerySet[SocialAccount]"
-    objects: ClassVar[UserManager] = UserManager()
+    objects: ClassVar[UserManager] = UserManager()  # pyrefly: ignore[bad-override]
     username_validator = UsernameValidator()
     username = models.CharField(
         _("username"),
@@ -319,7 +319,7 @@ class User(AbstractUser):
             if icon:
                 content, ext = icon
                 name = f"{self.pk}.{ext}"
-                identity.icon.save(name, ContentFile(content, name=name), save=False)
+                identity.icon.save(name, ContentFile(content, name=name), save=False)  # pyrefly: ignore[missing-attribute]
                 changed = True
         if changed:
             identity.save()

@@ -175,7 +175,7 @@ class AuthedHttpRequest(HttpRequest):
     A subclass of HttpRequest for type-checking only
     """
 
-    user: "User"  # ty: ignore[invalid-mutable-override]
+    user: "User"  # pyrefly: ignore[bad-override-mutable-attribute]
     identity: "APIdentity | None"
     target_identity: "APIdentity"
 

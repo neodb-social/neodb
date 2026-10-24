@@ -500,7 +500,7 @@ class PerformanceProduction(Item):
 
     # Keep titles live when parent metadata changes on this instance.
     @property
-    def display_title(self) -> str:  # ty: ignore[invalid-property-type-override]
+    def display_title(self) -> str:
         return (
             f"{self.show.display_title if self.show else '♢'} {super().display_title}"
         )

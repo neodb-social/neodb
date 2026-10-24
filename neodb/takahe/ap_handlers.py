@@ -176,7 +176,11 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
         if not post.type_data and not post_data:
             logger.warning(f"Remote post {post} has no type_data")
             return
-        ap_objects = post_data or post.type_data.get("object", {})
+        if post_data:
+            ap_objects = post_data
+        else:
+            assert post.type_data is not None
+            ap_objects = post.type_data.get("object", {})
         items = _parse_items(ap_objects.get("tag"))
         pieces = _parse_piece_objects(ap_objects.get("relatedWith"))
         # Shelf posts (used for both NeoDB Collection and NeoDB Shelf
@@ -323,9 +327,15 @@ def report_received(pk):
                 return
             sleep(retry)
             retry += 1
+    # an account-only Flag, or a reported post deleted since, has no post
+    post = report.subject_post
+    about_post = (
+        f"\n\nabout post:{post.absolute_object_uri()}\n\n{post.content}" if post else ""
+    )
+    assert report.subject_identity is not None
     discord_send(
         "report",
-        f"{report.complaint}\n\nabout post:{report.subject_post.absolute_object_uri()}\n\n{report.subject_post.content}",
+        f"{report.complaint}{about_post}",
         thread_name=f"[{report.type}] Report received about {report.subject_identity.username}",
         username=f"@{report.source_identity.handle if report.source_identity else '?@' + str(report.source_domain or '?')}",
     )

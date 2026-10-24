@@ -2,11 +2,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AnonymousUser
-    from django.db.models import ForeignKey
 
     from users.models import APIdentity, User
-
-    from .common import Piece
 
 
 class UserOwnedObjectMixin:
@@ -19,14 +16,16 @@ class UserOwnedObjectMixin:
     """
 
     if TYPE_CHECKING:
-        owner: ForeignKey[APIdentity, APIdentity]
         owner_id: int
+
+        @property
+        def owner(self) -> APIdentity: ...
 
         @property
         def visibility(self) -> int: ...
 
     def is_visible_to(
-        self: "Piece",
+        self,
         viewing_user: "User | None",
     ) -> bool:
         if viewing_user is None or not viewing_user.is_authenticated:
@@ -41,7 +40,7 @@ class UserOwnedObjectMixin:
         return self.is_visible_to_identity(viewing_user.identity)
 
     def is_visible_to_identity(
-        self: "Piece",
+        self,
         viewer: "APIdentity | None",
     ) -> bool:
         """Visibility check that takes an ``APIdentity`` directly.
@@ -71,14 +70,14 @@ class UserOwnedObjectMixin:
             return viewer.is_following(owner)
         return True
 
-    def is_editable_by(self: "Piece", viewing_user: "User | AnonymousUser") -> bool:
+    def is_editable_by(self, viewing_user: "User | AnonymousUser") -> bool:
         return viewing_user.is_authenticated and (
             viewing_user.is_staff
             or viewing_user.is_superuser
             or viewing_user == self.owner.user
         )
 
-    def is_deletable_by(self: "Piece", viewing_user: "User | AnonymousUser") -> bool:
+    def is_deletable_by(self, viewing_user: "User | AnonymousUser") -> bool:
         # subclasses granting edit access beyond the owner (e.g.
         # collaborative Collection) override this to keep deletion owner-only
         return self.is_editable_by(viewing_user)

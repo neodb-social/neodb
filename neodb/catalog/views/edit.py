@@ -134,7 +134,7 @@ def create(request, item_model):
     if request.method == "POST":
         form = form_cls(request.POST, request.FILES)
     else:
-        initial = {}
+        initial: dict[str, object] = {}
         t = request.GET.get("title", "")
         if item_model == "People":
             if t:
@@ -260,6 +260,7 @@ def edit(request, item_path, item_uuid):
         for credit in item.credits.select_related("person").filter(
             person__isnull=False
         ):
+            assert credit.person is not None
             people_names[credit.person.uuid] = credit.person.display_name
     return render(
         request,
@@ -375,7 +376,7 @@ def recast(request, item_path, item_uuid):
     if isinstance(item, model):
         raise BadRequest("Same target type")
     if not _is_confirmed(request):
-        labels = {
+        labels: dict[type[Item], str] = {
             TVShow: _("TV show"),
             Movie: _("Movie"),
             TVSeason: _("TV Season"),

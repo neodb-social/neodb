@@ -225,6 +225,7 @@ class TestDiscoverableOptOut:
         assert ItemSimilarity.objects.filter(source=self.p).exists()
 
         ident = self.identities[0]
+        assert ident.domain_name is not None
         handle = (
             ident.domain_name if by_domain else f"@{ident.username}@{ident.domain_name}"
         )

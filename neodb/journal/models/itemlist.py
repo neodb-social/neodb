@@ -1,6 +1,6 @@
 import logging
 from functools import cached_property
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self
 from urllib.parse import urlparse
 
 import django.dispatch
@@ -30,14 +30,14 @@ list_remove = django.dispatch.Signal()
 AP_PAGE_SIZE = 100
 
 
-class List(Piece):
+class List[M: "ListMember"](Piece):
     """
     List (abstract model)
     """
 
     if TYPE_CHECKING:
-        MEMBER_CLASS: "type[ListMember]"
-        members: "models.QuerySet[ListMember]"
+        MEMBER_CLASS: "type[M]"
+        members: "models.QuerySet[M]"
         items: "models.ManyToManyField[Item, List]"
     owner = models.ForeignKey(APIdentity, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(
@@ -75,7 +75,7 @@ class List(Piece):
     def recent_members(self):
         return self.members.all().order_by("-created_time")
 
-    def get_member_for_item(self, item):
+    def get_member_for_item(self, item: Item) -> M | None:
         return self.members.filter(item=item).first()
 
     def get_summary(self) -> dict[str, int]:
@@ -95,7 +95,7 @@ class List(Piece):
                 summary[category] += row["count"]
         return summary
 
-    def append_item(self, item, **params):
+    def append_item(self, item: Item | None, **params: Any) -> tuple[M, bool]:
         """
         jsondata fields may be passed either way: named directly
         (``append_item(item, note="abc")``) or inside the JSON column
@@ -363,7 +363,7 @@ class List(Piece):
         return cls.get_by_post_id(post.id) if post else None
 
     @classmethod
-    def update_by_ap_envelope(cls, owner, obj: dict[str, Any], post) -> "List | None":
+    def update_by_ap_envelope(cls, owner, obj: dict[str, Any], post) -> Self | None:
         """Inbound mirror builder. Validates the envelope, persists / updates
         the local mirror keyed by `remote_id`, and enqueues a member fetch.
 

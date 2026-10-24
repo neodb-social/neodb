@@ -254,7 +254,9 @@ class Bluesky:
 
 
 class BlueskyAccount(SocialAccount):
-    base_url = jsondata.CharField(json_field_name="access_data", default=None)
+    base_url = jsondata.CharField(
+        json_field_name="access_data", null=True, default=None
+    )
     # legacy app-password session; still used by accounts that have not
     # re-authorized via OAuth yet
     session_string = jsondata.EncryptedTextField(
@@ -289,11 +291,10 @@ class BlueskyAccount(SocialAccount):
     def _get_oauth(self) -> dict:
         if self._oauth_cache is None:
             try:
-                self._oauth_cache = (
-                    json.loads(self.oauth_session) if self.oauth_session else {}
-                )
+                oauth = json.loads(self.oauth_session) if self.oauth_session else {}
             except json.JSONDecodeError:
-                self._oauth_cache = {}
+                oauth = {}
+            self._oauth_cache = oauth
         return self._oauth_cache
 
     def _set_oauth(self, session: dict, save: bool = False) -> None:
@@ -473,6 +474,7 @@ class BlueskyAccount(SocialAccount):
     def _build_profile_record(self) -> dict[str, typing.Any]:
         from journal.models.atproto import format_datetime
 
+        assert self.user is not None
         identity = self.user.identity
         takahe_identity = identity.takahe_identity
         record: dict[str, typing.Any] = {
@@ -553,6 +555,7 @@ class BlueskyAccount(SocialAccount):
         canonical URL of a piece, so it has to stay in step with the
         user-scoped piece routes (see ``Piece.atproto_document_url``).
         """
+        assert self.user is not None
         return (settings.SITE_INFO["site_url"] + self.user.identity.url).rstrip("/")
 
     def _clear_publication_icon_cache(self) -> None:
@@ -567,6 +570,7 @@ class BlueskyAccount(SocialAccount):
     def _publication_icon(self) -> dict[str, typing.Any] | None:
         """Blob ref for the identity's avatar, uploaded at most once per
         distinct image (cached by content hash in access_data)."""
+        assert self.user is not None
         identity = self.user.identity
         icon_file = identity.takahe_identity.icon if identity.local else None
         if not icon_file:
@@ -597,6 +601,7 @@ class BlueskyAccount(SocialAccount):
         it (next to their ``site.standard.document``) from the skeet embed's
         ``associatedRefs`` so Bluesky renders the enhanced publication card.
         """
+        assert self.user is not None
         identity = self.user.identity
         record: dict[str, typing.Any] = {
             "$type": PUBLICATION_NSID,
@@ -748,6 +753,7 @@ class BlueskyAccount(SocialAccount):
                 ).values_list("user__identity", flat=True)
             ) - {None}
 
+        assert self.user is not None
         me = self.user.identity.pk
 
         follow_targets = get_identity_ids(self.following)

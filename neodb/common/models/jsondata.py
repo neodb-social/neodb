@@ -154,16 +154,20 @@ class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
         # is the parent and does not know child-declared fields
         if self.attached_model is None:
             return super().__reduce__()
+        assert isinstance(self, fields.Field)
         return _load_attached_field, (
             self.attached_model._meta.app_label,
             self.attached_model._meta.object_name,
-            self.name,  # ty: ignore[unresolved-attribute]
+            self.name,
         )
 
-    def contribute_to_class(self: "fields.Field", cls, name, private_only=False):
+    def contribute_to_class(
+        self, cls: type[Model], name: str, private_only: bool = False, **kwargs: object
+    ) -> None:
+        assert isinstance(self, fields.Field)
         self.set_attributes_from_name(name)
         self.model = cls
-        self.attached_model = cls  # ty: ignore[unresolved-attribute]
+        self.attached_model = cls
         self.concrete = False
         self.column = None
         cls._meta.add_field(self, private=True)
@@ -176,7 +180,7 @@ class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
             setattr(
                 cls,
                 "get_%s_display" % self.name,
-                partialmethod(cls._get_FIELD_display, field=self),
+                partialmethod(cls._get_FIELD_display, field=self),  # pyrefly: ignore[bad-argument-type]
             )
 
         self.column = self.json_field_name  # type: ignore
@@ -233,10 +237,11 @@ class JSONFieldMixin(_TypedDescriptor[_ST, _GT]):
         # deferred during obj initialization so it don't overwrite json with default value
         return DEFERRED
 
-    def formfield(self: "fields.Field", **kwargs):
+    def formfield(self, **kwargs: Any):
         # Field.formfield() seeds initial from get_default(), which we override
         # to DEFERRED for model init. Pass the raw default so form rendering
         # invokes any callable (e.g. timezone.now) lazily.
+        assert isinstance(self, fields.Field)
         if self.has_default() and "initial" not in kwargs:
             kwargs["initial"] = self.default
         return super().formfield(**kwargs)  # type: ignore
@@ -255,7 +260,7 @@ def _bind_json_column_models(sender: type[Model], **kwargs: Any) -> None:
             field.bind_json_column_model(sender)
 
 
-class BooleanField(JSONFieldMixin[bool | None, bool | None], fields.BooleanField):  # ty: ignore[invalid-method-override]
+class BooleanField(JSONFieldMixin[bool | None, bool | None], fields.BooleanField):
     pass
     # def __init__(self, *args, **kwargs):
     #     super(BooleanField, self).__init__(*args, **kwargs)
@@ -263,7 +268,7 @@ class BooleanField(JSONFieldMixin[bool | None, bool | None], fields.BooleanField
     #         self.blank = False
 
 
-class CharField(JSONFieldMixin[str | None, str | None], fields.CharField):  # ty: ignore[invalid-method-override]
+class CharField(JSONFieldMixin[str | None, str | None], fields.CharField):
     def from_json(
         self, value
     ):  # TODO workaound some bad data in migration, should be removed after clean up
@@ -274,7 +279,7 @@ class CharField(JSONFieldMixin[str | None, str | None], fields.CharField):  # ty
 
 class DateField(
     JSONFieldMixin[datetime | date | str | None, date | None], fields.DateField
-):  # ty: ignore[invalid-method-override]
+):
     def to_json(self, value):
         if value:
             if not isinstance(value, (datetime, date)):
@@ -288,7 +293,7 @@ class DateField(
 
 class DateTimeField(
     JSONFieldMixin[datetime | date | str | None, datetime | None], fields.DateTimeField
-):  # ty: ignore[invalid-method-override]
+):
     def to_json(self, value: datetime | date | str):
         if not value:
             return None
@@ -316,39 +321,39 @@ class DecimalField(JSONFieldMixin[Any, Any], fields.DecimalField):
     pass
 
 
-class EmailField(JSONFieldMixin[str | None, str | None], fields.EmailField):  # ty: ignore[invalid-method-override]
+class EmailField(JSONFieldMixin[str | None, str | None], fields.EmailField):
     pass
 
 
-class FloatField(JSONFieldMixin[float | None, float | None], fields.FloatField):  # ty: ignore[invalid-method-override]
+class FloatField(JSONFieldMixin[float | None, float | None], fields.FloatField):
     pass
 
 
-class IntegerField(JSONFieldMixin[int | None, int | None], fields.IntegerField):  # ty: ignore[invalid-method-override]
+class IntegerField(JSONFieldMixin[int | None, int | None], fields.IntegerField):
     pass
 
 
-class IPAddressField(JSONFieldMixin[str | None, str | None], fields.IPAddressField):  # ty: ignore[invalid-method-override]
+class IPAddressField(JSONFieldMixin[str | None, str | None], fields.IPAddressField):
     pass
 
 
 class GenericIPAddressField(
     JSONFieldMixin[str | None, str | None], fields.GenericIPAddressField
-):  # ty: ignore[invalid-method-override]
+):
     pass
 
 
 class NullBooleanField(
     JSONFieldMixin[bool | None, bool | None], fields.NullBooleanField
-):  # ty: ignore[invalid-method-override]
+):
     pass
 
 
-class TextField(JSONFieldMixin[str | None, str | None], fields.TextField):  # ty: ignore[invalid-method-override]
+class TextField(JSONFieldMixin[str | None, str | None], fields.TextField):
     pass
 
 
-class EncryptedTextField(JSONFieldMixin[str | None, str | None], fields.TextField):  # ty: ignore[invalid-method-override]
+class EncryptedTextField(JSONFieldMixin[str | None, str | None], fields.TextField):
     def to_json(self, value):
         if value:
             return encrypt_str(str(value))
@@ -358,7 +363,7 @@ class EncryptedTextField(JSONFieldMixin[str | None, str | None], fields.TextFiel
             return decrypt_str(value)
 
 
-class TimeField(JSONFieldMixin[time | None, time | None], fields.TimeField):  # ty: ignore[invalid-method-override]
+class TimeField(JSONFieldMixin[time | None, time | None], fields.TimeField):
     def to_json(self, value):
         if value:
             if not timezone.is_aware(value):
@@ -370,7 +375,7 @@ class TimeField(JSONFieldMixin[time | None, time | None], fields.TimeField):  # 
             return dateparse.parse_time(value)
 
 
-class URLField(JSONFieldMixin[str | None, str | None], fields.URLField):  # ty: ignore[invalid-method-override]
+class URLField(JSONFieldMixin[str | None, str | None], fields.URLField):
     pass
 
 
@@ -397,7 +402,7 @@ class ArrayField(JSONFieldMixin[list[Any] | None, list[Any]], DJANGO_ArrayField)
         kwargs.setdefault("form_class", TolerantArrayFormField)
         return super().formfield(**kwargs)
 
-    def from_json(self: "fields.Field", value):
+    def from_json(self, value: Any) -> list[Any]:
         if value:
             if isinstance(value, list):
                 return value

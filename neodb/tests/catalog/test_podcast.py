@@ -400,3 +400,17 @@ def test_episode_data_ignores_malformed_cursor(client, last: str) -> None:
 
     assert response.status_code == 200
     assert "Only Episode" in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_soft_delete_episode_keeps_program() -> None:
+    show = Podcast.objects.create(title="Deleted Episode Show")
+    episode = PodcastEpisode.objects.create(
+        title="Gone Episode", program=show, pub_date=timezone.now()
+    )
+
+    episode.delete()
+
+    episode.refresh_from_db()
+    assert episode.is_deleted
+    assert episode.program_id == show.pk

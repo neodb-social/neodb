@@ -275,6 +275,7 @@ class TestIdentityMastodonJson:
         user = User.register(email="icon@test.com", username="iconuser")
         identity = user.identity.takahe_identity
         # read before the name is set, which keeps the attribute a file
+        assert identity.icon is not None
         storage = identity.icon.storage
         identity.icon = "profile_images/a.png"
         with mock.patch.object(storage, "base_url", "/media/"):

@@ -129,6 +129,7 @@ class TestWordpressExport:
         assert exporter.metadata["total"] == 2
 
         channel = tree.getroot().find("./channel")
+        assert channel is not None
         assert _text(channel, "wp", "wxr_version") == "1.2"
         assert _find(channel, "wp", "author") is not None
 
@@ -151,10 +152,13 @@ class TestWordpressExport:
         article = Article.update_local_article(
             owner=self.user.identity, title="Dated", body="x", visibility=0
         )
-        article.created_time = parse_datetime("2021-05-04T09:08:07Z")
+        created_time = parse_datetime("2021-05-04T09:08:07Z")
+        assert created_time is not None
+        article.created_time = created_time
         article.save(update_fields=["created_time"], post_when_save=False)
         tree, _ = self._export()
         item = tree.getroot().find("./channel/item")
+        assert item is not None
         assert _text(item, "wp", "post_date_gmt") == "2021-05-04 09:08:07"
         assert "04 May 2021" in (item.findtext("pubDate") or "")
 
@@ -448,7 +452,9 @@ class TestWordpressRoundTrip:
                 tags=["alpha", "beta"],
                 cover=SimpleUploadedFile("cover.png", _png(), "image/png"),
             )
-            article.created_time = parse_datetime("2021-05-04T09:08:07Z")
+            created_time = parse_datetime("2021-05-04T09:08:07Z")
+            assert created_time is not None
+            article.created_time = created_time
             article.save(update_fields=["created_time"], post_when_save=False)
 
             exporter = WordpressExporter.create(user=self.user1)

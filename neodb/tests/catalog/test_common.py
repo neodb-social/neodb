@@ -11,7 +11,8 @@ class TestArrayField:
     def test_legacy_data(self):
         o = Edition()
         assert o.other_title == []
-        o.other_title = "test"  # ty: ignore[invalid-assignment]  # scalar on purpose
+        # scalar on purpose
+        o.other_title = "test"  # pyrefly: ignore[bad-argument-type]
         assert o.other_title == ["test"]
         o.other_title = ["a", "b"]
         assert o.other_title == ["a", "b"]
@@ -76,7 +77,7 @@ class TestCatalogItem:
         # no cover for this book as we excluded the file in test_data/
         site1.resource.metadata["language"] = ["cn"]
         edition1.language = ["cn"]
-        edition1.pages = None
+        edition1.pages = None  # pyrefly: ignore[bad-assignment]
         site1.resource.save()
         edition1.save()
 

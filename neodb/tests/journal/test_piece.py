@@ -19,6 +19,7 @@ class TestCollection:
     def test_collection(self):
         Collection.objects.create(title="test", owner=self.user.identity)
         collection = Collection.objects.get(title="test", owner=self.user.identity)
+        assert collection.catalog_item is not None
         assert collection.catalog_item.title == "test"
         member1, _ = collection.append_item(self.book1)
         assert member1 is not None

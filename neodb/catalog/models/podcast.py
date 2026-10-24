@@ -317,11 +317,13 @@ class PodcastEpisode(Item):
         return self.program
 
     def set_parent_item(self, value: Podcast | None):  # type:ignore
-        self.program = value
+        # program is NOT NULL, so a soft delete (which clears the parent) keeps it
+        if value is not None:
+            self.program = value
 
     # Keep titles live when parent metadata changes on this instance.
     @property
-    def display_title(self) -> str:  # ty: ignore[invalid-property-type-override]
+    def display_title(self) -> str:
         return f"{self.program.title} - {self.title}" if self.program else self.title
 
     def to_indexable_doc(self):

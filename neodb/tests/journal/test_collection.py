@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.core.paginator import Page
 from django.db import connection
 from django.test import Client
 from django.test.utils import CaptureQueriesContext
@@ -205,6 +206,7 @@ class TestCollectionListOperations:
         self.collection.update_member_order([members[1].pk])
 
         m2 = self.collection.get_member_for_item(self.book2)
+        assert m2 is not None
         # members[1] (book2) should now be at position 1
         assert m2.position == 1
 
@@ -213,11 +215,13 @@ class TestCollectionListOperations:
         self.collection.update_item_metadata(self.book1, {"note": "great"})
 
         member = self.collection.get_member_for_item(self.book1)
+        assert member is not None
         assert member.metadata == {"note": "great"}
 
     def test_update_item_note(self):
         self.collection.append_item(self.book1, note="old")
         member = self.collection.get_member_for_item(self.book1)
+        assert member is not None
         member.metadata["extra"] = 1
         member.save()
 
@@ -226,6 +230,7 @@ class TestCollectionListOperations:
         assert member is not None
         assert member.note == "new"
         member = self.collection.get_member_for_item(self.book1)
+        assert member is not None
         assert member.note == "new"
         # unlike update_item_metadata, other metadata keys are preserved
         assert member.metadata.get("extra") == 1
@@ -670,6 +675,7 @@ class TestCollectionItemFilters:
         members, _ = self.collection.get_members_by_page(
             1, 20, self.viewer.identity, True, **params
         )
+        assert isinstance(members, Page)
         return [m.item for m in members]
 
     def test_no_filter_returns_all(self):
@@ -819,6 +825,7 @@ class TestDynamicCollectionFilters:
         members, _ = self.collection.get_members_by_page(
             1, 20, self.owner.identity, False, **params
         )
+        assert isinstance(members, list)
         return [m["item"] for m in members]
 
     def test_unfiltered_returns_both(self):
@@ -843,11 +850,13 @@ class TestDynamicCollectionFilters:
         )
         books_only.save()
         members, _ = books_only.get_members_by_page(1, 20, self.owner.identity, False)
+        assert isinstance(members, list)
         assert [m["item"] for m in members] == [self.book]
         # Narrowing to the saved category still works.
         members, _ = books_only.get_members_by_page(
             1, 20, self.owner.identity, False, "book"
         )
+        assert isinstance(members, list)
         assert [m["item"] for m in members] == [self.book]
         # Asking for a category outside the saved query yields nothing rather
         # than leaking the owner's movies into a books-only collection.

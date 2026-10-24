@@ -159,7 +159,7 @@ def feed(request, typ=FeedType.following):
     if not _feed_enabled(typ):
         raise Http404
     user = request.user
-    data = {"unread": _unread_count(user)}
+    data: dict[str, object] = {"unread": _unread_count(user)}
     data["feed_type"] = typ
     data["feed_title"] = _FEED_TITLES.get(typ, _FEED_TITLES[FeedType.following])
     data["show_local_feed"] = SiteConfig.system.feed_show_local
@@ -327,7 +327,8 @@ def data(request):
     )
     _add_interaction_to_events(events, identity_id)
     prefetch_pieces_for_posts(
-        [e.subject_post for e in events if e.subject_post_id], request.user.identity
+        [e.subject_post for e in events if e.subject_post is not None],
+        request.user.identity,
     )
     # events are TimelineEvent rows; the type checker can't see Django's implicit
     # id/_id attributes that FeedEvent declares, so assert the shape at this boundary.

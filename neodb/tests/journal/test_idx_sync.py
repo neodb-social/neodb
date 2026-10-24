@@ -409,8 +409,9 @@ class TestIdxSyncRemote:
             visibility=Post.Visibilities.public,
             state="fanned_out",
         )
-        self.review = Review.update_by_ap_object(self.owner, self.book, obj, self.post)
-        assert self.review is not None
+        review = Review.update_by_ap_object(self.owner, self.book, obj, self.post)
+        assert review is not None
+        self.review = review
 
     def run_sync(self, *args) -> str:
         out = StringIO()

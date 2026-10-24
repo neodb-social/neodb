@@ -33,6 +33,7 @@ class TestLike:
     def test_user_like_piece_idempotent(self):
         like1 = Like.user_like_piece(self.user2.identity, self.review)
         like2 = Like.user_like_piece(self.user2.identity, self.review)
+        assert like1 is not None and like2 is not None
         assert like1.pk == like2.pk
 
     def test_user_like_piece_none(self):
@@ -56,7 +57,9 @@ class TestLike:
         Like.user_like_piece(self.user2.identity, self.review)
         likes = Like.user_likes_by_class(self.user2.identity, Review)
         assert likes.count() == 1
-        assert likes.first().target == self.review
+        like = likes.first()
+        assert like is not None
+        assert like.target == self.review
 
     def test_user_likes_by_class_empty(self):
         likes = Like.user_likes_by_class(self.user2.identity, Review)

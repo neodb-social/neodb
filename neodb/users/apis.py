@@ -42,7 +42,9 @@ class UserIdentitySchema(Schema):
         if isinstance(obj, dict):
             username = obj.get("username")
             return username if isinstance(username, str) else ""
-        return obj.handle
+        handle = obj.handle
+        assert handle is not None
+        return handle
 
     @staticmethod
     def resolve_avatar(obj: "APIdentity | dict[str, Any]") -> str:

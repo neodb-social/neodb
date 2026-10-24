@@ -526,7 +526,7 @@ class SiteConfig(models.Model):
             # LANGUAGE_CODE on first use and consulted whenever no language is
             # active (RQ jobs, management commands). Django resets it the same
             # way when LANGUAGE_CODE changes, in django/test/signals.py.
-            trans_real._default = None  # ty: ignore[unresolved-attribute]
+            trans_real._default = None  # pyrefly: ignore[missing-attribute]
 
         if languages_changed or language_code_changed:
             # Rebuilds the choice caches (ordered by the preferred list) and

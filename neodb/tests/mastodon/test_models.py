@@ -236,7 +236,7 @@ class TestSocialAccountSaveFields:
         assert self.account.pk is None
 
     def test_save_fields_noop_once_pk_cleared(self):
-        self.account.pk = None
+        self.account.pk = None  # pyrefly: ignore[bad-assignment]
         assert self.account.save_fields("handle") is False
 
     def test_save_fields_propagates_real_database_errors(self):
@@ -272,7 +272,7 @@ class TestSocialAccountSaveFields:
             follow.assert_called_once()
 
             follow.reset_mock()
-            self.account.pk = None
+            self.account.pk = None  # pyrefly: ignore[bad-assignment]
             assert self.account.sync_graph() == 0
             follow.assert_not_called()
 

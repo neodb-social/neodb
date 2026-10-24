@@ -1634,6 +1634,7 @@ class TestNdjsonExportImport:
         collection.brief = "edited"
         collection.save()
         member = collection.get_member_for_item(self.book1)
+        assert member is not None
         member.note = "edited"
         member.save()
 
@@ -1645,7 +1646,9 @@ class TestNdjsonExportImport:
         assert c2.brief == "edited"
         # per-item notes replay too; append_item alone is a no-op for a member
         # already on the list
-        assert c2.get_member_for_item(self.book1).note == "edited"
+        member2 = c2.get_member_for_item(self.book1)
+        assert member2 is not None
+        assert member2.note == "edited"
 
     def _note_with_media(self, content: str, mimetype: str, ext: str) -> Note:
         owner1 = self.user1.identity
@@ -1690,6 +1693,7 @@ class TestNdjsonExportImport:
             attached = list(post.attachments.all())
             assert len(attached) == 1
             assert attached[0].mimetype == "image/png"
+            assert attached[0].author is not None
             assert attached[0].author.pk == owner2.pk
             url, preview = takahe_attachment_urls(attached[0])
             assert url and preview
@@ -1785,6 +1789,7 @@ class TestNdjsonExportImport:
             attached = list(post.attachments.all())
             assert len(attached) == 1
             assert attached[0].mimetype == "audio/mpeg"
+            assert attached[0].file is not None
             assert (attached[0].file.name or "").endswith(".mp3")
             assert not attached[0].thumbnail
 
@@ -2045,6 +2050,7 @@ class TestNdjsonExportImport:
         ).run()
 
         member = collection.get_member_for_item(self.book1)
+        assert member is not None
         member.note = "second note"
         member.save()
         collection.brief = "b2"
@@ -2061,7 +2067,9 @@ class TestNdjsonExportImport:
         assert sync_collection.call_count == 1
 
         dest = Collection.objects.get(owner=self.user2.identity, title="Indexed")
-        assert dest.get_member_for_item(self.book1).note == "second note"
+        dest_member = dest.get_member_for_item(self.book1)
+        assert dest_member is not None
+        assert dest_member.note == "second note"
         # assert against the stored document, not to_indexable_doc(), which
         # recomputes from the database and so cannot see a stale index
         # same id piece_to_doc builds: the post id when the piece has one

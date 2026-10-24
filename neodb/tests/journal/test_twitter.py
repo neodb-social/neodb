@@ -41,7 +41,9 @@ def _tweet(
         **extra,
     }
     if media:
-        tweet["entities"]["media"] = media
+        entities = tweet["entities"]
+        assert isinstance(entities, dict)
+        entities["media"] = media
         tweet["extended_entities"] = {"media": media}
     if reply_to:
         tweet["in_reply_to_status_id_str"] = reply_to

@@ -409,8 +409,10 @@ def test_podcast_episode_list_is_paginated_in_database():
             request, str(podcast.uuid), HttpResponse(), page=1
         )
 
+    assert isinstance(payload, dict)
     assert payload["count"] == 25
     assert payload["pages"] == 2
+    assert isinstance(payload["data"], list)
     assert len(payload["data"]) == 20
 
     episode_queries = [

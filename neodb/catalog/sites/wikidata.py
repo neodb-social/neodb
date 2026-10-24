@@ -5,6 +5,7 @@ Uses the Wikidata REST API: https://www.wikidata.org/wiki/Wikidata:REST_API
 """
 
 import logging
+from collections.abc import Callable
 from urllib.parse import quote, urlencode
 
 
@@ -590,7 +591,7 @@ class WikiData(AbstractSite):
         data.metadata["preferred_model"] = model.__name__
 
         # Extract model-specific metadata
-        extractor = {
+        extractors: dict[type[Item], Callable[[dict, ResourceContent], None]] = {
             Album: self._extract_album_metadata,
             Game: self._extract_game_metadata,
             Podcast: self._extract_podcast_metadata,
@@ -602,7 +603,8 @@ class WikiData(AbstractSite):
             TVEpisode: self._extract_tv_episode_metadata,
             Work: self._extract_work_metadata,
             People: self._extract_people_metadata,
-        }.get(model)
+        }
+        extractor = extractors.get(model)
         if extractor:
             extractor(entity_data, data)
 

@@ -52,7 +52,7 @@ class TagMember(ListMember):
 TagValidators = [RegexValidator(regex=r"\s+", inverse_match=True)]
 
 
-class Tag(List):
+class Tag(List[TagMember]):
     MEMBER_CLASS = TagMember
     items = models.ManyToManyField(Item, through="TagMember")
     title = models.CharField(

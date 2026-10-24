@@ -37,7 +37,9 @@ class TestShelfApItemsVisibility:
     def setup_data(self):
         self.alice = User.register(email="alice@guard.test", username="guard_alice")
         self.bob = User.register(email="bob@guard.test", username="guard_bob")
-        self.shelf = self.alice.identity.shelf_manager.get_shelf(ShelfType.COMPLETE)
+        shelf = self.alice.identity.shelf_manager.get_shelf(ShelfType.COMPLETE)
+        assert shelf is not None
+        self.shelf = shelf
         for i, visibility in enumerate([0, 1, 2]):
             ShelfMember.objects.create(
                 parent=self.shelf,

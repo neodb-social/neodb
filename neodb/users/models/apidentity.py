@@ -1,6 +1,6 @@
 import logging
 from functools import cached_property
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, overload
 
 from django.conf import settings
 from django.db import models
@@ -32,9 +32,9 @@ class APIdentity(models.Model):
         verified_works: "models.QuerySet[VerifiedCreator]"
     user: User
     user_id: int
-    user = models.OneToOneField(
+    user = models.OneToOneField(  # pyrefly: ignore[bad-assignment]
         User, models.SET_NULL, related_name="identity", null=True
-    )  # type:ignore
+    )
     local = models.BooleanField()
     username = models.CharField(max_length=500, blank=True, null=True)
     domain_name = models.CharField(max_length=500, blank=True, null=True)
@@ -63,8 +63,16 @@ class APIdentity(models.Model):
     def __str__(self):
         return f"{self.pk}:{self.username}@{self.domain_name}"
 
+    @overload
     @classmethod
-    def from_takahe(cls, t):
+    def from_takahe(cls, t: TakaheIdentity) -> Self: ...
+
+    @overload
+    @classmethod
+    def from_takahe(cls, t: TakaheIdentity | None) -> Self | None: ...
+
+    @classmethod
+    def from_takahe(cls, t: TakaheIdentity | None) -> Self | None:
         if not t:
             return None
         i = cls.objects.get_or_create(
@@ -356,7 +364,7 @@ class APIdentity(models.Model):
                 .filter(handle__iexact=handler)
                 .first()
             )
-            if not account or not account.user.identity:
+            if not account or not account.user or not account.user.identity:
                 raise cls.DoesNotExist(f"Could not resolve identity for {handler}")
             i = account.user.identity
             if i.deleted:

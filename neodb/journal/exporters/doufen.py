@@ -64,7 +64,7 @@ class DoufenExporter(Task):
             (ShelfType.WISHLIST, "想看"),
         ]:
             ws = wb.create_sheet(title=label)
-            shelf = user.shelf_manager.get_shelf(status)
+            shelf = user.shelf_manager.shelf_list[status]
             q = q_item_in_category(ItemCategory.Movie) | q_item_in_category(
                 ItemCategory.TV
             )
@@ -79,7 +79,7 @@ class DoufenExporter(Task):
                     summary = f"S{season_number:02d}E{movie.episode_number:02d}"
                 else:
                     summary = (
-                        str(movie.year or "")
+                        str(movie.year or "")  # pyrefly: ignore[missing-attribute]
                         + " / "
                         + ",".join(
                             country_display_name(c)
@@ -94,7 +94,7 @@ class DoufenExporter(Task):
                     )
                 tags = ",".join(mark.tags)
                 world_rating = (movie.rating / 2) if movie.rating else None
-                timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
+                timestamp = mm.created_time.strftime("%Y-%m-%d %H:%M:%S")
                 my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
                 text = mark.comment_text
                 source_url = _get_source_url(movie)
@@ -109,7 +109,7 @@ class DoufenExporter(Task):
                     tags,
                     text,
                     url,
-                    movie.imdb,
+                    movie.imdb,  # pyrefly: ignore[missing-attribute]
                 ]
                 ws.append(line)
 
@@ -119,7 +119,7 @@ class DoufenExporter(Task):
             (ShelfType.WISHLIST, "想听"),
         ]:
             ws = wb.create_sheet(title=label)
-            shelf = user.shelf_manager.get_shelf(status)
+            shelf = user.shelf_manager.shelf_list[status]
             q = q_item_in_category(ItemCategory.Music)
             marks = shelf.members.all().filter(q).order_by("created_time")
             ws.append(heading)
@@ -130,11 +130,11 @@ class DoufenExporter(Task):
                 summary = (
                     ",".join(album.credit_names_by_role("artist"))
                     + " / "
-                    + (album.release_date or "")[:4]
+                    + (album.release_date or "")[:4]  # pyrefly: ignore[missing-attribute]
                 )
                 tags = ",".join(mark.tags)
                 world_rating = (album.rating / 2) if album.rating else None
-                timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
+                timestamp = mm.created_time.strftime("%Y-%m-%d %H:%M:%S")
                 my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
                 text = mark.comment_text
                 source_url = _get_source_url(album)
@@ -149,7 +149,7 @@ class DoufenExporter(Task):
                     tags,
                     text,
                     url,
-                    album.barcode,
+                    album.barcode,  # pyrefly: ignore[missing-attribute]
                 ]
                 ws.append(line)
 
@@ -159,7 +159,7 @@ class DoufenExporter(Task):
             (ShelfType.WISHLIST, "想读"),
         ]:
             ws = wb.create_sheet(title=label)
-            shelf = user.shelf_manager.get_shelf(status)
+            shelf = user.shelf_manager.shelf_list[status]
             q = q_item_in_category(ItemCategory.Book)
             marks = shelf.members.all().filter(q).order_by("created_time")
             ws.append(heading)
@@ -170,13 +170,13 @@ class DoufenExporter(Task):
                 summary = (
                     ",".join(book.credit_names_by_role("author"))
                     + " / "
-                    + str(book.pub_year or "")
+                    + str(book.pub_year or "")  # pyrefly: ignore[missing-attribute]
                     + " / "
                     + ",".join(book.credit_names_by_role("publisher"))
                 )
                 tags = ",".join(mark.tags)
                 world_rating = (book.rating / 2) if book.rating else None
-                timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
+                timestamp = mm.created_time.strftime("%Y-%m-%d %H:%M:%S")
                 my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
                 text = mark.comment_text
                 source_url = _get_source_url(book)
@@ -191,7 +191,7 @@ class DoufenExporter(Task):
                     tags,
                     text,
                     url,
-                    book.isbn,
+                    book.isbn,  # pyrefly: ignore[missing-attribute]
                 ]
                 ws.append(line)
 
@@ -201,7 +201,7 @@ class DoufenExporter(Task):
             (ShelfType.WISHLIST, "想玩"),
         ]:
             ws = wb.create_sheet(title=label)
-            shelf = user.shelf_manager.get_shelf(status)
+            shelf = user.shelf_manager.shelf_list[status]
             q = q_item_in_category(ItemCategory.Game)
             marks = shelf.members.all().filter(q).order_by("created_time")
             ws.append(heading)
@@ -214,11 +214,11 @@ class DoufenExporter(Task):
                     + " / "
                     + ",".join(game.platform or [])
                     + " / "
-                    + (game.release_date or "")
+                    + (game.release_date or "")  # pyrefly: ignore[missing-attribute]
                 )
                 tags = ",".join(mark.tags)
                 world_rating = (game.rating / 2) if game.rating else None
-                timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
+                timestamp = mm.created_time.strftime("%Y-%m-%d %H:%M:%S")
                 my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
                 text = mark.comment_text
                 source_url = _get_source_url(game)
@@ -243,7 +243,7 @@ class DoufenExporter(Task):
             (ShelfType.WISHLIST, "想听的播客"),
         ]:
             ws = wb.create_sheet(title=label)
-            shelf = user.shelf_manager.get_shelf(status)
+            shelf = user.shelf_manager.shelf_list[status]
             q = q_item_in_category(ItemCategory.Podcast)
             marks = shelf.members.all().filter(q).order_by("created_time")
             ws.append(heading)
@@ -254,7 +254,7 @@ class DoufenExporter(Task):
                 summary = ",".join(podcast.credit_names_by_role("host"))
                 tags = ",".join(mark.tags)
                 world_rating = (podcast.rating / 2) if podcast.rating else None
-                timestamp = mark.created_time.strftime("%Y-%m-%d %H:%M:%S")
+                timestamp = mm.created_time.strftime("%Y-%m-%d %H:%M:%S")
                 my_rating = (mark.rating_grade / 2) if mark.rating_grade else None
                 text = mark.comment_text
                 source_url = _get_source_url(podcast)

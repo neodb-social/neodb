@@ -944,6 +944,7 @@ class MastodonAccount(SocialAccount):
                 )
             ) - {None}
 
+        assert self.user is not None
         me = self.user.identity.pk
 
         follow_targets = get_identity_ids(self.following)

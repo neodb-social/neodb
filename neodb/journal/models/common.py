@@ -384,7 +384,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             )
 
     @cached_property
-    def latest_post_id(self):
+    def latest_post_id(self) -> int | None:
         return (
             self.post_relations.order_by("-pk")
             .values_list("post_id", flat=True)
@@ -579,6 +579,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 if local
                 else datetime.fromisoformat(obj.get("updated") or obj["published"])
             )
+            assert edited is not None
             if p.edited_time >= edited:
                 # incoming ap object is not newer than what we have; still
                 # link the post in case it replaces a pruned one
@@ -1072,6 +1073,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 params.pop("update_id", None)
             return self.crosspost_to_mastodon(params)
         elif self.latest_post:
+            assert self.latest_post.url is not None
             if mastodon.boost(self.latest_post.url):
                 self._clear_crosspost_retry("mastodon")
             else:
@@ -1119,7 +1121,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         self._clear_crosspost_retry("mastodon")
         return True
 
-    def get_ap_data(self):
+    def get_ap_data(self) -> dict[str, Any]:
         return {
             "object": {
                 "tag": (
@@ -1162,7 +1164,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             "application_id": self.application_id_when_save,
         }
         params.update(self.to_post_params())
-        post = Takahe.post(**params)  # ty: ignore[invalid-argument-type]
+        post = Takahe.post(**params)  # pyrefly: ignore[missing-argument]
         if post and post != existing_post:
             self.link_post_id(post.pk)
         return post

@@ -147,6 +147,7 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
                 logger.warning(f"wrapped post to {user.mastodon} failed: {e}")
                 sentry_count("crosspost.failure", attributes=attrs)
         elif post and user.mastodon:
+            assert post.url is not None
             user.mastodon.boost_later(post.url)
         if visibility == VisibilityType.Public and user.bluesky:
             o = EmbedObj("🧩", "", user.absolute_url)

@@ -3,7 +3,7 @@ import re
 import uuid
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Container, Iterable, NamedTuple, Self
+from typing import TYPE_CHECKING, Any, ClassVar, Container, Iterable, NamedTuple, Self
 
 from auditlog.context import disable_auditlog
 from auditlog.models import LogEntry
@@ -398,7 +398,7 @@ class Item(PolymorphicModel):
         people_relations: QuerySet["ItemPeopleRelation"]
         credits: QuerySet["ItemCredit"]
         verified_creators: QuerySet["VerifiedCreator"]
-    schema = ItemSchema
+    schema: ClassVar[type[Schema]] = ItemSchema
     category: ItemCategory  # subclass must specify this
     type: ItemType  # subclass must specify this
     url_path = "item"  # subclass must specify this
@@ -783,7 +783,10 @@ class Item(PolymorphicModel):
         if not languages or UNKNOWN_LANGUAGE_CODE in languages:
             return True
         return any(code in codes for code in languages) or any(
-            isinstance(t, dict) and t.get("text") and t.get("lang") in codes
+            isinstance(t, dict)
+            and t.get("text")
+            and (lang := t.get("lang")) is not None
+            and lang in codes
             for t in titles or []
         )
 
@@ -877,7 +880,9 @@ class Item(PolymorphicModel):
             if resolve_merge:
                 resolve_cnt = 5
                 while item.merged_to_item and resolve_cnt > 0:
-                    item = item.merged_to_item
+                    target = item.merged_to_item
+                    assert isinstance(target, cls)
+                    item = target
                     resolve_cnt -= 1
                 if resolve_cnt == 0:
                     logger.error(
@@ -1452,7 +1457,7 @@ class Item(PolymorphicModel):
         if isinstance(rd, str) and rd:
             p = parse_partial_date(rd)
             if p and p != rd:
-                self.release_date = p
+                setattr(self, "release_date", p)
                 return True
         return False
 

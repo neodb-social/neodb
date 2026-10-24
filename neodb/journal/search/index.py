@@ -309,7 +309,7 @@ class JournalSearchResult(SearchResult):
     def facet_by_piece_class(self):
         return self.get_facet("piece_class")
 
-    def __iter__(self):
+    def __iter__(self):  # pyrefly: ignore[bad-override]
         return iter(self.posts)
 
     def __getitem__(self, key):
@@ -406,7 +406,7 @@ class JournalIndex(Index):
         d = piece.to_indexable_doc()
         if not d:
             return {}
-        doc = {
+        doc: dict[str, object] = {
             "id": (
                 str(piece.latest_post_id)
                 if piece.latest_post_id

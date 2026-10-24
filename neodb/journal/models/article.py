@@ -497,9 +497,10 @@ class Article(Piece):
             }
         )
         article = cls(**d)
-        article.metadata = {"word_count": article._compute_word_count()}
+        metadata: dict[str, int | str] = {"word_count": article._compute_word_count()}
         if cover_url:
-            article.metadata["cover_url"] = cover_url
+            metadata["cover_url"] = cover_url
+        article.metadata = metadata
         article.previous_visibility = visibility
         article.save(link_post_id=post.id, post_when_save=False)
         return article

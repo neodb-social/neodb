@@ -105,8 +105,10 @@ class TestApObjectStructure:
         obj = note.ap_object
         assert obj["type"] == "Note"
         assert "progress" in obj
-        assert obj["progress"]["type"] == Note.ProgressType.CHAPTER
-        assert obj["progress"]["value"] == "5"
+        progress = obj["progress"]
+        assert isinstance(progress, dict)
+        assert progress["type"] == Note.ProgressType.CHAPTER
+        assert progress["value"] == "5"
 
     def test_note_ap_object_with_title_and_sensitive(self):
         note = Note.objects.create(
@@ -351,6 +353,7 @@ class TestPostTypeData:
         assert post_id is not None
         post = Takahe.get_post(post_id)
         assert post is not None
+        assert post.type_data is not None
         related = post.type_data["object"]["relatedWith"]
         assert len(related) == 3
         types = {r["type"] for r in related}
@@ -371,6 +374,7 @@ class TestPostTypeData:
         assert post_id is not None
         post = Takahe.get_post(post_id)
         assert post is not None
+        assert post.type_data is not None
         # Post type must be Article
         assert post.type == "Article"
         # relatedWith carries the NeoDB Review object unchanged
@@ -403,6 +407,7 @@ class TestPostTypeData:
         assert post_id is not None
         post = Takahe.get_post(post_id)
         assert post is not None
+        assert post.type_data is not None
         related = post.type_data["object"]["relatedWith"]
         assert len(related) == 1
         assert related[0]["type"] == "Note"
@@ -417,6 +422,7 @@ class TestPostTypeData:
             content="Plain note",
             visibility=0,
         )
+        assert note.latest_post_id is not None
         post = Takahe.get_post(note.latest_post_id)
         assert post is not None
         assert post.summary == "Chapter one"
@@ -424,12 +430,14 @@ class TestPostTypeData:
 
         note.sensitive = True
         note.save()
+        assert note.latest_post_id is not None
         post = Takahe.get_post(note.latest_post_id)
         assert post is not None
         assert post.sensitive is True
 
         note.sensitive = False
         note.save()
+        assert note.latest_post_id is not None
         post = Takahe.get_post(note.latest_post_id)
         assert post is not None
         assert post.summary == "Chapter one"
@@ -448,6 +456,7 @@ class TestPostTypeData:
         assert post_id is not None
         post = Takahe.get_post(post_id)
         assert post is not None
+        assert post.type_data is not None
         related = post.type_data["object"]["relatedWith"]
         assert len(related) == 1
         note_obj = related[0]
@@ -466,6 +475,7 @@ class TestPostTypeData:
         assert post_id is not None
         post = Takahe.get_post(post_id)
         assert post is not None
+        assert post.type_data is not None
         related = post.type_data["object"]["relatedWith"]
         assert len(related) == 1
         # Wire-type renamed (see PR #1491).
@@ -492,6 +502,7 @@ class TestUpdateByApObject:
         )
         member = ShelfMember.objects.get(owner=self.identity, item=self.book)
         comment = Comment.objects.get(owner=self.identity, item=self.book)
+        assert member.latest_post_id is not None
         comment.link_post_id(member.latest_post_id)
         assert ShelfMember.get_by_post_id(member.latest_post_id) == member
         assert Comment.get_by_post_id(member.latest_post_id) == comment
@@ -985,8 +996,9 @@ class TestAutoNoteOnReply:
         self.user = User.register(email="autonote@test.com", username="autonote")
         self.identity = self.user.identity
         Mark(self.identity, self.book).update(ShelfType.PROGRESS, visibility=0)
-        self.mark_post_id = Mark(self.identity, self.book).latest_post_id
-        assert self.mark_post_id is not None
+        mark_post_id = Mark(self.identity, self.book).latest_post_id
+        assert mark_post_id is not None
+        self.mark_post_id = mark_post_id
 
     def _self_reply(self, content: str):
         # NEODB_MQ.enqueue defers post_created in tests, so trigger it

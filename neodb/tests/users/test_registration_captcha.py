@@ -133,7 +133,7 @@ def _solve(client: Client, challenge: captcha.Challenge, trace=None):
     """
     response = _submit(client, challenge, trace=trace)
     assert response.status_code == 302
-    assert response.url == CAPTCHA_URL
+    assert response["Location"] == CAPTCHA_URL
     return client.get(CAPTCHA_URL)
 
 
@@ -295,9 +295,9 @@ class TestEmailOnly:
         request.session = client.session
         email = Email.new_account("route@example.org")
         assert email is not None
-        assert register_new_user(request, email).url == CAPTCHA_URL
+        assert register_new_user(request, email)["Location"] == CAPTCHA_URL
         bluesky = BlueskyAccount(domain="-", uid="did:plc:route", handle="r.example")
-        assert register_new_user(request, bluesky).url == REGISTER_URL
+        assert register_new_user(request, bluesky)["Location"] == REGISTER_URL
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -374,7 +374,7 @@ class TestFailureBudget:
         challenge = _challenge(client)
         response = _submit(client, challenge, answer=_wrong_answer(challenge))
         assert response.status_code == 302
-        assert response.url == CAPTCHA_URL
+        assert response["Location"] == CAPTCHA_URL
         after = _challenge(client)
         assert after["regens"] == 1
         assert after["nonce"] != challenge["nonce"]
@@ -913,7 +913,7 @@ class TestReviewRegressions:
         monkeypatch.setattr(captcha, "_build_challenge", lambda **kw: None)
         response = _submit(client, challenge, answer=_wrong_answer(challenge))
         assert response.status_code == 302
-        assert response.url == REGISTER_URL  # fell open rather than looping
+        assert response["Location"] == REGISTER_URL  # fell open rather than looping
         assert captcha.SESSION_KEY not in client.session
 
     def test_a_solved_pass_goes_stale(self, client, enabled, monkeypatch):

@@ -71,13 +71,15 @@ class TestReviewConditionalGet:
     def setup_data(self):
         self.user = User.register(email="rv_cg@test.com", username="rv_cg")
         self.book = Edition.objects.create(title="CG Book")
-        self.review = Review.update_item_review(
+        review = Review.update_item_review(
             self.book,
             self.user.identity,
             "Title",
             "body",
             visibility=0,
         )
+        assert review is not None
+        self.review = review
         self.client = Client()
 
     def test_repeat_returns_304(self):
@@ -156,6 +158,7 @@ class TestPiecePostRedirect:
         review = Review.update_item_review(
             book, self.user.identity, "T", "b", visibility=0
         )
+        assert review is not None
         post = review.latest_post
         assert post is not None
         url = f"/@{self.user.identity.full_handle}/posts/{post.pk}/"
@@ -194,6 +197,7 @@ class TestPiecePostRedirect:
         review = Review.update_item_review(
             book, self.user.identity, "T", "b", visibility=0
         )
+        assert review is not None
         post = review.latest_post
         assert post is not None
         url = f"/@{self.user.identity.full_handle}/posts/{post.pk}/"
@@ -304,6 +308,7 @@ class TestConditionalGetGating:
         review = Review.update_item_review(
             book, self.user.identity, "Title", "body", visibility=0
         )
+        assert review is not None
         first = self.client.get(review.url)
         assert first.status_code == 200
         last_mod = first["Last-Modified"]
@@ -351,6 +356,7 @@ class TestConditionalGetGating:
         review = Review.update_item_review(
             book, self.user.identity, "T", "b", visibility=0
         )
+        assert review is not None
         post = review.latest_post
         assert post is not None
         resp = self.client.get(
@@ -411,6 +417,7 @@ class TestAlternateLinkInHead:
         post = article.latest_post
         assert post is not None
         ap = post.object_uri
+        assert ap is not None
         body = resp.content.decode()
         assert 'rel="alternate"' in body
         assert 'type="application/activity+json"' in body

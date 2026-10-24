@@ -56,7 +56,7 @@ class TestPickCover:
         assert response.status_code == 302
         assert response.headers["Location"] == edition.url
         edition.refresh_from_db()
-        assert edition.cover.name == "item/test/original.jpg"
+        assert edition.cover.name == "item/test/original.jpg"  # pyrefly: ignore[missing-attribute]
 
     def test_edit_page_lists_resource_covers(self):
         edition = _make_edition_with_resource()

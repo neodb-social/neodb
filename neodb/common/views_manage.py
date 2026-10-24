@@ -200,7 +200,7 @@ class SiteConfigSettingsPage(FormView):
 
     def get_initial(self):
         config = SiteConfig.load_system()
-        initial = {}
+        initial: dict[str, object] = {}
         for key in self.form_options:
             value = getattr(config, key)
             field_info = SiteConfig.SystemOptions.model_fields[key]

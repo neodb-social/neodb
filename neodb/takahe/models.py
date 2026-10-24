@@ -234,7 +234,7 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS: ClassVar[list[str]] = []
 
     @property
-    def is_active(self):
+    def is_active(self):  # pyrefly: ignore[bad-override]
         return not (self.deleted or self.banned)
 
     @property
@@ -548,7 +548,7 @@ class Identity(models.Model):
         admin_edit = "{admin}{self.pk}/"
         djadmin_edit = "/djadmin/users/identity/{self.id}/change/"
 
-        def get_scheme(self, url):  # pyright: ignore
+        def get_scheme(self, url):  # pyrefly: ignore[bad-override]
             return "https"
 
         def get_hostname(self, url):
@@ -565,6 +565,7 @@ class Identity(models.Model):
         other servers.
         """
         if self.local:
+            assert self.domain is not None
             return f"https://{self.domain.uri_domain}/@{self.username}/"
         else:
             return self.profile_uri
@@ -858,6 +859,7 @@ class Identity(models.Model):
             self.featured_collection_uri = self.actor_uri + "collections/featured/"
             self.followers_uri = self.actor_uri + "followers/"
             self.following_uri = self.actor_uri + "following/"
+            assert self.domain is not None
             self.shared_inbox_uri = f"https://{self.domain.uri_domain}/inbox/"
             self.save()
 
@@ -1121,7 +1123,7 @@ class PostQuerySet(models.QuerySet):
 
 
 class PostManager(models.Manager):
-    def get_queryset(self):
+    def get_queryset(self) -> "PostQuerySet":
         return PostQuerySet(self.model, using=self._db)
 
     def not_hidden(self):
@@ -1390,7 +1392,7 @@ class Post(models.Model):
         action_reply = "/compose/?reply_to={self.id}"
         admin_edit = "/djadmin/activities/post/{self.id}/change/"
 
-        def get_scheme(self, url):  # pyright: ignore
+        def get_scheme(self, url):  # pyrefly: ignore[bad-override]
             return "https"
 
         def get_hostname(self, url):
@@ -1408,7 +1410,9 @@ class Post(models.Model):
         other servers.
         """
         if self.local:
-            return self.author.absolute_profile_uri() + f"posts/{self.id}/"
+            profile_uri = self.author.absolute_profile_uri()
+            assert profile_uri is not None
+            return profile_uri + f"posts/{self.id}/"
         else:
             return self.object_uri
 
@@ -1528,7 +1532,7 @@ class Post(models.Model):
                 sorted([tag[: Hashtag.MAXIMUM_LENGTH] for tag in parser.hashtags])
                 or None
             )
-            post_obj = {
+            post_obj: dict[str, object] = {
                 "author": author,
                 "content": content,
                 "summary": summary or None,
@@ -1685,8 +1689,10 @@ class Post(models.Model):
                 state__in=["new", "fanned_out"],
             ).count(),
             # only count replies visible to post's author
-            "replies": Post.objects.filter(in_reply_to=self.object_uri)
-            .visible_to(self.author, True)  # type:ignore
+            "replies": Post.objects.filter(  # pyrefly: ignore[missing-attribute]
+                in_reply_to=self.object_uri
+            )
+            .visible_to(self.author, True)
             .exclude(state__in=["deleted", "deleted_fanned_out"])
             .count(),
         }
@@ -1699,6 +1705,7 @@ class Post(models.Model):
         """
 
         if self.local and self.type == "Question":
+            assert self.type_data is not None
             self.type_data["voter_count"] = (
                 self.interactions.filter(
                     type=PostInteraction.Types.vote,
@@ -1724,6 +1731,7 @@ class Post(models.Model):
             card = self.preview_card
         except PreviewCard.DoesNotExist:
             return None
+        assert card is not None
         return card if card.state == "fetched" else None
 
     @property
@@ -1898,7 +1906,7 @@ class Post(models.Model):
                 .only("pk", "author_id")
                 .first()
             )
-        visibility_mapping = {
+        visibility_mapping: dict[int, str] = {
             self.Visibilities.public: "public",
             self.Visibilities.unlisted: "unlisted",
             self.Visibilities.followers: "private",
@@ -1929,7 +1937,7 @@ class Post(models.Model):
                 [
                     {
                         "name": tag,
-                        "url": f"https://{self.author.domain.uri_domain}/tags/{tag}/",
+                        "url": f"https://{self.author.uri_domain}/tags/{tag}/",
                     }
                     for tag in self.hashtags
                 ]
@@ -2139,6 +2147,7 @@ class PostAttachment(models.Model):
                 f"/proxy/post_attachment/{self.pk}/",
                 remote_url=self.remote_url,
             )
+        assert self.remote_url is not None
         return RelativeAbsoluteUrl(self.remote_url)
 
     @property

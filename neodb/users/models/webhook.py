@@ -154,7 +154,7 @@ def remove_webhook(user_id: int, application_id: int | None = None) -> None:
     clear_webhook_cache(user_id)
 
 
-def build_webhook_payload(username: str, changes: list[dict]) -> dict:
+def build_webhook_payload(username: str | None, changes: list[dict]) -> dict:
     """The delivery envelope: `changes` is a list so several objects can
     share one delivery later; each entry is {"type", "action", "object"}."""
     return {
@@ -166,7 +166,7 @@ def build_webhook_payload(username: str, changes: list[dict]) -> dict:
     }
 
 
-def dispatch_webhook(user_id: int, username: str, changes: list[dict]) -> None:
+def dispatch_webhook(user_id: int, username: str | None, changes: list[dict]) -> None:
     """Queue a delivery if the user has any active webhook; called from
     journal piece save/delete hooks, so it must stay cheap. Enqueued on
     commit so a rolled-back change never notifies."""

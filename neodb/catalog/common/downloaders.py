@@ -420,6 +420,7 @@ class ProxiedDownloader(BasicDownloader):
                 last_try = True
             else:  # resp_type == RESPONSE_NETWORK_ERROR:
                 url = urls.pop(0) if len(urls) else None
+        assert resp_type is not None
         self.response_type = resp_type
         if self.response_type == RESPONSE_OK and resp:
             return resp
@@ -1009,6 +1010,7 @@ class ScrapDownloader(BasicDownloader):
             if resp_type == RESPONSE_OK and resp is not None:
                 resp_type = self.validate_response(resp)
 
+        assert resp_type is not None
         self.response_type = resp_type
         if self.response_type == RESPONSE_OK and resp:
             return resp

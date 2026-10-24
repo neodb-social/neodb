@@ -257,7 +257,7 @@ def _titles(media: dict[str, Any]) -> "OrderedDict[str, str | None]":
     elif romaji:
         titles[romaji] = "en"
     if native:
-        titles.setdefault(native, _LANG_BY_COUNTRY.get(country))
+        titles.setdefault(native, _LANG_BY_COUNTRY.get(country) if country else None)
     for syn in media.get("synonyms") or []:
         if syn:
             titles.setdefault(syn, None)

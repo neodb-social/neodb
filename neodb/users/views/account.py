@@ -455,7 +455,8 @@ def register(request: HttpRequest):
     ):
         if verified_account and verified_account.platform == Platform.MASTODON:
             # directly create a new user
-            mastodon_account: MastodonAccount = verified_account
+            assert isinstance(verified_account, MastodonAccount)
+            mastodon_account = verified_account
             try:
                 new_user = User.register(
                     account=mastodon_account,

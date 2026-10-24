@@ -100,7 +100,7 @@ class PeopleSearchResult(SearchResult):
         }
         return [people_by_id[i] for i in ids if i in people_by_id]
 
-    def __iter__(self):
+    def __iter__(self):  # pyrefly: ignore[bad-override]
         return iter(self.items)
 
     def __getitem__(self, key):

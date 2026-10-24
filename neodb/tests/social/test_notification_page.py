@@ -59,6 +59,7 @@ def test_feed_page_carries_the_profile_sidebar():
     assert "dc-column" not in content
     assert "grid__main" in content
     assert "grid__aside" in content
+    assert user.identity.display_name is not None
     assert user.identity.display_name in content
     assert "Current targets" in content
 

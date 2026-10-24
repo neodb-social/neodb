@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from typing import Any
 from urllib import parse
 
 import environ
@@ -615,7 +616,7 @@ MEDIA_URL: str = env("NEODB_MEDIA_URL", default="/m/")
 TAKAHE_MEDIA_URL = env("TAKAHE_MEDIA_URL", default="/media/")
 TAKAHE_MEDIA_ROOT = env("TAKAHE_MEDIA_ROOT", default="media")
 
-STORAGES = {
+STORAGES: dict[str, dict[str, Any]] = {
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
         if TESTING

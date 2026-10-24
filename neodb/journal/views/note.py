@@ -118,7 +118,7 @@ def note_edit(
     else:
         mode = "note"
 
-    initial = {
+    initial: dict[str, object] = {
         "uuid": note_uuid,
         "mode": mode,
         "share_to_mastodon": False,

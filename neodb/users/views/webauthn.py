@@ -204,7 +204,7 @@ def passkey_login_verify(request):
             expected_challenge=challenge,
             expected_rp_id=_get_rp_id(),
             expected_origin=_get_expected_origins(),
-            credential_public_key=credential.public_key,
+            credential_public_key=bytes(credential.public_key),
             credential_current_sign_count=credential.sign_count,
             require_user_verification=True,
         )

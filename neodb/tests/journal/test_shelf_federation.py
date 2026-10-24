@@ -55,6 +55,7 @@ class TestShelfApEnvelope:
     def test_envelope_has_shelftype_extra(self):
         # Shelves are auto-initialized by ShelfManager on first access.
         wishlist = self.user.identity.shelf_manager.get_shelf(ShelfType.WISHLIST)
+        assert wishlist is not None
         env = wishlist.ap_envelope()
         assert env["type"] == "Shelf"
         assert env["shelfType"] == "wishlist"
@@ -65,11 +66,13 @@ class TestShelfApEnvelope:
 
     def test_url_shape_local(self):
         wishlist = self.user.identity.shelf_manager.get_shelf(ShelfType.WISHLIST)
+        assert wishlist is not None
         # `/users/<handle>/shelf/<shelf_type>` — base form for local owners.
         assert wishlist.url == f"/users/{self.identity.handle}/shelf/wishlist"
 
     def test_items_page_for_shelf_member_emits_post_when_available(self):
         wishlist = self.user.identity.shelf_manager.get_shelf(ShelfType.WISHLIST)
+        assert wishlist is not None
         # Add a member; ShelfMember fixtures normally come from Mark.update,
         # but for AP shape testing the model can be created directly.
         ShelfMember.objects.create(
@@ -107,6 +110,7 @@ class TestShelfApEnvelope:
         )
         remote_owner = Takahe.get_or_create_remote_apidentity(identity)
         remote_shelf = remote_owner.shelf_manager.get_shelf(ShelfType.WISHLIST)
+        assert remote_shelf is not None
         from django.test import RequestFactory
 
         rf = RequestFactory().get(remote_shelf.url)
@@ -115,6 +119,7 @@ class TestShelfApEnvelope:
 
     def test_items_page_includes_post_url_when_member_has_latest_post(self):
         wishlist = self.user.identity.shelf_manager.get_shelf(ShelfType.WISHLIST)
+        assert wishlist is not None
         m = ShelfMember.objects.create(
             parent=wishlist,
             owner=self.identity,
