@@ -19,8 +19,19 @@
                  height="40">
             <span>{{ article.owner.display_name }}<small><time datetime="{{ article.created_time|date:'c' }}">{{ article.created_time|date }}</time>{% if article.reading_time %} · {% blocktrans count counter=article.reading_time %}{{ counter }} min read{% plural %}{{ counter }} min read{% endblocktrans %}{% endif %}</small></span>
           </a>
-          {% if request.user.is_authenticated and request.user.identity == article.owner %}
-            <a class="article-edit-link" href="{{ article.edit_url }}">{% trans "Edit" %}</a>
+          {% if request.user.is_authenticated %}
+            <div class="article-header-actions">
+              {% if translate_enabled and article.latest_post %}
+                <button type="button"
+                        class="article-translate-link outline secondary"
+                        {% if article.classname == "review" %}hx-post="{% url 'journal:review_translate' article.uuid %}"{% else %}hx-post="{% url 'journal:article_translate' article.uuid %}"{% endif %}
+                        hx-trigger="click once"
+                        hx-target="#{{ article.classname }}_{{ article.uuid }}_content"><i class="fa-solid fa-language" aria-hidden="true"></i> {% trans "Translate" %}</button>
+              {% endif %}
+              {% if request.user.identity == article.owner %}
+                <a class="article-edit-link" href="{{ article.edit_url }}">{% trans "Edit" %}</a>
+              {% endif %}
+            </div>
           {% endif %}
         </div>
       </header>
@@ -60,8 +71,22 @@
           </ul>
         {% endif %}
         <div class="article-story-actions">
-          {% if article.latest_post %}
-            <span class="action inline">
+          <div class="article-footer-links">
+            <button type="button"
+                    class="article-copy-link outline secondary"
+                    data-copy-article="{{ article.absolute_url }}"
+                    data-copied-label="{% trans 'Link copied' %}">{% trans "Copy link" %}</button>
+            <span class="article-sr-only" data-copy-status role="status"></span>
+            {% if request.user.is_authenticated or article.owner.local and article.owner.anonymous_viewable and not article.owner.restricted %}
+              {% if article.classname == "review" %}
+                <a href="{% url 'journal:user_review_list' article.owner.handle article.item.category %}">{% trans "More reviews" %}</a>
+              {% else %}
+                <a href="{% url 'journal:user_article_list' article.owner.handle %}">{% trans "More articles" %}</a>
+              {% endif %}
+            {% endif %}
+          </div>
+          <span class="action inline">
+            {% if article.latest_post %}
               {% include "action_like_post.html" with post=article.latest_post %}
               {% include "action_boost_post.html" with post=article.latest_post %}
               <span><a hx-get="{% url 'journal:piece_replies' article.uuid %}"
@@ -72,41 +97,16 @@
    hx-swap="outerHTML"
    hx-trigger="click once"
    hx-target="#quote_{{ article.latest_post.pk }}"><span class="metrics">{{ quotes_count|default:'' }}</span> {% trans "Quote" %}</a></span>
-              {% if translate_enabled and request.user.is_authenticated %}
-                <span><a title="{% trans 'Translate' %}"
-   {% if article.classname == "review" %}hx-post="{% url 'journal:review_translate' article.uuid %}"{% else %}hx-post="{% url 'journal:article_translate' article.uuid %}"{% endif %}
-   hx-trigger="click once"
-   hx-target="#{{ article.classname }}_{{ article.uuid }}_content"><i class="fa-solid fa-language" aria-hidden="true"></i><span class="article-sr-only">{% trans "Translate" %}</span></a></span>
-              {% endif %}
               {% if request.user.is_authenticated and request.user.identity == article.owner %}
                 {% firstof article.edit_url as piece_edit_url %}
               {% endif %}
               {% include "_post_action_menu.html" with post=article.latest_post piece=article piece_edit_url=piece_edit_url %}
               {% include "action_open_post.html" with post=article.latest_post %}
-            </span>
-          {% endif %}
-          <button type="button"
-                  class="article-copy-link outline secondary"
-                  data-copy-article="{{ article.absolute_url }}"
-                  data-copied-label="{% trans 'Link copied' %}">{% trans "Copy link" %}</button>
-          <span class="article-sr-only" data-copy-status role="status"></span>
-          {% if request.user.is_authenticated and request.user.identity == article.owner %}
-            <a href="{{ article.delete_url }}">{% trans "Delete" %}</a>
-          {% endif %}
-        </div>
-        <div class="article-author-end">
-          <a class="article-author" href="{{ article.owner.url }}">
-          <img src="{{ article.owner.avatar|relative_uri }}"
-               alt=""
-               width="40"
-               height="40"><span>{{ article.owner.display_name }}<small>@{{ article.owner.full_handle }}</small></span></a>
-          {% if request.user.is_authenticated or article.owner.local and article.owner.anonymous_viewable and not article.owner.restricted %}
-            {% if article.classname == "review" %}
-              <a href="{% url 'journal:user_review_list' article.owner.handle article.item.category %}">{% trans "More reviews" %} →</a>
-            {% else %}
-              <a href="{% url 'journal:user_article_list' article.owner.handle %}">{% trans "More articles" %} →</a>
             {% endif %}
-          {% endif %}
+            {% if request.user.is_authenticated and request.user.identity == article.owner %}
+              <span><a href="{{ article.delete_url }}">{% trans "Delete" %}</a></span>
+            {% endif %}
+          </span>
         </div>
       </footer>
     </article>
