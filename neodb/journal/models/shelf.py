@@ -692,7 +692,7 @@ def attach_reading_progress(members: Iterable[ShelfMember]) -> None:
         )
 
 
-class Shelf(List):
+class Shelf(List[ShelfMember]):
     """
     Shelf
     """

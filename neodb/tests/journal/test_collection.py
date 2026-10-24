@@ -12,7 +12,7 @@ from django.urls import reverse
 from catalog.models import Edition, ExternalResource, IdType, Item, ItemCredit, Movie
 from journal.apis.collection import _prefetch_list_member_items
 from journal.models import Mark, ShelfType
-from journal.models.collection import Collection, CollectionMember
+from journal.models.collection import Collection
 from takahe.utils import Takahe
 from users.models import User
 
@@ -230,7 +230,7 @@ class TestCollectionListOperations:
         assert member is not None
         assert member.note == "new"
         member = self.collection.get_member_for_item(self.book1)
-        assert isinstance(member, CollectionMember)
+        assert member is not None
         assert member.note == "new"
         # unlike update_item_metadata, other metadata keys are preserved
         assert member.metadata.get("extra") == 1
@@ -300,13 +300,11 @@ class TestCollectionListOperations:
 
     def test_collection_member_note(self):
         member, _ = self.collection.append_item(self.book1, note="A note about this")
-        assert isinstance(member, CollectionMember)
         assert member.note == "A note about this"
         assert member.note_html  # should render to non-empty HTML
 
     def test_collection_member_note_html_empty(self):
         member, _ = self.collection.append_item(self.book1)
-        assert isinstance(member, CollectionMember)
         assert member.note_html == ""
 
 

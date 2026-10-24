@@ -22,7 +22,7 @@ class TestCollection:
         assert collection.catalog_item is not None
         assert collection.catalog_item.title == "test"
         member1, _ = collection.append_item(self.book1)
-        assert isinstance(member1, CollectionMember)
+        assert member1 is not None
         member1.note = "my notes"
         member1.save()
         collection.append_item(self.book2, note="test")
@@ -35,12 +35,12 @@ class TestCollection:
         collection.update_member_order([members[1].pk, members[0].pk])
         assert list(collection.ordered_items) == [self.book1, self.book2]
         member1 = collection.get_member_for_item(self.book1)
-        assert isinstance(member1, CollectionMember)
+        assert member1 is not None
         if member1 is None:
             return
         assert member1.note == "my notes"
         member2 = collection.get_member_for_item(self.book2)
-        assert isinstance(member2, CollectionMember)
+        assert member2 is not None
         if member2 is None:
             return
         assert member2.note == "test"

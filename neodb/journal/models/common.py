@@ -384,7 +384,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             )
 
     @cached_property
-    def latest_post_id(self):
+    def latest_post_id(self) -> int | None:
         return (
             self.post_relations.order_by("-pk")
             .values_list("post_id", flat=True)

@@ -81,7 +81,7 @@ class CollectionMember(ListMember):
         return {}
 
 
-class Collection(List):
+class Collection(List[CollectionMember]):
     if TYPE_CHECKING:
         members: models.QuerySet[CollectionMember]
         ordered_members: models.QuerySet[CollectionMember]

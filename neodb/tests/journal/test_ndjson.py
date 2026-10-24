@@ -1634,7 +1634,7 @@ class TestNdjsonExportImport:
         collection.brief = "edited"
         collection.save()
         member = collection.get_member_for_item(self.book1)
-        assert isinstance(member, CollectionMember)
+        assert member is not None
         member.note = "edited"
         member.save()
 
@@ -1647,7 +1647,7 @@ class TestNdjsonExportImport:
         # per-item notes replay too; append_item alone is a no-op for a member
         # already on the list
         member2 = c2.get_member_for_item(self.book1)
-        assert isinstance(member2, CollectionMember)
+        assert member2 is not None
         assert member2.note == "edited"
 
     def _note_with_media(self, content: str, mimetype: str, ext: str) -> Note:
@@ -2050,7 +2050,7 @@ class TestNdjsonExportImport:
         ).run()
 
         member = collection.get_member_for_item(self.book1)
-        assert isinstance(member, CollectionMember)
+        assert member is not None
         member.note = "second note"
         member.save()
         collection.brief = "b2"
@@ -2068,7 +2068,7 @@ class TestNdjsonExportImport:
 
         dest = Collection.objects.get(owner=self.user2.identity, title="Indexed")
         dest_member = dest.get_member_for_item(self.book1)
-        assert isinstance(dest_member, CollectionMember)
+        assert dest_member is not None
         assert dest_member.note == "second note"
         # assert against the stored document, not to_indexable_doc(), which
         # recomputes from the database and so cannot see a stale index

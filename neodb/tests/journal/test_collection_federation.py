@@ -213,7 +213,7 @@ class TestCollectionUpdateByApObject:
         post = _make_remote_post(self.identity.pk)
         with patch("journal.models.itemlist.django_rq.get_queue") as gq:
             result = Collection.update_by_ap_object(self.identity, None, ap_obj, post)
-            assert isinstance(result, Collection)
+            assert result is not None
             assert result.local is False
             assert result.remote_id == remote_url
             assert result.title == "Remote Picks"
@@ -248,7 +248,7 @@ class TestCollectionUpdateByApObject:
         stale["name"] = "Should not apply"
         with patch("journal.models.itemlist.django_rq.get_queue"):
             result = Collection.update_by_ap_object(self.identity, None, stale, post)
-        assert isinstance(result, Collection)
+        assert result is not None
         result.refresh_from_db()
         assert result.title == "Stable"
         assert result.edited_time == original_edited

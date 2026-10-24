@@ -251,7 +251,7 @@ class TestShelfInboundCreatesMirror:
         post = _make_remote_post(self.identity.pk, post_id=99200)
         with patch("journal.models.itemlist.django_rq.get_queue") as gq:
             result = Shelf.update_by_ap_object(self.identity, None, env, post)
-        assert isinstance(result, Shelf)
+        assert result is not None
         assert result.local is False
         assert result.shelf_type == "wishlist"
         assert result.remote_id == remote_url
@@ -281,7 +281,7 @@ class TestShelfInboundCreatesMirror:
         post = _make_remote_post(self.identity.pk, post_id=99201)
         with patch("journal.models.itemlist.django_rq.get_queue"):
             result = Shelf.update_by_ap_object(self.identity, None, env, post)
-        assert isinstance(result, Shelf)
+        assert result is not None
         assert result.shelf_type == "wishlist"
 
 
