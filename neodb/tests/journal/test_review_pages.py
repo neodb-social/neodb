@@ -30,6 +30,7 @@ def test_review_reader_keeps_item_rating_and_review_actions(writer):
     review = Review.update_item_review(
         book, user.identity, "A considered review", "## A section\n\nThoughts"
     )
+    assert review is not None
     response = client.get(review.url)
     assert response.status_code == 200
     document = html.fromstring(response.content)
@@ -42,6 +43,7 @@ def test_review_reader_keeps_item_rating_and_review_actions(writer):
     assert document.xpath('//*[contains(@class,"review-subject-rating")]')
     assert document.xpath(f'//a[@href="{review.edit_url}"]')
     assert document.xpath(f'//a[@href="{review.delete_url}"]')
+    assert review.latest_post is not None
     assert document.xpath(f'//div[@id="replies_{review.latest_post.pk}"]')
     assert document.xpath(f'//div[@id="quote_{review.latest_post.pk}"]')
     more_url = reverse(
