@@ -93,6 +93,7 @@ class TestAttachmentModel:
         assert a.mimetype == "image/png"
         assert a.size > 0
         assert a.type == "image"
+        assert a.file is not None
         assert a.url == a.file.url
         # no thumbnail: the preview falls back to the full-size file, so a
         # note card never renders an empty src
@@ -278,6 +279,7 @@ class TestTakaheAttachmentUrls:
             file="attachments/a.png",
             thumbnail="attachment_thumbnails/a.png",
         )
+        assert atta.file is not None
         with mock.patch.object(atta.file.storage, "base_url", "/media/"):
             full, preview = takahe_attachment_urls(atta)
         assert full.startswith("http")
@@ -286,6 +288,7 @@ class TestTakaheAttachmentUrls:
 
     def test_absolute_urls_pass_through(self):
         atta = PostAttachment(pk=7, mimetype="image/png", file="attachments/a.png")
+        assert atta.file is not None
         with mock.patch.object(atta.file.storage, "base_url", "https://cdn.example/"):
             full, preview = takahe_attachment_urls(atta)
         assert full == "https://cdn.example/attachments/a.png"
@@ -328,6 +331,7 @@ class TestPostAttachmentUrls:
 
     def test_schemeless_file_url_becomes_absolute(self):
         atta = PostAttachment(pk=7, mimetype="image/png", file="attachments/a.png")
+        assert atta.file is not None
         with mock.patch.object(atta.file.storage, "base_url", "/media/"):
             url = atta.full_url()
         expected = f"https://{settings.SITE_DOMAIN}/media/attachments/a.png"
@@ -337,6 +341,7 @@ class TestPostAttachmentUrls:
 
     def test_absolute_file_url_is_unchanged(self):
         atta = PostAttachment(pk=7, mimetype="image/png", file="attachments/a.png")
+        assert atta.file is not None
         with mock.patch.object(atta.file.storage, "base_url", "https://cdn.example/"):
             url = atta.full_url()
         assert url.absolute == "https://cdn.example/attachments/a.png"
@@ -349,6 +354,7 @@ class TestPostAttachmentUrls:
             file="attachments/a.png",
             thumbnail="attachment_thumbnails/a.png",
         )
+        assert atta.thumbnail is not None
         with mock.patch.object(atta.thumbnail.storage, "base_url", "/media/"):
             url = atta.thumbnail_url()
         expected = f"https://{settings.SITE_DOMAIN}/media/attachment_thumbnails/a.png"
@@ -361,11 +367,14 @@ class TestPostAttachmentUrls:
             file="attachments/a.png",
             thumbnail="attachment_thumbnails/a.png",
         )
+        assert atta.file is not None
         with mock.patch.object(atta.file.storage, "base_url", "/media/"):
             value = atta.to_mastodon_json()
         assert value["url"] == f"https://{settings.SITE_DOMAIN}/media/attachments/a.png"
-        assert value["preview_url"].startswith(f"https://{settings.SITE_DOMAIN}/")
-        assert value["preview_url"].endswith("/media/attachment_thumbnails/a.png")
+        preview_url = value["preview_url"]
+        assert isinstance(preview_url, str)
+        assert preview_url.startswith(f"https://{settings.SITE_DOMAIN}/")
+        assert preview_url.endswith("/media/attachment_thumbnails/a.png")
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -514,6 +523,7 @@ class TestUploadEndpoints:
         assert response.status_code == 200, response.content
         a = Attachment.objects.get(owner=self.identity)
         assert a.mimetype == mimetype
+        assert a.file is not None
         assert (a.file.name or "").endswith(f".{ext}")
 
     @pytest.mark.parametrize(("fmt", "ext", "mimetype"), MODERN_FORMATS)
@@ -879,6 +889,7 @@ class TestSyncFromPost:
             mimetype="image/png",
             file=ContentFile(_png_bytes(), name="rel.png"),
         )
+        assert atta.file is not None
         with mock.patch.object(atta.file.storage, "base_url", "/media/"):
             rows = Attachment.sync_from_post(note, post)
         assert len(rows) == 1

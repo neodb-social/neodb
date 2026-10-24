@@ -139,6 +139,7 @@ class TestArticleModel:
         assert post_id is not None
         post = Takahe.get_post(post_id)
         assert post is not None
+        assert post.type_data is not None
         assert post.type == "Article"
         assert post.type_data["object"]["name"] == "Long Form"
         assert post.type_data["object"]["source"]["mediaType"] == "text/markdown"
@@ -153,6 +154,7 @@ class TestArticleModel:
             summary="hand-written teaser",
             visibility=0,
         )
+        assert article.latest_post_id is not None
         post = Takahe.get_post(article.latest_post_id)
         assert post is not None
         assert post.summary == "hand-written teaser"
@@ -167,6 +169,7 @@ class TestArticleModel:
             visibility=0,
             article=article,
         )
+        assert article.latest_post_id is not None
         post = Takahe.get_post(article.latest_post_id)
         assert post is not None
         assert post.sensitive is True
@@ -188,8 +191,10 @@ class TestArticleModel:
         )
         post_id_v2 = article.latest_post_id
         assert post_id_v1 == post_id_v2  # edit, not recreate
+        assert post_id_v2 is not None
         post = Takahe.get_post(post_id_v2)
         assert post is not None
+        assert post.type_data is not None
         assert post.type_data["object"]["name"] == "V2"
 
     def test_article_delete_clears_post(self):
@@ -680,6 +685,7 @@ class TestArticleRetrieveView:
         # this link when content negotiation returns HTML.
         assert 'rel="alternate"' in body
         assert 'type="application/activity+json"' in body
+        assert post.object_uri is not None
         assert post.object_uri in body
 
 
@@ -713,8 +719,10 @@ class TestArticleApIdRegression:
             body="body",
             visibility=0,
         )
+        assert article.latest_post_id is not None
         post = Takahe.get_post(article.latest_post_id)
         assert post is not None
+        assert post.type_data is not None
         # The merged object surfaces article fields (name, source, etc)
         # but the canonical id stays on the wrapping post.
         assert post.type_data["object"].get("id") in (None, post.object_uri)

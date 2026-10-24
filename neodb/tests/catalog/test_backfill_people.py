@@ -61,6 +61,7 @@ class TestBackfillPeople:
             }
         ]
         movie, resource = self._movie_with_tmdb_resource(people_links)
+        assert movie.metadata is not None
         original_metadata = dict(movie.metadata)
         original_edited = movie.edited_time
 

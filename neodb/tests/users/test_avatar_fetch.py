@@ -104,5 +104,6 @@ def test_sync_identity_names_icon_by_detected_format(
     monkeypatch.setattr(user_module, "_fetch_avatar", lambda url: (_png(), "png"))
     user.sync_identity()
     icon = user.identity.takahe_identity.icon
+    assert icon is not None
     assert icon.name.endswith(".png")
     assert ".svg" not in icon.name

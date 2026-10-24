@@ -7,6 +7,7 @@ from datetime import timedelta
 
 import pytest
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.http import HttpResponse
 from django.test import RequestFactory
 from django.urls import reverse
 from django.utils import timezone
@@ -47,7 +48,7 @@ class FakeResponse:
 
 def _request_with_session(path: str = "/account/threads/login"):
     request = RequestFactory().post(path)
-    SessionMiddleware(lambda r: r).process_request(request)
+    SessionMiddleware(lambda r: HttpResponse()).process_request(request)
     return request
 
 

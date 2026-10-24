@@ -213,7 +213,7 @@ class TestCollectionUpdateByApObject:
         post = _make_remote_post(self.identity.pk)
         with patch("journal.models.itemlist.django_rq.get_queue") as gq:
             result = Collection.update_by_ap_object(self.identity, None, ap_obj, post)
-            assert result is not None
+            assert isinstance(result, Collection)
             assert result.local is False
             assert result.remote_id == remote_url
             assert result.title == "Remote Picks"
@@ -248,7 +248,7 @@ class TestCollectionUpdateByApObject:
         stale["name"] = "Should not apply"
         with patch("journal.models.itemlist.django_rq.get_queue"):
             result = Collection.update_by_ap_object(self.identity, None, stale, post)
-        assert result is not None
+        assert isinstance(result, Collection)
         result.refresh_from_db()
         assert result.title == "Stable"
         assert result.edited_time == original_edited
@@ -938,6 +938,7 @@ class TestCollectionVisibilityFlipPostSort:
                 f"all_post_ids={c.all_post_ids}"
             )
             assert c.latest_post.state not in ("deleted", "deleted_fanned_out")
+            assert c.latest_post_id is not None
             seen_post_ids.append(c.latest_post_id)
 
         # Only one post should be alive at the end; prior ones must be

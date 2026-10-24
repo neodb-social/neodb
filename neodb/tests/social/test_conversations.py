@@ -56,7 +56,9 @@ def test_new_group_message_creates_one_conversation():
     assert "@bob" not in post.content
     conversation = Conversation.objects.get(pk=post.conversation_id)
     assert response.status_code == 302
-    assert response.url == reverse("social:conversation", args=[conversation.pk])
+    assert response["Location"] == reverse(
+        "social:conversation", args=[conversation.pk]
+    )
     assert _membership(alice, conversation.pk).unread is False
     assert _membership(bob, conversation.pk).unread is True
     assert _membership(carol, conversation.pk).unread is True

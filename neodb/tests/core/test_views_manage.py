@@ -433,12 +433,12 @@ class TestLanguageCodeApply:
             # No catalog for the old language may survive. It is dropped on
             # change, and anything that forces a lazy string afterwards (the
             # cache refresh does) rebuilds it for the new language.
-            cached = trans_real._default
+            cached = trans_real._default  # pyrefly: ignore[missing-attribute]
             assert cached is None or cached.language() == "zh-hans"
         finally:
             SiteConfig.objects.filter(pk=1).delete()
             settings.LANGUAGE_CODE = old_language
-            trans_real._default = None
+            trans_real._default = None  # pyrefly: ignore[missing-attribute]
             if old_system is not None:
                 SiteConfig.system = old_system
                 SiteConfig._apply_to_settings(old_system)
@@ -458,7 +458,7 @@ class TestLanguageCodeApply:
             translation.deactivate()
             SiteConfig.objects.filter(pk=1).delete()
             settings.LANGUAGE_CODE = old_language
-            trans_real._default = None
+            trans_real._default = None  # pyrefly: ignore[missing-attribute]
             if old_system is not None:
                 SiteConfig.system = old_system
                 SiteConfig._apply_to_settings(old_system)
@@ -469,14 +469,14 @@ class TestLanguageCodeApply:
         """The 30s config refresh must not clear the translation cache."""
         settings.LANGUAGE_CODE_ENV = settings.LANGUAGE_CODE
         translation.activate(settings.LANGUAGE_CODE)
-        trans_real._default = trans_real.translation(settings.LANGUAGE_CODE)
+        trans_real._default = trans_real.translation(settings.LANGUAGE_CODE)  # pyrefly: ignore[missing-attribute]
         try:
             SiteConfig._apply_to_settings(SiteConfig.load_system())
 
-            assert trans_real._default is not None
+            assert trans_real._default is not None  # pyrefly: ignore[missing-attribute]
         finally:
             translation.deactivate()
-            trans_real._default = None
+            trans_real._default = None  # pyrefly: ignore[missing-attribute]
 
 
 @pytest.mark.django_db(databases="__all__")

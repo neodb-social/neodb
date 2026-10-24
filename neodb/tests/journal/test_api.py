@@ -745,6 +745,7 @@ def test_collection_cover_api(tmp_path):
         collection.refresh_from_db()
         assert str(collection.cover) != MISSING_COVER
         assert (collection.cover.name or "").endswith(".png")
+        assert collection.catalog_item is not None
         assert collection.catalog_item.cover.name == collection.cover.name
 
         # extension-less filename gets normalized from the detected format
@@ -761,6 +762,7 @@ def test_collection_cover_api(tmp_path):
 
         collection.refresh_from_db()
         assert str(collection.cover) == MISSING_COVER
+        assert collection.catalog_item is not None
         assert str(collection.catalog_item.cover) == MISSING_COVER
 
 

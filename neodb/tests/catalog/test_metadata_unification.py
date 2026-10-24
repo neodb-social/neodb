@@ -316,6 +316,7 @@ class TestDeprecatedApiAliases:
         )
         src.merge_to(dst)
         dst.refresh_from_db()
+        assert dst.metadata is not None
         assert dst.metadata["release_date"] == "2010"
         assert dst.year == 2010
 
@@ -362,6 +363,9 @@ class TestUnifyMetadataMigration:
         m.refresh_from_db()
         a.refresh_from_db()
         g.refresh_from_db()
+        assert m.metadata is not None
+        assert a.metadata is not None
+        assert g.metadata is not None
         assert m.metadata["length"] == 8880
         assert m.metadata["origin_country"] == ["US"]
         assert m.metadata["release_date"] == "2010-07-16"

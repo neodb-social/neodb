@@ -3,6 +3,7 @@ import hashlib
 import json
 import time
 from importlib import import_module
+from typing import cast
 from urllib.parse import parse_qs, urlsplit
 
 import httpx
@@ -234,7 +235,7 @@ def test_dpop_request_signs_and_rotates_nonce():
             httpx.Response(200, json={"ok": True}),
         ]
     )
-    request._client = stub  # stub transport
+    request._client = cast(httpx.Client, stub)  # stub transport
 
     response = request.get("https://pds.example/xrpc/app.bsky.actor.getProfile")
 
@@ -260,7 +261,7 @@ def test_dpop_request_refreshes_on_unexpected_401():
             httpx.Response(200, json={"ok": True}),
         ]
     )
-    request._client = stub  # stub transport
+    request._client = cast(httpx.Client, stub)  # stub transport
 
     response = request.get("https://pds.example/xrpc/app.bsky.actor.getProfile")
 
@@ -442,6 +443,7 @@ def test_oauth_callback_registers_new_user(client, monkeypatch, bluesky_enabled)
     verified = client.session["verified_account"]
     assert verified["uid"] == "did:plc:alice"
     account = BlueskyAccount.from_dict(verified)
+    assert account is not None
     stored = account._get_oauth()
     assert stored["access_token"] == "at-1"
     assert stored["refresh_token"] == "rt-1"

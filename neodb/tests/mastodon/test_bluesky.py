@@ -3,8 +3,10 @@ import hashlib
 import json
 from datetime import datetime, timezone
 from types import SimpleNamespace
+from typing import cast
 
 import pytest
+from atproto import Client
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from django.conf import settings
@@ -101,9 +103,9 @@ def test_profile_record_signed_and_verifiable(monkeypatch):
     data = (
         hashlib.sha256(_jcs(proof)).digest() + hashlib.sha256(_jcs(document)).digest()
     )
-    public_key = serialization.load_pem_public_key(
-        identity.takahe_identity.public_key.encode()
-    )
+    public_key_pem = identity.takahe_identity.public_key
+    assert public_key_pem is not None
+    public_key = serialization.load_pem_public_key(public_key_pem.encode())
     assert isinstance(public_key, rsa.RSAPublicKey)
     public_key.verify(
         base64.b64decode(proof_value), data, padding.PKCS1v15(), hashes.SHA256()
@@ -148,7 +150,7 @@ def test_register_with_account_schedules_sync(monkeypatch):
     assert called == [user.pk]
 
 
-def _stub_client(captured):
+def _stub_client(captured) -> Client:
     """A minimal atproto client capturing the created feed post record."""
 
     def _create(repo, record):
@@ -156,12 +158,15 @@ def _stub_client(captured):
         captured["record"] = record
         return SimpleNamespace(cid="cid1", uri="at://did:plc:poster/post/1")
 
-    return SimpleNamespace(
-        get_current_time_iso=lambda: "2026-06-09T00:00:00.000Z",
-        app=SimpleNamespace(
-            bsky=SimpleNamespace(
-                feed=SimpleNamespace(post=SimpleNamespace(create=_create))
-            )
+    return cast(
+        Client,
+        SimpleNamespace(
+            get_current_time_iso=lambda: "2026-06-09T00:00:00.000Z",
+            app=SimpleNamespace(
+                bsky=SimpleNamespace(
+                    feed=SimpleNamespace(post=SimpleNamespace(create=_create))
+                )
+            ),
         ),
     )
 
@@ -438,14 +443,17 @@ def test_get_publication_ref_reads_existing_record():
         user=user, domain="-", uid="did:plc:pref", handle="pref.example"
     )
     uri = account.publication_uri
-    account._client = SimpleNamespace(
-        com=SimpleNamespace(
-            atproto=SimpleNamespace(
-                repo=SimpleNamespace(
-                    get_record=lambda params: SimpleNamespace(uri=uri, cid="c9")
+    account._client = cast(
+        Client,
+        SimpleNamespace(
+            com=SimpleNamespace(
+                atproto=SimpleNamespace(
+                    repo=SimpleNamespace(
+                        get_record=lambda params: SimpleNamespace(uri=uri, cid="c9")
+                    )
                 )
             )
-        )
+        ),
     )
     assert account.get_publication_ref() == {"uri": uri, "cid": "c9"}
 
@@ -460,10 +468,13 @@ def test_get_publication_ref_writes_missing_record(monkeypatch):
     def missing(params):
         raise Exception("RecordNotFound")
 
-    account._client = SimpleNamespace(
-        com=SimpleNamespace(
-            atproto=SimpleNamespace(repo=SimpleNamespace(get_record=missing))
-        )
+    account._client = cast(
+        Client,
+        SimpleNamespace(
+            com=SimpleNamespace(
+                atproto=SimpleNamespace(repo=SimpleNamespace(get_record=missing))
+            )
+        ),
     )
     ref = {"uri": account.publication_uri, "cid": "c1"}
     monkeypatch.setattr(account, "sync_publication_record", lambda: ref)
