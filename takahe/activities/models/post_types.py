@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Literal
 
 from django.utils import timezone
@@ -22,6 +22,26 @@ def vote_value(option_name: str) -> str:
     than local limits allow, but PostInteraction.value is a 50-char column.
     """
     return option_name[:POLL_MAX_OPTION_CHARS]
+
+
+def poll_question(
+    options: list[str],
+    expires_in: int,
+    multiple: bool = False,
+    hide_totals: bool = False,
+) -> dict:
+    """
+    The Question type_data for a poll composed through the client API. The
+    end time counts from now, so a scheduled poll builds it when it posts.
+    """
+    return {
+        "type": "Question",
+        "mode": "anyOf" if multiple else "oneOf",
+        "options": [{"name": name, "type": "Note", "votes": 0} for name in options],
+        "voter_count": 0,
+        "hide_totals": hide_totals,
+        "end_time": timezone.now() + timedelta(seconds=expires_in),
+    }
 
 
 class BasePostDataType(BaseModel):

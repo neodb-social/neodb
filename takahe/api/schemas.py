@@ -297,6 +297,19 @@ class StatusSource(Schema):
         )
 
 
+class ScheduledStatus(Schema):
+    id: str
+    scheduled_at: str
+    params: dict
+    media_attachments: list[MediaAttachment]
+
+    @classmethod
+    def from_scheduled_status(
+        cls, scheduled: activities_models.ScheduledStatus
+    ) -> "ScheduledStatus":
+        return cls(**scheduled.to_mastodon_json())
+
+
 class Conversation(Schema):
     id: str
     unread: bool

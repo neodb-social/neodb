@@ -240,6 +240,7 @@ class Config(models.Model):
         post_length: int = 500
         max_media_attachments: int = 4
         post_minimum_interval: int = 3  # seconds
+        post_backdating: bool = False
         identity_min_length: int = 2
         identity_max_per_user: int = 5
         identity_max_age: int = 24 * 60 * 60

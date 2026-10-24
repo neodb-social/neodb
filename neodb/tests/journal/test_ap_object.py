@@ -1006,6 +1006,15 @@ class TestAutoNoteOnReply:
         assert note.item_id == self.book.pk
         assert "loved this chapter" in note.content
 
+    def test_backdated_reply_stays_plain(self):
+        reply = Takahe.reply_post(
+            self.mark_post_id, self.identity.pk, "imported", Takahe.Visibilities.public
+        )
+        assert reply is not None
+        post_created(reply.pk, {"raw_content": "imported", "backdated": True})
+        assert Note.get_by_post_id(reply.pk) is None
+        assert not Note.objects.filter(owner=self.identity, item=self.book).exists()
+
     def test_reply_stays_plain_when_disabled(self):
         Preference.objects.filter(user=self.user).update(auto_note_on_reply=False)
         reply = self._self_reply("just a social reply")

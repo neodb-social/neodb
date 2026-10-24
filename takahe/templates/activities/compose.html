@@ -12,6 +12,8 @@
             {% include "forms/_field.html" with field=form.text %}
             {% include "forms/_field.html" with field=form.visibility %}
             {% include "forms/_field.html" with field=form.content_warning %}
+            {% include "forms/_field.html" with field=form.scheduled_at %}
+            {{ form.browser_timezone }}
         </fieldset>
         <fieldset>
             <legend>Image</legend>

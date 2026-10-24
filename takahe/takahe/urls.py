@@ -295,6 +295,11 @@ urlpatterns = [
     # Posts
     path("@<handle>/compose/", compose.Compose.as_view(), name="compose"),
     path(
+        "@<handle>/scheduled/",
+        compose.ScheduledPosts.as_view(),
+        name="scheduled_posts",
+    ),
+    path(
         "@<handle>/posts/<int:post_id>/",
         posts.Individual.as_view(),
         name="post_view",

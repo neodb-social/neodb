@@ -21,6 +21,7 @@ from api.views import (
     preferences,
     push,
     report,
+    scheduled_statuses,
     search,
     statuses,
     suggestions,
@@ -163,7 +164,15 @@ urlpatterns = [
     path("v1/search", search.search),
     path("v2/search", search.search),
     # Scheduled statuses
-    path("v1/scheduled_statuses", statuses.scheduled_statuses),
+    path("v1/scheduled_statuses", scheduled_statuses.list_scheduled_statuses),
+    path(
+        "v1/scheduled_statuses/<id>",
+        methods(
+            get=scheduled_statuses.scheduled_status,
+            put=scheduled_statuses.update_scheduled_status,
+            delete=scheduled_statuses.delete_scheduled_status,
+        ),
+    ),
     # Statuses
     path("v1/statuses", statuses.post_status),
     path("v1/statuses/<id>/context", statuses.status_context),

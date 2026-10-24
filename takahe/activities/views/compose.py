@@ -1,11 +1,21 @@
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
 from django import forms
 from django.conf import settings
 from django.contrib import messages
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
-from django.views.generic import FormView
+from django.views.generic import FormView, ListView
 
-from activities.models import Post, PostAttachment, PostAttachmentStates, TimelineEvent
+from activities.models import (
+    Post,
+    PostAttachment,
+    PostAttachmentStates,
+    ScheduledStatus,
+    ScheduledStatusStates,
+    TimelineEvent,
+)
+from activities.models.scheduled_status import ScheduledStatusError, check_backdate
 from core.files import blurhash_image, resize_image
 from core.models import Config
 from users.views.base import IdentityViewMixin
@@ -45,6 +55,23 @@ class Compose(IdentityViewMixin, FormView):
             help_text="Optional - Post will be hidden behind this text until clicked",
         )
 
+        scheduled_at = forms.DateTimeField(
+            required=False,
+            label="Schedule for",
+            help_text="Optional - Leave empty to post now, or pick a time at least 5 minutes ahead",
+            widget=forms.DateTimeInput(attrs={"type": "datetime-local"}),
+        )
+
+        # The browser fills this in, as datetime-local carries no time zone
+        browser_timezone = forms.CharField(
+            required=False,
+            widget=forms.HiddenInput(
+                attrs={
+                    "_": "init set my.value to Intl.DateTimeFormat().resolvedOptions().timeZone"
+                }
+            ),
+        )
+
         image = forms.ImageField(
             required=False,
             help_text="Optional - For multiple image uploads and cropping, please use an app",
@@ -80,6 +107,8 @@ class Compose(IdentityViewMixin, FormView):
         def __init__(self, identity, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.identity = identity
+            if Config.system.post_backdating:
+                self.fields["scheduled_at"].help_text += ", or a past time to backdate"
             self.fields["text"].widget.attrs["_"] = rf"""
                 init
                     -- Move cursor to the end of existing text
@@ -122,6 +151,30 @@ class Compose(IdentityViewMixin, FormView):
                     f"Maximum post length is {Config.system.post_length} characters (you have {length})"
                 )
             return text
+
+        def clean(self):
+            cleaned_data = super().clean()
+            scheduled_at = cleaned_data.get("scheduled_at")
+            if scheduled_at:
+                try:
+                    tz = ZoneInfo(cleaned_data.get("browser_timezone") or "UTC")
+                except ValueError, ZoneInfoNotFoundError:
+                    tz = ZoneInfo("UTC")
+                # The field reads the wall time as UTC; reread it in the browser's zone
+                scheduled_at = scheduled_at.replace(tzinfo=tz)
+                try:
+                    if scheduled_at <= timezone.now() and Config.system.post_backdating:
+                        check_backdate(
+                            self.identity,
+                            scheduled_at,
+                            cleaned_data.get("text") or "",
+                        )
+                    else:
+                        ScheduledStatus.check_time(self.identity, scheduled_at)
+                except ScheduledStatusError as e:
+                    self.add_error("scheduled_at", str(e))
+                cleaned_data["scheduled_at"] = scheduled_at
+            return cleaned_data
 
         def clean_image(self):
             value = self.cleaned_data.get("image")
@@ -177,6 +230,29 @@ class Compose(IdentityViewMixin, FormView):
             )
             attachment.save()
             attachments.append(attachment)
+        scheduled_at = form.cleaned_data.get("scheduled_at")
+        if scheduled_at and scheduled_at <= timezone.now():
+            Post.create_local(
+                author=self.identity,
+                content=form.cleaned_data["text"],
+                summary=form.cleaned_data.get("content_warning"),
+                visibility=form.cleaned_data["visibility"],
+                attachments=attachments,
+                published=scheduled_at,
+            )
+            messages.success(self.request, "Your backdated post was created.")
+            return redirect(".")
+        if scheduled_at:
+            ScheduledStatus.create(
+                author=self.identity,
+                scheduled_at=scheduled_at,
+                text=form.cleaned_data["text"],
+                visibility=int(form.cleaned_data["visibility"]),
+                spoiler_text=form.cleaned_data.get("content_warning"),
+                media_ids=[str(a.pk) for a in attachments],
+            )
+            messages.success(self.request, "Your post was scheduled.")
+            return redirect("scheduled_posts", handle=self.identity.handle)
         # Create the post
         post = Post.create_local(
             author=self.identity,
@@ -195,3 +271,24 @@ class Compose(IdentityViewMixin, FormView):
         context["identity"] = self.identity
         context["section"] = "compose"
         return context
+
+
+class ScheduledPosts(IdentityViewMixin, ListView):
+    """
+    Lists the identity's pending scheduled posts, and deletes one on POST.
+    """
+
+    template_name = "activities/scheduled.html"
+    extra_context = {"section": "scheduled"}
+    context_object_name = "scheduled_posts"
+
+    def get_queryset(self):
+        return ScheduledStatus.objects.filter(
+            author=self.identity, state=ScheduledStatusStates.scheduled
+        ).order_by("scheduled_at")
+
+    def post(self, request, *args, **kwargs):
+        scheduled = get_object_or_404(self.get_queryset(), pk=request.POST.get("id"))
+        scheduled.delete()
+        messages.success(request, "Your scheduled post was deleted.")
+        return redirect("scheduled_posts", handle=self.identity.handle)

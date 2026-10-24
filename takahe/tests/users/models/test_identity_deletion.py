@@ -1,7 +1,16 @@
+import datetime
+
 import pytest
 from django.core.files.base import ContentFile
 
-from activities.models import Post, PostAttachment, PostAttachmentStates
+from django.utils import timezone
+
+from activities.models import (
+    Post,
+    PostAttachment,
+    PostAttachmentStates,
+    ScheduledStatus,
+)
 from users.models import (
     AccountNote,
     Block,
@@ -32,6 +41,11 @@ def test_handle_deleted_removes_rows_keyed_on_the_identity(
     FeatureAuthorization.objects.create(
         identity=identity, collection_uri="https://example2.com/featured/"
     )
+    ScheduledStatus.create(
+        author=identity,
+        scheduled_at=timezone.now() + datetime.timedelta(days=1),
+        text="later",
+    )
 
     IdentityStates.handle_deleted(identity)
 
@@ -41,6 +55,7 @@ def test_handle_deleted_removes_rows_keyed_on_the_identity(
     assert not List.objects.filter(identity=identity).exists()
     assert not Marker.objects.filter(identity=identity).exists()
     assert not FeatureAuthorization.objects.filter(identity=identity).exists()
+    assert not ScheduledStatus.objects.filter(author=identity).exists()
 
 
 @pytest.mark.django_db

@@ -45,6 +45,10 @@
                 <i class="fa-solid fa-pen-to-square"></i>
                 <span>Compose</span>
             </a>
+            <a href="{% url "scheduled_posts" handle=identity.handle %}" {% if section == "scheduled" %}class="selected"{% endif %} title="Scheduled posts">
+                <i class="fa-solid fa-clock"></i>
+                <span>Scheduled posts</span>
+            </a>
         {% else %}
             {% include "identity/_identity_banner.html" with identity=ident %}
             <a href="{% url "settings_profile" handle=ident.handle %}">

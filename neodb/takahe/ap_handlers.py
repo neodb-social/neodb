@@ -136,6 +136,11 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
             retry += 1
     owner = Takahe.get_or_create_remote_apidentity(post.author)
     if local:
+        if post_data and post_data.get("backdated"):
+            # An imported post: making a piece from it would save and so
+            # republish the post, which is meant to reach no one
+            JournalIndex.instance().replace_posts([post])
+            return
         activate_language_for_user(owner.user)
         reply_to = post.in_reply_to_post()
         items = []
