@@ -160,7 +160,7 @@
         await navigator.clipboard.writeText(button.dataset.copyArticle);
         const status = document.querySelector('[data-copy-status]');
         if (status) status.textContent = button.dataset.copiedLabel;
-        button.textContent = button.dataset.copiedLabel;
+        (button.querySelector('[data-copy-label]') || button).textContent = button.dataset.copiedLabel;
       } catch {
         // The canonical URL remains available in the browser's address bar.
         button.hidden = true;

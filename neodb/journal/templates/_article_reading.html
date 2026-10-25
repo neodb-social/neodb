@@ -23,7 +23,7 @@
             <div class="article-header-actions">
               {% if translate_enabled and article.latest_post %}
                 <button type="button"
-                        class="article-translate-link outline secondary"
+                        class="article-translate-link"
                         {% if article.classname == "review" %}hx-post="{% url 'journal:review_translate' article.uuid %}"{% else %}hx-post="{% url 'journal:article_translate' article.uuid %}"{% endif %}
                         hx-trigger="click once"
                         hx-target="#{{ article.classname }}_{{ article.uuid }}_content"><i class="fa-solid fa-language" aria-hidden="true"></i> {% trans "Translate" %}</button>
@@ -73,9 +73,9 @@
         <div class="article-story-actions">
           <div class="article-footer-links">
             <button type="button"
-                    class="article-copy-link outline secondary"
+                    class="article-copy-link"
                     data-copy-article="{{ article.absolute_url }}"
-                    data-copied-label="{% trans 'Link copied' %}">{% trans "Copy link" %}</button>
+                    data-copied-label="{% trans 'Link copied' %}"><i class="fa-solid fa-link" aria-hidden="true"></i> <span data-copy-label>{% trans "Copy link" %}</span></button>
             <span class="article-sr-only" data-copy-status role="status"></span>
             {% if request.user.is_authenticated or article.owner.local and article.owner.anonymous_viewable and not article.owner.restricted %}
               {% if article.classname == "review" %}
