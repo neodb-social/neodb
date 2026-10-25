@@ -772,3 +772,20 @@ main.import-preview {
     color: var(--pico-del-color);
   }
 }
+
+// search results: the query, then the category chips
+.search-header {
+  margin-bottom: var(--pico-spacing);
+
+  h5 {
+    margin-bottom: 0;
+  }
+
+  .dc-chips small {
+    color: var(--dc-muted);
+  }
+
+  .dc-chips .on small {
+    color: inherit;
+  }
+}

@@ -19,7 +19,7 @@
       <div class="grid__main">
         <h5>
           <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans "Marks" %}</a>
-          | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans "Marks from who you follow" %}</a>
+          | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans "Marks from people you follow" %}</a>
           | {% trans "Reviews" %}
         </h5>
         {% for review in reviews %}

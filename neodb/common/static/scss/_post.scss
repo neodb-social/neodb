@@ -310,11 +310,15 @@ section.activity.post>section.replies {
 		padding: 0;
 		border: none;
 
+		// Pico gives a dropdown summary the height of a form field, which made
+		// the floated icon row taller than one line and narrowed the post body
 		>summary {
 			list-style: none;
 			cursor: pointer;
 			background: transparent;
 			border: none;
+			height: auto;
+			line-height: inherit;
 			padding: 0;
 			margin: 0;
 			color: var(--pico-muted-color);
@@ -383,6 +387,25 @@ section.activity.post>section.replies {
   flex-grow: 1;
 }
 
+// Beside the floated action icons a phone leaves little room for the name.
+// As a flex box the line takes exactly that room and the name ends in an
+// ellipsis; inline text would break inside the name instead.
+.byline-body > .post_author {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.3em;
+
+  > .nickname,
+  > .handler {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: normal;
+  }
+}
+
 .post_handle {
   color: var(--pico-muted-color);
   font-size: 0.8em;
@@ -395,9 +418,12 @@ section.activity.post>section.replies {
   min-width: 0;
 }
 
-// Post body beside its preview card, when the post carries one.
+// Post body beside its preview card, when the post carries one. As a flex box
+// it would sit beside the floated action icons for its whole height, so it
+// starts below them.
 .post-content-row {
   display: flex;
+  clear: right;
 }
 
 .post-content-main {

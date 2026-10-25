@@ -16,19 +16,16 @@
   <body>
     {% include "_header.html" %}
     <main class="container">
-      <article class="error">
-        <header>
-          <h3>🤷🏻 {{ message }}</h3>
-        </header>
-        {% blocktrans %}You may have submitted invalid data, or the content may have been deleted by the author.{% endblocktrans %}
-        <br>
-        {% blocktrans %}If you believe this is our mistake, please contact us through the link at the bottom of the page.{% endblocktrans %}
+      <section class="dc-surface dc-error">
+        <h1>🤷🏻 {{ message }}</h1>
+        <p>{% blocktrans %}You may have submitted invalid data, or the content may have been deleted by the author.{% endblocktrans %}</p>
+        <p>{% blocktrans %}If you believe this is our mistake, please contact us through the link at the bottom of the page.{% endblocktrans %}</p>
         <section>
           {% if exception.additonal_detail %}
             {% for e in exception.additonal_detail %}<p>{{ e }}</p>{% endfor %}
           {% endif %}
         </section>
-      </article>
+      </section>
     </main>
     {% include "_footer.html" %}
   </body>

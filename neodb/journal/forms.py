@@ -14,7 +14,7 @@ from .models import *
 
 
 COMMENT_TIPS = _(
-    "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
+    "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 characters."
 )
 
 

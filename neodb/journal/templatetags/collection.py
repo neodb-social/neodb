@@ -48,8 +48,8 @@ def prural_items(count: int, category: str):
             }
         case "tv":
             return ngettext(
-                "%(count)d tv show",
-                "%(count)d tv shows",
+                "%(count)d TV show",
+                "%(count)d TV shows",
                 count,
             ) % {
                 "count": count,

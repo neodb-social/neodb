@@ -15,14 +15,11 @@
   <body>
     {% include "_header.html" %}
     <main class="container">
-      <article class="error">
-        <header>
-          <h3>🙅🏻 {{ message|default:"" }}</h3>
-        </header>
-        {% blocktrans %}Author may require you to log in before accessing this content, or you do not have permission to view it.{% endblocktrans %}
-        <br>
-        {% blocktrans %}If you believe this is our mistake, please contact us through the link at the bottom of the page.{% endblocktrans %}
-      </article>
+      <section class="dc-surface dc-error">
+        <h1>🙅🏻 {{ message|default:"" }}</h1>
+        <p>{% blocktrans %}Author may require you to log in before accessing this content, or you do not have permission to view it.{% endblocktrans %}</p>
+        <p>{% blocktrans %}If you believe this is our mistake, please contact us through the link at the bottom of the page.{% endblocktrans %}</p>
+      </section>
     </main>
     {% include "_footer.html" %}
   </body>

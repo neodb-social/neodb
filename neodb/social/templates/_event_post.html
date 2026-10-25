@@ -30,7 +30,9 @@
       </div>
       <div class="byline-body">
         <span class="action">
-          {% include "action_post_timestamp.html" %}
+          {% if not hide_byline or post.author_id != event.identity.pk %}
+            {% include "action_post_timestamp.html" %}
+          {% endif %}
           {% if not hide_actions %}
             {% if item and item.class_name != "tvepisode" %}
               <span>
@@ -69,18 +71,20 @@
             {% endif %}
           {% endif %}
         </span>
-        <span class="post_author">
-          <a href="{{ post.author.url }}"
-             class="nickname"
-             title="@{{ post.author.handle }}">{{ post.author.name|default:post.author.username }}</a>
-          {% if piece and piece.classname == "note" %}
-            {% trans "wrote a note" %}
-          {% elif piece and piece.classname == "review" %}
-            {% trans "wrote a review" %}
-          {% elif post.type == "Article" %}
-            {% trans "wrote an article" %}
-          {% endif %}
-        </span>
+        {% if not hide_byline or post.author_id != event.identity.pk %}
+          <span class="post_author">
+            <a href="{{ post.author.url }}"
+               class="nickname"
+               title="@{{ post.author.handle }}">{{ post.author.name|default:post.author.username }}</a>
+            {% if piece and piece.classname == "note" %}
+              {% trans "wrote a note" %}
+            {% elif piece and piece.classname == "review" %}
+              {% trans "wrote a review" %}
+            {% elif post.type == "Article" %}
+              {% trans "wrote an article" %}
+            {% endif %}
+          </span>
+        {% endif %}
         {% if post.in_reply_to_post_ %}
           <span class="replied">
             {% trans "replying to" %}
@@ -95,7 +99,7 @@
             </a>
           </span>
         {% endif %}
-        {% if show_handle %}
+        {% if show_handle and not hide_byline or show_handle and post.author_id != event.identity.pk %}
           {% if not hide_own_handle or post.author_id != request.user.identity.pk %}
             <div class="post_handle">@{{ post.author.handle }}</div>
           {% endif %}

@@ -112,7 +112,8 @@ def test_post_author_handle_shows_in_timeline_and_notifications():
     assert (
         f'<span class="post_handle">@{fan.identity.full_handle}</span>' in notifications
     )
-    assert f'<div class="post_handle">@{reply.author.handle}</div>' in notifications
+    # the reply is by the actor, so its own byline would repeat the line above
+    assert f'<div class="post_handle">@{reply.author.handle}</div>' not in notifications
     assert handle_line not in notifications
 
     single = client.get(f"/@{user.username}/posts/{post.pk}/").content.decode()

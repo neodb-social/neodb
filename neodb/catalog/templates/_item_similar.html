@@ -2,14 +2,7 @@
 {% load thumb %}
 {% if items %}
   <section class="entity-sort shelf" id="item-similar">
-    <span class="action">
-      <span>
-        <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-      </span>
-      <span>
-        <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-      </span>
-    </span>
+    {% include "_scroll_buttons.html" %}
     <h5>{% trans "More like this" %}</h5>
     <ul class="cards">
       {% for sim in items %}

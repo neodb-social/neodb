@@ -52,18 +52,7 @@
 {% block content %}
   {% for role_value, role_label, total_count, items in item.related_items_by_role %}
     <section class="entity-sort shelf">
-      <span class="action">
-        <span>
-          <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})">
-            <i class="fa-solid fa-circle-left"></i>
-          </a>
-        </span>
-        <span>
-          <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})">
-            <i class="fa-solid fa-circle-right"></i>
-          </a>
-        </span>
-      </span>
+      {% include "_scroll_buttons.html" %}
       <h5>
         {{ role_label }}
         <small>

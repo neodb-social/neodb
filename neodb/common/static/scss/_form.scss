@@ -167,3 +167,35 @@
   padding: var(--pico-form-element-spacing-vertical)
     calc(var(--pico-form-element-spacing-horizontal) / 4) !important;
 }
+
+// a radio button and its label wrap to the next line together
+.dc-radio {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  margin-right: 0.5rem;
+}
+
+// a plain link among <details> rows, drawn like a closed summary
+a.dc-row-link {
+  display: block;
+  color: var(--pico-accordion-close-summary-color);
+  text-decoration: none;
+
+  &::after {
+    content: "";
+    float: right;
+    width: 1rem;
+    height: 1rem;
+    margin-inline-start: calc(var(--pico-spacing) * 0.5);
+    transform: rotate(-90deg);
+    background-image: var(--pico-icon-chevron);
+    background-position: right center;
+    background-size: 1rem auto;
+    background-repeat: no-repeat;
+  }
+
+  &:hover {
+    color: var(--pico-accordion-active-summary-color);
+  }
+}

@@ -1763,7 +1763,7 @@ msgid "Add movies"
 msgstr "新增電影"
 
 #: catalog/templates/_sidebar_search.html:44
-msgid "Add tv series"
+msgid "Add TV series"
 msgstr "新增電視劇集"
 
 #: catalog/templates/_sidebar_search.html:47
@@ -2210,7 +2210,7 @@ msgid "Last edited"
 msgstr "最近編輯"
 
 #: catalog/templates/item_base.html:217
-msgid "No enough ratings"
+msgid "Not enough ratings"
 msgstr "評分人數不足"
 
 #: catalog/templates/item_base.html:258
@@ -2235,7 +2235,7 @@ msgstr "標記"
 #: catalog/templates/item_mark_list.html:23
 #: catalog/templates/item_mark_list.html:26
 #: catalog/templates/item_review_list.html:22
-msgid "Marks from who you follow"
+msgid "Marks from people you follow"
 msgstr "好友標記"
 
 #: catalog/templates/item_base.html:306
@@ -4220,7 +4220,7 @@ msgid "Show all"
 msgstr "顯示全部"
 
 #: common/templates/_sidebar.html:194
-msgid "Recent Posts"
+msgid "Recent posts"
 msgstr "近期貼文"
 
 #: common/templates/_sidebar_anonymous.html:15
@@ -5566,7 +5566,7 @@ msgid "Present in the environment of this process but not read by NeoDB settings
 msgstr "存在於本進程的環境中，但 NeoDB 設定並不讀取，由 Docker Compose 或 Takahe 使用。"
 
 #: journal/forms.py:12
-msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
+msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 characters."
 msgstr "提示： 善用 >!文字!< 標記可隱藏劇透； 超過360字可能無法分享到聯邦宇宙實例時間軸。"
 
 #: journal/forms.py:27 journal/forms.py:29 journal/forms.py:75
@@ -5725,8 +5725,8 @@ msgstr[0] "%(count)d 部電影"
 
 #: journal/models/collection.py:652 journal/templatetags/collection.py:51
 #, python-format
-msgid "%(count)d tv show"
-msgid_plural "%(count)d tv shows"
+msgid "%(count)d TV show"
+msgid_plural "%(count)d TV shows"
 msgstr[0] "%(count)d 部電視劇"
 
 #: journal/models/collection.py:657 journal/templatetags/collection.py:59

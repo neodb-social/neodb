@@ -15,16 +15,14 @@
   <body>
     {% include "_header.html" %}
     <main class="container">
-      <article class="error">
-        <header>
-          <h3>🤷🏻 {% trans "Something is missing" %}</h3>
-        </header>
-        {% blocktrans %}You may have visited an incorrect URL, or the content you are looking for has been deleted by the author.{% endblocktrans %}
-        <br>
-        {% blocktrans %}If you believe this is our mistake, please contact us through the link at the bottom of the page.{% endblocktrans %}
-        <br>
-        <a href="{% url 'common:home' %}" class="button">{% trans "Go to Home" %}</a>
-      </article>
+      <section class="dc-surface dc-error">
+        <h1>🤷🏻 {% trans "Something is missing" %}</h1>
+        <p>{% blocktrans %}You may have visited an incorrect URL, or the content you are looking for has been deleted by the author.{% endblocktrans %}</p>
+        <p>{% blocktrans %}If you believe this is our mistake, please contact us through the link at the bottom of the page.{% endblocktrans %}</p>
+        <p class="dc-cta"><a href="{% url 'common:home' %}"
+   class="dc-btn"
+   role="button">{% trans "Go to Home" %}</a></p>
+      </section>
     </main>
     {% include "_footer.html" %}
   </body>
