@@ -1765,7 +1765,7 @@ msgid "Add movies"
 msgstr ""
 
 #: catalog/templates/_sidebar_search.html:44
-msgid "Add tv series"
+msgid "Add TV series"
 msgstr ""
 
 #: catalog/templates/_sidebar_search.html:47
@@ -2212,7 +2212,7 @@ msgid "Last edited"
 msgstr ""
 
 #: catalog/templates/item_base.html:217
-msgid "No enough ratings"
+msgid "Not enough ratings"
 msgstr ""
 
 #: catalog/templates/item_base.html:258
@@ -2237,7 +2237,7 @@ msgstr ""
 #: catalog/templates/item_mark_list.html:23
 #: catalog/templates/item_mark_list.html:26
 #: catalog/templates/item_review_list.html:22
-msgid "Marks from who you follow"
+msgid "Marks from people you follow"
 msgstr ""
 
 #: catalog/templates/item_base.html:306
@@ -4222,7 +4222,7 @@ msgid "Show all"
 msgstr ""
 
 #: common/templates/_sidebar.html:194
-msgid "Recent Posts"
+msgid "Recent posts"
 msgstr ""
 
 #: common/templates/_sidebar_anonymous.html:15
@@ -5529,7 +5529,7 @@ msgid "Present in the environment of this process but not read by NeoDB settings
 msgstr ""
 
 #: journal/forms.py:12
-msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
+msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 characters."
 msgstr ""
 
 #: journal/forms.py:27 journal/forms.py:29 journal/forms.py:75
@@ -5692,8 +5692,8 @@ msgstr[2] ""
 
 #: journal/models/collection.py:652 journal/templatetags/collection.py:51
 #, python-format
-msgid "%(count)d tv show"
-msgid_plural "%(count)d tv shows"
+msgid "%(count)d TV show"
+msgid_plural "%(count)d TV shows"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""

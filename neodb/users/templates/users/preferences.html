@@ -26,70 +26,88 @@
               {% csrf_token %}
               <fieldset>
                 {% trans "Default view once logged in" %}
-                <input type="radio"
-                       name="classic_homepage"
-                       value="0"
-                       id="classic_homepage0"
-                       {% if request.user.preference.classic_homepage == 0 %}checked{% endif %}>
-                <label for="classic_homepage0">{% trans "Discover" %}</label>
-                <input type="radio"
-                       name="classic_homepage"
-                       value="2"
-                       id="classic_homepage2"
-                       {% if request.user.preference.classic_homepage == 2 %}checked{% endif %}>
-                <label for="classic_homepage2">{% trans "Activities" %}</label>
-                <input type="radio"
-                       name="classic_homepage"
-                       value="1"
-                       id="classic_homepage1"
-                       {% if request.user.preference.classic_homepage == 1 %}checked{% endif %}>
-                <label for="classic_homepage1">{% trans "Home" %}</label>
+                <span class="dc-radio">
+                  <input type="radio"
+                         name="classic_homepage"
+                         value="0"
+                         id="classic_homepage0"
+                         {% if request.user.preference.classic_homepage == 0 %}checked{% endif %}>
+                  <label for="classic_homepage0">{% trans "Discover" %}</label>
+                </span>
+                <span class="dc-radio">
+                  <input type="radio"
+                         name="classic_homepage"
+                         value="2"
+                         id="classic_homepage2"
+                         {% if request.user.preference.classic_homepage == 2 %}checked{% endif %}>
+                  <label for="classic_homepage2">{% trans "Activities" %}</label>
+                </span>
+                <span class="dc-radio">
+                  <input type="radio"
+                         name="classic_homepage"
+                         value="1"
+                         id="classic_homepage1"
+                         {% if request.user.preference.classic_homepage == 1 %}checked{% endif %}>
+                  <label for="classic_homepage1">{% trans "Home" %}</label>
+                </span>
               </fieldset>
               <fieldset>
                 {% trans "Default visibility" %}
-                <input type="radio"
-                       name="default_visibility"
-                       value="0"
-                       required=""
-                       id="id_visibility_0"
-                       {% if request.user.preference.default_visibility == 0 %}checked{% endif %}>
-                <label for="id_visibility_0">{% trans "Public" %}</label>
-                <input type="radio"
-                       name="default_visibility"
-                       value="1"
-                       required=""
-                       id="id_visibility_1"
-                       {% if request.user.preference.default_visibility == 1 %}checked{% endif %}>
-                <label for="id_visibility_1">{% trans "Followers Only" %}</label>
-                <input type="radio"
-                       name="default_visibility"
-                       value="2"
-                       required=""
-                       id="id_visibility_2"
-                       {% if request.user.preference.default_visibility == 2 %}checked{% endif %}>
-                <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
+                <span class="dc-radio">
+                  <input type="radio"
+                         name="default_visibility"
+                         value="0"
+                         required=""
+                         id="id_visibility_0"
+                         {% if request.user.preference.default_visibility == 0 %}checked{% endif %}>
+                  <label for="id_visibility_0">{% trans "Public" %}</label>
+                </span>
+                <span class="dc-radio">
+                  <input type="radio"
+                         name="default_visibility"
+                         value="1"
+                         required=""
+                         id="id_visibility_1"
+                         {% if request.user.preference.default_visibility == 1 %}checked{% endif %}>
+                  <label for="id_visibility_1">{% trans "Followers Only" %}</label>
+                </span>
+                <span class="dc-radio">
+                  <input type="radio"
+                         name="default_visibility"
+                         value="2"
+                         required=""
+                         id="id_visibility_2"
+                         {% if request.user.preference.default_visibility == 2 %}checked{% endif %}>
+                  <label for="id_visibility_2">{% trans "Mentioned Only" %}</label>
+                </span>
               </fieldset>
               <fieldset>
                 {% trans "Public status will be posted to fediverse" %}
-                <input type="radio"
-                       id="post_public_mode_0"
-                       name="post_public_mode"
-                       value="0"
-                       {% if request.user.preference.post_public_mode == 0 %}checked{% endif %} />
-                <label for="post_public_mode_0">{% trans "In public timeline" %}</label>
-                <input type="radio"
-                       id="post_public_mode_1"
-                       name="post_public_mode"
-                       value="1"
-                       {% if request.user.preference.post_public_mode == 1 %}checked{% endif %} />
-                <label for="post_public_mode_1">{% trans "Unlisted and excluded from public timeline" %}</label>
-                {% if enable_local_only %}
+                <span class="dc-radio">
                   <input type="radio"
-                         id="post_public_mode_4"
+                         id="post_public_mode_0"
                          name="post_public_mode"
-                         value="4"
-                         {% if request.user.preference.post_public_mode == 4 %}checked{% endif %} />
-                  <label for="post_public_mode_4">{% trans "Local, this site only" %}</label>
+                         value="0"
+                         {% if request.user.preference.post_public_mode == 0 %}checked{% endif %} />
+                  <label for="post_public_mode_0">{% trans "In public timeline" %}</label>
+                </span>
+                <span class="dc-radio">
+                  <input type="radio"
+                         id="post_public_mode_1"
+                         name="post_public_mode"
+                         value="1"
+                         {% if request.user.preference.post_public_mode == 1 %}checked{% endif %} />
+                  <label for="post_public_mode_1">{% trans "Unlisted and excluded from public timeline" %}</label>
+                </span>
+                {% if enable_local_only %}
+                  <span class="dc-radio">
+                    <input type="radio"
+                           id="post_public_mode_4"
+                           name="post_public_mode"
+                           value="4"
+                           {% if request.user.preference.post_public_mode == 4 %}checked{% endif %} />
+                    <label for="post_public_mode_4">{% trans "Local, this site only" %}</label>
+                  </span>
                 {% endif %}
               </fieldset>
               {% if request.user.mastodon %}
@@ -113,20 +131,24 @@
                 </fieldset>
                 <fieldset>
                   {% trans "Method for crossposting to timeline" %}
-                  <input type="radio"
-                         name="mastodon_repost_mode"
-                         value="0"
-                         required=""
-                         id="mastodon_repost_mode_0"
-                         {% if request.user.preference.mastodon_repost_mode == 0 %}checked{% endif %}>
-                  <label for="mastodon_repost_mode_0">{% trans "Boost if possible" %}</label>
-                  <input type="radio"
-                         name="mastodon_repost_mode"
-                         value="1"
-                         required=""
-                         id="mastodon_repost_mode_1"
-                         {% if request.user.preference.mastodon_repost_mode == 1 %}checked{% endif %}>
-                  <label for="mastodon_repost_mode_1">{% trans "Create a new post" %}</label>
+                  <span class="dc-radio">
+                    <input type="radio"
+                           name="mastodon_repost_mode"
+                           value="0"
+                           required=""
+                           id="mastodon_repost_mode_0"
+                           {% if request.user.preference.mastodon_repost_mode == 0 %}checked{% endif %}>
+                    <label for="mastodon_repost_mode_0">{% trans "Boost if possible" %}</label>
+                  </span>
+                  <span class="dc-radio">
+                    <input type="radio"
+                           name="mastodon_repost_mode"
+                           value="1"
+                           required=""
+                           id="mastodon_repost_mode_1"
+                           {% if request.user.preference.mastodon_repost_mode == 1 %}checked{% endif %}>
+                    <label for="mastodon_repost_mode_1">{% trans "Create a new post" %}</label>
+                  </span>
                   <em data-tooltip="{% trans "This method is less optimal, may generate duplicated posts and miss reactions." %}"><i class="fa fa-question-circle"></i></em>
                 </fieldset>
               {% endif %}

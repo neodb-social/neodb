@@ -227,7 +227,7 @@
         {% endif %}
         {% if request.user.social_accounts.all %}
           <article>
-            <a href="{% url 'users:crossposts' %}">{% trans "Pending" %}</a>
+            <a class="dc-row-link" href="{% url 'users:crossposts' %}">{% trans "Pending" %}</a>
           </article>
         {% endif %}
         <article>

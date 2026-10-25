@@ -1767,7 +1767,7 @@ msgid "Add movies"
 msgstr "Tilføj film"
 
 #: catalog/templates/_sidebar_search.html:44
-msgid "Add tv series"
+msgid "Add TV series"
 msgstr "Tilføj tv-serier"
 
 #: catalog/templates/_sidebar_search.html:47
@@ -2214,7 +2214,7 @@ msgid "Last edited"
 msgstr "Sidst redigeret"
 
 #: catalog/templates/item_base.html:217
-msgid "No enough ratings"
+msgid "Not enough ratings"
 msgstr "Ingen nok bedømmelser"
 
 #: catalog/templates/item_base.html:258
@@ -2239,7 +2239,7 @@ msgstr "Markeringer"
 #: catalog/templates/item_mark_list.html:23
 #: catalog/templates/item_mark_list.html:26
 #: catalog/templates/item_review_list.html:22
-msgid "Marks from who you follow"
+msgid "Marks from people you follow"
 msgstr "markeringer fra folk du følger"
 
 #: catalog/templates/item_base.html:306
@@ -4224,7 +4224,7 @@ msgid "Show all"
 msgstr "vis alle"
 
 #: common/templates/_sidebar.html:194
-msgid "Recent Posts"
+msgid "Recent posts"
 msgstr "Seneste indlæg"
 
 #: common/templates/_sidebar_anonymous.html:15
@@ -5568,7 +5568,7 @@ msgid "Present in the environment of this process but not read by NeoDB settings
 msgstr ""
 
 #: journal/forms.py:12
-msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 charactors."
+msgid "Tips: use >!text!< for spoilers; some instances may not be able to show posts longer than 360 characters."
 msgstr "Tips: brug >!text!< for spoilers; nogle instanser kan ikke vise indlæg længere end 360 tegn."
 
 #: journal/forms.py:27 journal/forms.py:29 journal/forms.py:75
@@ -5729,8 +5729,8 @@ msgstr[1] "%(count)d film"
 
 #: journal/models/collection.py:652 journal/templatetags/collection.py:51
 #, python-format
-msgid "%(count)d tv show"
-msgid_plural "%(count)d tv shows"
+msgid "%(count)d TV show"
+msgid_plural "%(count)d TV shows"
 msgstr[0] "%(count)d tv-serie"
 msgstr[1] "%(count)d tv-serier"
 

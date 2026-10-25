@@ -143,7 +143,14 @@
     bottom: 0px;
     position: fixed;
     width: 100%;
-    padding: 0;
+    padding: 0 var(--pico-spacing);
+  }
+
+  // Pico pads each button 2rem a side and a flex item will not shrink below
+  // that, so five sign-in methods overflowed a small phone and widened the page
+  [role="group"] > .platform {
+    min-width: 0;
+    padding-inline: 0.5rem;
   }
 }
 

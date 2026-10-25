@@ -86,7 +86,9 @@
   .article-byline .article-author { gap: .75rem; font-size: .875rem; line-height: 1.4; }
   .article-byline .article-author small { margin-top: .25rem; font-size: .75rem; }
   .article-header-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-left: auto; font-size: .85rem; }
-  .article-translate-link { margin: 0; padding: .4rem .7rem; font-size: inherit; }
+  // the page actions read like the Edit and More links beside them, not as buttons
+  .article-translate-link, .article-copy-link { display: inline-flex; align-items: center; gap: .35em; width: auto; margin: 0; padding: 0; border: 0; background: none; color: var(--pico-primary); font-size: inherit; line-height: inherit; cursor: pointer; }
+  .article-translate-link:hover, .article-copy-link:hover { color: var(--pico-primary-hover); text-decoration: underline; }
   .review-subject { gap: 1rem; margin-bottom: 1.5rem; }
   .article-prose { @include article-prose; }
   .article-contents { font: .85rem/1.7 var(--pico-font-family); background: var(--dc-surface); border: 1px solid var(--dc-border); border-radius: var(--dc-radius); padding: 1rem; margin-bottom: 2rem; }
@@ -102,7 +104,6 @@
   .article-story-actions .action > span { padding: 0; }
   .article-story-actions .post-action-menu > details > summary { display: flex; align-items: center; height: auto; }
   .article-story-actions a { opacity: 1; }
-  .article-copy-link { padding: .4rem .7rem; margin: 0; font-size: .8rem; }
 }
 
 .article-archive-page {

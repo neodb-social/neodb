@@ -1,3 +1,4 @@
+import html
 import re
 from collections.abc import Iterable
 
@@ -29,6 +30,7 @@ _MENTION = (
     r"|<a\b[^>]*>\s*@.*?</a>)"
 )
 _LEADING_MENTIONS = re.compile(rf"^(\s*<p>)(?:\s*{_MENTION})+\s*", re.S)
+_BLOCK_BREAK = re.compile(r"<br\s*/?>|</p>", re.I)
 
 
 def message_html(post: Post) -> SafeString:
@@ -81,8 +83,11 @@ class ConversationEntry:
             return Truncator(self.last_post.summary).chars(120)
         if self.last_post.sensitive:
             return _("Content warning")
-        text = strip_tags(message_html(self.last_post)).strip()
-        return Truncator(text).chars(120)
+        # strip_tags leaves entities encoded and joins paragraphs; the
+        # template escapes the result again
+        text = _BLOCK_BREAK.sub(" ", message_html(self.last_post))
+        text = html.unescape(strip_tags(text))
+        return Truncator(" ".join(text.split())).chars(120)
 
 
 def _entries(conversations: list[Conversation], viewer_pk: int):

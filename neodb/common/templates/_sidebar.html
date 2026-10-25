@@ -37,7 +37,7 @@
                 <hgroup>
                   <h6 class="nickname">{{ identity.display_name }}</h6>
                   <div>
-                    <span class="handler">@{{ identity.full_handle }}</span>
+                    <span class="handler" title="@{{ identity.full_handle }}">@{{ identity.full_handle }}</span>
                     <span class="action inline"><span><small><a data-handle="@{{ identity.full_handle }}"
    _="on click call navigator.clipboard.writeText(@data-handle) then halt"><i class="fa-regular fa-copy"></i></a></small></span></span>
                   </div>
@@ -71,17 +71,15 @@
           <div>
             <small>
               {% if identity.user == request.user or sidebar_relationship.mutual %}
-                <a href="{% url 'journal:user_follow_list' identity.handle 'following' %}">
-                  {{ identity.following_count }} {% trans "following" %}
-                </a>
+                <a class="dc-follow-count"
+                   href="{% url 'journal:user_follow_list' identity.handle 'following' %}">{{ identity.following_count }} {% trans "following" %}</a>
                 &nbsp;·&nbsp;
-                <a href="{% url 'journal:user_follow_list' identity.handle 'followers' %}">
-                  {{ identity.follower_count }} {% trans "followers" %}
-                </a>
+                <a class="dc-follow-count"
+                   href="{% url 'journal:user_follow_list' identity.handle 'followers' %}">{% blocktranslate count counter=identity.follower_count %}{{ counter }} follower{% plural %}{{ counter }} followers{% endblocktranslate %}</a>
               {% else %}
-                {{ identity.following_count }} {% trans "following" %}
+                <span class="dc-follow-count">{{ identity.following_count }} {% trans "following" %}</span>
                 &nbsp;·&nbsp;
-                {{ identity.follower_count }} {% trans "followers" %}
+                <span class="dc-follow-count">{% blocktranslate count counter=identity.follower_count %}{{ counter }} follower{% plural %}{{ counter }} followers{% endblocktranslate %}</span>
               {% endif %}
             </small>
           </div>
@@ -208,7 +206,7 @@
       <article>
         <details class="auto-collapse" open>
           <summary>
-            {% trans "Recent Posts" %}
+            {% trans "Recent posts" %}
             <small><a href="{% url 'journal:user_post_list' identity.handle %}"
    title="{% trans 'Show all' %}"><i class="fa-solid fa-list"></i></a></small>
           </summary>

@@ -679,7 +679,7 @@ class Collection(List[CollectionMember]):
                     )
                 case "tv":
                     parts.append(
-                        ngettext("%(count)d tv show", "%(count)d tv shows", count)
+                        ngettext("%(count)d TV show", "%(count)d TV shows", count)
                         % {"count": count}
                     )
                 case "music":

@@ -67,14 +67,7 @@
   {% with related_books=item.sibling_items %}
     {% if related_books.count > 0 %}
       <section class="entity-sort shelf" id="sibling">
-        <span class="action">
-          <span>
-            <a _="on click set el to the next <ul/> then call el.scrollBy({left:-el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-left"></i></a>
-          </span>
-          <span>
-            <a _="on click set el to the next <ul/> then call el.scrollBy({left:el.offsetWidth, behavior:'smooth'})"><i class="fa-solid fa-circle-right"></i></a>
-          </span>
-        </span>
+        {% include "_scroll_buttons.html" %}
         <h5>
           {% trans "Other editions" %} <small>({{ related_books.count }})</small>
         </h5>

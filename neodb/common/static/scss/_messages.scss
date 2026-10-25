@@ -20,9 +20,11 @@
     text-decoration: none;
   }
 
+  // one width for any number of avatars, so every name starts at the same x
   .dc-conversation-avatars {
     display: flex;
-    flex: 0 0 auto;
+    justify-content: center;
+    flex: 0 0 3.2rem;
 
     img {
       width: 2.5rem;
@@ -32,8 +34,13 @@
       border: 2px solid var(--pico-background-color);
     }
 
+    &:has(img + img) img {
+      width: 2rem;
+      height: 2rem;
+    }
+
     img + img {
-      margin-left: -1.2rem;
+      margin-left: -1.4rem;
     }
   }
 

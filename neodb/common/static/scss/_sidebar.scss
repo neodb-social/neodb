@@ -75,7 +75,35 @@
     }
 
     .nickname {
-      word-break: break-all;
+      overflow-wrap: anywhere;
+    }
+
+    // a long handle ends in an ellipsis and keeps the copy icon beside it
+    .sidebar-identity {
+      min-width: 0;
+
+      hgroup > div {
+        display: flex;
+        align-items: baseline;
+      }
+
+      .handler {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        word-break: normal;
+      }
+
+      .action.inline {
+        flex: none;
+      }
+    }
+
+    // beside the floated action icons a count moves down as one unit
+    // instead of breaking inside "following"
+    .dc-follow-count {
+      white-space: nowrap;
     }
 
 

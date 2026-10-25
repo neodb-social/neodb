@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load humanize %}
+{% load duration %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" class="feed-page nav-page-feed">
@@ -53,7 +53,7 @@
                     </span>
                   </span>
                   <span class="dc-conversation-meta">
-                    <time datetime="{{ entry.last_post.published|date:'c' }}">{{ entry.last_post.published|naturaltime }}</time>
+                    <time datetime="{{ entry.last_post.published|date:'c' }}">{{ entry.last_post.published|naturaldelta }}</time>
                     {% if entry.unread %}
                       <span class="dc-unread-dot" title="{% trans 'Unread' %}"></span>
                     {% endif %}

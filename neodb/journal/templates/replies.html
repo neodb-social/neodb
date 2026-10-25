@@ -38,10 +38,11 @@
         <div class="attachments">
           {% for attachment in post.attachments.all %}
             {% if attachment.is_image %}
-              <a href="#img_{{ post.pk }}_{{ forloop.counter }}"
+              <a class="attachment-thumb"
+                 href="#img_{{ post.pk }}_{{ forloop.counter }}"
                  _="on click halt the event then add .open to the next .lightbox">
                 <img src="{{ attachment.thumbnail_url.relative }}"
-                     alt="image attachment"
+                     alt="{{ attachment.name|default:'image attachment' }}"
                      class="preview">
               </a>
               <a href="#"

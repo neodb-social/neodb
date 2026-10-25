@@ -311,6 +311,17 @@ def test_content_warning_hides_message():
     assert "on click toggle .revealed on me" in content
 
 
+def test_list_preview_is_escaped_once_and_keeps_paragraph_breaks():
+    alice, client = _member("alice")
+    bob, bob_client = _member("bob")
+    _start(client, "@bob", 'it\'s "fine" & ok\n\nsecond line')
+
+    listing = bob_client.get(reverse("social:conversations")).content.decode()
+    assert "it&#x27;s &quot;fine&quot; &amp; ok second line" in listing
+    assert "&amp;quot;" not in listing
+    assert "&amp;#x27;" not in listing
+
+
 def test_profile_message_button_opens_messages():
     alice, client = _member("alice")
     bob, _ = _member("bob")

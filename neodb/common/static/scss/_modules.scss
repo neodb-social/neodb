@@ -85,6 +85,27 @@
   background: var(--dc-surface);
 }
 
+// the card of an error page (400, 403, 404, 500)
+.dc-error {
+  max-width: 42rem;
+  margin: 3rem auto;
+
+  h1 {
+    margin: 0 0 0.8rem;
+    font-size: var(--dc-fs-xl);
+    color: var(--dc-strong);
+  }
+
+  p {
+    margin: 0 0 0.6rem;
+    color: var(--dc-muted);
+  }
+
+  .dc-cta {
+    margin: 1.2rem 0 0;
+  }
+}
+
 // module header shared by every section
 .dc-mh {
   display: flex;
@@ -216,6 +237,14 @@ button.dc-nav {
   &.activated {
     border-color: var(--pico-primary);
     color: var(--pico-primary);
+  }
+
+  // a scroll arrow at the end of its row
+  &[disabled] {
+    opacity: 0.3;
+    cursor: default;
+    border-color: var(--dc-border);
+    color: var(--dc-strong);
   }
 
   .metrics {

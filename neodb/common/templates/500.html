@@ -15,14 +15,11 @@
   <body>
     {% include "_header.html" %}
     <main class="container">
-      <article class="error">
-        <header>
-          <h3>🤦🏻 My Bad</h3>
-        </header>
-        {% blocktrans %}An internal error occurred. If this error occurs repeatedly, it will be recorded and handled by a human.{% endblocktrans %}
-        <br>
-        {% blocktrans %}If you have an urgent situation or any questions, please contact us through the link at the bottom of the page.{% endblocktrans %}
-      </article>
+      <section class="dc-surface dc-error">
+        <h1>🤦🏻 My Bad</h1>
+        <p>{% blocktrans %}An internal error occurred. If this error occurs repeatedly, it will be recorded and handled by a human.{% endblocktrans %}</p>
+        <p>{% blocktrans %}If you have an urgent situation or any questions, please contact us through the link at the bottom of the page.{% endblocktrans %}</p>
+      </section>
     </main>
     {% include "_footer.html" %}
   </body>

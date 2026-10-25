@@ -7,4 +7,4 @@ replied to your rating on <a href="{{ item_url }}">{{ item_title }}</a>
   <span>{% if event.piece.grade %}{{ event.piece.grade|rating_star }}{% endif %}</span>
   {{ event.piece.html|safe }}
 </blockquote>
-{% include "_event_post.html" with post=event.reply %}
+{% include "_event_post.html" with post=event.reply hide_byline=1 %}

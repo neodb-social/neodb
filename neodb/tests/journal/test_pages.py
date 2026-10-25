@@ -197,7 +197,7 @@ def test_profile_follow_counts():
     client = Client()
     client.force_login(bob.user, backend="mastodon.auth.OAuth2Backend")
     content = client.get(alice.url).content.decode()
-    assert "1 followers" in content
+    assert "1 follower<" in content
     assert following_url not in content
     assert followers_url not in content
 
