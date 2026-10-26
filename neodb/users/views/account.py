@@ -462,13 +462,13 @@ def register(request: HttpRequest):
                     account=mastodon_account,
                     username=mastodon_account.username,
                 )
-            except ValidationError:
+            except ValidationError as e:
                 return render(
                     request,
                     "common/error.html",
                     {
                         "msg": _("Registration failed"),
-                        "secondary_msg": _("Username already taken. Please try again."),
+                        "secondary_msg": " ".join(e.messages),
                     },
                 )
             _consume_invite(request)
