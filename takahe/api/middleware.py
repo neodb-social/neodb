@@ -28,6 +28,9 @@ class ApiTokenMiddleware:
                 token = Token.objects.get(token=token_value, revoked=None)
             except Token.DoesNotExist:
                 return HttpResponse("Invalid Bearer token", status=400)
+            if token.user and not token.user.is_active:
+                # a deactivated user loses sessions; tokens must go the same way
+                return HttpResponse("Invalid Bearer token", status=400)
             request.user = token.user
             request.identity = token.identity
             request.token = token

@@ -577,6 +577,12 @@ class TestMastodonInstanceProbe:
                 detect_server_info("mastodon.online")
 
     def test_separate_account_domain_keeps_working_api_domain(self) -> None:
+        # the account domain has no API, but its host-meta points at the
+        # web domain, as a split-domain instance is configured
+        host_meta = _http_response(301, b"")
+        host_meta.headers["location"] = (
+            "https://api.mastodon.online/.well-known/host-meta"
+        )
         with (
             patch("mastodon.models.mastodon.is_valid_url", return_value=True),
             patch(
@@ -584,6 +590,7 @@ class TestMastodonInstanceProbe:
                 side_effect=[
                     _http_response(200, b'{"uri":"mastodon.online","version":"4.5.0"}'),
                     requests.Timeout("account domain has no API"),
+                    host_meta,
                 ],
             ),
         ):

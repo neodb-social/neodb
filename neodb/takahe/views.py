@@ -7,6 +7,8 @@ from django.http import HttpRequest
 from django.shortcuts import redirect
 from django.utils.http import http_date
 
+from django.contrib.auth import HASH_SESSION_KEY, SESSION_KEY
+
 from common.utils import user_identity_required
 
 from .utils import Takahe
@@ -22,7 +24,13 @@ def auth_login(request):
     session = SessionStore(
         session_key=request.COOKIES.get(settings.TAKAHE_SESSION_COOKIE_NAME)
     )
-    session._session_cache = request.session._session  # type: ignore
+    # only the login keys: the neodb session also holds OAuth tokens and
+    # other secrets that must not be copied into a signed cookie
+    session._session_cache = {  # type: ignore
+        k: v
+        for k, v in request.session._session.items()
+        if k in (SESSION_KEY, HASH_SESSION_KEY)
+    }
     session["_auth_user_backend"] = "django.contrib.auth.backends.ModelBackend"
     session_key: str = session._get_session_key()  # type: ignore
 

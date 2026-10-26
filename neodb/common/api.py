@@ -56,6 +56,9 @@ class OAuthAccessTokenAuth(HttpBearer):
         if not user:
             logger.debug("API auth: user not found")
             return False
+        if not user.is_active:
+            logger.debug("API auth: user deactivated")
+            return False
         request.user = user
         request.identity_id = tk.identity_id
         request.application_id = tk.application_id
