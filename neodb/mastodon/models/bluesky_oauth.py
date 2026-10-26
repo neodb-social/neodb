@@ -26,6 +26,7 @@ from django.db import transaction
 from django.urls import reverse
 
 from common.models import SiteConfig
+from common.validators import is_valid_url
 
 SCOPE = "atproto transition:generic"
 CLIENT_ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
@@ -140,8 +141,13 @@ def get_client_metadata() -> dict:
 
 
 def _require_https(url: str, what: str) -> None:
-    if urlsplit(url).scheme != "https" and not settings.DEBUG:
+    if settings.DEBUG:
+        return
+    if urlsplit(url).scheme != "https":
         raise OAuthError(f"{what} is not https: {url}")
+    # the PDS and issuer come from a user controlled DID document
+    if not is_valid_url(url, may_have_port=True):
+        raise OAuthError(f"{what} is not a public URL: {url}")
 
 
 def fetch_pds_authserver(pds_url: str) -> str:

@@ -735,13 +735,17 @@ class Mastodon:
                 uid=mastodon_account.uid,
                 domain=mastodon_account.domain,
             ).first()
-            if not existing_account:
+            app = MastodonApplication.objects.filter(
+                domain_name__iexact=mastodon_account.domain
+            ).first()
+            if not existing_account and app and _force_recreate_app(app.server_version):
+                # Firefish and Sharkey change account ids; elsewhere a reused
+                # username must not inherit the previous holder's account
                 existing_account = MastodonAccount.objects.filter(
                     handle=mastodon_account.handle,
                     domain=mastodon_account.domain,
                 ).first()
                 if existing_account:
-                    # this is only needed if server is Firefish
                     logger.warning(
                         f"USER ID CHANGED: {existing_account.uid} -> {mastodon_account.uid} for {existing_account.handle}"
                     )
