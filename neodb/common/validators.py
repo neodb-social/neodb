@@ -39,7 +39,14 @@ def _resolve_hostname(hostname: str) -> bool | None:
         return None
     for _family, _type, _proto, _canonname, sockaddr in results:
         ip = ipaddress.ip_address(sockaddr[0])
-        if ip.is_private or ip.is_reserved or ip.is_loopback or ip.is_link_local:
+        # is_global also covers shared address space such as 100.64/10
+        if (
+            not ip.is_global
+            or ip.is_private
+            or ip.is_reserved
+            or ip.is_loopback
+            or ip.is_link_local
+        ):
             logger.warning(f"Blocked request to {hostname}: resolves to {ip}")
             _host_cache[hostname] = False
             return False

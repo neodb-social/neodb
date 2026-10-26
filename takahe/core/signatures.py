@@ -73,6 +73,8 @@ class HttpSignature:
     Allows for calculation and verification of HTTP signatures
     """
 
+    MAX_FETCH_REDIRECTS = 5
+
     @classmethod
     def calculate_digest(cls, data, algorithm="sha-256") -> str:
         """
@@ -366,8 +368,27 @@ class HttpSignature:
                     uri,
                     headers=headers,
                     content=body_bytes,
-                    follow_redirects=method == "get",
+                    follow_redirects=False,
                 )
+                # follow GET redirects one hop at a time and only within the
+                # requested host: the id checks compare against that host,
+                # so a peer redirecting elsewhere could have its objects
+                # forged by the redirect target
+                hops = 0
+                while method == "get" and response.is_redirect:
+                    hops += 1
+                    target = response.url.join(response.headers["location"])
+                    if target.host != httpx.URL(uri).host:
+                        raise httpx.ConnectError(
+                            f"Fetch of {uri} redirected to another host: {target.host}"
+                        )
+                    if hops > cls.MAX_FETCH_REDIRECTS:
+                        raise httpx.TooManyRedirects(
+                            f"Fetch of {uri} exceeded {cls.MAX_FETCH_REDIRECTS} redirects"
+                        )
+                    response = client.request(
+                        method, target, headers=headers, follow_redirects=False
+                    )
             except SSLError as invalid_cert:
                 # Not our problem if the other end doesn't have proper SSL
                 logger.info("Invalid cert on %s %s", uri, invalid_cert)

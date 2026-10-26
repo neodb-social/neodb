@@ -1,5 +1,7 @@
 from collections.abc import Iterable
 
+from urllib.parse import urlparse
+
 from core.exceptions import ActivityPubFormatError, ActorMismatchError
 from core.ld import format_ld_date, get_str_or_id, parse_ld_date
 from core.snowflake import Snowflake
@@ -475,6 +477,12 @@ class PostInteraction(StatorModel):
             if create:
                 # Resolve the author
                 identity = Identity.by_actor_uri(data["actor"], create=True)
+                # an interaction id is minted by its actor's server, so a row
+                # cannot be registered under another host's id ahead of it
+                if urlparse(data["id"]).hostname != urlparse(data["actor"]).hostname:
+                    raise ActivityPubFormatError(
+                        f"Interaction {data['id']} is not on the actor's host"
+                    )
                 # Resolve the post
                 object = data["object"]
                 target = get_str_or_id(object, "inReplyTo") or get_str_or_id(object)

@@ -35,7 +35,8 @@ def check_url_safety(request: httpx.Request) -> None:
     for _, _, _, _, sockaddr in infos:
         ip = ipaddress.ip_address(sockaddr[0])
         if (
-            ip.is_private
+            not ip.is_global  # also shared address space such as 100.64/10
+            or ip.is_private
             or ip.is_loopback
             or ip.is_link_local
             or ip.is_reserved
