@@ -1571,14 +1571,9 @@ class Takahe:
             raise ValueError("Poll has ended")
         if post.author_id == identity_pk:
             raise ValueError("Cannot vote on your own poll")
-        if (
-            Block.objects.filter(
-                source_id=post.author_id, target_id=identity_pk, mute=False
-            ).exists()
-            or Block.objects.filter(
-                source_id=identity_pk, target_id=post.author_id, mute=False
-            ).exists()
-        ):
+        if Takahe.get_is_blocking(
+            post.author_id, identity_pk
+        ) or Takahe.get_is_blocking(identity_pk, post.author_id):
             raise ValueError("Cannot vote on this poll")
         options = [o["name"] for o in post.type_data["options"]]
         choices = set(choices)
@@ -1590,20 +1585,24 @@ class Takahe:
         if post.type_data.get("mode") == "oneOf" and len(choices) > 1:
             raise ValueError("Only one choice is allowed")
         identity = Identity.objects.get(pk=identity_pk)
-        with transaction.atomic():
+        with transaction.atomic(using="takahe"):
             # same rules as takahe's create_votes: lock the poll so a double
             # submit cannot record two vote sets
-            post = Post.objects.select_for_update().get(pk=post.pk)
-            if post.interactions.filter(identity_id=identity_pk, type="vote").exists():
+            locked = Post.objects.select_for_update().get(pk=post.pk)
+            if locked.interactions.filter(
+                identity_id=identity_pk, type="vote"
+            ).exists():
                 raise ValueError("Already voted")
             for choice in choices:
                 vote = PostInteraction.objects.create(
                     identity_id=identity_pk,
-                    post=post,
+                    post=locked,
                     type=PostInteraction.Types.vote,
                     # the value column is 50 characters, as in takahe
                     value=choice[:50],
                 )
                 vote.object_uri = f"{identity.actor_uri}#votes/{vote.id}"
                 vote.save()
-            post.calculate_type_data()
+            locked.calculate_type_data()
+        # the caller renders its own instance right away
+        post.type_data = locked.type_data

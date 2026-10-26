@@ -76,9 +76,12 @@ def request_with_checked_redirects(method: str, url: str, **kwargs: Any) -> Resp
     """Send `method` to `url` and follow redirects one hop at a time, refusing
     any hop that `is_valid_url` rejects, so a public URL cannot bounce the
     fetch to an internal host."""
+    headers = dict(kwargs.pop("headers", None) or {})
     with requests.Session() as session:
         for _ in range(MAX_REDIRECTS):
-            resp = session.request(method, url, allow_redirects=False, **kwargs)
+            resp = session.request(
+                method, url, headers=headers, allow_redirects=False, **kwargs
+            )
             if not resp.is_redirect:
                 return resp
             target = urljoin(url, resp.headers["location"])
@@ -86,6 +89,14 @@ def request_with_checked_redirects(method: str, url: str, **kwargs: Any) -> Resp
                 raise RequestException(
                     f"redirect to a non-public url: {redact_url(target)}"
                 )
+            before, after = urlparse(url), urlparse(target)
+            if before.hostname != after.hostname or (
+                before.scheme == "https" and after.scheme == "http"
+            ):
+                # as requests does on its own: credentials stay on the origin
+                headers = {
+                    k: v for k, v in headers.items() if k.lower() != "authorization"
+                }
             url = target
     raise requests.TooManyRedirects(f"exceeded {MAX_REDIRECTS} redirects")
 

@@ -479,7 +479,8 @@ class PostInteraction(StatorModel):
                 identity = Identity.by_actor_uri(data["actor"], create=True)
                 # an interaction id is minted by its actor's server, so a row
                 # cannot be registered under another host's id ahead of it
-                if urlparse(data["id"]).hostname != urlparse(data["actor"]).hostname:
+                id_host = urlparse(data["id"]).hostname
+                if id_host and id_host != urlparse(data["actor"]).hostname:
                     raise ActivityPubFormatError(
                         f"Interaction {data['id']} is not on the actor's host"
                     )

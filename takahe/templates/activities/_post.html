@@ -5,7 +5,8 @@
     <div class="post-banner">
         {% include "identity/_identity_banner.html" with identity=post.author %}
         <div>
-            <time _="on click go url '{% if link_original %}{{ post.url|urlencode:'/@:?=' }}{% else %}{{ post.urls.view|urlencode:'/@:?=' }}{% endif %}' then halt">
+            <time data-url="{% if link_original %}{{ post.url }}{% else %}{{ post.urls.view }}{% endif %}"
+                  _="on click go url @data-url then halt">
                 {% if post.visibility == 0 %}
                     <i class="visibility fa-solid fa-earth-oceania" title="Public" aria-label="public"></i>
                 {% elif post.visibility == 1 %}

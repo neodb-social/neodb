@@ -61,6 +61,30 @@ def test_public_redirect_chain_is_followed() -> None:
     assert all(c.kwargs["allow_redirects"] is False for c in req.call_args_list)
 
 
+def test_authorization_is_dropped_when_the_host_changes() -> None:
+    hops = [
+        _response(302, "https://public.example/b", "https://public.example/a"),
+        _response(302, "https://other.example/c", "https://public.example/b"),
+        _response(200, url="https://other.example/c"),
+    ]
+    hosts = {"public.example": PUBLIC_IP, "other.example": PUBLIC_IP}
+    with (
+        patch("socket.getaddrinfo", side_effect=_getaddrinfo_for(hosts)),
+        patch("requests.Session.request", side_effect=hops) as req,
+    ):
+        request_with_checked_redirects(
+            "GET",
+            "https://public.example/a",
+            headers={"Authorization": "Bearer secret", "User-Agent": "x"},
+        )
+
+    sent = [c.kwargs["headers"] for c in req.call_args_list]
+    assert sent[0]["Authorization"] == "Bearer secret"
+    assert sent[1]["Authorization"] == "Bearer secret"
+    assert "Authorization" not in sent[2]
+    assert all(h["User-Agent"] == "x" for h in sent)
+
+
 def test_redirect_to_private_host_is_refused() -> None:
     hops = [_response(302, "http://internal.example:8080/admin")]
     hosts = {"public.example": PUBLIC_IP, "internal.example": PRIVATE_IP}

@@ -62,8 +62,12 @@ class BlockStates(StateGraph):
             )
         except httpx.RequestError:
             return
-        except (SSRFAttemptError, ActivityPubDeliveryError) as error:
+        except ActivityPubDeliveryError as error:
+            if error.retryable:
+                return
             # the block holds locally either way; resending cannot help
+            logger.info("Block %s not delivered: %s", instance.pk, error)
+        except SSRFAttemptError as error:
             logger.info("Block %s not delivered: %s", instance.pk, error)
         return cls.sent
 
@@ -91,7 +95,11 @@ class BlockStates(StateGraph):
             )
         except httpx.RequestError:
             return
-        except (SSRFAttemptError, ActivityPubDeliveryError) as error:
+        except ActivityPubDeliveryError as error:
+            if error.retryable:
+                return
+            logger.info("Block undo %s not delivered: %s", instance.pk, error)
+        except SSRFAttemptError as error:
             logger.info("Block undo %s not delivered: %s", instance.pk, error)
         return cls.undone_sent
 
