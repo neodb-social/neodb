@@ -687,7 +687,9 @@ class Item(PolymorphicModel):
         if not old_ct:
             raise ValueError("cannot recast item without polymorphic_ctype")
         tbl = self.__class__._meta.db_table
-        with disable_auditlog():
+        # atomic, or a failure between the insert and the delete leaves a base
+        # row whose ctype points at a missing child row
+        with transaction.atomic(), disable_auditlog():
             # disable audit as serialization won't work here
             obj = model(item_ptr_id=self.pk, polymorphic_ctype=ct)
             obj.save_base(raw=True)
@@ -890,6 +892,10 @@ class Item(PolymorphicModel):
                     )
                     item = None
         except Exception:
+            item = None
+        if item is not None and item.__class__ is Item:
+            # polymorphic falls back to the base row when the child row is gone
+            logger.error("item has no subclass row", extra={"item": item})
             item = None
         return item
 
