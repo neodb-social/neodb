@@ -26,7 +26,7 @@ from common.sentry import url_domain
 from common.validators import is_valid_url
 
 from ..models import ExternalResource, IdType, Item, SiteName
-from .downloaders import DownloadError
+from .downloaders import DownloadError, request_with_checked_redirects
 
 logger = logging.getLogger(__name__)
 
@@ -263,7 +263,7 @@ class SiteManager:
         if not is_valid_url(url):
             return url
         try:
-            u = requests.head(url, allow_redirects=True, timeout=2).url
+            u = request_with_checked_redirects("HEAD", url, timeout=2).url
         except requests.RequestException:
             logger.warning(f"HEAD timeout: {url}")
             u = url

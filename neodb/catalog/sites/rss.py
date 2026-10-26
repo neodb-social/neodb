@@ -26,6 +26,16 @@ from journal.models.renderers import html_to_text
 _logger = logging.getLogger(__name__)
 
 
+class _CheckedRedirectHandler(urllib.request.HTTPRedirectHandler):
+    # the feed URL was validated once, so every hop must pass the same check
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not is_valid_url(newurl, may_have_port=True):
+            raise urllib.error.HTTPError(
+                newurl, code, "redirect to a non-public url", headers, fp
+            )
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
 def _episode_duration(episode: dict) -> int | None:
     # podcastparser keeps itunes:duration in seconds as total_time, 0 if absent
     seconds = episode.get("total_time")
@@ -47,7 +57,8 @@ class RSS(AbstractSite):
             req.add_header("If-None-Match", etag)
         if last_modified:
             req.add_header("If-Modified-Since", last_modified)
-        return urllib.request.urlopen(req, timeout=3)
+        opener = urllib.request.build_opener(_CheckedRedirectHandler)
+        return opener.open(req, timeout=3)
 
     @staticmethod
     def fetch_feed_with_metadata(

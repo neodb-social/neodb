@@ -5,7 +5,7 @@ import time
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import Any, Tuple, Union, cast
-from urllib.parse import parse_qsl, quote, urlencode, urlparse, urlunparse
+from urllib.parse import parse_qsl, quote, urlencode, urljoin, urlparse, urlunparse
 
 import filetype
 import httpx
@@ -67,6 +67,27 @@ def redact_url(url: str | None) -> str:
         for k, v in parse_qsl(parts.query, keep_blank_values=True)
     ]
     return urlunparse(parts._replace(query=urlencode(redacted, safe="*")))
+
+
+MAX_REDIRECTS = 10
+
+
+def request_with_checked_redirects(method: str, url: str, **kwargs: Any) -> Response:
+    """Send `method` to `url` and follow redirects one hop at a time, refusing
+    any hop that `is_valid_url` rejects, so a public URL cannot bounce the
+    fetch to an internal host."""
+    with requests.Session() as session:
+        for _ in range(MAX_REDIRECTS):
+            resp = session.request(method, url, allow_redirects=False, **kwargs)
+            if not resp.is_redirect:
+                return resp
+            target = urljoin(url, resp.headers["location"])
+            if not is_valid_url(target, may_have_port=True):
+                raise RequestException(
+                    f"redirect to a non-public url: {redact_url(target)}"
+                )
+            url = target
+    raise requests.TooManyRedirects(f"exceeded {MAX_REDIRECTS} redirects")
 
 
 def use_local_response(func):
@@ -302,7 +323,9 @@ class BasicDownloader:
             if not _mock_mode:
                 resp = cast(
                     DownloaderResponse,
-                    requests.get(url, headers=self.headers, timeout=self.timeout),
+                    request_with_checked_redirects(
+                        "GET", url, headers=self.headers, timeout=self.timeout
+                    ),
                 )
                 resp.__class__ = DownloaderResponse
                 if settings.DOWNLOADER_SAVEDIR:
@@ -475,7 +498,8 @@ class ImageDownloaderMixin:
     def __init__(self, url: str, referer=None):
         self.extention = None
         if referer is not None:
-            self.headers["Referer"] = referer  # type: ignore
+            # copy: headers is the class dict shared by every downloader
+            self.headers = {**self.headers, "Referer": referer}  # type: ignore
         super().__init__(url)  # type: ignore
 
     def validate_response(self, response):
