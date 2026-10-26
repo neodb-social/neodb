@@ -85,6 +85,25 @@ def test_publish_and_edit_keep_visibility_and_existing_post(author):
     assert Client().get(article.url).status_code in (403, 404)
 
 
+def test_article_edit_and_delete_are_owner_only(author):
+    user, _ = author
+    article = Article.update_local_article(
+        owner=user.identity, title="Mine", body="Original", visibility=0
+    )
+    other = User.register(email="other@example.com", username="otherwriter")
+    client = Client()
+    client.force_login(other, backend="mastodon.auth.OAuth2Backend")
+    edit_url = reverse("journal:article_edit", args=[article.uuid])
+    assert client.get(edit_url).status_code == 403
+    data = {"title": "Hijacked", "body": "x", "visibility": "0", "language": "en"}
+    assert client.post(edit_url, data).status_code == 403
+    delete_url = reverse("journal:article_delete", args=[article.uuid])
+    assert client.get(delete_url).status_code == 403
+    assert client.post(delete_url).status_code == 403
+    article.refresh_from_db()
+    assert (article.title, article.body) == ("Mine", "Original")
+
+
 def test_sensitive_reader_keeps_cover_and_contents_inside_reveal(author):
     user, client = author
     article = Article.update_local_article(

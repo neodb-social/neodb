@@ -228,3 +228,20 @@ def test_review_date_can_be_selected_after_invalid_submission_without_js(
     review = Review.objects.get(owner=user.identity, item=book)
     assert review.body == "Keep my writing"
     assert timezone.localtime(review.created_time).date().isoformat() == "2021-03-04"
+
+
+def test_review_edit_and_delete_are_owner_only(writer):
+    user, book, _ = writer
+    review = Review.update_item_review(book, user.identity, "Mine", "Original")
+    assert review is not None
+    other = User.register(email="reviewother@example.com", username="reviewother")
+    client = Client()
+    client.force_login(other, backend="mastodon.auth.OAuth2Backend")
+    assert client.get(review.edit_url).status_code == 403
+    data = {"item": book.pk, "title": "Hijacked", "body": "x", "visibility": "0"}
+    assert client.post(review.edit_url, data).status_code == 403
+    assert client.get(review.delete_url).status_code == 403
+    assert client.post(review.delete_url).status_code == 403
+    review.refresh_from_db()
+    assert (review.title, review.body) == ("Mine", "Original")
+    assert not Review.objects.filter(owner=other.identity).exists()
