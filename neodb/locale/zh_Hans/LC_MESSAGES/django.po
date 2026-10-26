@@ -9570,10 +9570,6 @@ msgstr "尝试次数过多"
 msgid "Please try again later."
 msgstr "请稍后再试。"
 
-#: users/views/account.py:439
-msgid "Username already taken. Please try again."
-msgstr "用户名已被使用，请重试。"
-
 #: users/views/account.py:469
 msgid "Valid username required"
 msgstr "请输入有效的用户名"
@@ -10045,3 +10041,12 @@ msgstr[0] "%(counter)s 关注者"
 #: catalog/templates/search_header.html:11
 msgid "Search categories"
 msgstr "搜索分类"
+
+#: catalog/views/edit.py:562
+msgid "Already updating episodes for this season, try again later."
+msgstr "已在更新本季剧集，请稍后再试。"
+
+#: users/views/data.py:1848
+#, python-brace-format
+msgid "Too many entries, at most {count} are accepted per import."
+msgstr "条目过多，每次导入最多接受 {count} 条。"

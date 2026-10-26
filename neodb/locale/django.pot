@@ -9456,10 +9456,6 @@ msgstr ""
 msgid "Please try again later."
 msgstr ""
 
-#: users/views/account.py:439
-msgid "Username already taken. Please try again."
-msgstr ""
-
 #: users/views/account.py:469
 msgid "Valid username required"
 msgstr ""
@@ -9939,4 +9935,13 @@ msgstr ""
 
 #: journal/templates/user_article_list.html:129
 msgid "Write about a book, a film, or whatever is on your mind."
+msgstr ""
+
+#: catalog/views/edit.py:562
+msgid "Already updating episodes for this season, try again later."
+msgstr ""
+
+#: users/views/data.py:1848
+#, python-brace-format
+msgid "Too many entries, at most {count} are accepted per import."
 msgstr ""
