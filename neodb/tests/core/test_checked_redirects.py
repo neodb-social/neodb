@@ -61,6 +61,26 @@ def test_public_redirect_chain_is_followed() -> None:
     assert all(c.kwargs["allow_redirects"] is False for c in req.call_args_list)
 
 
+def test_utf8_location_is_re_decoded_and_quoted() -> None:
+    # http.client hands the header back decoded as latin-1
+    raw = "/subject/豆瓣 読書?q=a b".encode("utf8").decode("latin1")
+    hops = [
+        _response(302, raw, "https://public.example/a"),
+        _response(200, url="https://public.example/x"),
+    ]
+    hosts = {"public.example": PUBLIC_IP}
+    with (
+        patch("socket.getaddrinfo", side_effect=_getaddrinfo_for(hosts)),
+        patch("requests.Session.request", side_effect=hops) as req,
+    ):
+        request_with_checked_redirects("GET", "https://public.example/a")
+
+    followed = req.call_args_list[1].args[1]
+    assert followed == (
+        "https://public.example/subject/%E8%B1%86%E7%93%A3%20%E8%AA%AD%E6%9B%B8?q=a%20b"
+    )
+
+
 def test_authorization_is_dropped_when_the_host_changes() -> None:
     hops = [
         _response(302, "https://public.example/b", "https://public.example/a"),

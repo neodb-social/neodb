@@ -16,6 +16,7 @@ from lxml import etree, html
 from PIL import Image
 from requests import Response
 from requests.exceptions import RequestException
+from requests.utils import requote_uri
 
 from common.models import SiteConfig, register_language_cache_refresh
 from common.sentry import count as sentry_count
@@ -84,7 +85,10 @@ def request_with_checked_redirects(method: str, url: str, **kwargs: Any) -> Resp
             )
             if not resp.is_redirect:
                 return resp
-            target = urljoin(url, resp.headers["location"])
+            # as requests does: the header was decoded as latin-1 but is
+            # almost always UTF-8, and the result must be a quoted URI
+            location = resp.headers["location"].encode("latin1").decode("utf8")
+            target = requote_uri(urljoin(url, location))
             if not is_valid_url(target, may_have_port=True):
                 raise RequestException(
                     f"redirect to a non-public url: {redact_url(target)}"
