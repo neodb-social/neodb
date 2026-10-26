@@ -335,6 +335,9 @@ class NdjsonImporter(BaseImporter):
             if not item:
                 raise KeyError(f"Could not find item: {item_url}")
             shelf_type = content_data.get("status", ShelfType.WISHLIST)
+            if shelf_type not in ShelfType.values:
+                logger.warning(f"Unknown shelf status {shelf_type!r} for {item_url}")
+                return "failed"
             mark = Mark(owner, item)
             if self._is_current(mark.shelfmember, updated_dt, published_dt):
                 return "skipped"

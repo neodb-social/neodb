@@ -22,6 +22,7 @@ from PIL import Image
 from catalog.models import (
     Edition,
     ExternalResource,
+    Game,
     IdType,
     Movie,
     Podcast,
@@ -2134,3 +2135,29 @@ def test_item_lookup_survives_a_site_that_raises():
     with mock.patch.object(IMDB, "get_item", side_effect=ValueError("broken")) as m:
         assert importer.get_item_by_info_and_links("", "", links) == movie
     assert m.called
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_ndjson_unknown_shelf_status_is_rejected_before_insert(caplog) -> None:
+    user = User.register(email="ndjson_status@test.com", username="ndjson_status")
+    game = Game.objects.create(title="Status Game")
+    importer = NdjsonImporter.create(user=user, file="x.zip", visibility=0)
+    importer.items = {game.absolute_url: game}
+    record = {
+        "type": "ShelfMember",
+        "visibility": 0,
+        "content": {
+            "withRegardTo": game.absolute_url,
+            "status": "playing",
+            "published": "2019-07-22T20:17:18Z",
+        },
+    }
+
+    with caplog.at_level(logging.WARNING):
+        assert importer.import_shelf_member(record) == "failed"
+
+    assert not ShelfMember.objects.filter(owner=user.identity, item=game).exists()
+    assert "Unknown shelf status 'playing'" in caplog.text
+    assert "Traceback" not in caplog.text
+    with pytest.raises(ValueError):
+        Mark(user.identity, game).update("playing")  # pyrefly: ignore[bad-argument-type]
