@@ -73,6 +73,12 @@ def _remote_text(value, max_length: int = _REMOTE_FIELD_MAX_LENGTH) -> str | Non
     return value[:max_length] if isinstance(value, str) else None
 
 
+def _plausible_username(value: str) -> bool:
+    # the username is built into handles, paths and hyperscript attributes,
+    # so a value with whitespace, quotes, brackets or separators is refused
+    return not any(c.isspace() or c in "\"'<>\\/@" for c in value)
+
+
 def _remote_uri(value, max_length: int = _REMOTE_FIELD_MAX_LENGTH) -> str | None:
     """Coerce a remote AS URI value into something that fits its column.
 
@@ -1511,6 +1517,12 @@ class Identity(StatorModel):
         # Compare the normalised username, so a list/language-wrapped value
         # that decodes to the stored one doesn't look like a change
         username = _remote_text(document.get("preferredUsername"))
+        if username and not _plausible_username(username):
+            logger.info(
+                "Actor %s has an unusable preferredUsername, not storing it",
+                self.actor_uri,
+            )
+            return False
         _neodb_sync = self.username != username
         self.name = _remote_text(document.get("name"))
         # "url" may be a bare URI, an embedded Link, or an array of either

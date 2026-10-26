@@ -1,6 +1,7 @@
 {% load static %}
 {% load i18n %}
 {% load l10n %}
+{% load strip_scheme %}
 {% load humanize %}
 {% for ep in episodes %}
   <p>
@@ -26,7 +27,7 @@
       <a title="{% trans "Original website" %}"
          target="_blank"
          rel="noopener"
-         href="{{ ep.link }}"><i class="fa-solid fa-link"></i></a>
+         href="{{ ep.link|http_href }}"><i class="fa-solid fa-link"></i></a>
       {{ ep.display_title }}
       <small class="episode-date">{{ ep.pub_date|date }}</small>
     </h6>

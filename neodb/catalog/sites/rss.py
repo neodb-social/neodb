@@ -36,6 +36,13 @@ class _CheckedRedirectHandler(urllib.request.HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
+def _http_link(value: object) -> str | None:
+    # feed links are rendered as hrefs and podcastparser passes them through
+    if isinstance(value, str) and value.startswith(("http://", "https://")):
+        return value
+    return None
+
+
 def _episode_duration(episode: dict) -> int | None:
     # podcastparser keeps itunes:duration in seconds as total_time, 0 if absent
     seconds = episode.get("total_time")
@@ -157,7 +164,7 @@ class RSS(AbstractSite):
                 "host": (
                     [feed.get("itunes_author")] if feed.get("itunes_author") else []
                 ),
-                "official_site": feed.get("link"),
+                "official_site": _http_link(feed.get("link")),
                 "cover_image_url": feed.get("cover_url"),
                 "genre": [
                     item
@@ -211,7 +218,7 @@ class RSS(AbstractSite):
                         else None
                     ),
                     "duration": _episode_duration(episode),
-                    "link": episode.get("link"),
+                    "link": _http_link(episode.get("link")),
                 },
             )
             if created:

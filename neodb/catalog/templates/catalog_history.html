@@ -54,11 +54,11 @@
                 {% if key != "item" %}
                   <tr>
                     <td>{{ key }}</td>
-                    <td _='init set x to innerText of first in me then set innerHTML of last in me to parse_json(x)'>
+                    <td _='init set x to innerText of first in me then set textContent of last in me to parse_json(x)'>
                       <div class="hidden">{{ value.0|default:"-" }}</div>
                       <pre></pre>
                     </td>
-                    <td _='init set x to innerText of first in me then set innerHTML of last in me to parse_json(x)'>
+                    <td _='init set x to innerText of first in me then set textContent of last in me to parse_json(x)'>
                       <div class="hidden">{{ value.1|default:"-" }}</div>
                       <pre></pre>
                     </td>
