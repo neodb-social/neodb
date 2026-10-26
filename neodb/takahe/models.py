@@ -1109,6 +1109,7 @@ class PostQuerySet(models.QuerySet):
             | models.Q(
                 visibility=Post.Visibilities.followers,
                 author__inbound_follows__source=identity,
+                author__inbound_follows__state__in=["accepting", "accepted"],
             )
             | models.Q(
                 mentions=identity,

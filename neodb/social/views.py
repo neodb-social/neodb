@@ -376,6 +376,15 @@ class NotificationEvent:
             if self.reply and self.reply.visibility == Post.Visibilities.mentioned:
                 self.conversation_id = self.reply.conversation_id
             self.post = self.post.in_reply_to_post() if self.post else None
+            # a remote reply names any inReplyTo it likes, so the parent is
+            # shown only when the notified identity may see it
+            if self.post and not (
+                Post.objects.not_hidden()
+                .visible_to(tle.identity, include_replies=True)
+                .filter(pk=self.post.pk)
+                .exists()
+            ):
+                self.post = None
         self.piece = Piece.get_by_post_id(self.post.id) if self.post else None
         self.item = self.piece.item if hasattr(self.piece, "item") else None
         if self.piece and self.template in ["liked", "boosted", "mentioned"]:
@@ -421,8 +430,12 @@ def events(request):
     es = Takahe.get_events(request.user.identity.pk, types)
     last = request.GET.get("last")
     if last:
-        # ignore malformed cursor values rather than 500 on the ORM cast
-        last_dt = parse_datetime(last)
+        # ignore malformed cursor values rather than 500 on the ORM cast;
+        # parse_datetime raises on a well-formed impossible date
+        try:
+            last_dt = parse_datetime(last)
+        except ValueError:
+            last_dt = None
         if last_dt:
             es = es.filter(created__lt=last_dt)
     nes = [NotificationEvent(e) for e in es[:PAGE_SIZE]]

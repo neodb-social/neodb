@@ -456,7 +456,8 @@ class PostQuerySet(models.QuerySet):
         # It's way faster to check follows and mentioned in subselects and drop the
         # DISTINCT. Also has the advantage of no LEFT OUTER JOINs to mess up
         # aggregation counts (like for PostInteraction counts).
-        followed_ids = identity.outbound_follows.active().values_list(
+        # accepted only: a pending request to a locked account grants nothing
+        followed_ids = identity.outbound_follows.accepted().values_list(
             "target_id", flat=True
         )
         query = self.annotate(
