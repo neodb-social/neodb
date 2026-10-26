@@ -196,7 +196,14 @@
     content.prepend(details);
   }
   buildContents();
-  document.addEventListener('htmx:afterSwap', buildContents);
+  document.addEventListener('htmx:afterSwap', (event) => {
+    // A translation replaces the headings the contents link to
+    if (event.detail.target.matches('[data-article-text]')) {
+      const contents = document.querySelector('[data-article-content] .article-contents');
+      if (contents) contents.remove();
+    }
+    buildContents();
+  });
   document.addEventListener('click', (event) => {
     const spoiler = event.target.closest('.spoiler');
     if (spoiler) spoiler.classList.toggle('revealed');

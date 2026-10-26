@@ -497,14 +497,6 @@ class TestCollectionCollaborativeEditing:
         self.collection.local = False
         assert not self.collection.is_editable_by(self.mutual)
 
-    def test_staff_can_edit_local_but_not_remote(self):
-        staff = User.register(email="collab_staff@test.com", username="collab_staff")
-        staff.is_staff = True
-        staff.save()
-        assert self.collection.is_editable_by(staff)
-        self.collection.local = False
-        assert not self.collection.is_editable_by(staff)
-
     def test_user_without_identity_cannot_edit(self):
         bare = User.objects.create(username="collab_bare")
         assert not self.collection.is_editable_by(bare)

@@ -4596,11 +4596,11 @@ msgstr "条目出现在发现页所需的最少标记数。"
 
 #: common/views_manage.py:401
 msgid "Spotlight window (days)"
-msgstr ""
+msgstr "焦点统计天数"
 
 #: common/views_manage.py:403
 msgid "How many days of marks the spotlight ranks items by, and the number each spotlight card shows."
-msgstr ""
+msgstr "焦点按最近多少天内的标记为条目排名，每张焦点卡片也显示这个天数。"
 
 #: common/views_manage.py:409
 msgid "Update interval (minutes)"
@@ -6899,34 +6899,15 @@ msgstr "个人标签不被包括在条目的公共索引中，但如果公开标
 msgid "Delete this tag"
 msgstr "删除这个标签"
 
-#: journal/templates/user_article_list.html:26
-#, python-format
-msgid "%(counter)s article"
-msgid_plural "%(counter)s articles"
-msgstr[0] "%(counter)s 篇文章"
-
-#: journal/templates/user_article_list.html:31
-#, python-format
-msgid "by %(name)s"
-msgstr "作者 %(name)s"
-
 #: journal/templates/user_article_list.html:39
 msgid "RSS feed"
 msgstr "RSS 订阅"
-
-#: journal/templates/user_article_list.html:46
-msgid "Compose new article"
-msgstr "撰写新文章"
 
 #: journal/templates/user_article_list.html:74
 #, python-format
 msgid "%(counter)s min read"
 msgid_plural "%(counter)s min read"
 msgstr[0] "阅读约 %(counter)s 分钟"
-
-#: journal/templates/user_article_list.html:114
-msgid "You have no articles yet. An article is a long text that you write here and send to the Fediverse."
-msgstr "你还没有文章。文章是你在这里撰写并发送到联邦宇宙的长文。"
 
 #: journal/templates/user_article_list.html:120
 msgid "Write an article"

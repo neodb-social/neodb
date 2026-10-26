@@ -4,6 +4,7 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
+from lxml import html
 
 from common.models import SiteConfig
 from journal.exporters import NdjsonExporter
@@ -188,3 +189,14 @@ def test_steam_settings_page_confirms_while_an_import_runs(client, user):
     content = client.get(url).content.decode()
     assert RUNNING_WARNING in content
     assert 'onsubmit="return confirm(' in content
+
+
+def test_form_error_script_finds_the_error_page_message(client):
+    url = reverse("users:import_goodreads")
+    assert "page.querySelector('.dc-error h1, " in client.get(url).content.decode()
+    response = client.post(url)
+    assert response.status_code == 400
+    document = html.fromstring(response.content)
+    assert "Invalid file." in document.xpath(
+        'string(//*[contains(concat(" ", @class, " "), " dc-error ")]//h1)'
+    )

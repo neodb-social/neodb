@@ -186,7 +186,7 @@ class Collection(List[CollectionMember]):
 
     def is_editable_by(self, viewing_user: "User | AnonymousUser") -> bool:
         # Remote mirrors are maintained by federation sync and must stay
-        # read-only locally (staff included) or edits would silently diverge
+        # read-only locally or edits would silently diverge
         # and be clobbered by the next sync.
         if not self.local:
             return False
@@ -206,7 +206,7 @@ class Collection(List[CollectionMember]):
         )
 
     def is_deletable_by(self, viewing_user: "User | AnonymousUser") -> bool:
-        # Collaborators may edit content but only owner/staff may delete.
+        # Collaborators may edit content but only the owner may delete.
         return super().is_editable_by(viewing_user)
 
     def update_item_note(self, item: Item, note: str) -> CollectionMember | None:

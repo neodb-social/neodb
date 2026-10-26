@@ -6846,24 +6846,8 @@ msgstr ""
 msgid "Delete this tag"
 msgstr ""
 
-#: journal/templates/user_article_list.html:26
-#, python-format
-msgid "%(counter)s article"
-msgid_plural "%(counter)s articles"
-msgstr[0] ""
-msgstr[1] ""
-
-#: journal/templates/user_article_list.html:31
-#, python-format
-msgid "by %(name)s"
-msgstr ""
-
 #: journal/templates/user_article_list.html:39
 msgid "RSS feed"
-msgstr ""
-
-#: journal/templates/user_article_list.html:46
-msgid "Compose new article"
 msgstr ""
 
 #: journal/templates/user_article_list.html:74
@@ -6872,10 +6856,6 @@ msgid "%(counter)s min read"
 msgid_plural "%(counter)s min read"
 msgstr[0] ""
 msgstr[1] ""
-
-#: journal/templates/user_article_list.html:114
-msgid "You have no articles yet. An article is a long text that you write here and send to the Fediverse."
-msgstr ""
 
 #: journal/templates/user_article_list.html:120
 msgid "Write an article"
@@ -9783,4 +9763,180 @@ msgstr[1] ""
 
 #: catalog/templates/search_header.html:11
 msgid "Search categories"
+msgstr ""
+
+#: journal/forms.py:117
+msgid "Review date"
+msgstr ""
+
+#: journal/forms.py:152
+msgid "Please choose a review date."
+msgstr ""
+
+#: journal/forms.py:154
+msgid "Choose a date between 1900 and today."
+msgstr ""
+
+#: journal/templates/_article_reading.html:8
+#: journal/templates/user_article_list.html:24
+#, python-format
+msgid "Articles by %(name)s"
+msgstr ""
+
+#: journal/templates/_article_reading.html:52
+msgid "Contents"
+msgstr ""
+
+#: journal/templates/_article_reading.html:79
+msgid "Link copied"
+msgstr ""
+
+#: journal/templates/_article_reading.html:79
+msgid "Copy link"
+msgstr ""
+
+#: journal/templates/_article_reading.html:83
+msgid "More reviews"
+msgstr ""
+
+#: journal/templates/_article_reading.html:85
+msgid "More articles"
+msgstr ""
+
+#: journal/templates/_article_tag_picker.html:4
+msgid "Remove tag"
+msgstr ""
+
+#: journal/templates/_article_tag_picker.html:5
+msgid "Too many tags or too much text. Remove a tag to continue."
+msgstr ""
+
+#: journal/templates/_article_tag_picker.html:13
+msgid "Find or add a tag"
+msgstr ""
+
+#: journal/templates/_article_tag_picker.html:18
+msgid "Choose a tag below, or type a new one and press Enter."
+msgstr ""
+
+#: journal/templates/article_edit.html:20
+msgid "My articles"
+msgstr ""
+
+#: journal/templates/article_edit.html:25 journal/templates/review_edit.html:24
+msgid "Not published"
+msgstr ""
+
+#: journal/templates/article_edit.html:32 journal/templates/review_edit.html:31
+msgid "Write"
+msgstr ""
+
+#: journal/templates/article_edit.html:33
+#: journal/templates/article_edit.html:35 journal/templates/review_edit.html:32
+#: journal/templates/review_edit.html:34
+msgid "Preview"
+msgstr ""
+
+#: journal/templates/article_edit.html:39
+#: journal/templates/article_edit.html:82 journal/templates/review_edit.html:38
+#: journal/templates/review_edit.html:74
+msgid "Save changes"
+msgstr ""
+
+#: journal/templates/article_edit.html:39 journal/templates/review_edit.html:38
+msgid "Continue to publish"
+msgstr ""
+
+#: journal/templates/article_edit.html:49
+msgid "Featured image"
+msgstr ""
+
+#: journal/templates/article_edit.html:51
+msgid "Add a cover image"
+msgstr ""
+
+#: journal/templates/article_edit.html:63
+msgid "Markdown supported. Add images using the toolbar or paste them into your article."
+msgstr ""
+
+#: journal/templates/article_edit.html:68 journal/templates/review_edit.html:54
+msgid "Publishing settings"
+msgstr ""
+
+#: journal/templates/article_edit.html:78 journal/templates/review_edit.html:63
+msgid "More options"
+msgstr ""
+
+#: journal/templates/article_edit.html:84
+msgid "Publish article"
+msgstr ""
+
+#: journal/templates/profile_articles.html:9
+msgid "View all"
+msgstr ""
+
+#: journal/templates/review_edit.html:22
+msgid "Edit review"
+msgstr ""
+
+#: journal/templates/review_edit.html:49
+msgid "Markdown supported. Add images using the toolbar or paste them into your review."
+msgstr ""
+
+#: journal/templates/review_edit.html:76
+msgid "Publish review"
+msgstr ""
+
+#: journal/templates/user_article_list.html:43
+msgid "Browse by tag"
+msgstr ""
+
+#: journal/templates/user_article_list.html:45
+msgid "All tags"
+msgstr ""
+
+#: journal/templates/user_article_list.html:56
+msgid "All articles"
+msgstr ""
+
+#: journal/templates/user_article_list.html:59
+msgid "Clear filters"
+msgstr ""
+
+#: journal/templates/user_article_list.html:63
+#: journal/templates/user_article_list.html:66
+msgid "All dates"
+msgstr ""
+
+#: journal/templates/user_article_list.html:64
+msgid "Browse by date"
+msgstr ""
+
+#: journal/templates/user_article_list.html:72
+#, python-format
+msgid "Months in %(year)s"
+msgstr ""
+
+#: journal/templates/user_article_list.html:72
+msgid "Months"
+msgstr ""
+
+#: journal/templates/user_article_list.html:95
+msgid "Latest article"
+msgstr ""
+
+#: journal/templates/user_article_list.html:125
+msgid "No articles match these filters."
+msgstr ""
+
+#: journal/templates/user_article_list.html:126
+msgid "View all articles"
+msgstr ""
+
+#: journal/templates/user_article_list.html:128
+msgid "A home for your words"
+msgstr ""
+
+#: journal/templates/user_article_list.html:129
+msgid "Write about a book, a film, or whatever is on your mind."
 msgstr ""

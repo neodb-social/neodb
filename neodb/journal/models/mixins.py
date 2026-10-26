@@ -71,11 +71,7 @@ class UserOwnedObjectMixin:
         return True
 
     def is_editable_by(self, viewing_user: "User | AnonymousUser") -> bool:
-        return viewing_user.is_authenticated and (
-            viewing_user.is_staff
-            or viewing_user.is_superuser
-            or viewing_user == self.owner.user
-        )
+        return viewing_user.is_authenticated and viewing_user == self.owner.user
 
     def is_deletable_by(self, viewing_user: "User | AnonymousUser") -> bool:
         # subclasses granting edit access beyond the owner (e.g.

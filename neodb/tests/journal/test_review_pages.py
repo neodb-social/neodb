@@ -119,6 +119,9 @@ def test_review_publish_and_edit_preserve_date_language_and_privacy(writer):
     post_id = review.latest_post.pk
     edit = client.get(review.edit_url)
     assert "Save changes" in edit.content.decode()
+    date_field = html.fromstring(edit.content).find('.//input[@id="id_mark_date"]')
+    assert date_field is not None
+    assert date_field.get("value") == "2020-04-05"
     data.update(title="Revised review", body="Updated thoughts")
     data.pop("mark_anotherday")
     data.pop("mark_date")
@@ -228,3 +231,33 @@ def test_review_date_can_be_selected_after_invalid_submission_without_js(
     review = Review.objects.get(owner=user.identity, item=book)
     assert review.body == "Keep my writing"
     assert timezone.localtime(review.created_time).date().isoformat() == "2021-03-04"
+
+
+def test_review_edit_and_delete_are_owner_only(writer):
+    user, book, _ = writer
+    review = Review.update_item_review(book, user.identity, "Mine", "Original")
+    assert review is not None
+    other = User.register(email="reviewother@example.com", username="reviewother")
+    client = Client()
+    client.force_login(other, backend="mastodon.auth.OAuth2Backend")
+    assert client.get(review.edit_url).status_code == 403
+    data = {"item": book.pk, "title": "Hijacked", "body": "x", "visibility": "0"}
+    assert client.post(review.edit_url, data).status_code == 403
+    assert client.get(review.delete_url).status_code == 403
+    assert client.post(review.delete_url).status_code == 403
+    review.refresh_from_db()
+    assert (review.title, review.body) == ("Mine", "Original")
+    assert not Review.objects.filter(owner=other.identity).exists()
+
+
+def test_review_edit_saves_to_the_reviews_own_item(writer):
+    user, book, client = writer
+    review = Review.update_item_review(book, user.identity, "Mine", "Original")
+    assert review is not None
+    other_book = Edition.objects.create(title="Another Book")
+    url = reverse("journal:review_edit", args=[other_book.uuid, review.uuid])
+    data = {"item": other_book.pk, "title": "Revised", "body": "x", "visibility": "0"}
+    assert client.post(url, data).status_code == 302
+    review.refresh_from_db()
+    assert (review.item_id, review.title) == (book.pk, "Revised")
+    assert not Review.objects.filter(item=other_book).exists()

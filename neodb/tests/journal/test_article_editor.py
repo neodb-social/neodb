@@ -8,6 +8,7 @@ from django.test import Client
 from django.urls import reverse
 from lxml import html
 
+from common.models import SiteConfig
 from journal.models import Article
 from users.models import User
 
@@ -85,6 +86,25 @@ def test_publish_and_edit_keep_visibility_and_existing_post(author):
     assert Client().get(article.url).status_code in (403, 404)
 
 
+def test_article_edit_and_delete_are_owner_only(author):
+    user, _ = author
+    article = Article.update_local_article(
+        owner=user.identity, title="Mine", body="Original", visibility=0
+    )
+    other = User.register(email="other@example.com", username="otherwriter")
+    client = Client()
+    client.force_login(other, backend="mastodon.auth.OAuth2Backend")
+    edit_url = reverse("journal:article_edit", args=[article.uuid])
+    assert client.get(edit_url).status_code == 403
+    data = {"title": "Hijacked", "body": "x", "visibility": "0", "language": "en"}
+    assert client.post(edit_url, data).status_code == 403
+    delete_url = reverse("journal:article_delete", args=[article.uuid])
+    assert client.get(delete_url).status_code == 403
+    assert client.post(delete_url).status_code == 403
+    article.refresh_from_db()
+    assert (article.title, article.body) == ("Mine", "Original")
+
+
 def test_sensitive_reader_keeps_cover_and_contents_inside_reveal(author):
     user, client = author
     article = Article.update_local_article(
@@ -104,6 +124,28 @@ def test_sensitive_reader_keeps_cover_and_contents_inside_reveal(author):
     assert document.xpath('//a[contains(@href,"?tag=R%26D")]')
     assert not document.xpath("//aside")
     assert document.xpath(f'//a[@href="{article.delete_url}"]')
+
+
+def test_translation_replaces_the_text_but_not_the_cover(author, monkeypatch):
+    monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
+    monkeypatch.setattr(SiteConfig.system, "lt_api_url", "https://translate.example")
+    user, client = author
+    article = Article.update_local_article(
+        owner=user.identity, title="Covered", body="## Part\n\nText", visibility=0
+    )
+    Article.objects.filter(pk=article.pk).update(
+        metadata={**article.metadata, "cover_url": "https://example.com/cover.jpg"}
+    )
+    document = html.fromstring(client.get(article.url).content)
+    button = document.find('.//button[@class="article-translate-link"]')
+    assert button is not None
+    assert button.get("hx-target") == f"#article_{article.uuid}_text"
+    text = document.get_element_by_id(f"article_{article.uuid}_text")
+    assert text.xpath('.//h2[.="Part"]')
+    assert not text.xpath('.//img[@class="article-cover"]')
+    assert document.xpath(
+        f'//*[@id="article_{article.uuid}_content"]/img[@class="article-cover"]'
+    )
 
 
 def test_tag_picker_only_suggests_authors_tags_and_escapes_script_data(author):
