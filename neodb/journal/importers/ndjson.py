@@ -325,8 +325,11 @@ class NdjsonImporter(BaseImporter):
     def _visibility(self, data: Dict[str, Any]) -> int:
         # an archive value outside the known levels would be posted publicly
         # by visibility_n2t while every list hides it
-        value = data.get("visibility", self.metadata.get("visibility", 0))
-        return value if value in (0, 1, 2) else 0
+        default = self.metadata.get("visibility", 0)
+        if default not in (0, 1, 2):
+            default = 2
+        value = data.get("visibility", default)
+        return value if value in (0, 1, 2) else default
 
     def parse_datetime(self, timestamp_str: str | None) -> datetime.datetime | None:
         # a future timestamp would pin the piece to the top of every list
