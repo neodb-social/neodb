@@ -458,6 +458,9 @@ def register(request: HttpRequest):
             assert isinstance(verified_account, MastodonAccount)
             mastodon_account = verified_account
             try:
+                # the form path validates; this path takes the username
+                # straight from the Mastodon account
+                User.username_validator(mastodon_account.username)
                 new_user = User.register(
                     account=mastodon_account,
                     username=mastodon_account.username,

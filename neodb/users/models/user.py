@@ -398,9 +398,6 @@ class User(AbstractUser):
             new_user = cls(**param)
             if not new_user.username:
                 raise ValueError("username is not set")
-            # the form path validates; the closed-community path takes the
-            # username straight from the Mastodon account
-            cls.username_validator(new_user.username)
             if "language" not in param:
                 new_user.language = translation.get_language()
             new_user.set_unusable_password()
