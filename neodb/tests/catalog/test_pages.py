@@ -101,6 +101,17 @@ def test_catalog_search(client: Client) -> None:
 
 
 @pytest.mark.django_db(databases="__all__")
+def test_embed_is_only_available_for_podcasts(client: Client) -> None:
+    movie = Movie.objects.create(title="No Embed Movie")
+    podcast = Podcast.objects.create(title="Embed Podcast", host=["Host"])
+
+    assert client.get(f"{movie.url}/embed").status_code == 404
+    response = client.get(f"{podcast.url}/embed")
+    assert response.status_code == 200
+    assert "Embed Podcast" in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
 @pytest.mark.parametrize(
     "view_name", ["comments", "comments_by_episode", "reviews", "notes"]
 )

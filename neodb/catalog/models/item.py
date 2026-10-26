@@ -608,6 +608,10 @@ class Item(PolymorphicModel):
         if not isinstance(to_item, self.__class__):
             raise ValueError("cannot merge to item in a different model")
         logger.debug(f"merging {self} to {to_item}")
+        with transaction.atomic():
+            self._merge_into(to_item)
+
+    def _merge_into(self, to_item: Self) -> None:
         self.log_action({"!merged": [str(self.merged_to_item), str(to_item)]})
         # heal pre-migration metadata on both sides so legacy-only values
         # (e.g. year without release_date) survive the key-based copy below
@@ -1649,7 +1653,7 @@ class Item(PolymorphicModel):
             return False
         if user.is_staff:
             return True
-        if self.is_protected:
+        if self.is_protected or not self.is_editable():
             return False
         creators = list(self.verified_creator_list)
         parent = self.parent_item

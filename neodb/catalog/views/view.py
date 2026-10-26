@@ -16,7 +16,8 @@ from django.db.models import (
 from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
+from django.template import TemplateDoesNotExist
+from django.template.loader import get_template, render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -124,10 +125,12 @@ def embed(request, item_path, item_uuid):
         )
     if request.method == "HEAD":
         return HttpResponse()
-    return render(
-        request,
-        "embed_" + item.class_name + ".html",
-        {"item": item, "focus_item": focus_item},
+    try:
+        template = get_template("embed_" + item.class_name + ".html")
+    except TemplateDoesNotExist:
+        raise Http404(_("Item not found"))
+    return HttpResponse(
+        template.render({"item": item, "focus_item": focus_item}, request)
     )
 
 
