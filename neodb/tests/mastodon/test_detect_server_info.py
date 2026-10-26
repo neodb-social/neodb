@@ -60,6 +60,20 @@ def test_split_domain_with_lrdd_template_is_accepted():
         assert detect_server_info("web.example.com")[1] == "web.example.com"
 
 
+def test_split_domain_that_redirects_only_webfinger_is_accepted():
+    routes = {
+        "https://web.example.com/api/v1/instance": _response(200, INSTANCE),
+        "https://example.com/.well-known/webfinger?resource=acct:probe@example.com": _response(
+            302,
+            headers={
+                "location": "https://web.example.com/.well-known/webfinger?resource=acct:probe@example.com"
+            },
+        ),
+    }
+    with mock.patch.object(mastodon_module, "get", side_effect=_fake_get(routes)):
+        assert detect_server_info("web.example.com")[1] == "web.example.com"
+
+
 def test_claimed_domain_without_delegation_is_refused():
     routes = {"https://evil.example/api/v1/instance": _response(200, INSTANCE)}
     with (

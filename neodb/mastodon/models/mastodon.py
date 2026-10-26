@@ -399,18 +399,26 @@ def _domain_delegates_to(domain: str, login_domain: str) -> bool:
     """Whether `domain` points its well-known discovery at `login_domain`,
     as a split-domain instance does with host-meta: a redirect to the web
     domain, or an lrdd template on it."""
-    url = f"https://{domain}/.well-known/host-meta"
-    if not is_valid_url(url):
-        return False
-    try:
-        response = get(url, headers={"User-Agent": USER_AGENT})
-    except Exception:
-        return False
-    if 300 <= response.status_code < 400:
-        location = response.headers.get("location", "")
-        return urlparse(location).hostname == login_domain.lower()
-    if response.status_code == 200:
-        return f"https://{login_domain.lower()}/" in response.text.lower()
+    # some setups redirect only webfinger, so that counts as well
+    for url in (
+        f"https://{domain}/.well-known/host-meta",
+        f"https://{domain}/.well-known/webfinger?resource=acct:probe@{domain}",
+    ):
+        if not is_valid_url(url):
+            return False
+        try:
+            response = get(url, headers={"User-Agent": USER_AGENT})
+        except Exception:
+            continue
+        if 300 <= response.status_code < 400:
+            location = response.headers.get("location", "")
+            if urlparse(location).hostname == login_domain.lower():
+                return True
+        elif (
+            response.status_code == 200
+            and f"https://{login_domain.lower()}/" in response.text.lower()
+        ):
+            return True
     return False
 
 
