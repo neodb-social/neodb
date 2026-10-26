@@ -43,6 +43,19 @@ def steam_openid_callback(request):
         logger.warning(f"Steam OpenID: unexpected mode {params.get('openid.mode')}")
         return redirect(reverse("users:import_steam"))
 
+    # check_authentication only proves Steam signed the assertion, so make
+    # sure it was issued for this callback and that the signed fields cover
+    # the ones read below (OpenID 2.0 section 11.1 and 11.2)
+    return_to = request.build_absolute_uri(reverse("users:steam_openid_callback"))
+    signed = set(params.get("openid.signed", "").split(","))
+    if (
+        params.get("openid.op_endpoint") != STEAM_OPENID_URL
+        or not params.get("openid.return_to", "").startswith(return_to)
+        or not {"claimed_id", "return_to", "op_endpoint"} <= signed
+    ):
+        logger.warning("Steam OpenID: assertion not issued for this callback")
+        return redirect(reverse("users:import_steam"))
+
     # Verify the response with Steam
     verify_params = dict(params)
     verify_params["openid.mode"] = "check_authentication"
