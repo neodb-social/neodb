@@ -1929,6 +1929,9 @@ class Post(StatorModel):
                     raise ActivityPubFormatError(
                         f"No URL present on attachment in {post.url}"
                     )
+                if not attachment_url.startswith(("http://", "https://")):
+                    # rendered as a plain href for non-image types
+                    continue
                 post.attachments.create(
                     remote_url=attachment_url,
                     mimetype=mimetype,
