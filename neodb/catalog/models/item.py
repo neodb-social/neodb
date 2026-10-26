@@ -693,10 +693,12 @@ class Item(PolymorphicModel):
             # disable audit as serialization won't work here
             obj = model(item_ptr_id=self.pk, polymorphic_ctype=ct)
             obj.save_base(raw=True)
-            obj.save(update_fields=["polymorphic_ctype"])
+            # not obj.save(): it would index this still blank instance
+            Item.objects.filter(pk=self.pk).update(polymorphic_ctype=ct)
             with connection.cursor() as cursor:
                 cursor.execute(f"DELETE FROM {tbl} WHERE item_ptr_id = %s", [self.pk])
         obj = model.objects.get(pk=obj.pk)
+        obj.update_index()
         obj.log_action({"!recast": [old_ct.model, ct.model]})
         return obj
 

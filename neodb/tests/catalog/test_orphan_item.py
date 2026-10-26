@@ -2,9 +2,11 @@ import logging
 
 import pytest
 from django.db import connection
+from django.db.models import QuerySet
 from django.test import Client
 
 from catalog.models import Edition, Item, Movie
+from catalog.search import CatalogIndex
 
 
 def _edition() -> Edition:
@@ -58,9 +60,23 @@ def test_failed_recast_keeps_original_row(monkeypatch):
     def fail(*args, **kwargs):
         raise RuntimeError("recast failed")
 
-    monkeypatch.setattr(Movie, "save", fail)
+    monkeypatch.setattr(QuerySet, "update", fail)
     with pytest.raises(RuntimeError):
         item.recast_to(Movie)
+    monkeypatch.undo()
     found = Item.objects.get(pk=item.pk)
     assert isinstance(found, Edition)
     assert not Movie.objects.filter(pk=item.pk).exists()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_recast_indexes_loaded_item(monkeypatch):
+    item = _edition()
+    indexed: list[tuple[type, str]] = []
+    monkeypatch.setattr(
+        CatalogIndex,
+        "replace_item",
+        lambda self, i: indexed.append((i.__class__, i.display_title)),
+    )
+    item.recast_to(Movie)
+    assert indexed == [(Movie, "Orphan")]
