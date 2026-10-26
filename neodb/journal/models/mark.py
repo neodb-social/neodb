@@ -591,6 +591,13 @@ class Mark:
         normalized_visibility = self.visibility if visibility is None else visibility
         last_shelf_type = self.shelf_type
         last_visibility = self.visibility if last_shelf_type else None
+        if (
+            shelf_type is not None
+            and self.owner.shelf_manager.get_shelf(shelf_type) is None
+        ):
+            # a member row with no parent shelf fails only at insert time,
+            # after the tags were already written
+            raise ValueError(f"Unknown shelf type {shelf_type!r}")
 
         self._update_tags(tags, normalized_visibility)
 

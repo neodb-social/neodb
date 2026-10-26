@@ -5,7 +5,7 @@ import time
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import Any, Tuple, Union, cast
-from urllib.parse import parse_qsl, quote, urlencode, urlparse, urlunparse
+from urllib.parse import parse_qsl, quote, urlencode, urljoin, urlparse, urlunparse
 
 import filetype
 import httpx
@@ -16,6 +16,7 @@ from lxml import etree, html
 from PIL import Image
 from requests import Response
 from requests.exceptions import RequestException
+from requests.utils import requote_uri
 
 from common.models import SiteConfig, register_language_cache_refresh
 from common.sentry import count as sentry_count
@@ -67,6 +68,41 @@ def redact_url(url: str | None) -> str:
         for k, v in parse_qsl(parts.query, keep_blank_values=True)
     ]
     return urlunparse(parts._replace(query=urlencode(redacted, safe="*")))
+
+
+MAX_REDIRECTS = 10
+
+
+def request_with_checked_redirects(method: str, url: str, **kwargs: Any) -> Response:
+    """Send `method` to `url` and follow redirects one hop at a time, refusing
+    any hop that `is_valid_url` rejects, so a public URL cannot bounce the
+    fetch to an internal host."""
+    headers = dict(kwargs.pop("headers", None) or {})
+    with requests.Session() as session:
+        for _ in range(MAX_REDIRECTS):
+            resp = session.request(
+                method, url, headers=headers, allow_redirects=False, **kwargs
+            )
+            if not resp.is_redirect:
+                return resp
+            # as requests does: the header was decoded as latin-1 but is
+            # almost always UTF-8, and the result must be a quoted URI
+            location = resp.headers["location"].encode("latin1").decode("utf8")
+            target = requote_uri(urljoin(url, location))
+            if not is_valid_url(target, may_have_port=True):
+                raise RequestException(
+                    f"redirect to a non-public url: {redact_url(target)}"
+                )
+            before, after = urlparse(url), urlparse(target)
+            if before.hostname != after.hostname or (
+                before.scheme == "https" and after.scheme == "http"
+            ):
+                # as requests does on its own: credentials stay on the origin
+                headers = {
+                    k: v for k, v in headers.items() if k.lower() != "authorization"
+                }
+            url = target
+    raise requests.TooManyRedirects(f"exceeded {MAX_REDIRECTS} redirects")
 
 
 def use_local_response(func):
@@ -302,7 +338,9 @@ class BasicDownloader:
             if not _mock_mode:
                 resp = cast(
                     DownloaderResponse,
-                    requests.get(url, headers=self.headers, timeout=self.timeout),
+                    request_with_checked_redirects(
+                        "GET", url, headers=self.headers, timeout=self.timeout
+                    ),
                 )
                 resp.__class__ = DownloaderResponse
                 if settings.DOWNLOADER_SAVEDIR:
@@ -475,7 +513,8 @@ class ImageDownloaderMixin:
     def __init__(self, url: str, referer=None):
         self.extention = None
         if referer is not None:
-            self.headers["Referer"] = referer  # type: ignore
+            # copy: headers is the class dict shared by every downloader
+            self.headers = {**self.headers, "Referer": referer}  # type: ignore
         super().__init__(url)  # type: ignore
 
     def validate_response(self, response):

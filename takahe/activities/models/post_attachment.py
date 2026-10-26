@@ -112,7 +112,11 @@ class PostAttachment(StatorModel):
     def full_url(self):
         if self.file:
             return RelativeAbsoluteUrl(self.file.url)
-        if self.is_image():
+        # the proxy path also covers a stored remote_url with a scheme that
+        # must never end up in an href, such as javascript:
+        if self.is_image() or not (self.remote_url or "").startswith(
+            ("http://", "https://")
+        ):
             return ProxyAbsoluteUrl(
                 f"/proxy/post_attachment/{self.pk}/",
                 remote_url=self.remote_url,

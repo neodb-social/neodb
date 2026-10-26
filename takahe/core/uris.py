@@ -58,7 +58,11 @@ class ProxyAbsoluteUrl(AutoAbsoluteUrl):
             extension = "bin"
             remote_filename = remote_url.split("/")[-1]
             if "." in remote_filename:
-                extension = remote_filename.split(".")[-1]
+                candidate = remote_filename.split(".")[-1]
+                # the extension lands in hrefs and inline styles, so keep
+                # only a plain ASCII word
+                if candidate.isascii() and candidate.isalnum() and len(candidate) <= 8:
+                    extension = candidate
             # When provided, attach a hash of the remote URL
             # SHA1 chosen as it generally has the best performance in modern python, and security is not a concern
             # Hash truncation is generally fine, as in the typical use case the hash is scoped to the identity PK.

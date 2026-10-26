@@ -504,6 +504,7 @@ def test_oauth_callback_shows_authserver_error(client, bluesky_enabled):
 
 def test_authserver_metadata_rejects_http_endpoint(monkeypatch, settings):
     settings.DEBUG = False
+    monkeypatch.setattr(bluesky_oauth, "is_valid_url", lambda url, **kwargs: True)
     meta = {
         "issuer": "https://auth.example",
         "authorization_endpoint": "https://auth.example/authorize",

@@ -214,9 +214,12 @@ class ReviewFeed(Feed):
             return _("Reviews by {0}").format(owner.display_name)
 
     def items(self, owner: APIdentity):
-        if owner is None or not owner.anonymous_viewable:
+        if owner is None or not owner.anonymous_viewable or owner.restricted:
             return []
-        reviews = Review.objects.filter(owner=owner, visibility=0)[:MAX_ITEM_PER_TYPE]
+        # without an order the database hands back an arbitrary ten reviews
+        reviews = Review.objects.filter(owner=owner, visibility=0).order_by(
+            "-created_time"
+        )[:MAX_ITEM_PER_TYPE]
         return reviews
 
     def item_title(self, item: Review):

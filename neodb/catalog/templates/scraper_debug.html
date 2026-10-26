@@ -282,13 +282,23 @@
             grid.innerHTML = '';
             for (const [k, v] of Object.entries(data.metadata)) {
               if (k === 'cover_image_url' && v) {
-                document.getElementById('cover-container').innerHTML = `<img src="${v}" class="cover-img" onerror="this.style.display='none'">`;
+                const img = document.createElement('img');
+                img.className = 'cover-img';
+                img.onerror = () => { img.style.display = 'none'; };
+                img.src = String(v);
+                document.getElementById('cover-container').replaceChildren(img);
                 continue;
               }
               const div = document.createElement('div');
               div.className = 'meta-item';
               const valStr = typeof v === 'object' ? JSON.stringify(v, null, 2) : String(v);
-              div.innerHTML = `<div class="lbl">${k}</div><div class="val">${valStr}</div>`;
+              const lbl = document.createElement('div');
+              lbl.className = 'lbl';
+              lbl.textContent = k;
+              const val = document.createElement('div');
+              val.className = 'val';
+              val.textContent = valStr;
+              div.append(lbl, val);
               grid.appendChild(div);
             }
             switchTab('parsed');

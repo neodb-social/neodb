@@ -5,6 +5,7 @@ from typing import Any
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 
 from catalog.models import Item
@@ -149,7 +150,7 @@ class Comment(Content):
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item_url}"
         prepend_content = (
             self.get_crosspost_template().format(
-                item=f'<a href="{item_link}">{self.item.display_title}</a>'
+                item=f'<a href="{item_link}">{escape(self.item.display_title)}</a>'
             )
             + "<br>"
         )
@@ -179,6 +180,10 @@ class Comment(Content):
 
     def delete(self, *args, **kwargs):
         sm = self.sibling_shelfmember
+        if sm and self.local:
+            # every mark post is linked here as well, so clearing the comment
+            # must unlink them, not delete them and undo their interactions
+            self.clear_post_ids()
         r = super().delete(*args, **kwargs)
         if sm:
             # the mark doc embeds this comment's text; rebuild it now

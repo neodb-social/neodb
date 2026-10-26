@@ -13,6 +13,7 @@ from django.core.files.images import ImageFile
 from django.core.signing import b62_encode
 from django.db.models import OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
+from django.db import transaction
 from django.utils.dateparse import parse_datetime
 from PIL import Image, ImageOps
 
@@ -1570,20 +1571,38 @@ class Takahe:
             raise ValueError("Poll has ended")
         if post.author_id == identity_pk:
             raise ValueError("Cannot vote on your own poll")
-        if post.interactions.filter(identity_id=identity_pk, type="vote").exists():
-            raise ValueError("Already voted")
+        if Takahe.get_is_blocking(
+            post.author_id, identity_pk
+        ) or Takahe.get_is_blocking(identity_pk, post.author_id):
+            raise ValueError("Cannot vote on this poll")
         options = [o["name"] for o in post.type_data["options"]]
+        choices = set(choices)
+        if not choices:
+            raise ValueError("No choice")
         for choice in choices:
             if choice not in options:
                 raise ValueError(f"Invalid choice: {choice}")
+        if post.type_data.get("mode") == "oneOf" and len(choices) > 1:
+            raise ValueError("Only one choice is allowed")
         identity = Identity.objects.get(pk=identity_pk)
-        for choice in set(choices):
-            vote = PostInteraction.objects.create(
-                identity_id=identity_pk,
-                post=post,
-                type=PostInteraction.Types.vote,
-                value=choice,
-            )
-            vote.object_uri = f"{identity.actor_uri}#votes/{vote.id}"
-            vote.save()
-        post.calculate_type_data()
+        with transaction.atomic(using="takahe"):
+            # same rules as takahe's create_votes: lock the poll so a double
+            # submit cannot record two vote sets
+            locked = Post.objects.select_for_update().get(pk=post.pk)
+            if locked.interactions.filter(
+                identity_id=identity_pk, type="vote"
+            ).exists():
+                raise ValueError("Already voted")
+            for choice in choices:
+                vote = PostInteraction.objects.create(
+                    identity_id=identity_pk,
+                    post=locked,
+                    type=PostInteraction.Types.vote,
+                    # the value column is 50 characters, as in takahe
+                    value=choice[:50],
+                )
+                vote.object_uri = f"{identity.actor_uri}#votes/{vote.id}"
+                vote.save()
+            locked.calculate_type_data()
+        # the caller renders its own instance right away
+        post.type_data = locked.type_data

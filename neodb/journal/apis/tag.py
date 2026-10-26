@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.db import IntegrityError, transaction
 from django.http import Http404
 from ninja import Field, Schema, Status
 from ninja.errors import HttpError
@@ -121,12 +122,13 @@ def update_tag(request, tag_uuid: str, t_in: TagInSchema):
         return Status(403, {"message": "Not owner"})
     title = Tag.cleanup_title(t_in.title)
     visibility = _tag_visibility(t_in.visibility)
-    if title != tag.title:
+    if title != tag.title or visibility != tag.visibility:
         try:
-            tag.title = title
-            tag.visibility = visibility
-            tag.save()
-        except Exception:
+            with transaction.atomic():
+                tag.title = title
+                tag.visibility = visibility
+                tag.save()
+        except IntegrityError:
             return Status(409, {"message": "Tag with same title exists"})
     return tag
 

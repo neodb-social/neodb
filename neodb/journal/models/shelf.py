@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 from django.conf import settings
 from django.db import connection, models
 from django.utils import timezone
+from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 from polymorphic.models import ContentType, PolymorphicManager
 
@@ -453,7 +454,7 @@ class ShelfMember(ListMember):
     def to_post_params(self):
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item.url}"
         action = self.get_crosspost_template().format(
-            item=f'<a href="{item_link}">{self.item.display_title}</a>'
+            item=f'<a href="{item_link}">{escape(self.item.display_title)}</a>'
         )
         if self.sibling_comment:
             spoiler, txt = render_spoiler_text(self.sibling_comment.text, self.item)

@@ -26,8 +26,11 @@ from common.utils import (
 from users.models.apidentity import APIdentity
 
 from ..models import (
+    Article,
     Attachment,
+    Collection,
     Mark,
+    Note,
     Piece,
     Rating,
     Review,
@@ -264,8 +267,9 @@ def render_list(
     else:
         queryset = queryset.order_by("-created_time", "-id")
     if year:
-        year = int(year)
-        queryset = queryset.filter(created_time__year=year)
+        year = int_(year)
+        if year:
+            queryset = queryset.filter(created_time__year=year)
     people_type = request.GET.get("people_type") or ""
     if people_type in PeopleType.values and item_category == ItemCategory.People:
         queryset = queryset.filter(item__people__people_type=people_type)
@@ -313,6 +317,10 @@ def render_list(
 @require_http_methods(["GET", "POST"])
 def piece_delete(request, piece_uuid):
     piece = get_object_or_404(Piece, uid=get_uuid_or_404(piece_uuid))
+    if not isinstance(piece, (Article, Collection, Note, Review)):
+        # the routes name these four; a shelf, mark or list member has its
+        # own removal path that keeps logs and siblings consistent
+        raise Http404()
     return_url = get_safe_redirect_url(request.GET.get("return_url"))
     if not piece.is_deletable_by(request.user):
         raise PermissionDenied(_("Insufficient permission"))

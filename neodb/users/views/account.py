@@ -458,17 +458,20 @@ def register(request: HttpRequest):
             assert isinstance(verified_account, MastodonAccount)
             mastodon_account = verified_account
             try:
+                # the form path validates; this path takes the username
+                # straight from the Mastodon account
+                User.username_validator(mastodon_account.username)
                 new_user = User.register(
                     account=mastodon_account,
                     username=mastodon_account.username,
                 )
-            except ValidationError:
+            except ValidationError as e:
                 return render(
                     request,
                     "common/error.html",
                     {
                         "msg": _("Registration failed"),
-                        "secondary_msg": _("Username already taken. Please try again."),
+                        "secondary_msg": " ".join(e.messages),
                     },
                 )
             _consume_invite(request)

@@ -7,7 +7,7 @@ import requests
 from django.utils import timezone
 from requests import RequestException
 
-from catalog.common.downloaders import DownloadError
+from catalog.common.downloaders import DownloadError, redact_url
 from catalog.common.sites import SiteManager
 from catalog.models import IdType, Item
 from common.models import SiteConfig
@@ -254,7 +254,7 @@ class SteamImporter(BaseImporter):
             site.get_resource_ready()
             item = site.get_item()
         except DownloadError as e:
-            logger.error(f"Failed to fetch {e.url}")
+            logger.error(f"Failed to fetch {redact_url(e.url)}")
             item = None
         except Exception as e:
             logger.error(f"Unexcepted error when getting item from appid {app_id}")

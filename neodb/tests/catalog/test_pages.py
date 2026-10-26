@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 from django.test import Client
+from django.urls import reverse
 
 from catalog.models import (
     Album,
@@ -96,4 +97,33 @@ def test_catalog_search(client: Client) -> None:
 
     # not testing the actual external search, just that the page loads
     response = authed_client.get("/search/external?c=book", follow=True)
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_embed_is_only_available_for_podcasts(client: Client) -> None:
+    movie = Movie.objects.create(title="No Embed Movie")
+    podcast = Podcast.objects.create(title="Embed Podcast", host=["Host"])
+
+    assert client.get(f"{movie.url}/embed").status_code == 404
+    response = client.get(f"{podcast.url}/embed")
+    assert response.status_code == 200
+    assert "Embed Podcast" in response.content.decode()
+
+
+@pytest.mark.django_db(databases="__all__")
+@pytest.mark.parametrize(
+    "view_name", ["comments", "comments_by_episode", "reviews", "notes"]
+)
+@pytest.mark.parametrize(
+    "last", ["2026-01-01%2000%3A00%3A02.000000%2B0800", "2026-02-30 00:00:00"]
+)
+def test_item_piece_lists_ignore_malformed_cursor(
+    client: Client, view_name: str, last: str
+) -> None:
+    show = TVShow.objects.create(title="Cursor Show")
+    url = reverse(f"catalog:{view_name}", args=[show.url_path, show.uuid])
+
+    response = client.get(url, {"last": last})
+
     assert response.status_code == 200

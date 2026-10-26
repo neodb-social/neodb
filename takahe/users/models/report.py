@@ -2,7 +2,8 @@ from urllib.parse import urlparse
 
 import httpx
 import urlman
-from core.exceptions import ActivityPubFormatError
+from core.exceptions import ActivityPubDeliveryError, ActivityPubFormatError
+from core.files import SSRFAttemptError
 from core.ld import canonicalise, format_ld_date, get_list
 from core.models import Config
 from core.snowflake import Snowflake
@@ -28,7 +29,6 @@ class ReportStates(StateGraph):
         """
         from users.models import SystemActor, User
 
-        settings.NEODB_MQ.enqueue("takahe.ap_handlers.report_received", instance.pk)
         recipients = []
         for mod in User.objects.filter(
             models.Q(moderator=True) | models.Q(admin=True)
@@ -47,7 +47,7 @@ class ReportStates(StateGraph):
                     uri=instance.subject_identity.inbox_uri,
                     body=canonicalise(instance.to_ap()),
                 )
-            except httpx.RequestError:
+            except httpx.RequestError, SSRFAttemptError, ActivityPubDeliveryError:
                 pass
         email = EmailMultiAlternatives(
             subject=f"{Config.system.site_name}: New Moderation Report",
@@ -74,6 +74,9 @@ class ReportStates(StateGraph):
             mimetype="text/html",
         )
         email.send()
+        # after the send: this state has no timeout, so a failed send would
+        # otherwise re-enqueue the notification every cycle
+        settings.NEODB_MQ.enqueue("takahe.ap_handlers.report_received", instance.pk)
         return cls.sent
 
 

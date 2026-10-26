@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import partial
 from typing import Callable, Sequence
 
@@ -15,7 +16,8 @@ from django.db.models import (
 from django.db.models.functions import RowNumber
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
+from django.template import TemplateDoesNotExist
+from django.template.loader import get_template, render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
@@ -123,10 +125,12 @@ def embed(request, item_path, item_uuid):
         )
     if request.method == "HEAD":
         return HttpResponse()
-    return render(
-        request,
-        "embed_" + item.class_name + ".html",
-        {"item": item, "focus_item": focus_item},
+    try:
+        template = get_template("embed_" + item.class_name + ".html")
+    except TemplateDoesNotExist:
+        raise Http404(_("Item not found"))
+    return HttpResponse(
+        template.render({"item": item, "focus_item": focus_item}, request)
     )
 
 
@@ -307,13 +311,19 @@ def people_works(request, item_path, item_uuid, role):
     )
 
 
+def _cursor_datetime(request) -> datetime | None:
+    # a crawler may re-encode or truncate the cursor, and parse_datetime
+    # raises on a well-formed impossible date such as 2026-02-30
+    try:
+        return parse_datetime(request.GET.get("last", ""))
+    except ValueError:
+        return None
+
+
 def episode_data(request, item_uuid):
     item = get_object_or_404(Podcast, uid=get_uuid_or_404(item_uuid))
     qs = item.episodes.all().order_by("-pub_date")
-    try:
-        last = parse_datetime(request.GET.get("last", ""))
-    except ValueError:
-        last = None
+    last = _cursor_datetime(request)
     if last:
         qs = qs.filter(pub_date__lt=last)
     return render(
@@ -518,7 +528,7 @@ def comments(request, item_path, item_uuid):
         .prefetch_related("item")
     )
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
-    before_time = request.GET.get("last")
+    before_time = _cursor_datetime(request)
     if before_time:
         queryset = queryset.filter(created_time__lte=before_time)
     comments_list = list(queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1])
@@ -543,7 +553,7 @@ def comments_by_episode(request, item_path, item_uuid):
         ids = item.child_item_ids
     queryset = Comment.objects.filter(item_id__in=ids).order_by("-created_time")
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
-    before_time = request.GET.get("last")
+    before_time = _cursor_datetime(request)
     if before_time:
         queryset = queryset.filter(created_time__lte=before_time)
     return render(
@@ -567,7 +577,7 @@ def reviews(request, item_path, item_uuid):
         .prefetch_related("item")
     )
     queryset = queryset.filter(q_piece_visible_to_user(request.user))
-    before_time = request.GET.get("last")
+    before_time = _cursor_datetime(request)
     if before_time:
         queryset = queryset.filter(created_time__lte=before_time)
     reviews_list = list(queryset[: NUM_COMMENTS_ON_ITEM_PAGE + 1])
@@ -635,7 +645,7 @@ def notes(request, item_path, item_uuid):
                 partition_by=[F("owner_id")],
             ),
         ).filter(row_number=1)
-    before_time = request.GET.get("last")
+    before_time = _cursor_datetime(request)
     if before_time:
         queryset = queryset.filter(created_time__lte=before_time)
     return render(

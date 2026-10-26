@@ -307,3 +307,93 @@ class TestSidebarConfirmPages:
 
         assert response.status_code == 302
         assert response["Location"] == "/"
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestEditPermissionGaps:
+    def test_recast_rejects_a_source_outside_the_video_classes(self):
+        book = Edition.objects.create(title="A Book")
+        client = Client()
+        _login(client)
+
+        response = client.post(f"{book.url}/recast", {"class": "movie", "sure": "1"})
+
+        assert response.status_code == 400
+        assert isinstance(Item.objects.get(pk=book.pk), Edition)
+
+    def test_non_staff_cannot_recast_a_show_with_seasons(self):
+        show = TVShow.objects.create(title="Web Show")
+        season = TVSeason.objects.create(title="Season One", show=show, season_number=1)
+        client = Client()
+        _login(client)
+
+        response = client.post(f"{show.url}/recast", {"class": "movie", "sure": "1"})
+
+        assert response.status_code == 403
+        season.refresh_from_db()
+        assert season.show == show
+        assert isinstance(Item.objects.get(pk=show.pk), TVShow)
+
+    def test_non_staff_cannot_touch_a_merged_or_deleted_item(self):
+        source = Movie.objects.create(title="Dup")
+        target = Movie.objects.create(title="Canonical")
+        source.merge_to(target)
+        gone = Movie.objects.create(title="Gone")
+        gone.delete()
+        client = Client()
+        user = _login(client)
+
+        assert not source.is_editable_by(user)
+        assert not gone.is_editable_by(user)
+        response = client.post(f"{source.url}/merge", {"sure": "1"})
+        assert response.status_code == 403
+        source.refresh_from_db()
+        assert source.merged_to_item == target
+
+        staff_client = Client()
+        staff = _login(staff_client, is_staff=True, username="boss")
+        assert source.is_editable_by(staff)
+
+    def test_fetch_tvepisodes_requires_edit_permission(self):
+        show = TVShow.objects.create(title="Locked Show")
+        season = TVSeason.objects.create(
+            title="Locked Season",
+            show=show,
+            season_number=1,
+            is_protected=True,
+        )
+        client = Client()
+        _login(client)
+
+        response = client.post(f"{season.url}/fetch_tvepisodes")
+
+        assert response.status_code == 403
+
+    def test_pick_cover_rejects_a_non_decimal_resource_id(self):
+        movie = Movie.objects.create(title="Cover Movie")
+        client = Client()
+        _login(client)
+
+        response = client.post(f"{movie.url}/pick_cover", {"resource_id": "²"})
+
+        assert response.status_code == 400
+
+    def test_credit_names_are_length_checked(self):
+        movie = Movie.objects.create(title="Credit Movie")
+        client = Client()
+        _login(client)
+
+        response = client.post(
+            f"{movie.url}/credits/add", {"role": "director", "name": "x" * 1001}
+        )
+        assert response.status_code == 400
+
+        response = client.post(
+            f"{movie.url}/credits/add", {"role": "director", "name": "Someone"}
+        )
+        assert response.status_code in (200, 302)
+        credit = movie.credits.get()
+        response = client.post(
+            f"{movie.url}/credits/{credit.pk}/update", {"character_name": "y" * 501}
+        )
+        assert response.status_code == 400

@@ -218,7 +218,11 @@ class MastodonPaginator:
         limit: int | None,
         home: bool = False,
     ) -> PaginationResult[TM]:
-        limit = min(limit or self.default_limit, self.max_limit)
+        limit = max(1, min(limit or self.default_limit, self.max_limit))
+        # ids are snowflakes; anything else would raise inside the ORM cast
+        max_id = max_id if max_id and max_id.isdecimal() else None
+        since_id = since_id if since_id and since_id.isdecimal() else None
+        min_id = min_id if min_id and min_id.isdecimal() else None
         filters = {}
         id_field = "id"
         reverse = False

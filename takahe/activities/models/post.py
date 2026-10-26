@@ -456,7 +456,8 @@ class PostQuerySet(models.QuerySet):
         # It's way faster to check follows and mentioned in subselects and drop the
         # DISTINCT. Also has the advantage of no LEFT OUTER JOINs to mess up
         # aggregation counts (like for PostInteraction counts).
-        followed_ids = identity.outbound_follows.active().values_list(
+        # accepted only: a pending request to a locked account grants nothing
+        followed_ids = identity.outbound_follows.accepted().values_list(
             "target_id", flat=True
         )
         query = self.annotate(
@@ -1680,7 +1681,6 @@ class Post(StatorModel):
             # object, or an array of either. WriteFreely emits
             # ``[author_person, blog_group]`` for blog posts; the author
             # is conventionally first, so we take the head.
-            attributed_uris = cls._attributed_to_uris(data.get("attributedTo"))
             data["attributedTo"] = cls._primary_attributed_to(data.get("attributedTo"))
             data["type"] = cls._primary_post_type(data.get("type"))
             # Ensure data has the primary fields of all Posts
@@ -1716,6 +1716,12 @@ class Post(StatorModel):
             if create:
                 # Resolve the author
                 author = Identity.by_actor_uri(data["attributedTo"], create=create)
+                if author.local:
+                    # a local author's posts are never created from a
+                    # fetched or delivered document
+                    raise ActorMismatchError(
+                        f"Remote document attributed to local {author.pk}"
+                    )
                 # If the author is not fetched yet, try again later
                 if author.domain is None:
                     if fetch_author:
@@ -1752,14 +1758,21 @@ class Post(StatorModel):
             # never take their content from inbound documents.
             if post.local:
                 raise ActorMismatchError(f"Remote data for local post {post.pk}")
-            if not any(post.author.is_actor_uri(uri) for uri in attributed_uris):
+            # the primary entry, not any entry: a same-host actor could
+            # otherwise list a neighbour as co-author and edit their post
+            primary = cls._primary_attributed_to(data["attributedTo"])
+            if not isinstance(primary, str) or not post.author.is_actor_uri(primary):
                 raise ActorMismatchError(
-                    f"Object attributedTo does not include the author of post {post.pk}"
+                    f"Object attributedTo does not name the author of post {post.pk}"
                 )
         if update or created:
             post.type = data["type"]
             url, _ = get_ap_link(data.get("url"), preferred_media_type="text/html")
-            if not url or len(url) > cls._meta.get_field("url").max_length:
+            if (
+                not url
+                or not url.startswith(("http://", "https://"))
+                or len(url) > cls._meta.get_field("url").max_length
+            ):
                 url = data["id"]
             post.url = url
             if post.type == cls.Types.question:
@@ -1929,6 +1942,9 @@ class Post(StatorModel):
                     raise ActivityPubFormatError(
                         f"No URL present on attachment in {post.url}"
                     )
+                if not attachment_url.startswith(("http://", "https://")):
+                    # rendered as a plain href for non-image types
+                    continue
                 post.attachments.create(
                     remote_url=attachment_url,
                     mimetype=mimetype,

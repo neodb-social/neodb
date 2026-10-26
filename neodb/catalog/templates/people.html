@@ -43,7 +43,7 @@
   </div>
   <div>
     {% if item.official_site %}
-      {% trans "website" %}: <a href="{{ item.official_site }}"
+      {% trans "website" %}: <a href="{{ item.official_site|http_href }}"
     target="_blank"
     rel="noopener">{{ item.official_site|strip_scheme }}</a>
     {% endif %}

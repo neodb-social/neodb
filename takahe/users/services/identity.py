@@ -226,9 +226,14 @@ class IdentityService:
             ),
         }
 
+    MAX_SYNCED_PINS = 20
+
     def sync_pins(self, object_uris: list[str]) -> None:
         if not object_uris or self.identity.domain.blocked:
             return
+        # each unknown pin is a signed fetch inside this transaction, and the
+        # list is peer controlled
+        object_uris = object_uris[: self.MAX_SYNCED_PINS]
 
         with transaction.atomic():
             uris = set(object_uris)

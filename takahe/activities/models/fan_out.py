@@ -5,6 +5,7 @@ from django.db import models
 
 from activities.models.timeline_event import TimelineEvent
 from core.exceptions import ActivityPubDeliveryError
+from core.files import SSRFAttemptError
 from core.ld import canonicalise
 from stator.exceptions import TryAgainLater
 from stator.models import State, StateField, StateGraph, StatorModel
@@ -96,6 +97,10 @@ class FanOutStates(StateGraph):
                 uri=(instance.identity.shared_inbox_uri or instance.identity.inbox_uri),
                 body=body,
             )
+        except SSRFAttemptError as error:
+            # an inbox on a non-public address never becomes deliverable
+            logger.info("FanOut %s was blocked: %s", instance.pk, error)
+            return cls.failed
         except httpx.RequestError:
             raise TryAgainLater() from None
         except ActivityPubDeliveryError as error:

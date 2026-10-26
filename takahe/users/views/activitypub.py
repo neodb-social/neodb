@@ -359,7 +359,21 @@ class Inbox(FederatedView):
         # unknown signers without a cached key, pre-compute data for deferred
         # verification.
         if http_sig_present:
-            relay_mode = key_id_actor != document["actor"]
+            # a signer is the actor itself when the keyId, without its
+            # fragment, is the actor URI, or the actor URI plus one path
+            # segment (GoToSocial's /main-key, BookWyrm's trailing slash);
+            # the key used to verify is still the actor's own, fetched from
+            # its document, so this only decides direct versus relay
+            actor_prefix = document["actor"].rstrip("/")
+            kid = key_id_actor or ""
+            relay_mode = not (
+                kid == document["actor"]
+                or kid.rstrip("/") == actor_prefix
+                or (
+                    kid.startswith(actor_prefix + "/")
+                    and "/" not in kid[len(actor_prefix) + 1 :].rstrip("/")
+                )
+            )
             signer_identity = (
                 Identity.by_actor_uri(key_id_actor, create=True, transient=True)
                 if relay_mode

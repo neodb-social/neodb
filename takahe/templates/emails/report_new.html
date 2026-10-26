@@ -13,14 +13,14 @@
         {% email_body_content "=============== Report Summary ===============" %}
 
         {% if report.source_identity %}
-            {% email_body_content "Reporter Identity: {{ report.source_identity }} @ {{ report.source_domain }}" %}
+            {% email_body_content "Reporter Identity: {{ report.source_identity|force_escape }} @ {{ report.source_domain|force_escape }}" %}
         {% else %}
-            {% email_body_content "Reporter Identity: Anonymous Report from {{ report.source_domain }}" %}
+            {% email_body_content "Reporter Identity: Anonymous Report from {{ report.source_domain|force_escape }}" %}
         {% endif %}
 
-        {% email_body_content "Reported Identity: {{ report.subject_identity }}" %}
-        {% email_body_content "Complaint Type: {{ report.type }}" %}
-        {% email_body_content "Complaint Notes: {{ report.complaint }}" %}
+        {% email_body_content "Reported Identity: {{ report.subject_identity|force_escape }}" %}
+        {% email_body_content "Complaint Type: {{ report.type|force_escape }}" %}
+        {% email_body_content "Complaint Notes: {{ report.complaint|force_escape }}" %}
     {% endblock body_content %}
 
     {% block body_button %}

@@ -395,6 +395,33 @@ def get_related_acct_list(site, token, api):
     return results
 
 
+def _domain_delegates_to(domain: str, login_domain: str) -> bool:
+    """Whether `domain` points its well-known discovery at `login_domain`,
+    as a split-domain instance does with host-meta: a redirect to the web
+    domain, or an lrdd template on it."""
+    # some setups redirect only webfinger, so that counts as well
+    for url in (
+        f"https://{domain}/.well-known/host-meta",
+        f"https://{domain}/.well-known/webfinger?resource=acct:probe@{domain}",
+    ):
+        if not is_valid_url(url):
+            return False
+        try:
+            response = get(url, headers={"User-Agent": USER_AGENT})
+        except Exception:
+            continue
+        if 300 <= response.status_code < 400:
+            location = response.headers.get("location", "")
+            if urlparse(location).hostname == login_domain.lower():
+                return True
+        elif (
+            response.status_code == 200
+            and f"https://{login_domain.lower()}/" in response.text.lower()
+        ):
+            return True
+    return False
+
+
 def detect_server_info(login_domain: str) -> tuple[str, str, str]:
     url = f"https://{login_domain}/api/v1/instance"
     if not is_valid_url(url):
@@ -431,6 +458,14 @@ def detect_server_info(login_domain: str) -> tuple[str, str, str]:
                 response.json()
             except Exception:
                 api_domain = login_domain
+        if api_domain == login_domain and not _domain_delegates_to(
+            domain, login_domain
+        ):
+            # the instance claims a domain it does not serve; without this
+            # check any host could bind an unregistered domain to itself and
+            # then answer verify_credentials as any user of that domain
+            logger.warning(f"{login_domain} claims {domain} without delegation")
+            raise Exception(f"Instance {login_domain} returned invalid data")
     logger.info(
         f"detect_server_info: {login_domain} {domain} {api_domain} {server_version}"
     )
@@ -491,9 +526,8 @@ def obtain_token(site, code, request):
         logger.warning(f"Error {url} {e}")
         return None, None
     if response.status_code != 200:
-        logger.warning(
-            f"Error {url} {payload} {response.status_code} {response.content}"
-        )
+        # the payload carries the client secret and the authorization code
+        logger.warning(f"Error {url} {response.status_code}")
         return None, None
     try:
         data = response.json()

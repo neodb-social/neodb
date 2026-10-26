@@ -34,7 +34,7 @@ def int_(x, default=0):
     return (
         x
         if isinstance(x, int)
-        else (int(x) if (isinstance(x, str) and x.isdigit()) else default)
+        else (int(x) if (isinstance(x, str) and x.isdecimal()) else default)
     )
 
 

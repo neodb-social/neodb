@@ -1,14 +1,22 @@
 import datetime
+import logging
 from typing import Optional
 
 import httpx
-from core.exceptions import ActivityPubFormatError, ActorMismatchError
+from core.exceptions import (
+    ActivityPubDeliveryError,
+    ActivityPubFormatError,
+    ActorMismatchError,
+)
+from core.files import SSRFAttemptError
 from core.ld import canonicalise, get_str_or_id
 from django.db import models, transaction
 from django.utils import timezone
 from stator.models import State, StateField, StateGraph, StatorModel
 
 from users.models.identity import Identity
+
+logger = logging.getLogger(__name__)
 
 
 class BlockStates(StateGraph):
@@ -54,6 +62,13 @@ class BlockStates(StateGraph):
             )
         except httpx.RequestError:
             return
+        except ActivityPubDeliveryError as error:
+            if error.retryable:
+                return
+            # the block holds locally either way; resending cannot help
+            logger.info("Block %s not delivered: %s", instance.pk, error)
+        except SSRFAttemptError as error:
+            logger.info("Block %s not delivered: %s", instance.pk, error)
         return cls.sent
 
     @classmethod
@@ -80,6 +95,12 @@ class BlockStates(StateGraph):
             )
         except httpx.RequestError:
             return
+        except ActivityPubDeliveryError as error:
+            if error.retryable:
+                return
+            logger.info("Block undo %s not delivered: %s", instance.pk, error)
+        except SSRFAttemptError as error:
+            logger.info("Block undo %s not delivered: %s", instance.pk, error)
         return cls.undone_sent
 
 

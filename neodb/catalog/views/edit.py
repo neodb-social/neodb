@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import BadRequest, PermissionDenied
 from django.core.files.uploadedfile import UploadedFile
+from django.db import transaction
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -286,7 +287,7 @@ def pick_cover(request, item_path, item_uuid):
     resource_id = request.POST.get("resource_id", "")
     if resource_id == "current":
         return redirect(item.url)
-    if not resource_id.isdigit():
+    if not resource_id.isdecimal():
         raise BadRequest(_("Invalid parameter"))
     resource = get_object_or_404(ExternalResource, id=resource_id, item=item)
     if not resource.has_cover():
@@ -359,6 +360,10 @@ def recast(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=get_uuid_or_404(item_uuid))
     if not item.is_editable_by(request.user):
         raise PermissionDenied(_("Editing this item is restricted."))
+    if not isinstance(item, (Movie, TVShow, TVSeason)):
+        raise BadRequest("Invalid source type")
+    if isinstance(item, TVShow) and not request.user.is_staff and item.seasons.exists():
+        raise PermissionDenied(_("Insufficient permission"))
     cls = request.POST.get("class")
     # TODO move some of the logic to model
     douban_movie_to_tvseason = False
@@ -411,12 +416,15 @@ def recast(request, item_path, item_uuid):
         thread_name=f"[recast] {item.display_title}",
         username=f"@{request.user.username}",
     )
-    if isinstance(item, TVShow):
-        for season in item.seasons.all():
-            logger.warning(f"{request.user} recast orphaning season {season}")
-            season.show = None
-            season.save(update_fields=["show"])
-    new_item = item.recast_to(model)
+    with transaction.atomic():
+        # one transaction, or a recast that fails on a deferred FK leaves the
+        # seasons detached from a show that is still a show
+        if isinstance(item, TVShow):
+            for season in item.seasons.all():
+                logger.warning(f"{request.user} recast orphaning season {season}")
+                season.show = None
+                season.save(update_fields=["show"])
+        new_item = item.recast_to(model)
     record_catalog_edit("update", new_item.class_name, "recast")
     if douban_movie_to_tvseason:
         for res in item.external_resources.filter(
@@ -543,8 +551,17 @@ def remove_unused_seasons(request, item_path, item_uuid):
 @login_required
 def fetch_tvepisodes(request, item_path, item_uuid):
     item = get_object_or_404(TVSeason, uid=get_uuid_or_404(item_uuid))
+    if not item.is_editable_by(request.user):
+        raise PermissionDenied(_("Editing this item is restricted."))
     if item.class_name != "tvseason" or not item.imdb or item.season_number is None:
         raise BadRequest(_("TV season with IMDB id and season number required."))
+    if not cache.add(f"_fetch_tvepisodes_lock:{item.pk}", 1, timeout=300):
+        messages.add_message(
+            request,
+            messages.WARNING,
+            _("Already updating episodes for this season, try again later."),
+        )
+        return redirect(item.url)
     item.log_action({"!fetch_tvepisodes": ["", ""]})
     record_catalog_edit("fetch", item.class_name, "fetch_tvepisodes")
     django_rq.get_queue("crawl").enqueue(
@@ -781,6 +798,8 @@ def add_credit(request, item_path, item_uuid):
     name_input = request.POST.get("name", "").strip()
     if not role or not name_input:
         raise BadRequest("role and name are required")
+    if len(name_input) > 1000:  # ItemCredit.name max_length
+        raise BadRequest("name too long")
     allowed_roles = {v for v, _ in type(item).credit_role_choices()}
     if role not in allowed_roles:
         raise BadRequest("invalid role")
@@ -856,6 +875,8 @@ def update_credit(request, item_path, item_uuid, credit_id):
         raise PermissionDenied(_("Editing this item is restricted."))
     credit = get_object_or_404(ItemCredit, pk=credit_id, item=item)
     character_name = request.POST.get("character_name", "").strip()
+    if len(character_name) > 500:  # ItemCredit.character_name max_length
+        raise BadRequest("character name too long")
     credit.character_name = character_name
     credit.save()
     record_catalog_edit("update", item.class_name, "update_credit")

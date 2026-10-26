@@ -18,7 +18,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from api.models import Application, Authorization, Token
+from api.models import Application, Authorization, PushSubscription, Token
 
 
 class OauthRedirect(HttpResponseRedirect):
@@ -342,4 +342,7 @@ class RevokeTokenView(View):
 
         token.revoked = timezone.now()
         token.save()
+        # the app logged out, so its push endpoint must stop receiving
+        # notification bodies
+        PushSubscription.objects.filter(token=token).delete()
         return HttpResponse("")

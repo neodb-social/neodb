@@ -10,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
-from django.db.models import Count, Exists, F, OuterRef, Q
+from django.db.models import Count, Exists, F, OuterRef, ProtectedError, Q
 from django.db.models.expressions import RawSQL
 from django.db.models.fields.json import KeyTextTransform
 from django.utils import timezone
@@ -875,7 +875,12 @@ class Command(SiteCommand):
         for cls in Item.__subclasses__():
             if self.fix:
                 self.stdout.write(f"Cleaning up {cls}...")
-                cls.objects.filter(is_deleted=True).delete()
+                try:
+                    cls.objects.filter(is_deleted=True).delete()
+                except ProtectedError as e:
+                    # a soft-deleted podcast keeps episodes that still have
+                    # journal rows; skip the class rather than abort the run
+                    self.stdout.write(f"Skipped {cls}: {e}")
 
     def prune_podcast_no_audio(self, dry_run: bool, limit: int | None = None):
         """Hard-delete PodcastEpisode rows that have no media_url, unless the
