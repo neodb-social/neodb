@@ -26,7 +26,7 @@
                         class="article-translate-link"
                         {% if article.classname == "review" %}hx-post="{% url 'journal:review_translate' article.uuid %}"{% else %}hx-post="{% url 'journal:article_translate' article.uuid %}"{% endif %}
                         hx-trigger="click once"
-                        hx-target="#{{ article.classname }}_{{ article.uuid }}_content"><i class="fa-solid fa-language" aria-hidden="true"></i> {% trans "Translate" %}</button>
+                        hx-target="#{{ article.classname }}_{{ article.uuid }}_text"><i class="fa-solid fa-language" aria-hidden="true"></i> {% trans "Translate" %}</button>
               {% endif %}
               {% if request.user.identity == article.owner %}
                 <a class="article-edit-link" href="{{ article.edit_url }}">{% trans "Edit" %}</a>
@@ -57,7 +57,8 @@
                  src="{{ article.display_cover_image_url }}"
                  alt="{{ article.title }}">
           {% endif %}
-          {{ article.html_content|safe }}
+          <div id="{{ article.classname }}_{{ article.uuid }}_text"
+               data-article-text>{{ article.html_content|safe }}</div>
         {% else %}
           <p class="empty">{% trans "The author has set it to be viewable only by logged-in users." %}</p>
         {% endif %}

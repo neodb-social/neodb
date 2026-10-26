@@ -119,6 +119,9 @@ def test_review_publish_and_edit_preserve_date_language_and_privacy(writer):
     post_id = review.latest_post.pk
     edit = client.get(review.edit_url)
     assert "Save changes" in edit.content.decode()
+    date_field = html.fromstring(edit.content).find('.//input[@id="id_mark_date"]')
+    assert date_field is not None
+    assert date_field.get("value") == "2020-04-05"
     data.update(title="Revised review", body="Updated thoughts")
     data.pop("mark_anotherday")
     data.pop("mark_date")
@@ -245,3 +248,16 @@ def test_review_edit_and_delete_are_owner_only(writer):
     review.refresh_from_db()
     assert (review.title, review.body) == ("Mine", "Original")
     assert not Review.objects.filter(owner=other.identity).exists()
+
+
+def test_review_edit_saves_to_the_reviews_own_item(writer):
+    user, book, client = writer
+    review = Review.update_item_review(book, user.identity, "Mine", "Original")
+    assert review is not None
+    other_book = Edition.objects.create(title="Another Book")
+    url = reverse("journal:review_edit", args=[other_book.uuid, review.uuid])
+    data = {"item": other_book.pk, "title": "Revised", "body": "x", "visibility": "0"}
+    assert client.post(url, data).status_code == 302
+    review.refresh_from_db()
+    assert (review.item_id, review.title) == (book.pk, "Revised")
+    assert not Review.objects.filter(item=other_book).exists()

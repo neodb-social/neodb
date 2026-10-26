@@ -125,7 +125,11 @@ class ReviewForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         today = timezone.localdate()
         self.fields["mark_date"].widget.attrs["max"] = today.isoformat()
-        self.fields["mark_date"].initial = today
+        self.fields["mark_date"].initial = (
+            timezone.localtime(self.instance.created_time).date()
+            if self.instance.pk
+            else today
+        )
         if self.is_bound and not self.fields[
             "mark_anotherday"
         ].widget.value_from_datadict(

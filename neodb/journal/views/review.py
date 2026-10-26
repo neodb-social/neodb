@@ -89,7 +89,7 @@ def review_translate(request, review_uuid: str):
     text = translate(text, request.user.language, lang)
     title = translate(review.title, request.user.language, lang)
     return HttpResponse(
-        f'<span hx-swap-oob="true" id="review_{review.uuid}_title">{escape(title)}</span><div>{text}</div>'
+        f'<span hx-swap-oob="true" id="review_{review.uuid}_title">{escape(title)}</span>{text}'
     )
 
 
@@ -102,8 +102,11 @@ def review_edit(request: AuthedHttpRequest, item_uuid, review_uuid=None):
         if review_uuid
         else None
     )
-    if review and not review.is_editable_by(request.user):
-        raise PermissionDenied(_("Insufficient permission"))
+    if review:
+        if not review.is_editable_by(request.user):
+            raise PermissionDenied(_("Insufficient permission"))
+        # the save looks the review up by item, so use its own
+        item = review.item
     if request.method == "GET":
         language = post_language_initial(request.user, review)
         form = (

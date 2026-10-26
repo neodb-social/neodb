@@ -28,6 +28,9 @@
   table { display: block; max-width: 100%; overflow-x: auto; font: .9rem/1.6 var(--pico-font-family); }
   > :first-child { margin-top: 0; }
   > :last-child { margin-bottom: 0; }
+  // The reader wraps the text so a translation can replace it alone.
+  > [data-article-text]:first-child > :first-child { margin-top: 0; }
+  > [data-article-text]:last-child > :last-child { margin-bottom: 0; }
 }
 
 // Long-form articles and reviews share NeoDB's shell and Pico tokens.
