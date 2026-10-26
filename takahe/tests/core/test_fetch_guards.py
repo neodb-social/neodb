@@ -22,6 +22,22 @@ def test_signed_get_refuses_a_cross_host_redirect(identity, httpx_mock):
 
 
 @pytest.mark.django_db
+def test_signed_get_treats_a_malformed_redirect_as_a_connection_error(
+    identity, httpx_mock
+):
+    httpx_mock.add_response(
+        url="https://peer.test/notes/1",
+        status_code=302,
+        headers={"location": "https://peer.test/notes/\x01"},
+    )
+
+    # httpx raises its own request error for this header; a target that
+    # fails only on join is turned into a ConnectError, which callers handle
+    with pytest.raises(httpx.RequestError):
+        identity.signed_request(method="get", uri="https://peer.test/notes/1")
+
+
+@pytest.mark.django_db
 def test_signed_get_follows_a_same_host_redirect(identity, httpx_mock):
     httpx_mock.add_response(
         url="https://peer.test/notes/1",

@@ -4,6 +4,12 @@ from takahe.models import Post
 
 register = template.Library()
 
+PUBLIC_VISIBILITIES = (
+    Post.Visibilities.public,
+    Post.Visibilities.unlisted,
+    Post.Visibilities.local_only,
+)
+
 
 @register.filter
 def quoted_post_for(post: Post, user) -> Post | None:
@@ -13,6 +19,10 @@ def quoted_post_for(post: Post, user) -> Post | None:
     quoted = post.quoted_post_
     if not quoted:
         return None
+    if quoted.visibility in PUBLIC_VISIBILITIES:
+        # same as before this check existed; the query is only for the
+        # followers-only and direct posts it protects
+        return quoted
     viewer = user.identity.takahe_identity if user and user.is_authenticated else None
     visible = (
         Post.objects.not_hidden()

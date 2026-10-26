@@ -29,6 +29,8 @@ from journal.search import JournalIndex, JournalQueryParser
 from social.feed_grouping import FeedEvent, FeedEventGroup, group_feed_events
 from takahe.models import Post, PostInteraction, TimelineEvent
 from takahe.utils import Takahe
+
+from .templatetags.social_posts import PUBLIC_VISIBILITIES
 from users.models import APIdentity
 
 PAGE_SIZE = 10
@@ -376,13 +378,17 @@ class NotificationEvent:
             if self.reply and self.reply.visibility == Post.Visibilities.mentioned:
                 self.conversation_id = self.reply.conversation_id
             self.post = self.post.in_reply_to_post() if self.post else None
-            # a remote reply names any inReplyTo it likes, so the parent is
-            # shown only when the notified identity may see it
-            if self.post and not (
-                Post.objects.not_hidden()
-                .visible_to(tle.identity, include_replies=True)
-                .filter(pk=self.post.pk)
-                .exists()
+            # a remote reply names any inReplyTo it likes, so a non-public
+            # parent is shown only when the notified identity may see it
+            if (
+                self.post
+                and self.post.visibility not in PUBLIC_VISIBILITIES
+                and not (
+                    Post.objects.not_hidden()
+                    .visible_to(tle.identity, include_replies=True)
+                    .filter(pk=self.post.pk)
+                    .exists()
+                )
             ):
                 self.post = None
         self.piece = Piece.get_by_post_id(self.post.id) if self.post else None

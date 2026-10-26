@@ -377,7 +377,14 @@ class HttpSignature:
                 hops = 0
                 while method == "get" and response.is_redirect:
                     hops += 1
-                    target = response.url.join(response.headers["location"])
+                    try:
+                        target = response.url.join(response.headers["location"])
+                    except httpx.InvalidURL as ex:
+                        # not an HTTPError, so it would escape the callers'
+                        # request error handling
+                        raise httpx.ConnectError(
+                            f"Fetch of {uri} redirected to an invalid URL: {ex}"
+                        ) from None
                     if target.host != httpx.URL(uri).host:
                         raise httpx.ConnectError(
                             f"Fetch of {uri} redirected to another host: {target.host}"
