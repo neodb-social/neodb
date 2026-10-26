@@ -198,7 +198,8 @@ class NdjsonImporter(BaseImporter):
             except Exception as e:
                 logger.warning(f"error registering note attachment {src}: {e}")
         url = atta.get("url")
-        if not url:
+        if not isinstance(url, str) or not url.startswith(("http://", "https://")):
+            # the pointer lands in an inline style and an href
             return None
         return Attachment.pointer_for_url(owner, url, mimetype)
 
@@ -233,7 +234,7 @@ class NdjsonImporter(BaseImporter):
         """Import a collection from NDJSON data."""
         try:
             owner = self.user.identity
-            visibility = data.get("visibility", self.metadata.get("visibility", 0))
+            visibility = self._visibility(data)
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
@@ -321,11 +322,22 @@ class NdjsonImporter(BaseImporter):
             logger.exception("Error importing collection")
             return "failed"
 
+    def _visibility(self, data: Dict[str, Any]) -> int:
+        # an archive value outside the known levels would be posted publicly
+        # by visibility_n2t while every list hides it
+        value = data.get("visibility", self.metadata.get("visibility", 0))
+        return value if value in (0, 1, 2) else 0
+
+    def parse_datetime(self, timestamp_str: str | None) -> datetime.datetime | None:
+        # a future timestamp would pin the piece to the top of every list
+        dt = super().parse_datetime(timestamp_str)
+        return None if dt and dt > timezone.now() else dt
+
     def import_shelf_member(self, data: Dict[str, Any]) -> BaseImporter.ImportResult:
         """Import a shelf member (mark) from NDJSON data."""
         try:
             owner = self.user.identity
-            visibility = data.get("visibility", self.metadata.get("visibility", 0))
+            visibility = self._visibility(data)
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
@@ -438,7 +450,7 @@ class NdjsonImporter(BaseImporter):
         """Import a standalone Article from NDJSON data."""
         try:
             owner = self.user.identity
-            visibility = data.get("visibility", self.metadata.get("visibility", 0))
+            visibility = self._visibility(data)
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {}) or {}
             published_dt = self.parse_datetime(content_data.get("published"))
@@ -525,7 +537,7 @@ class NdjsonImporter(BaseImporter):
         """Import a review from NDJSON data."""
         try:
             owner = self.user.identity
-            visibility = data.get("visibility", self.metadata.get("visibility", 0))
+            visibility = self._visibility(data)
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
@@ -576,7 +588,7 @@ class NdjsonImporter(BaseImporter):
         """Import a note from NDJSON data."""
         try:
             owner = self.user.identity
-            visibility = data.get("visibility", self.metadata.get("visibility", 0))
+            visibility = self._visibility(data)
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
             updated_dt = self._archive_updated(content_data)
@@ -652,7 +664,7 @@ class NdjsonImporter(BaseImporter):
         """Import a comment from NDJSON data."""
         try:
             owner = self.user.identity
-            visibility = data.get("visibility", self.metadata.get("visibility", 0))
+            visibility = self._visibility(data)
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
@@ -699,7 +711,7 @@ class NdjsonImporter(BaseImporter):
         """Import a rating from NDJSON data."""
         try:
             owner = self.user.identity
-            visibility = data.get("visibility", self.metadata.get("visibility", 0))
+            visibility = self._visibility(data)
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))
@@ -713,6 +725,9 @@ class NdjsonImporter(BaseImporter):
                 # a rating with no grade carries nothing to restore, and
                 # Rating.update_item_rating treats it as a deletion
                 return "skipped"
+            if rating_grade < 1 or rating_grade > 10:
+                logger.warning(f"Invalid rating grade {rating_grade} for {item_url}")
+                return "failed"
             existing_rating = Rating.objects.filter(owner=owner, item=item).first()
             if not existing_rating:
                 try:
@@ -755,7 +770,7 @@ class NdjsonImporter(BaseImporter):
         """Import tags from NDJSON data."""
         try:
             owner = self.user.identity
-            visibility = data.get("visibility", self.metadata.get("visibility", 0))
+            visibility = self._visibility(data)
             pinned = data.get("pinned", self.metadata.get("pinned", False))
             tag_title = Tag.cleanup_title(data.get("name", ""))
             Tag.objects.update_or_create(
@@ -775,7 +790,7 @@ class NdjsonImporter(BaseImporter):
         """Import tags from NDJSON data."""
         try:
             owner = self.user.identity
-            visibility = data.get("visibility", self.metadata.get("visibility", 0))
+            visibility = self._visibility(data)
             metadata = data.get("metadata") or {}
             content_data = data.get("content", {})
             published_dt = self.parse_datetime(content_data.get("published"))

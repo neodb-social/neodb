@@ -645,7 +645,8 @@ class Identity(models.Model):
                 # hitting the webfinger URL on the domain we were given to handle
                 # incorrectly setup servers.
                 if response.status_code == 200 and response.content.strip():
-                    tree = etree.fromstring(response.content)
+                    parser = etree.XMLParser(resolve_entities=False, no_network=True)
+                    tree = etree.fromstring(response.content, parser=parser)
                     template = tree.xpath(
                         "string(.//*[local-name() = 'Link' and @rel='lrdd' and (not(@type) or @type='application/jrd+json')]/@template)"
                     )
@@ -811,8 +812,10 @@ class Identity(models.Model):
                     local=True,
                 )
             else:
+                # exact, as takahe does: a peer may serve Alice and alice as
+                # two actors, and iexact then raises MultipleObjectsReturned
                 return cls.objects.get(
-                    username__iexact=username,
+                    username=username,
                     domain_id=domain,
                 )
         except cls.DoesNotExist:
@@ -1719,7 +1722,8 @@ class Post(models.Model):
             for option in self.type_data["options"]:
                 option["votes"] = self.interactions.filter(
                     type=PostInteraction.Types.vote,
-                    value=option["name"],
+                    # votes store the first 50 characters of the option
+                    value=option["name"][:50],
                 ).count()
         if save:
             self.save()

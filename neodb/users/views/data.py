@@ -1809,6 +1809,9 @@ def _import_social_graph_task(
             logger.warning(f"Error importing {import_type} for {handle}: {e}")
 
 
+MAX_SOCIAL_GRAPH_IMPORT_ROWS = 5000
+
+
 @login_required
 @require_http_methods(["POST"])
 def import_social_graph(request):
@@ -1837,6 +1840,15 @@ def import_social_graph(request):
 
     if not entries:
         messages.error(request, _("No valid entries found in the CSV file."))
+        return redirect(reverse("users:info"))
+    if len(entries) > MAX_SOCIAL_GRAPH_IMPORT_ROWS:
+        # every row becomes a follow or a remote lookup in the worker
+        messages.error(
+            request,
+            _("Too many entries, at most {count} are accepted per import.").format(
+                count=MAX_SOCIAL_GRAPH_IMPORT_ROWS
+            ),
+        )
         return redirect(reverse("users:info"))
 
     record_activity("import", "web")

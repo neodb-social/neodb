@@ -8,6 +8,7 @@ from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import escape
 from django.utils.translation import gettext as _
 from markdownify import markdownify as md
 
@@ -213,9 +214,9 @@ class Review(Content):
         item_link = f"{settings.SITE_INFO['site_url']}/~neodb~{self.item.url}"
         prepend_content = (
             self.get_crosspost_template().format(
-                item=f'<a href="{item_link}">{self.item.display_title}</a>'
+                item=f'<a href="{item_link}">{escape(self.item.display_title)}</a>'
             )
-            + f'<br><a href="{self.absolute_url}">{self.title}</a>'
+            + f'<br><a href="{self.absolute_url}">{escape(self.title)}</a>'
         )
         content = f"{render_rating(self.rating_grade)}\n{self.get_crosspost_postfix()}"
         params: dict[str, Any] = {

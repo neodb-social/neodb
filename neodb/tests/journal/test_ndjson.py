@@ -2161,3 +2161,44 @@ def test_ndjson_unknown_shelf_status_is_rejected_before_insert(caplog) -> None:
     assert "Traceback" not in caplog.text
     with pytest.raises(ValueError):
         Mark(user.identity, game).update("playing")  # pyrefly: ignore[bad-argument-type]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_ndjson_clamps_archive_values(caplog) -> None:
+    user = User.register(email="ndjson_clamp@test.com", username="ndjson_clamp")
+    game = Game.objects.create(title="Clamp Game")
+    importer = NdjsonImporter.create(user=user, file="x.zip", visibility=0)
+    importer.items = {game.absolute_url: game}
+    future = (timezone.now() + datetime.timedelta(days=30)).isoformat()
+
+    with caplog.at_level(logging.WARNING):
+        assert (
+            importer.import_rating(
+                {
+                    "type": "Rating",
+                    "visibility": 9,
+                    "content": {"withRegardTo": game.absolute_url, "value": 32767},
+                }
+            )
+            == "failed"
+        )
+    assert not Rating.objects.filter(owner=user.identity, item=game).exists()
+    assert "Traceback" not in caplog.text
+
+    assert (
+        importer.import_shelf_member(
+            {
+                "type": "ShelfMember",
+                "visibility": 9,
+                "content": {
+                    "withRegardTo": game.absolute_url,
+                    "status": ShelfType.WISHLIST,
+                    "published": future,
+                },
+            }
+        )
+        == "imported"
+    )
+    member = ShelfMember.objects.get(owner=user.identity, item=game)
+    assert member.visibility == 0
+    assert member.created_time <= timezone.now()
