@@ -122,14 +122,20 @@ def _resolve_owned_attachments(
 ) -> list[PostAttachment]:
     """
     Resolve a list of attachment IDs to PostAttachment rows owned by the
-    caller. Raises 404 for unknown IDs and 403 for any attachment whose
-    author is not the requesting identity (including null-author rows).
+    caller. Raises 404 for unknown IDs, 403 for any attachment whose
+    author is not the requesting identity (including null-author rows),
+    and 422 for media held by a pending scheduled status.
     """
     attachments: list[PostAttachment] = []
+    reserved = (
+        ScheduledStatus.reserved_media_ids(request.identity) if media_ids else set()
+    )
     for media_id in media_ids:
         attachment = get_object_or_404(PostAttachment, pk=media_id)
         if attachment.author_id != request.identity.pk:
             raise ApiError(403, "Not the owner of this attachment")
+        if attachment.pk in reserved:
+            raise ApiError(422, "Validation failed: Media is already attached")
         attachments.append(attachment)
     return attachments
 

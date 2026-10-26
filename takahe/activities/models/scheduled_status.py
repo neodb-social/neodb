@@ -239,6 +239,20 @@ class ScheduledStatus(StatorModel):
             self.params.get("visibility") or "public", Post.Visibilities.public
         )
 
+    @classmethod
+    def reserved_media_ids(cls, author: Identity) -> set[int]:
+        """
+        Media held unattached by the author's pending statuses. Another
+        status that took it would leave the scheduled one without it.
+        """
+        return {
+            int(i)
+            for media_ids in cls.objects.filter(
+                author=author, state=ScheduledStatusStates.scheduled
+            ).values_list("params__media_ids", flat=True)
+            for i in media_ids or []
+        }
+
     def attachments(self) -> list[PostAttachment]:
         """
         The media still available to this status, in the requested order.
@@ -282,7 +296,13 @@ class ScheduledStatus(StatorModel):
         visible = Post.objects.not_hidden().visible_to(author, include_replies=True)
         reply_to = quote = None
         if self.params.get("in_reply_to_id"):
-            reply_to = visible.filter(pk=self.params["in_reply_to_id"]).first()
+            # Same lookup as post_for_id when the status was scheduled
+            reply_to = (
+                Post.objects.not_hidden()
+                .visible_to(author, include_replies=True, include_muted=True)
+                .filter(pk=self.params["in_reply_to_id"])
+                .first()
+            )
             if reply_to is None:
                 return None
         if self.params.get("quoted_status_id"):

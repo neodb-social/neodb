@@ -11,6 +11,7 @@ from activities.models import (
     ScheduledStatusStates,
 )
 from core.ld import format_ld_date
+from users.services import IdentityService
 
 
 def _in(**kwargs) -> datetime.datetime:
@@ -170,6 +171,34 @@ def test_schedule_refuses_media_already_posted(api_client, identity):
 
 
 @pytest.mark.django_db
+def test_pending_schedule_holds_its_media(api_client, identity):
+    attachment = PostAttachment.objects.create(
+        mimetype="image/webp", state=PostAttachmentStates.fetched, author=identity
+    )
+    data = {"status": "later", "media_ids": [str(attachment.pk)]}
+    scheduled = api_client.post(
+        "/api/v1/statuses",
+        content_type="application/json",
+        data={**data, "scheduled_at": _in(days=1).isoformat()},
+    ).json()
+    for extra in ({}, {"scheduled_at": _in(days=2).isoformat()}):
+        response = api_client.post(
+            "/api/v1/statuses", content_type="application/json", data=data | extra
+        )
+        assert response.status_code == 422
+    post = Post.create_local(author=identity, content="posted")
+    response = api_client.put(
+        f"/api/v1/statuses/{post.pk}", content_type="application/json", data=data
+    )
+    assert response.status_code == 422
+    api_client.delete(f"/api/v1/scheduled_statuses/{scheduled['id']}")
+    response = api_client.post(
+        "/api/v1/statuses", content_type="application/json", data=data
+    )
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
 def test_scheduled_status_is_private_to_its_author(
     api_client, identity, other_identity
 ):
@@ -271,6 +300,22 @@ def test_publish_drops_a_reply_to_a_deleted_post(identity, config_system):
     assert scheduled.publish() is None
     assert not ScheduledStatus.objects.exists()
     assert not Post.objects.filter(content__contains="reply").exists()
+
+
+@pytest.mark.django_db
+def test_publish_replies_to_a_muted_author(identity, other_identity, config_system):
+    parent = Post.create_local(author=other_identity, content="parent")
+    IdentityService(identity).mute(other_identity)
+    scheduled = ScheduledStatus.create(
+        author=identity,
+        scheduled_at=_in(days=1),
+        text="reply",
+        in_reply_to_id=str(parent.pk),
+    )
+    _make_due(scheduled)
+    post = scheduled.publish()
+    assert post is not None
+    assert post.in_reply_to == parent.object_uri
 
 
 @pytest.mark.django_db
