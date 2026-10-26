@@ -166,7 +166,12 @@ def post_status(
             # Mastodon posts a status scheduled in the past right away;
             # with backdating on, the past time becomes its publish time
             if scheduled_at <= timezone.now():
-                if request.config.post_backdating:
+                # a client clock slightly behind must not turn the status into
+                # a backdated post that never reaches followers
+                if (
+                    request.config.post_backdating
+                    and scheduled_at < timezone.now() - Post.BACKDATE_MARGIN
+                ):
                     backdate = scheduled_at
                 scheduled_at = None
             else:

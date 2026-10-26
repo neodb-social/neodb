@@ -3,6 +3,7 @@ from typing import Optional
 
 import httpx
 from core.exceptions import ActivityPubDeliveryError, ActorMismatchError
+from core.files import SSRFAttemptError
 from core.ld import canonicalise, get_str_or_id
 from core.snowflake import Snowflake
 from django.db import models, transaction
@@ -80,7 +81,7 @@ class FollowStates(StateGraph):
                     uri=instance.target.inbox_uri,
                     body=canonicalise(instance.to_ap()),
                 )
-            except httpx.RequestError:
+            except httpx.RequestError, SSRFAttemptError:
                 return
             except ActivityPubDeliveryError as error:
                 if error.retryable:
@@ -120,7 +121,7 @@ class FollowStates(StateGraph):
                     uri=instance.source.inbox_uri,
                     body=canonicalise(instance.to_accept_ap()),
                 )
-            except httpx.RequestError:
+            except httpx.RequestError, SSRFAttemptError:
                 return
         from activities.models import TimelineEvent
 
@@ -137,7 +138,7 @@ class FollowStates(StateGraph):
                     uri=instance.source.inbox_uri,
                     body=canonicalise(instance.to_reject_ap()),
                 )
-            except httpx.RequestError:
+            except httpx.RequestError, SSRFAttemptError:
                 return
         return cls.pending_removal
 

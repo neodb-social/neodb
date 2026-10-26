@@ -679,7 +679,9 @@ class Identity(StatorModel):
             return False
         sent = False
         for sub in (
-            PushSubscription.objects.filter(token__identity=self)
+            PushSubscription.objects.filter(
+                token__identity=self, token__revoked__isnull=True
+            )
             .exclude(policy="none")
             .select_related("token")
         ):
