@@ -57,7 +57,7 @@
             </div>
           </div>
         {% else %}
-          <div class="sortable"></div>
+          <div class="sortable profile-sections"></div>
           <div class="unsorted" style="display:none;">
             {% if request.user.is_authenticated %}
               <section class="entity-sort dc-mod"
@@ -99,20 +99,10 @@
               <section class="entity-sort dc-mod"
                        id="collection_{{ collection.uuid }}"
                        data-title="{{ collection.title }}">
-                <div hx-swap="outerHTML"
+                <div class="dc-lazy"
+                     hx-swap="outerHTML"
                      hx-get="{% url 'journal:profile_collection_items' collection.uuid %}?owner={{ identity.handle|urlencode }}"
-                     hx-trigger="intersect once queue:last">
-                  <header class="dc-mh">
-                    <h2>{{ collection.title }}</h2>
-                  </header>
-                  <ul class="dc-cards">
-                    <li class="dc-card">
-                      <a>
-                        <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
+                     hx-trigger="intersect once queue:last"></div>
               </section>
             {% endfor %}
             {% for category, category_shelves in shelf_list.items %}
@@ -120,121 +110,64 @@
                 <section class="entity-sort dc-mod"
                          id="{{ category }}_{{ shelf_type }}"
                          data-title="{{ shelf.title }}">
-                  <div hx-swap="outerHTML"
+                  <div class="dc-lazy"
+                       hx-swap="outerHTML"
                        hx-get="{% url 'journal:profile_shelf_items' identity.handle category shelf_type %}"
-                       hx-trigger="intersect once queue:last">
-                    <header class="dc-mh">
-                      <h2>{{ shelf.title }}</h2>
-                    </header>
-                    <ul class="dc-cards">
-                      <li class="dc-card">
-                        <a>
-                          <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
+                       hx-trigger="intersect once queue:last"></div>
                 </section>
               {% endfor %}
             {% endfor %}
             <section class="entity-sort dc-mod"
                      id="article_created"
                      data-title="{% trans 'Articles' %}">
-              <div hx-swap="outerHTML"
+              <div class="dc-lazy"
+                   hx-swap="outerHTML"
                    hx-get="{% url 'journal:profile_articles' identity.handle %}"
-                   hx-trigger="intersect once queue:last">
-                <header class="dc-mh">
-                  <h2>
-                    <a href="{% url 'journal:user_article_list' identity.handle %}">{% trans "Articles" %}</a>
-                  </h2>
-                </header>
-                <ul class="article-preview">
-                  <li>
-                    <i class="fa-solid fa-compact-disc fa-spin loading"></i>
-                  </li>
-                </ul>
-              </div>
+                   hx-trigger="intersect once queue:last"></div>
             </section>
             <section class="entity-sort dc-mod"
                      id="collection_created"
                      data-title="{% trans 'Collection' %}">
-              <div hx-swap="outerHTML"
+              <div class="dc-lazy"
+                   hx-swap="outerHTML"
                    hx-get="{% url 'journal:profile_created_collections' identity.handle %}"
-                   hx-trigger="intersect once queue:last">
-                <header class="dc-mh">
-                  <h2>{% trans "Collection" %}</h2>
-                </header>
-                <ul class="dc-cards">
-                  <li class="dc-card">
-                    <a>
-                      <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
+                   hx-trigger="intersect once queue:last"></div>
             </section>
             <section class="entity-sort dc-mod"
                      id="collection_marked"
                      data-title="{% trans 'Liked collection' %}">
-              <div hx-swap="outerHTML"
+              <div class="dc-lazy"
+                   hx-swap="outerHTML"
                    hx-get="{% url 'journal:profile_liked_collections' identity.handle %}"
-                   hx-trigger="intersect once queue:last">
-                <header class="dc-mh">
-                  <h2>{% trans "Liked collection" %}</h2>
-                </header>
-                <ul class="dc-cards">
-                  <li class="dc-card">
-                    <a>
-                      <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
+                   hx-trigger="intersect once queue:last"></div>
             </section>
             <section class="entity-sort dc-mod"
                      id="people_person_following"
                      data-title="{% trans 'People' %}">
-              <div hx-swap="outerHTML"
+              <div class="dc-lazy"
+                   hx-swap="outerHTML"
                    hx-get="{% url 'journal:profile_shelf_items' identity.handle 'people' 'progress' %}?people_type=person"
-                   hx-trigger="intersect once queue:last">
-                <header class="dc-mh">
-                  <h2>{% trans "People" %}</h2>
-                </header>
-                <ul class="dc-cards">
-                  <li class="dc-card">
-                    <a>
-                      <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
+                   hx-trigger="intersect once queue:last"></div>
             </section>
             <section class="entity-sort dc-mod"
                      id="people_organization_following"
                      data-title="{% trans 'Organizations' %}">
-              <div hx-swap="outerHTML"
+              <div class="dc-lazy"
+                   hx-swap="outerHTML"
                    hx-get="{% url 'journal:profile_shelf_items' identity.handle 'people' 'progress' %}?people_type=organization"
-                   hx-trigger="intersect once queue:last">
-                <header class="dc-mh">
-                  <h2>{% trans "Organizations" %}</h2>
-                </header>
-                <ul class="dc-cards">
-                  <li class="dc-card">
-                    <a>
-                      <span class="dc-cover"><i class="fa-solid fa-compact-disc fa-spin loading"></i></span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
+                   hx-trigger="intersect once queue:last"></div>
             </section>
           </div>
+          <p class="text-center" id="profile-sections-loading">
+            <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+          </p>
           {{ layout|json_script:"layout-data" }}
           <script>
           const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
           initialLayoutData.forEach(elem => {
             const el = document.getElementById(elem.id);
             if (!el) return;
-            // data-visible feeds the layout editor; empty shelves hide themselves too
+            // data-visible feeds the layout editor; CSS also hides empty shelves
             el.dataset.visible = elem.visibility ? '1' : '0';
             if (!elem.visibility) {
               el.style.display = 'none';
@@ -244,25 +177,32 @@
           $('.unsorted .entity-sort').each((i, elem) => {
               $('.sortable').append(elem);
           });
-          // Progressively reveal shelves: show only the first section's loading
-          // state and keep the rest hidden until the preceding one has finished
-          // loading, so the page fills top-to-bottom instead of showing a stack
-          // of placeholders that then grow or get removed. Lazy (intersect)
-          // loading is preserved: a revealed section still waits until scrolled
-          // into view before it loads.
+          // Progressively reveal shelves: a section holds only an empty lazy div
+          // until it loads, and the next one is revealed once the preceding one
+          // has loaded, so the page fills top-to-bottom under one shared spinner
+          // instead of painting titles that then grow or get removed. Lazy
+          // (intersect) loading is preserved: a revealed section still waits
+          // until scrolled into view before it loads. htmx 2 swaps before
+          // afterRequest, which also fires for failed and empty responses.
           (function () {
               const sections = Array.prototype.slice
                   .call(document.querySelectorAll('.sortable > .entity-sort'))
                   .filter((el) => el.style.display !== 'none');
-              if (sections.length <= 1) return;
+              const spinner = document.getElementById('profile-sections-loading');
               for (let i = 1; i < sections.length; i++) {
                   sections[i].style.display = 'none';
               }
               let active = 0;
+              const reveal = () => {
+                  const section = sections[active];
+                  if (section) section.style.display = '';
+                  spinner.hidden = !(section && section.querySelector('.dc-lazy'));
+              };
+              reveal();
               const advance = (section) => {
                   if (sections.indexOf(section) !== active) return;
                   active += 1;
-                  if (active < sections.length) sections[active].style.display = '';
+                  reveal();
               };
               const onLoaded = (e) => {
                   const section = e.target.closest && e.target.closest('.entity-sort');

@@ -955,7 +955,20 @@ a.dc-progress-badge {
   }
 }
 
-// a shelf with nothing on it; the hyperscript hides the whole section
+// a lazy section holds only this until it loads; it must keep a box for the
+// intersect trigger to fire
+.dc-lazy {
+  min-height: 1px;
+}
+
+// hidden before paint: a shelf with nothing on it, or a view that returned an
+// empty body and left the section without children
+.profile-sections > .entity-sort:has(.dc-empty-hide),
+.profile-sections > .entity-sort:not(:has(*)) {
+  display: none;
+}
+
+// a shelf with nothing on it
 .dc-empty-inline {
   list-style: none;
   color: var(--dc-muted);
