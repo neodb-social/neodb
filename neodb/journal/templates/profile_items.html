@@ -35,6 +35,6 @@
       {% include "_item_cover_card.html" with owner_rating_grade=item.owner_rating_grade solo_hide_rating=1 %}
     {% endif %}
   {% empty %}
-    <li class="dc-empty-inline" _="init hide closest .entity-sort">{% trans "Nothing so far." %}</li>
+    <li class="dc-empty-inline dc-empty-hide">{% trans "Nothing so far." %}</li>
   {% endfor %}
 </ul>
