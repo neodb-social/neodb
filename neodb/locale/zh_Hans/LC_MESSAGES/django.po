@@ -10050,3 +10050,50 @@ msgstr "已在更新本季剧集，请稍后再试。"
 #, python-brace-format
 msgid "Too many entries, at most {count} are accepted per import."
 msgstr "条目过多，每次导入最多接受 {count} 条。"
+
+#: journal/templates/mark.html:122
+msgid "Mastodon can only boost public posts. Make this mark public, or post a copy to Mastodon with the same visibility."
+msgstr "Mastodon 只能转播公开的帖文。请将此标记设为公开，或以相同可见性另发一条帖文到 Mastodon。"
+
+#: journal/templates/mark.html:126
+msgid "Make public"
+msgstr "设为公开"
+
+#: journal/templates/mark.html:131
+msgid "Post a copy"
+msgstr "另发帖文"
+
+#: mastodon/models/mastodon.py:148
+#, python-brace-format
+msgid "Unable to search the post on {domain}: {error}"
+msgstr "无法在 {domain} 搜索到帖文：{error}"
+
+#: mastodon/models/mastodon.py:162
+#, python-brace-format
+msgid "{domain} returned a different post."
+msgstr "{domain} 返回了另一条帖文。"
+
+#: mastodon/models/mastodon.py:181 mastodon/models/mastodon.py:190
+#, python-brace-format
+msgid "Unable to boost the post on {domain}: {error}"
+msgstr "无法在 {domain} 转播帖文：{error}"
+
+#: mastodon/models/mastodon.py:187
+#, python-brace-format
+msgid "Post not found on {domain}."
+msgstr "在 {domain} 上找不到帖文。"
+
+#: mastodon/models/mastodon.py:1083
+#, python-brace-format
+msgid "{domain} returned an unexpected response."
+msgstr "{domain} 返回了无法识别的响应。"
+
+#: mastodon/models/mastodon.py:1091
+#, python-brace-format
+msgid "Unable to post to {domain}: {error}"
+msgstr "无法发布到 {domain}：{error}"
+
+#: mastodon/models/mastodon.py:1096
+#, python-brace-format
+msgid "Unable to connect to {domain}."
+msgstr "无法连接到 {domain}。"

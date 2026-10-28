@@ -111,7 +111,25 @@ def get_api_domain(domain):
 _BOOST_METRIC_ATTRS = {"platform": "mastodon", "mode": "boost"}
 
 
-def boost_toot(domain, token, toot_url) -> bool:
+def _http_error(response: requests.Response) -> str:
+    """HTTP status plus the Mastodon `error` field when the body carries one."""
+    try:
+        j = response.json()
+        error = j.get("error") if isinstance(j, dict) else None
+    except ValueError:
+        error = None
+    s = f"HTTP {response.status_code}"
+    return f"{s}: {str(error)[:200]}" if error else s
+
+
+def boost_toot(domain, token, toot_url) -> tuple[bool, str]:
+    """Return (success, reason); reason is shown in the crosspost failure list."""
+
+    def failed(reason: str) -> tuple[bool, str]:
+        logger.warning(f"Error boosting {toot_url} on {domain}: {reason}")
+        sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
+        return False, reason
+
     headers = {
         "User-Agent": USER_AGENT,
         "Authorization": f"Bearer {token}",
@@ -126,11 +144,11 @@ def boost_toot(domain, token, toot_url) -> bool:
     try:
         response = get(url, headers=headers)
         if response.status_code != 200:
-            logger.warning(
-                f"Error search {toot_url} on {domain} {response.status_code}"
+            return failed(
+                str(_("Unable to search the post on {domain}: {error}")).format(
+                    domain=domain, error=_http_error(response)
+                )
             )
-            sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
-            return False
         j = response.json()
         if "statuses" in j and len(j["statuses"]) > 0:
             s = j["statuses"][0]
@@ -140,14 +158,15 @@ def boost_toot(domain, token, toot_url) -> bool:
                 logger.warning(
                     f"Error status url mismatch {s['uri']} or {s['uri']} != {toot_url}"
                 )
-                sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
-                return False
+                return failed(
+                    str(_("{domain} returned a different post.")).format(domain=domain)
+                )
             if s["reblogged"]:
                 logger.warning(f"Already boosted {toot_url}")
                 # TODO unboost and boost again?
                 # treat already-boosted as success (idempotent)
                 sentry_count("crosspost.success", attributes=_BOOST_METRIC_ATTRS)
-                return True
+                return True, ""
             url = (
                 "https://"
                 + domain
@@ -158,19 +177,20 @@ def boost_toot(domain, token, toot_url) -> bool:
             )
             response = post(url, headers=headers)
             if response.status_code != 200:
-                logger.warning(
-                    f"Error search {toot_url} on {domain} {response.status_code}"
+                return failed(
+                    str(_("Unable to boost the post on {domain}: {error}")).format(
+                        domain=domain, error=_http_error(response)
+                    )
                 )
-                sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
-                return False
             sentry_count("crosspost.success", attributes=_BOOST_METRIC_ATTRS)
-            return True
-        sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
-        return False
-    except Exception:
-        logger.warning(f"Error search {toot_url} on {domain}")
-        sentry_count("crosspost.failure", attributes=_BOOST_METRIC_ATTRS)
-        return False
+            return True, ""
+        return failed(str(_("Post not found on {domain}.")).format(domain=domain))
+    except Exception as e:
+        return failed(
+            str(_("Unable to boost the post on {domain}: {error}")).format(
+                domain=domain, error=e
+            )
+        )
 
 
 def delete_toot(api_domain, access_token, toot_id):
@@ -1003,7 +1023,7 @@ class MastodonAccount(SocialAccount):
 
         return c
 
-    def boost(self, post_url: str) -> bool:
+    def boost(self, post_url: str) -> tuple[bool, str]:
         return boost_toot(self._api_domain, self.access_token, post_url)
 
     def boost_later(self, post_url: str):
@@ -1059,11 +1079,22 @@ class MastodonAccount(SocialAccount):
                     logger.warning(
                         f"Error posting to {self._api_domain}, unexpected response {response.text[:200]!r}"
                     )
-                    raise RequestAborted()
+                    raise RequestAborted(
+                        str(_("{domain} returned an unexpected response.")).format(
+                            domain=self._api_domain
+                        )
+                    )
                 return {"id": j["id"], "url": j["url"]}
             elif response.status_code == 401:
                 raise PermissionDenied()
-        raise RequestAborted()
+            raise RequestAborted(
+                str(_("Unable to post to {domain}: {error}")).format(
+                    domain=self._api_domain, error=_http_error(response)
+                )
+            )
+        raise RequestAborted(
+            str(_("Unable to connect to {domain}.")).format(domain=self._api_domain)
+        )
 
     def get_reauthorize_url(self):
         return reverse("mastodon:login") + "?domain=" + self.domain

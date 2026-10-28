@@ -382,8 +382,13 @@ def collection_share(request: AuthedHttpRequest, collection_uuid):
     post = collection.latest_post
     link = (post.url if post else collection.absolute_url) or ""
     if user.mastodon:
-        # boost if possible, otherwise quote
-        if not comment and user.preference.mastodon_repost_mode == 0 and post:
+        # boost if possible, otherwise quote; a non-public post cannot be boosted
+        if (
+            not comment
+            and user.preference.mastodon_repost_mode == 0
+            and post
+            and collection.visibility == VisibilityType.Public
+        ):
             assert post.url is not None
             user.mastodon.boost_later(post.url)
         else:

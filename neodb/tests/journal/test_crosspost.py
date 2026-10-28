@@ -10,8 +10,10 @@ from django.utils import timezone
 from catalog.models import Edition
 from journal.models import Comment, CrosspostRetry, Piece, Review
 from journal.models.atproto import DOCUMENT_NSID
+import mastodon.models.mastodon as mastodon_module
 from mastodon.models import BlueskyAccount, MastodonAccount, ThreadsAccount
 from mastodon.models.bluesky_oauth import OAuthError, OAuthRejectedError
+from mastodon.models.mastodon import TootVisibilityEnum, boost_toot
 from users.jobs.cleanup import prune_crosspost_retries
 from users.models import User
 
@@ -35,6 +37,18 @@ def _link_mastodon(user, repost_mode=1):
     return MastodonAccount.objects.create(
         handle="cpuser@mast.social", user=user, domain="mast.social", uid="1"
     )
+
+
+class _FakeResponse:
+    def __init__(self, status_code: int, data: object = None):
+        self.status_code = status_code
+        self._data = data
+        self.text = str(data)
+
+    def json(self) -> object:
+        if self._data is None:
+            raise ValueError("no json")
+        return self._data
 
 
 def _link_threads(user):
@@ -111,14 +125,84 @@ class TestCrosspostRetryRecording:
             "latest_post",
             SimpleNamespace(url="https://example.org/p/1"),
         )
-        monkeypatch.setattr(MastodonAccount, "boost", lambda self, url: False)
+        monkeypatch.setattr(
+            MastodonAccount, "boost", lambda self, url: (False, "boost refused")
+        )
         comment._sync_to_social_accounts(0)
         failure = CrosspostRetry.objects.get(piece=comment, platform="mastodon")
         assert failure.error_type == CrosspostRetry.ErrorType.other
+        assert failure.message == "boost refused"
 
-        monkeypatch.setattr(MastodonAccount, "boost", lambda self, url: True)
+        monkeypatch.setattr(MastodonAccount, "boost", lambda self, url: (True, ""))
         comment._sync_to_social_accounts(0)
         assert not CrosspostRetry.objects.filter(piece=comment).exists()
+
+    @pytest.mark.parametrize(
+        "visibility,toot_visibility",
+        [(1, TootVisibilityEnum.PRIVATE), (2, TootVisibilityEnum.DIRECT)],
+    )
+    def test_non_public_in_boost_mode_posts_copy(
+        self, user, comment, monkeypatch, visibility, toot_visibility
+    ):
+        _link_mastodon(user, repost_mode=0)
+        Comment.objects.filter(pk=comment.pk).update(visibility=visibility)
+        sent = {}
+
+        def fake_post_toot2(api_domain, access_token, content, v, *args):
+            sent["visibility"] = v
+            return _FakeResponse(
+                200, {"id": "9", "url": "https://mast.social/@cpuser/9"}
+            )
+
+        def no_boost(self, url):
+            raise AssertionError("a non-public piece must not be boosted")
+
+        monkeypatch.setattr(mastodon_module, "post_toot2", fake_post_toot2)
+        monkeypatch.setattr(MastodonAccount, "boost", no_boost)
+        comment._sync_to_social_accounts(0)
+        assert sent["visibility"] == toot_visibility
+        assert not CrosspostRetry.objects.filter(piece=comment).exists()
+        comment.refresh_from_db()
+        assert comment.metadata["mastodon_id"] == "9"
+
+    def test_non_public_copy_kept_when_piece_turns_public(
+        self, user, comment, monkeypatch
+    ):
+        # the earlier copy may already have replies, so it is not deleted
+        _link_mastodon(user, repost_mode=0)
+        Comment.objects.filter(pk=comment.pk).update(
+            metadata={"mastodon_id": "9", "mastodon_url": "u"}
+        )
+        monkeypatch.setattr(
+            comment, "latest_post", SimpleNamespace(url="https://example.org/p/1")
+        )
+        boosted = []
+        monkeypatch.setattr(
+            MastodonAccount,
+            "boost",
+            lambda self, url: boosted.append(url) or (True, ""),
+        )
+        monkeypatch.setattr(
+            MastodonAccount,
+            "delete_post",
+            lambda self, toot_id: pytest.fail("copy must be kept"),
+        )
+        comment._sync_to_social_accounts(1)
+        assert boosted == ["https://example.org/p/1"]
+        comment.refresh_from_db()
+        assert comment.metadata["mastodon_id"] == "9"
+
+    def test_mastodon_post_failure_records_reason(self, user, comment, monkeypatch):
+        _link_mastodon(user)
+        monkeypatch.setattr(
+            mastodon_module,
+            "post_toot2",
+            lambda *args: _FakeResponse(422, {"error": "Validation failed"}),
+        )
+        comment._sync_to_social_accounts(0)
+        failure = CrosspostRetry.objects.get(piece=comment, platform="mastodon")
+        assert "HTTP 422" in failure.message
+        assert "Validation failed" in failure.message
 
     def test_boost_without_post_recorded(self, user, comment):
         _link_mastodon(user, repost_mode=0)
@@ -408,3 +492,54 @@ def test_prune_crosspost_retries(user, comment):
     assert prune_crosspost_retries(days=28) == 1
     assert not CrosspostRetry.objects.filter(pk=old.pk).exists()
     assert CrosspostRetry.objects.filter(pk=recent.pk).exists()
+
+
+TOOT_URL = "https://neodb.example/@cpuser/posts/42"
+
+
+def _status(**extra) -> dict:
+    return {"id": "7", "uri": TOOT_URL, "url": TOOT_URL, "reblogged": False} | extra
+
+
+class TestBoostToot:
+    def _search(self, monkeypatch, response: _FakeResponse) -> None:
+        monkeypatch.setattr(mastodon_module, "get", lambda *a, **kw: response)
+
+    def _reblog(self, monkeypatch, response: _FakeResponse) -> None:
+        monkeypatch.setattr(mastodon_module, "post", lambda *a, **kw: response)
+
+    def test_success(self, monkeypatch):
+        self._search(monkeypatch, _FakeResponse(200, {"statuses": [_status()]}))
+        self._reblog(monkeypatch, _FakeResponse(200, {}))
+        assert boost_toot("mast.social", "t", TOOT_URL) == (True, "")
+
+    def test_search_error_has_reason(self, monkeypatch):
+        self._search(monkeypatch, _FakeResponse(503))
+        ok, reason = boost_toot("mast.social", "t", TOOT_URL)
+        assert not ok
+        assert "HTTP 503" in reason
+
+    def test_not_found_has_reason(self, monkeypatch):
+        self._search(monkeypatch, _FakeResponse(200, {"statuses": []}))
+        ok, reason = boost_toot("mast.social", "t", TOOT_URL)
+        assert not ok
+        assert "mast.social" in reason
+
+    def test_reblog_refused_has_reason(self, monkeypatch):
+        self._search(monkeypatch, _FakeResponse(200, {"statuses": [_status()]}))
+        self._reblog(
+            monkeypatch, _FakeResponse(403, {"error": "This action is not allowed"})
+        )
+        ok, reason = boost_toot("mast.social", "t", TOOT_URL)
+        assert not ok
+        assert "HTTP 403" in reason
+        assert "This action is not allowed" in reason
+
+    def test_exception_has_reason(self, monkeypatch):
+        def boom(*args, **kwargs):
+            raise ConnectionError("connection reset")
+
+        monkeypatch.setattr(mastodon_module, "get", boom)
+        ok, reason = boost_toot("mast.social", "t", TOOT_URL)
+        assert not ok
+        assert "connection reset" in reason

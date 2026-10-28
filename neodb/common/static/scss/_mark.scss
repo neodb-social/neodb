@@ -14,6 +14,27 @@
     color: var(--pico-del-color);
     margin-bottom: var(--pico-spacing);
   }
+
+  .mark-boost-choice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5em;
+
+    &[hidden] {
+      display: none;
+    }
+
+    > small {
+      flex: 1 1 100%;
+    }
+
+    > button {
+      width: auto;
+      margin: 0;
+      padding: 0.25em 0.75em;
+    }
+  }
 }
 
 .note-edit-buttons {

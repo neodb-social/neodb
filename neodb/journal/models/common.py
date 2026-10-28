@@ -1063,7 +1063,11 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
         mastodon = self.owner.user.mastodon
         if not mastodon:
             return False
-        if self.owner.user.preference.mastodon_repost_mode == 1:
+        # a non-public post cannot be boosted from another account, so post a
+        # copy with the same visibility instead; a copy left from an earlier
+        # non-public version is kept when the piece turns public, as it may
+        # already have replies
+        if self.owner.user.preference.mastodon_repost_mode == 1 or self.visibility != 0:
             if update_mode == 1:
                 toot_id = self.metadata.pop("mastodon_id", None)
                 if toot_id:
@@ -1074,14 +1078,15 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             return self.crosspost_to_mastodon(params)
         elif self.latest_post:
             assert self.latest_post.url is not None
-            if mastodon.boost(self.latest_post.url):
+            boosted, reason = mastodon.boost(self.latest_post.url)
+            if boosted:
                 self._clear_crosspost_retry("mastodon")
             else:
                 messages.error(
                     mastodon.user, _("A recent post was not boosted on Mastodon.")
                 )
                 self._record_crosspost_retry(
-                    "mastodon", CrosspostRetry.ErrorType.other, ""
+                    "mastodon", CrosspostRetry.ErrorType.other, reason
                 )
         else:
             logger.warning("No post found for piece")
@@ -1108,13 +1113,15 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
             sentry_count("crosspost.failure", attributes=attrs)
             self._record_crosspost_retry("mastodon", CrosspostRetry.ErrorType.auth, "")
             return False
-        except RequestAborted:
-            logger.warning(f"{self} post to {mastodon} failed")
+        except RequestAborted as e:
+            logger.warning(f"{self} post to {mastodon} failed: {e}")
             messages.error(
                 mastodon.user, _("A recent post was not posted to Mastodon.")
             )
             sentry_count("crosspost.failure", attributes=attrs)
-            self._record_crosspost_retry("mastodon", CrosspostRetry.ErrorType.other, "")
+            self._record_crosspost_retry(
+                "mastodon", CrosspostRetry.ErrorType.other, str(e)
+            )
             return False
         self.metadata.update({"mastodon_" + k: v for k, v in r.items()})
         sentry_count("crosspost.success", attributes=attrs)
