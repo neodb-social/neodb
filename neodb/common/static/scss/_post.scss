@@ -168,6 +168,24 @@ section.replies {
 	form {
 		margin-bottom: 0;
 
+		textarea {
+			resize: none;
+			max-height: 50vh;
+			margin-bottom: calc(var(--pico-spacing) / 2);
+		}
+
+		.reply-toolbar {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+
+			details.dropdown,
+			button {
+				width: auto;
+				margin-bottom: 0;
+			}
+		}
+
 		select {
 			width: min-content;
 		}
