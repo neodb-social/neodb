@@ -393,6 +393,30 @@ class TestPostWritingViews:
         )
         assert Post.objects.count() == 1
 
+    @pytest.mark.parametrize("name", ["journal:post_reply", "journal:post_quote"])
+    def test_multiline_reply_and_quote_keep_line_breaks(
+        self, client: Client, original_post: Post, name: str
+    ) -> None:
+        response = client.post(
+            reverse(name, args=[original_post.pk]),
+            {"content": "one\ntwo\n\nthree", "visibility": "0"},
+        )
+        assert response.status_code == 200
+        post = Post.objects.exclude(pk=original_post.pk).get()
+        assert "one<br>two" in post.content
+        assert "<p>three</p>" in post.content
+
+    @pytest.mark.parametrize("name", ["journal:post_reply", "journal:post_quote"])
+    def test_blank_multiline_reply_and_quote_rejected(
+        self, client: Client, original_post: Post, name: str
+    ) -> None:
+        response = client.post(
+            reverse(name, args=[original_post.pk]),
+            {"content": "\n \n", "visibility": "0"},
+        )
+        assert response.status_code == 400
+        assert Post.objects.count() == 1
+
     @pytest.mark.parametrize(
         "data",
         [{"content": "", "visibility": "0"}, {"content": "Quote", "visibility": "bad"}],

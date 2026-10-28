@@ -73,47 +73,52 @@
   {% endwith %}
   {% if post and request.user.is_authenticated %}
     <form class="reply"
-          role="group"
           hx-post="{% url 'journal:post_reply' post.pk %}"
-          hx-trigger="submit once">
-      <input name="content" type="text" placeholder="{% trans "Add a reply" %}" />
-      <details class="dropdown">
-        <summary>
-          <i class="fa-solid fa-users-gear"></i>
-        </summary>
-        <ul>
-          <li>
-            <label>
-              <input type="radio"
-                     name="visibility"
-                     value="{{ request.user.preference.post_public_mode }}"
-                     {% if post.visibility <= 1 or post.visibility == 4 %}checked{% endif %} />
-              <i class="fa-solid fa-globe"></i>
-            </label>
-          </li>
-          <li>
-            <label>
-              <input type="radio"
-                     name="visibility"
-                     value="2"
-                     {% if post.visibility == 2 %}checked{% endif %} />
-              <i class="fa-solid fa-lock"></i>
-            </label>
-          </li>
-          <li>
-            <label>
-              <input type="radio"
-                     name="visibility"
-                     value="3"
-                     {% if post.visibility == 3 %}checked{% endif %} />
-              <i class="fa-solid fa-at"></i>
-            </label>
-          </li>
-        </ul>
-      </details>
-      <button type="submit" class="secondary">
-        <i class="fa-regular fa-paper-plane"></i>
-      </button>
+          hx-trigger="submit[this.content.value.trim() !== '']"
+          hx-sync="this:drop">
+      <textarea name="content"
+                rows="2"
+                required
+                placeholder="{% trans "Add a reply" %}"
+                _="on input set my *height to 'auto' then set my *height to (my.scrollHeight + 2) + 'px'
+                   on keydown[key is 'Enter' and (metaKey or ctrlKey) and not isComposing] halt the event then call (closest <form/>).requestSubmit()"></textarea>
+      <div class="reply-toolbar" role="group">
+        <button type="submit" class="secondary">{% trans "Reply" %}</button>
+        <details class="dropdown">
+          <summary>
+            <i class="fa-solid fa-users-gear"></i>
+          </summary>
+          <ul>
+            <li>
+              <label>
+                <input type="radio"
+                       name="visibility"
+                       value="{{ request.user.preference.post_public_mode }}"
+                       {% if post.visibility <= 1 or post.visibility == 4 %}checked{% endif %} />
+                <i class="fa-solid fa-globe"></i>
+              </label>
+            </li>
+            <li>
+              <label>
+                <input type="radio"
+                       name="visibility"
+                       value="2"
+                       {% if post.visibility == 2 %}checked{% endif %} />
+                <i class="fa-solid fa-lock"></i>
+              </label>
+            </li>
+            <li>
+              <label>
+                <input type="radio"
+                       name="visibility"
+                       value="3"
+                       {% if post.visibility == 3 %}checked{% endif %} />
+                <i class="fa-solid fa-at"></i>
+              </label>
+            </li>
+          </ul>
+        </details>
+      </div>
     </form>
   {% endif %}
 </section>

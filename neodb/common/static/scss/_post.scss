@@ -168,6 +168,33 @@ section.replies {
 	form {
 		margin-bottom: 0;
 
+		textarea {
+			resize: none;
+			max-height: 50vh;
+			margin-bottom: calc(var(--pico-spacing) / 2);
+		}
+
+		.reply-toolbar {
+			display: flex;
+			width: fit-content;
+			margin: 0 0 0 auto;
+
+			button {
+				min-width: 8em;
+			}
+
+			details.dropdown {
+				flex: none;
+				width: auto;
+				margin-bottom: 0;
+
+				>summary+ul {
+					left: auto;
+					right: 0;
+				}
+			}
+		}
+
 		select {
 			width: min-content;
 		}
