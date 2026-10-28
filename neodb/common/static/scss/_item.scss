@@ -38,7 +38,7 @@
     display: inline-block;
 
     a {
-      border-radius: calc(var(--pico-spacing)/4);
+      border-radius: var(--pico-border-radius);
       margin-right: 0.5em;
       padding: 0 0.5rem;
       border: var(--pico-primary) solid 1px;
@@ -171,7 +171,7 @@
   @media (max-width: 768px) {
     #item-primary-action,
     #item-primary-mark {
-      margin-bottom: 1rem 0;
+      margin: 1rem 0;
     }
 
     #item-title {

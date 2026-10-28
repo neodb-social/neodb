@@ -425,7 +425,7 @@ span.invisible {
   }
 
   .tag-list a:not(:hover) {
-    color: white;
+    color: var(--dc-strong);
   }
 
   a.normal:not(:hover) {

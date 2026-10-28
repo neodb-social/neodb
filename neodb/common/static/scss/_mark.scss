@@ -174,27 +174,28 @@
   display: flex;
   justify-content: flex-start;
   flex-wrap: wrap;
-  border-bottom: 0.1rem solid #ccc;
+  border-bottom: 0.1rem solid var(--dc-border);
   padding-bottom: 2px;
 }
 
+// the same pill as .tag-list, with room on the right for the close mark
 .tag-input__tag {
   position: relative;
   display: block;
   float: left;
-  color: white;
-  background: #d5d5d5;
-  padding: 5px 20px 5px 6px;
-  margin: 4px;
-  border-radius: .4rem;
+  color: var(--dc-strong);
+  background: var(--dc-border);
+  padding: 5px 20px 5px 10px;
+  margin: 4px 4px 4px 0;
+  border-radius: var(--dc-pill);
   line-height: 1em;
   transition: all 0.2s ease-in-out;
   height: min-content;
 }
 
 .tag-input__tag.tag-input__tag--highlight {
-  color: white;
-  background: #00a1cc;
+  color: var(--pico-primary-inverse);
+  background: var(--pico-primary);
 }
 
 .tag-input__close {
@@ -237,7 +238,7 @@
   margin: 2px 0 4px;
   padding: 4px;
   border: 1px solid var(--pico-muted-border-color);
-  border-radius: .4rem;
+  border-radius: var(--dc-radius-sm);
   background: var(--pico-card-background-color);
   box-shadow: var(--pico-card-box-shadow);
 }
@@ -248,7 +249,7 @@
   margin: 0;
   padding: 0.35rem 0.5rem;
   border: 0 !important;
-  border-radius: .3rem;
+  border-radius: var(--pico-border-radius);
   background: transparent !important;
   box-shadow: none;
   color: var(--pico-form-element-color, var(--pico-contrast)) !important;
