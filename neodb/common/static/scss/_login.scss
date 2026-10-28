@@ -43,10 +43,10 @@
     right: 0;
     padding: 0;
     margin: 0.25rem 0 0 0;
-    border-radius: 0.6rem;
+    border-radius: var(--dc-radius-sm);
     background-color: var(--pico-background-color);
-    box-shadow: 0 3px 6px rgba(149, 157, 165, 0.15);
-    border: 1px solid rgba(33, 33, 33, 0.07);
+    box-shadow: var(--pico-dropdown-box-shadow);
+    border: 1px solid var(--dc-border);
     z-index: 1000;
     outline: none;
   }
@@ -65,7 +65,7 @@
     text-align: left;
     font-size: 1rem;
     color: var(--pico-muted-color);
-    border-radius: 0.35rem;
+    border-radius: var(--pico-border-radius);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

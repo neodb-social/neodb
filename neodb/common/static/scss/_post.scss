@@ -321,7 +321,7 @@ section.activity.post>section.replies {
 
 .note-card {
 	border: 1px solid var(--pico-muted-border-color);
-	border-radius: 12px;
+	border-radius: var(--dc-radius);
 	padding: 1.25em 1.25em 1em;
 	margin: 0.5em 0;
 	position: relative;

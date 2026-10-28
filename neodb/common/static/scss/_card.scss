@@ -156,8 +156,8 @@ div.item {
   }
 }
 
-// tags on a card and in its mark footer, as the .dc-tags pills; the shared
-// .tag-list sets its margins with !important
+// tags on a card and in its mark footer: the shared .tag-list pills, laid out
+// as a flex row
 div.item .tag-list,
 article.item-card .tag-list {
   display: flex;
@@ -165,18 +165,11 @@ article.item-card .tag-list {
   gap: 0.35rem;
   margin-top: 0.5rem;
 
-  span a {
-    margin: 0 !important;
-    padding: 0.15rem 0.6rem;
-    border-radius: var(--dc-pill);
-    background: var(--dc-border);
-    color: var(--dc-strong);
-    font-size: var(--dc-fs-xs);
-    line-height: 1.4;
+  span {
+    margin-right: 0;
+  }
 
-    &:hover {
-      background: var(--pico-primary-focus);
-      color: var(--pico-primary);
-    }
+  span a {
+    margin: 0;
   }
 }
