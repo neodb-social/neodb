@@ -14,7 +14,8 @@
                   placeholder="{% trans "Add a quote" %}"
                   _="on input set my *height to 'auto' then set my *height to (my.scrollHeight + 2) + 'px'
                      on keydown[key is 'Enter' and (metaKey or ctrlKey) and not isComposing] halt the event then call (closest <form/>).requestSubmit()"></textarea>
-        <div class="reply-toolbar">
+        <div class="reply-toolbar" role="group">
+          <button type="submit" class="secondary">{% trans "Send" %}</button>
           <details class="dropdown">
             <summary>
               <i class="fa-solid fa-users-gear"></i>
@@ -55,9 +56,6 @@
               {% endif %}
             </ul>
           </details>
-          <button type="submit" class="secondary">
-            <i class="fa-regular fa-paper-plane"></i>
-          </button>
         </div>
       </form>
     {% endif %}

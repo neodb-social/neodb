@@ -175,14 +175,21 @@ section.replies {
 		}
 
 		.reply-toolbar {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
+			margin-bottom: 0;
 
-			details.dropdown,
 			button {
+				flex: 1;
+			}
+
+			details.dropdown {
+				flex: none;
 				width: auto;
 				margin-bottom: 0;
+
+				>summary+ul {
+					left: auto;
+					right: 0;
+				}
 			}
 		}
 
