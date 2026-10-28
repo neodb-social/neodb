@@ -655,7 +655,7 @@ class TVSeason(Item):
 
     @property
     def child_items(self):
-        return self.episodes.all()
+        return self.episodes.all().order_by("episode_number")
 
     @property
     def episode_uuids(self):
