@@ -80,7 +80,7 @@
                 required
                 placeholder="{% trans "Add a reply" %}"
                 _="on input set my *height to 'auto' then set my *height to (my.scrollHeight + 2) + 'px'
-                   on keydown[key is 'Enter' and (metaKey or ctrlKey)] halt the event then call (closest <form/>).requestSubmit()"></textarea>
+                   on keydown[key is 'Enter' and (metaKey or ctrlKey) and not isComposing] halt the event then call (closest <form/>).requestSubmit()"></textarea>
       <div class="reply-toolbar">
         <details class="dropdown">
           <summary>
