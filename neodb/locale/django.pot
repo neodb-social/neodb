@@ -9945,3 +9945,50 @@ msgstr ""
 #, python-brace-format
 msgid "Too many entries, at most {count} are accepted per import."
 msgstr ""
+
+#: journal/templates/mark.html:122
+msgid "Mastodon can only boost public posts. Make this mark public, or post a copy to Mastodon with the same visibility."
+msgstr ""
+
+#: journal/templates/mark.html:126
+msgid "Make public"
+msgstr ""
+
+#: journal/templates/mark.html:131
+msgid "Post a copy"
+msgstr ""
+
+#: mastodon/models/mastodon.py:148
+#, python-brace-format
+msgid "Unable to search the post on {domain}: {error}"
+msgstr ""
+
+#: mastodon/models/mastodon.py:162
+#, python-brace-format
+msgid "{domain} returned a different post."
+msgstr ""
+
+#: mastodon/models/mastodon.py:181 mastodon/models/mastodon.py:190
+#, python-brace-format
+msgid "Unable to boost the post on {domain}: {error}"
+msgstr ""
+
+#: mastodon/models/mastodon.py:187
+#, python-brace-format
+msgid "Post not found on {domain}."
+msgstr ""
+
+#: mastodon/models/mastodon.py:1083
+#, python-brace-format
+msgid "{domain} returned an unexpected response."
+msgstr ""
+
+#: mastodon/models/mastodon.py:1091
+#, python-brace-format
+msgid "Unable to post to {domain}: {error}"
+msgstr ""
+
+#: mastodon/models/mastodon.py:1096
+#, python-brace-format
+msgid "Unable to connect to {domain}."
+msgstr ""

@@ -134,7 +134,11 @@ class WrappedShareView(LoginRequiredMixin, TemplateView):
             Takahe.visibility_n2t(visibility, user.preference.post_public_mode),
             attachments=[media],
         )
-        classic_crosspost = user.preference.mastodon_repost_mode == 1
+        # a non-public post cannot be boosted, so it is always posted as a copy
+        classic_crosspost = (
+            user.preference.mastodon_repost_mode == 1
+            or visibility != VisibilityType.Public
+        )
         if classic_crosspost and user.mastodon:
             attrs = {"platform": "mastodon", "mode": "wrapped"}
             try:

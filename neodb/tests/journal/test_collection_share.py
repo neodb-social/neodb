@@ -95,6 +95,33 @@ class TestCollectionShareViaMastodon:
         assert "shared list" in posted["content"]
         assert "note" in posted["content"]
 
+    def test_public_share_without_comment_boosts(self, monkeypatch):
+        boosted = []
+        monkeypatch.setattr(
+            MastodonAccount, "boost_later", lambda self, url: boosted.append(url)
+        )
+        response = _share(self.client, self.collection, comment="")
+        assert response.status_code == 302
+        assert boosted == [_latest_post(self.collection).url]
+
+    def test_non_public_share_without_comment_posts_copy(self, monkeypatch):
+        Collection.objects.filter(pk=self.collection.pk).update(visibility=1)
+        collection = Collection.objects.get(pk=self.collection.pk)
+        posted = {}
+
+        def ok(self, content, visibility, *args, **kwargs):
+            posted["visibility"] = visibility
+            return {"id": "1", "url": "https://mast.social/@share/1"}
+
+        def no_boost(self, url):
+            raise AssertionError("a non-public post must not be boosted")
+
+        monkeypatch.setattr(MastodonAccount, "post", ok)
+        monkeypatch.setattr(MastodonAccount, "boost_later", no_boost)
+        response = _share(self.client, collection, comment="", visibility="1")
+        assert response.status_code == 302
+        assert posted["visibility"] == 1
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestCollectionShareViaBluesky:

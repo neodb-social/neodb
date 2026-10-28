@@ -115,6 +115,26 @@ def test_mark_dialog_inline_flag_and_htmx_forms(client):
     assert 'name="inline" value="1"' in html
 
 
+@pytest.mark.django_db(databases="__all__")
+def test_mark_dialog_boost_choice_only_in_boost_mode(client):
+    user = User.register(email="mark-boost@example.com", username="markboost")
+    book = Edition.objects.create(title="Boost Book")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:mark", args=[book.uuid])
+    assert "mark-boost-choice" not in client.get(url).content.decode()
+
+    MastodonAccount.objects.create(
+        handle="markboost@mast.social", user=user, domain="mast.social", uid="1"
+    )
+    user.preference.mastodon_repost_mode = 0
+    user.preference.save(update_fields=["mastodon_repost_mode"])
+    assert "mark-boost-choice" in client.get(url).content.decode()
+
+    user.preference.mastodon_repost_mode = 1
+    user.preference.save(update_fields=["mastodon_repost_mode"])
+    assert "mark-boost-choice" not in client.get(url).content.decode()
+
+
 def _mark_post_data(**extra):
     data = {
         "status": "complete",

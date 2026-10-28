@@ -114,6 +114,24 @@
             </button>
           {% endif %}
         </div>
+        {% if request.user.mastodon and request.user.preference.mastodon_repost_mode == 0 %}
+          <div class="mark-boost-choice"
+               role="status"
+               {% if form.visibility.value == 0 or not form.share_to_mastodon.value %}hidden{% endif %}
+               _="on change from closest <form/> set f to closest <form/> set v to the first <select[name=visibility]/> in f set s to the first <input[name=share_to_mastodon]/> in f if v.value is not '0' and s.checked and not (I match .dismissed) remove @hidden else add @hidden end">
+            <small>{% trans "Mastodon can only boost public posts. Make this mark public, or post a copy to Mastodon with the same visibility." %}</small>
+            <button type="button"
+                    class="secondary outline"
+                    _="on click set v to the first <select[name=visibility]/> in closest <form/> set v.value to '0' add @hidden to closest .mark-boost-choice">
+              {% trans "Make public" %}
+            </button>
+            <button type="button"
+                    class="secondary outline"
+                    _="on click add .dismissed to closest .mark-boost-choice add @hidden to closest .mark-boost-choice">
+              {% trans "Post a copy" %}
+            </button>
+          </div>
+        {% endif %}
       </form>
       <div>
         {% if mark.id %}
