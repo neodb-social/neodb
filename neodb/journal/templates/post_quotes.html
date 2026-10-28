@@ -7,7 +7,9 @@
       <form class="reply"
             hx-post="{% url 'journal:post_quote' post.pk %}"
             hx-target="#quote_{{ post.pk }}"
-            hx-swap="outerHTML">
+            hx-swap="outerHTML"
+            hx-trigger="submit[this.content.value.trim() !== '']"
+            hx-sync="this:drop">
         <textarea name="content"
                   rows="2"
                   required

@@ -74,7 +74,8 @@
   {% if post and request.user.is_authenticated %}
     <form class="reply"
           hx-post="{% url 'journal:post_reply' post.pk %}"
-          hx-trigger="submit once">
+          hx-trigger="submit[this.content.value.trim() !== '']"
+          hx-sync="this:drop">
       <textarea name="content"
                 rows="2"
                 required
