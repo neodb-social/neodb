@@ -12,6 +12,7 @@ from catalog.models import (
     Movie,
     Performance,
     PerformanceProduction,
+    TVEpisode,
     TVSeason,
     TVShow,
 )
@@ -58,6 +59,12 @@ class TestCatalog:
         e = encrypt_str(o)
         d = decrypt_str(e)
         assert o == d
+
+    def test_season_child_items_sorted_by_episode_number(self):
+        season = TVSeason.objects.create(title="Season")
+        for n in [24, 3, 16, 1]:
+            TVEpisode.objects.create(title=f"E{n}", season=season, episode_number=n)
+        assert [e.episode_number for e in season.child_items] == [1, 3, 16, 24]
 
 
 @pytest.mark.django_db(databases="__all__")
