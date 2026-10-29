@@ -1,8 +1,14 @@
+import re
+
 from django import template
+from django.utils.safestring import SafeString, mark_safe
 
 from takahe.models import Post
 
 register = template.Library()
+
+# the "—<br><a>item</a> progress" paragraph Note.to_post_params appends
+_NOTE_FOOTER = re.compile(r"<p>—<br\s*/?>\s*<a\s[^>]*>(?:(?!</p>).)*</p>\s*$", re.S)
 
 PUBLIC_VISIBILITIES = (
     Post.Visibilities.public,
@@ -31,3 +37,14 @@ def quoted_post_for(post: Post, user) -> Post | None:
         .exists()
     )
     return quoted if visible else None
+
+
+@register.filter
+def note_content_parts(post: Post) -> tuple[SafeString, SafeString]:
+    """The body of a note post and its item footer, apart, so a collapsed body
+    does not clip the link to the item."""
+    html = post.safe_content_local
+    m = _NOTE_FOOTER.search(html)
+    if not m:
+        return mark_safe(html), mark_safe("")
+    return mark_safe(html[: m.start()]), mark_safe(m.group(0))

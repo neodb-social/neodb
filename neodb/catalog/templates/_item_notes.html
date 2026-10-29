@@ -9,7 +9,7 @@
     <section class="note">
       <span class="action">
         {% if note.latest_post %}
-          {% include "action_reply_piece.html" with post=note.latest_post piece=note href=note.url %}
+          {% include "action_reply_piece.html" with post=note.latest_post piece=note %}
           {% include "action_like_post.html" with post=note.latest_post %}
           {% include "action_boost_post.html" with post=note.latest_post %}
           {% include "action_open_post.html" with post=note.latest_post %}
@@ -37,7 +37,7 @@
         {% endif %}
         <div class="note-card-content{% if not note.sensitive %} tldr{% endif %}"
              {% if not note.sensitive %}_="on click toggle .tldr on me"{% endif %}>
-          {{ note.content|linebreaksbr }}
+          {{ note.html|safe }}
           <div class="attachments">
             {% for attachment in note.attachment_list %}
               {% if attachment.type == "image" %}
@@ -65,6 +65,7 @@
           </a>
         </div>
       </div>
+      {% if note.latest_post %}<div id="replies_{{ note.latest_post.pk }}"></div>{% endif %}
       {% if note.rows and note.rows > 1 %}
         <a hx-get="{% url 'catalog:notes' note.item.url_path note.item.uuid %}?from={{ note.uuid }}"
            hx-trigger="click"

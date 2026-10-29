@@ -223,12 +223,15 @@ def render_rating(score: int | None, star_mode=0) -> str:
     return emoji_code
 
 
+def spoiler_warning(item: Item) -> str:
+    return _(
+        "regarding {item_title}, may contain spoiler or triggering content"
+    ).format(item_title=item.display_title)
+
+
 def render_spoiler_text(text, item):
     if text and text.find(">!") != -1:
-        spoiler_text = _(
-            "regarding {item_title}, may contain spoiler or triggering content"
-        ).format(item_title=item.display_title)
-        return spoiler_text, text.replace(">!", "").replace("!<", "")
+        return spoiler_warning(item), text.replace(">!", "").replace("!<", "")
     else:
         return None, text or ""
 
