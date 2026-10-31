@@ -15,11 +15,12 @@ from catalog.common import (
     SiteManager,
     SiteName,
 )
-from catalog.common.downloaders import DownloadError
+from catalog.common.downloaders import DownloadError, short_requests
 from catalog.common.scrapers import ParseError
 from catalog.models import (
     Album,
     Edition,
+    ExternalResource,
     Game,
     Item,
     ItemCategory,
@@ -33,8 +34,13 @@ from catalog.models import (
 )
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models import SiteConfig
+from common.sentry import count as sentry_count
 
 logger = logging.getLogger(__name__)
+
+
+def _is_live(item: Item) -> bool:
+    return not item.is_deleted and item.merged_to_item_id is None
 
 
 @SiteManager.register
@@ -66,6 +72,14 @@ class FediverseInstance(AbstractSite):
         "User-Agent": settings.NEODB_USER_AGENT,
         "Accept": "application/activity+json",
     }
+    # linked resources fetched before a new peer item is created, and the
+    # per-request timeout for each of them
+    LINKED_FETCH_LIMIT = 3
+    LINKED_FETCH_TIMEOUT = 5
+
+    def __init__(self, url=None, id_value=None):
+        super().__init__(url, id_value)
+        self.linked_sites: list[AbstractSite] = []
 
     @classmethod
     def id_to_url(cls, id_value):
@@ -164,6 +178,7 @@ class FediverseInstance(AbstractSite):
             else (None, None)
         )
         ids = {}
+        self.linked_sites = []
         data["preferred_model"] = data.get("type", "")
         data["prematched_resources"] = []
         model_cls = self.supported_types.get(data["preferred_model"].lower())
@@ -185,6 +200,7 @@ class FediverseInstance(AbstractSite):
                 logger.error(f"FediverseInstance: {self.url} incompatible url {u}")
                 continue
             ids[site.ID_TYPE] = site.id_value
+            self.linked_sites.append(site)
         for k, v in self.id_type_mapping.items():
             d = data.get(k)
             if d:
@@ -199,7 +215,54 @@ class FediverseInstance(AbstractSite):
 
     def scrape(self):
         data = self.get_json_from_url(self.url)
-        return self.content_from_json(data)
+        content = self.content_from_json(data)
+        if self.get_resource().item_id is None:
+            self.resolve_linked_resources()
+        return content
+
+    def resolve_linked_resources(self) -> Item | None:
+        """Make the non-peer resources this peer item links to local, before
+        this resource is matched for the first time.
+
+        A linked resource is matched, or creates its item, on its own ids, so
+        the match that follows finds that item through the linked id this
+        resource already carries and no peer-only copy is created. Ids learned
+        from the linked fetch are not copied to this resource: the peer's
+        mapping can be wrong, and those ids would later pull other resources
+        onto this item. If no linked resource can be made local, matching goes
+        on as before and may create the copy; that fallback is counted so the
+        dedup report can find it.
+        """
+        for site in self.linked_sites[: self.LINKED_FETCH_LIMIT]:
+            existing = (
+                ExternalResource.objects.filter(
+                    id_type=site.ID_TYPE, id_value=site.id_value
+                )
+                .select_related("item")
+                .first()
+            )
+            if existing and existing.item and _is_live(existing.item):
+                return existing.item
+            reason = "no_item"
+            try:
+                with short_requests(self.LINKED_FETCH_TIMEOUT):
+                    res = site.get_resource_ready(auto_link=False)
+                if res and res.item and _is_live(res.item):
+                    return res.item
+            except DownloadError:
+                reason = "download"
+            except Exception:
+                logger.exception(f"FediverseInstance: {self.url} linked {site} error")
+                reason = "error"
+            logger.warning(
+                f"FediverseInstance: {self.url} unable to resolve linked {site}",
+                extra={"reason": reason},
+            )
+            sentry_count(
+                "catalog.fedi.linked_fallback",
+                attributes={"site": str(site.ID_TYPE), "reason": reason},
+            )
+        return None
 
     @classmethod
     async def peer_search_task(cls, host, q, page, category=None, page_size=5):
