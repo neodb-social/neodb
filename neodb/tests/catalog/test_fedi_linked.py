@@ -13,7 +13,7 @@ from catalog.common.downloaders import (
     short_requests,
 )
 from catalog.common.sites import SiteManager
-from catalog.models import Album, Edition, ExternalResource, IdType
+from catalog.models import Album, Edition, ExternalResource, IdType, Item
 from catalog.sites.fedi import FediverseInstance
 from catalog.sites.goodreads import Goodreads
 from catalog.sites.musicbrainz import MusicBrainzRelease
@@ -195,3 +195,38 @@ class TestShortRequests:
                     r.download()
             assert dl.call_count == 1
         assert d.timeout == 90
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_linked_item_beats_peer_isbn_mapping():
+    # the peer's own isbn points at another edition; the item its linked
+    # Goodreads resource lands on wins
+    linked = _local(
+        Edition,
+        "The Hobbit",
+        IdType.DoubanBook,
+        "1046209",
+        "https://book.douban.com/subject/1046209/",
+        {IdType.ISBN: _ISBN},
+    )
+    wrong = _local(
+        Edition,
+        "The Hobbit (hardcover)",
+        IdType.GoogleBooks,
+        "hb",
+        "https://books.google.com/books?id=hb",
+        {},
+    )
+    Item.objects.filter(pk=wrong.pk).update(
+        primary_lookup_id_type=IdType.ISBN, primary_lookup_id_value="9780000000099"
+    )
+    content = ResourceContent(
+        metadata={"localized_title": [{"lang": "en", "text": "The Hobbit"}]},
+        lookup_ids={IdType.ISBN: _ISBN},
+    )
+    payload = _payload(_PEER_BOOK, "Edition", "The Hobbit", _GOODREADS)
+    payload["isbn"] = "9780000000099"
+    with patch.object(Goodreads, "scrape", return_value=content):
+        res = _fetch_peer(_PEER_BOOK, payload)
+    assert res is not None
+    assert res.item == linked

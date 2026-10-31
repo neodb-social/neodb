@@ -80,6 +80,7 @@ class FediverseInstance(AbstractSite):
     def __init__(self, url=None, id_value=None):
         super().__init__(url, id_value)
         self.linked_sites: list[AbstractSite] = []
+        self.linked_item: Item | None = None
 
     @classmethod
     def id_to_url(cls, id_value):
@@ -217,16 +218,29 @@ class FediverseInstance(AbstractSite):
         data = self.get_json_from_url(self.url)
         content = self.content_from_json(data)
         if self.get_resource().item_id is None:
-            self.resolve_linked_resources()
+            self.linked_item = self.resolve_linked_resources()
         return content
+
+    def get_item(self, ignore_existing_content: bool = False, allow_rematch=True):
+        p = self.get_resource()
+        if self.linked_item and allow_rematch and p and p.ready:
+            # the item a linked resource landed on beats a match on the
+            # peer's own isbn / imdb / barcode, which may map elsewhere
+            p.match_and_link_item(
+                self.DEFAULT_MODEL,
+                ignore_existing_content,
+                preferred_item=self.linked_item,
+            )
+            return p.item
+        return super().get_item(ignore_existing_content, allow_rematch)
 
     def resolve_linked_resources(self) -> Item | None:
         """Make the non-peer resources this peer item links to local, before
         this resource is matched for the first time.
 
-        A linked resource is matched, or creates its item, on its own ids, so
-        the match that follows finds that item through the linked id this
-        resource already carries and no peer-only copy is created. Ids learned
+        A linked resource is matched, or creates its item, on its own ids; the
+        first such item is returned, and get_item() links this resource to it
+        so no peer-only copy is created. Ids learned
         from the linked fetch are not copied to this resource: the peer's
         mapping can be wrong, and those ids would later pull other resources
         onto this item. If no linked resource can be made local, matching goes
