@@ -1,10 +1,14 @@
+import re
 from unittest import mock
 
 import pytest
+from django.utils import timezone
 
 from catalog.common import SiteManager, use_local_response
-from catalog.models import IdType, Movie, TVEpisode, TVSeason, TVShow
+from catalog.models import ExternalResource, IdType, Movie, TVEpisode, TVSeason, TVShow
+from catalog.sites import tmdb as tmdb_site
 from catalog.sites.imdb import IMDB
+from catalog.sites.tmdb import TMDB_TVSeason
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -99,6 +103,101 @@ class TestTMDBEpisode:
         assert site.resource.item.season.imdb == "tt1159991"
         # assert site.resource.item.season.show is not None
         # assert site.resource.item.season.show.imdb == "tt0436992"
+
+
+def _serve_tmdb_seasons(monkeypatch, episode_imdb: dict[int, str | None]):
+    """Answer TMDB season and first-episode calls; episode_imdb maps season to its E1 IMDb id."""
+
+    class _Resp:
+        def __init__(self, data: dict):
+            self.data = data
+
+        def json(self) -> dict:
+            return self.data
+
+    class _Downloader:
+        def __init__(self, url: str):
+            self.url = url
+
+        def download(self) -> _Resp:
+            m = re.search(r"/3/tv/\d+/season/(\d+)/episode/\d+\?", self.url)
+            if m:
+                ids = {"imdb_id": episode_imdb.get(int(m[1])), "wikidata_id": "Q1"}
+                return _Resp({"id": 1, "external_ids": ids})
+            m = re.search(r"/3/tv/\d+/season/(\d+)\?", self.url)
+            if m:
+                n = int(m[1])
+                return _Resp(
+                    {
+                        "id": 1000 + n,
+                        "name": f"Season {n}",
+                        "overview": "",
+                        "air_date": "2020-01-01",
+                        "season_number": n,
+                        "external_ids": {},
+                        "episodes": [{"episode_number": 1}],
+                    }
+                )
+            raise AssertionError(f"unexpected download {self.url}")
+
+    monkeypatch.setattr(tmdb_site, "BasicDownloader", _Downloader)
+
+
+def _make_tmdb_show(show_id: str, imdb: str) -> ExternalResource:
+    return ExternalResource.objects.create(
+        id_type=IdType.TMDB_TV,
+        id_value=show_id,
+        url=f"https://www.themoviedb.org/tv/{show_id}",
+        metadata={"title": f"Show {show_id}"},
+        other_lookup_ids={IdType.IMDB: imdb},
+        scraped_time=timezone.now(),
+    )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestTMDBSeasonImdb:
+    def test_specials_get_no_imdb(self, monkeypatch):
+        _make_tmdb_show("4426", "tt9000001")
+        _serve_tmdb_seasons(monkeypatch, {0: "tt9000001"})
+        content = TMDB_TVSeason(id_value="4426-0").scrape()
+        assert IdType.IMDB not in content.lookup_ids
+
+    def test_season_skips_show_imdb_on_first_episode(self, monkeypatch):
+        _make_tmdb_show("99388", "tt2708580")
+        _serve_tmdb_seasons(monkeypatch, {2: "tt2900001", 26: "tt2708580"})
+        content = TMDB_TVSeason(id_value="99388-26").scrape()
+        assert IdType.IMDB not in content.lookup_ids
+        assert IdType.WikiData not in content.lookup_ids
+        content = TMDB_TVSeason(id_value="99388-2").scrape()
+        assert content.lookup_ids[IdType.IMDB] == "tt2900001"
+
+    def test_later_season_does_not_join_season_one(self, monkeypatch):
+        _make_tmdb_show("99388", "tt2708580")
+        _serve_tmdb_seasons(monkeypatch, {26: "tt2708580"})
+        s1 = TMDB_TVSeason(id_value="99388-1").get_resource_ready()
+        assert s1 is not None and s1.item is not None
+        assert s1.other_lookup_ids[IdType.IMDB] == "tt2708580"
+        s26 = TMDB_TVSeason(id_value="99388-26").get_resource_ready()
+        assert s26 is not None and s26.item is not None
+        assert s26.item != s1.item
+
+    def test_season_one_still_matches_douban(self, monkeypatch):
+        douban = ExternalResource.objects.create(
+            id_type=IdType.DoubanMovie,
+            id_value="1837856",
+            url="https://movie.douban.com/subject/1837856/",
+            metadata={"title": "英雄 第一季"},
+            other_lookup_ids={IdType.IMDB: "tt0813715"},
+            scraped_time=timezone.now(),
+        )
+        douban.match_and_link_item(TVSeason, False)
+        assert douban.item is not None
+        _make_tmdb_show("1639", "tt0813715")
+        _serve_tmdb_seasons(monkeypatch, {})
+        s1 = TMDB_TVSeason(id_value="1639-1").get_resource_ready()
+        assert s1 is not None
+        assert s1.other_lookup_ids[IdType.IMDB] == "tt0813715"
+        assert s1.item == douban.item
 
 
 @pytest.mark.django_db(databases="__all__")
