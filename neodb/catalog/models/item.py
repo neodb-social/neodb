@@ -1937,6 +1937,34 @@ class ExternalResource(models.Model):
                 if res:
                     return res.item
 
+    _IMDB_CHECKED_TYPES = (IdType.TMDB_Movie, IdType.TMDB_TV, IdType.TMDB_TVSeason)
+
+    def _conflict_rule(self, item: Item) -> str | None:
+        """
+        name the rule if the item clearly holds a different work than this resource:
+        - another season of the same TMDB show (season 0 included)
+        - another TMDB entry of the same type naming a different IMDb id;
+          TMDB lists some works twice, so entries sharing an IMDb id, or
+          without one, still go together
+        """
+        others = [r for r in item.external_resources.all() if r.pk != self.pk]
+        if self.id_type == IdType.TMDB_TVSeason:
+            show, _, season = self.id_value.partition("-")
+            for r in others:
+                if r.id_type == IdType.TMDB_TVSeason:
+                    other_show, _, other_season = r.id_value.partition("-")
+                    if other_show == show and other_season != season:
+                        return "tmdb_season"
+        imdb = (self.other_lookup_ids or {}).get(IdType.IMDB)
+        if self.id_type in self._IMDB_CHECKED_TYPES and imdb:
+            for r in others:
+                if r.id_type != self.id_type or r.id_value == self.id_value:
+                    continue
+                other_imdb = (r.other_lookup_ids or {}).get(IdType.IMDB)
+                if other_imdb and other_imdb != imdb:
+                    return "tmdb_imdb"
+        return None
+
     def match_and_link_item(
         self,
         default_model: type[Item] | None,
@@ -1983,9 +2011,22 @@ class ExternalResource(models.Model):
             and preferred_item.merged_to_item_id is None
         ):
             preferred_item = None
-        self.item = (
-            preferred_item or self._match_existing_item(model=model) or previous_item
-        )
+        matched = None if preferred_item else self._match_existing_item(model=model)
+        if matched and matched != previous_item:
+            rule = self._conflict_rule(matched)
+            if rule:
+                # stay on the previous item, or start a new one
+                logger.warning(
+                    "resource conflicts with matched item",
+                    extra={
+                        "resource": str(self),
+                        "candidate": matched.pk,
+                        "rule": rule,
+                    },
+                )
+                sentry_count("catalog.match.conflict", attributes={"rule": rule})
+                matched = None
+        self.item = preferred_item or matched or previous_item
         if self.item is None:  # matching to a new item
             self.item = model.create_from_external_resource(self)
             self.save(update_fields=["item"])
