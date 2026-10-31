@@ -2,6 +2,8 @@ import json
 import logging
 import re
 import time
+from contextlib import contextmanager
+from contextvars import ContextVar
 from io import BytesIO, StringIO
 from pathlib import Path
 from typing import Any, Tuple, Union, cast
@@ -32,6 +34,28 @@ RESPONSE_CENSORSHIP = -3  # censored, try sth special if possible
 RESPONSE_QUOTA_EXCEEDED = -4
 
 _mock_mode = False
+
+# (timeout, retries) caps for downloads in the current context, set by
+# short_requests(); None leaves the site config values in place
+_request_limits: ContextVar[tuple[float, int] | None] = ContextVar(
+    "downloader_request_limits", default=None
+)
+
+
+@contextmanager
+def short_requests(timeout: float, retries: int = 1):
+    """Cap the timeout and retries of every download made in this block.
+
+    For a fetch done synchronously on behalf of another one, which must not
+    hold its caller for the full configured timeout. Sites that talk HTTP
+    without a downloader are not capped.
+    """
+    token = _request_limits.set((timeout, retries))
+    try:
+        yield
+    finally:
+        _request_limits.reset(token)
+
 
 # query parameters that carry a credential; several sites (Google Books, Steam,
 # TMDB) pass their API key this way, so a downloader URL must never reach a log
@@ -291,8 +315,11 @@ class BasicDownloader:
     @property
     def timeout(self):
         if hasattr(self, "_timeout"):
-            return self._timeout
-        return SiteConfig.system.downloader_request_timeout
+            t = self._timeout
+        else:
+            t = SiteConfig.system.downloader_request_timeout
+        limits = _request_limits.get()
+        return min(t, limits[0]) if limits else t
 
     @timeout.setter
     def timeout(self, value):
@@ -470,6 +497,9 @@ class RetryDownloader(BasicDownloader):
     def download(self):
         self._record_download_invocation()
         retries = SiteConfig.system.downloader_retries
+        limits = _request_limits.get()
+        if limits:
+            retries = min(retries, limits[1])
         total_retries = retries
         while retries:
             retries -= 1

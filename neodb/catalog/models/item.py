@@ -36,6 +36,7 @@ from common.models.lang import (
     normalize_languages,
 )
 from common.models.misc import MISSING_COVER, is_missing_cover
+from common.sentry import count as sentry_count
 from common.utils import (
     clean_json,
     get_default_cover_image_url,
@@ -1937,9 +1938,37 @@ class ExternalResource(models.Model):
                     return res.item
 
     def match_and_link_item(
-        self, default_model: type[Item] | None, ignore_existing_content: bool
+        self,
+        default_model: type[Item] | None,
+        ignore_existing_content: bool,
+        preferred_item: Item | None = None,
     ) -> bool:
-        """find an existing Item for this resource or create a new one, then link to it"""
+        """find an existing Item for this resource or create a new one, then link to it
+
+        Serialised per id: two jobs fetching one url could otherwise both find
+        the resource without an item, and each create one. ``preferred_item``
+        is linked instead of matching when the resource has no other item and
+        the item is live and of the right model.
+        """
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT pg_advisory_xact_lock(hashtext(%s))",
+                    [f"extres:{self.id_type}:{self.id_value}"],
+                )
+            if self.pk:
+                # another job may have linked an item since this one loaded it
+                self.refresh_from_db(fields=["item"])
+            return self._match_and_link_item(
+                default_model, ignore_existing_content, preferred_item
+            )
+
+    def _match_and_link_item(
+        self,
+        default_model: type[Item] | None,
+        ignore_existing_content: bool,
+        preferred_item: Item | None,
+    ) -> bool:
         created = False
         try:
             previous_item: Item | None = self.item
@@ -1947,7 +1976,16 @@ class ExternalResource(models.Model):
             logger.error(f"PolymorphicModel Item {self.item_id} error fk from {self}")  # type: ignore
             previous_item = None
         model = self.get_item_model(default_model)
-        self.item = self._match_existing_item(model=model) or previous_item
+        if not (
+            isinstance(preferred_item, model)
+            and (previous_item is None or previous_item.pk == preferred_item.pk)
+            and not preferred_item.is_deleted
+            and preferred_item.merged_to_item_id is None
+        ):
+            preferred_item = None
+        self.item = (
+            preferred_item or self._match_existing_item(model=model) or previous_item
+        )
         if self.item is None:  # matching to a new item
             self.item = model.create_from_external_resource(self)
             self.save(update_fields=["item"])
@@ -1960,6 +1998,12 @@ class ExternalResource(models.Model):
         if previous_item != self.item:
             if previous_item:
                 previous_item.log_action({"!unmatch": [str(self), ""]})
+                if not previous_item.is_deleted and not previous_item.merged_to_item_id:
+                    # a resource moving between two live items marks duplicates
+                    sentry_count(
+                        "catalog.resource.rematch_moved",
+                        attributes={"site": str(self.id_type)},
+                    )
             self.item.log_action({"!match": ["", str(self)]})
         return created
 
