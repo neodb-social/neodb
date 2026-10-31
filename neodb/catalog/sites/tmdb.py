@@ -553,6 +553,9 @@ class TMDB_TVSeason(AbstractSite):
         if pd.lookup_ids.get(IdType.IMDB):
             # this should not happen
             _logger.warning("Unexpected IMDB id for TMDB tv season")
+        elif pd.metadata.get("season_number") == 0:
+            # Specials have no IMDb counterpart; a borrowed id would match Season 1
+            pass
         elif pd.metadata.get("season_number") == 1:
             site = SiteManager.get_site_by_url(
                 f"https://www.themoviedb.org/tv/{show_id}"
@@ -572,13 +575,12 @@ class TMDB_TVSeason(AbstractSite):
             d2 = BasicDownloader(api_url2).download().json()
             if not d2.get("id"):
                 raise ParseError(self, "first episode id for season")
-            # Add external IDs to lookup_ids
-            if d2["external_ids"].get("imdb_id"):
-                pd.lookup_ids[IdType.IMDB] = d2["external_ids"].get("imdb_id")
-
-            # Extract Wikidata ID if available
-            if d2["external_ids"].get("wikidata_id"):
-                pd.lookup_ids[IdType.WikiData] = d2["external_ids"].get("wikidata_id")
+            # TMDB often gives the first episode the show's IMDb id, which
+            # would match this season to Season 1. The episode's Wikidata id
+            # names the episode, not the season, so it is not borrowed either.
+            ep_imdb = d2["external_ids"].get("imdb_id")
+            if ep_imdb and ep_imdb != show_resource.other_lookup_ids.get(IdType.IMDB):
+                pd.lookup_ids[IdType.IMDB] = ep_imdb
         return pd
 
 
