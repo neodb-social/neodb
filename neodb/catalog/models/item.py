@@ -36,6 +36,7 @@ from common.models.lang import (
     normalize_languages,
 )
 from common.models.misc import MISSING_COVER, is_missing_cover
+from common.sentry import count as sentry_count
 from common.utils import (
     clean_json,
     get_default_cover_image_url,
@@ -1939,7 +1940,25 @@ class ExternalResource(models.Model):
     def match_and_link_item(
         self, default_model: type[Item] | None, ignore_existing_content: bool
     ) -> bool:
-        """find an existing Item for this resource or create a new one, then link to it"""
+        """find an existing Item for this resource or create a new one, then link to it
+
+        Serialised per id: two jobs fetching one url could otherwise both find
+        the resource without an item, and each create one.
+        """
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT pg_advisory_xact_lock(hashtext(%s))",
+                    [f"extres:{self.id_type}:{self.id_value}"],
+                )
+            if self.pk:
+                # another job may have linked an item since this one loaded it
+                self.refresh_from_db(fields=["item"])
+            return self._match_and_link_item(default_model, ignore_existing_content)
+
+    def _match_and_link_item(
+        self, default_model: type[Item] | None, ignore_existing_content: bool
+    ) -> bool:
         created = False
         try:
             previous_item: Item | None = self.item
@@ -1960,6 +1979,12 @@ class ExternalResource(models.Model):
         if previous_item != self.item:
             if previous_item:
                 previous_item.log_action({"!unmatch": [str(self), ""]})
+                if not previous_item.is_deleted and not previous_item.merged_to_item_id:
+                    # a resource moving between two live items marks duplicates
+                    sentry_count(
+                        "catalog.resource.rematch_moved",
+                        attributes={"site": str(self.id_type)},
+                    )
             self.item.log_action({"!match": ["", str(self)]})
         return created
 
