@@ -118,10 +118,22 @@ class TestPeerLinkedResources:
             _GOODREADS,
             {IdType.ISBN: _ISBN},
         )
+        # the peer's own isbn maps to another edition; the linked one wins
+        wrong = _local(
+            Edition,
+            "The Hobbit (hardcover)",
+            IdType.GoogleBooks,
+            "hb",
+            "https://books.google.com/books?id=hb",
+            {},
+        )
+        Item.objects.filter(pk=wrong.pk).update(
+            primary_lookup_id_type=IdType.ISBN, primary_lookup_id_value="9780000000099"
+        )
+        payload = _payload(_PEER_BOOK, "Edition", "The Hobbit", _GOODREADS)
+        payload["isbn"] = "9780000000099"
         with patch.object(Goodreads, "scrape") as scrape:
-            res = _fetch_peer(
-                _PEER_BOOK, _payload(_PEER_BOOK, "Edition", "The Hobbit", _GOODREADS)
-            )
+            res = _fetch_peer(_PEER_BOOK, payload)
         scrape.assert_not_called()
         assert res is not None
         assert res.item == local
@@ -226,7 +238,17 @@ def test_linked_item_beats_peer_isbn_mapping():
     )
     payload = _payload(_PEER_BOOK, "Edition", "The Hobbit", _GOODREADS)
     payload["isbn"] = "9780000000099"
-    with patch.object(Goodreads, "scrape", return_value=content):
-        res = _fetch_peer(_PEER_BOOK, payload)
+    with (
+        patch.object(Goodreads, "scrape", return_value=content),
+        patch.object(FediverseInstance, "get_json_from_url", return_value=payload),
+        patch.object(SiteManager, "get_redirected_url", side_effect=lambda u, **k: u),
+    ):
+        site = FediverseInstance(_PEER_BOOK)
+        res = site.get_resource_ready(auto_link=False)
+        # Item.get_by_ap_object asks the same site for its item again
+        item = site.get_item()
     assert res is not None
     assert res.item == linked
+    assert item == linked
+    res.refresh_from_db()
+    assert res.item_id == linked.pk

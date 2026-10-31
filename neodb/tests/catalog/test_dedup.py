@@ -7,16 +7,18 @@ import json
 import pytest
 from django.core.management import call_command
 
-from catalog.dedup import book_format, report, titles_similar
+from catalog.dedup import book_format, merge_row, report, titles_similar, undo_entry
 from catalog.models import (
     Album,
     Edition,
     ExternalResource,
     IdType,
     Item,
+    ItemCredit,
     Movie,
     TVSeason,
     TVShow,
+    Work,
 )
 from journal.models import Mark, ShelfMember, ShelfType
 from users.models import User
@@ -322,3 +324,76 @@ class TestMerge:
         )
         assert "evidence gone: 1" in out.getvalue()
         assert "source protected: 1" in out.getvalue()
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestUndoRestores:
+    def _merge_and_undo(self, source, target, approve="y"):
+        row = {
+            "tier": "A",
+            "source_id": str(source.pk),
+            "target_id": str(target.pk),
+            "approve": approve,
+        }
+        r = merge_row(row, commit=True)
+        assert r.status == "merged", r.status
+        assert r.log is not None
+        log = json.loads(json.dumps(r.log))
+        assert undo_entry(log) == "reverted"
+
+    def test_credits_metadata_and_works(self):
+        target = _item(Edition, "The Hobbit", 2001)
+        _res(target, IdType.Goodreads, "11734")
+        source = _item(Edition, "The Hobbit", 2001)
+        _peer(source, 1, goodreads="11734")
+        Item.objects.filter(pk=source.pk).update(
+            metadata={
+                **source.metadata,
+                "localized_description": [{"lang": "en", "text": "a story"}],
+            }
+        )
+        source = Item.objects.get(pk=source.pk)
+        ItemCredit.objects.create(item=source, role="author", name="Tolkien")
+        ItemCredit.objects.create(
+            item=source, role="translator", name="X", character_name="c"
+        )
+        ItemCredit.objects.create(item=target, role="author", name="Tolkien")
+        w1 = Work.objects.create(localized_title=[{"lang": "en", "text": "W1"}])
+        w2 = Work.objects.create(localized_title=[{"lang": "en", "text": "W2"}])
+        assert isinstance(source, Edition) and isinstance(target, Edition)
+        source.set_work(w1)
+        target.set_work(w2)
+        target_meta = Item.objects.get(pk=target.pk).metadata
+
+        self._merge_and_undo(source, target)
+
+        source = Item.objects.get(pk=source.pk)
+        target = Item.objects.get(pk=target.pk)
+        assert isinstance(source, Edition) and isinstance(target, Edition)
+        assert sorted(source.credits.values_list("role", "name")) == [
+            ("author", "Tolkien"),
+            ("translator", "X"),
+        ]
+        assert list(target.credits.values_list("role", "name")) == [
+            ("author", "Tolkien")
+        ]
+        assert target.metadata == target_meta
+        assert source.localized_description == [{"lang": "en", "text": "a story"}]
+        assert source.get_work() == w1
+        assert target.get_work() == w2
+
+    def test_recast_keeps_subclass_fields(self):
+        show = _item(TVShow, "Lost", 2004)
+        target = _item(TVShow, "Lost", 2004)
+        _res(target, IdType.TMDB_TV, "4607")
+        source = _item(TVSeason, "Lost", 2004)
+        TVSeason.objects.filter(pk=source.pk).update(show=show)
+        _res(source, IdType.DoubanMovie, tmdb_tv="4607")
+        source = Item.objects.get(pk=source.pk)
+
+        self._merge_and_undo(source, target, approve="recast")
+
+        source = Item.objects.get(pk=source.pk)
+        assert isinstance(source, TVSeason)
+        assert source.show_id == show.pk  # type: ignore[attr-defined]
+        assert source.merged_to_item_id is None

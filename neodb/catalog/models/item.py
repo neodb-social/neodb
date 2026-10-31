@@ -1947,8 +1947,8 @@ class ExternalResource(models.Model):
 
         Serialised per id: two jobs fetching one url could otherwise both find
         the resource without an item, and each create one. ``preferred_item``
-        is linked instead of matching when the resource has no item yet and the
-        item is live and of the right model.
+        is linked instead of matching when the resource has no other item and
+        the item is live and of the right model.
         """
         with transaction.atomic():
             with connection.cursor() as cursor:
@@ -1977,8 +1977,8 @@ class ExternalResource(models.Model):
             previous_item = None
         model = self.get_item_model(default_model)
         if not (
-            previous_item is None
-            and isinstance(preferred_item, model)
+            isinstance(preferred_item, model)
+            and (previous_item is None or previous_item.pk == preferred_item.pk)
             and not preferred_item.is_deleted
             and preferred_item.merged_to_item_id is None
         ):

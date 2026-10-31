@@ -7,6 +7,7 @@ a candidate pair. ``report`` writes the pairs to a CSV with a tier and an empty
 moved so ``undo`` can put it back. Nothing here merges on its own.
 """
 
+import copy
 import csv
 import json
 import logging
@@ -15,7 +16,7 @@ import unicodedata
 from collections import defaultdict
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
-from typing import IO, Iterable, Iterator
+from typing import IO, Any, Iterable, Iterator
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
@@ -606,35 +607,84 @@ def merge_row(row: dict, commit: bool) -> MergeResult:
     return r
 
 
+_STATE_FIELDS = [
+    "title",
+    "brief",
+    "metadata",
+    "primary_lookup_id_type",
+    "primary_lookup_id_value",
+]
+_CREDIT_FIELDS = ["role", "name", "character_name", "person_id", "order"]
+
+
+def _state(item: Item) -> dict:
+    """Base row fields a merge may change, for undo."""
+    # a deep copy: the merge edits metadata dicts in place
+    d = copy.deepcopy({f: getattr(item, f) for f in _STATE_FIELDS})
+    d["cover"] = item.cover.name if item.cover else ""
+    return d
+
+
+def _restore_state(item: Item, state: dict) -> None:
+    for f in _STATE_FIELDS:
+        setattr(item, f, state[f])
+    item.cover = state["cover"]
+    item.save()
+
+
+def _subclass_fields(item: Item) -> dict:
+    """Child table fields, which recast_to() drops."""
+    return {
+        f.attname: None
+        if f.value_from_object(item) is None
+        else f.value_to_string(item)
+        for f in type(item)._meta.concrete_fields
+        if f.model is not Item and not f.primary_key
+    }
+
+
+def _work_pk(item: Item) -> int | None:
+    if isinstance(item, Edition):
+        w = item.get_work()
+        return w.pk if w else None
+    return None
+
+
 def _merge(source: Item, target: Item) -> dict:
     from journal.models.utils import update_journal_for_merged_item
 
-    recast_from = None
+    log: dict[str, Any] = {
+        "time": timezone.now().isoformat(),
+        "source": source.pk,
+        "target": target.pk,
+        "recast_from": None,
+        "subclass_fields": {},
+        "source_state": _state(source),
+        "target_state": _state(target),
+        "source_work": _work_pk(source),
+        "target_work": _work_pk(target),
+        "source_credits": [
+            {"pk": c.pk, **{f: getattr(c, f) for f in _CREDIT_FIELDS}}
+            for c in source.credits.all()
+        ],
+        "target_credits": [
+            {"pk": c.pk, "character_name": c.character_name, "person_id": c.person_id}
+            for c in target.credits.all()
+        ],
+        "resources": list(source.external_resources.values_list("pk", flat=True)),
+        "repointed": list(
+            Item.objects.filter(merged_to_item=source).values_list("pk", flat=True)
+        ),
+    }
     if type(source) is not type(target):
-        recast_from = source.__class__._meta.label
+        log["recast_from"] = source.__class__._meta.label
+        log["subclass_fields"] = _subclass_fields(source)
         source = source.recast_to(target.__class__)
     pieces_before = [
         (cls._meta.label, pk)
         for cls in _piece_classes()
         for pk in cls.objects.filter(item=source).values_list("pk", flat=True)
     ]
-    resources = list(source.external_resources.values_list("pk", flat=True))
-    credits = list(source.credits.values_list("pk", flat=True))
-    repointed = list(
-        Item.objects.filter(merged_to_item=source).values_list("pk", flat=True)
-    )
-    log = {
-        "time": timezone.now().isoformat(),
-        "source": source.pk,
-        "target": target.pk,
-        "recast_from": recast_from,
-        "target_primary": [
-            target.primary_lookup_id_type,
-            target.primary_lookup_id_value,
-        ],
-        "resources": resources,
-        "repointed": repointed,
-    }
     source.merge_to(target)
     # never deletes: pieces that would clash with the target stay on source
     update_journal_for_merged_item(source.uuid)
@@ -643,12 +693,7 @@ def _merge(source: Item, target: Item) -> dict:
         for label, pk in pieces_before
         if apps.get_model(label).objects.filter(pk=pk, item_id=target.pk).exists()
     ]
-    log["credits"] = list(
-        ItemCredit.objects.filter(pk__in=credits, item_id=target.pk).values_list(
-            "pk", flat=True
-        )
-    )
-    Item.objects.filter(pk__in=repointed).update(merged_to_item=target)
+    Item.objects.filter(pk__in=log["repointed"]).update(merged_to_item=target)
     return log
 
 
@@ -672,47 +717,66 @@ def merge_csv(
 
 
 def undo_entry(entry: dict) -> str:
-    """Revert one logged merge; return a status."""
+    """Revert one logged merge; return a status.
+
+    Changes made to either item after the merge are overwritten.
+    """
+    from catalog.models import Work
+    from journal.models.common import Content
+    from journal.models.itemlist import ListMember
+
     source = Item.objects.filter(pk=entry["source"]).first()
-    target_id = entry["target"]
-    if not source:
-        return "source missing"
-    if source.merged_to_item_id != target_id:
+    target = Item.objects.filter(pk=entry["target"]).first()
+    if not source or not target:
+        return "item missing"
+    if source.merged_to_item_id != target.pk:
         return "source not merged to target"
     with transaction.atomic():
         source.merge_to(None)
-        source.log_action({"!unmerged": [str(target_id), ""]})
+        source.log_action({"!unmerged": [str(target), ""]})
+        if entry["recast_from"]:
+            model = apps.get_model(entry["recast_from"])
+            source = source.recast_to(model)
+            for f in model._meta.concrete_fields:
+                if f.attname in entry["subclass_fields"]:
+                    v = entry["subclass_fields"][f.attname]
+                    setattr(source, f.attname, None if v is None else f.to_python(v))
         for res in ExternalResource.objects.filter(
-            pk__in=entry["resources"], item_id=target_id
+            pk__in=entry["resources"], item_id=target.pk
         ):
             res.item = source
             res.save(update_fields=["item"])
-        ItemCredit.objects.filter(pk__in=entry["credits"], item_id=target_id).update(
-            item_id=source.pk
-        )
-        from journal.models.common import Content
-        from journal.models.itemlist import ListMember
-
+        for c in entry["source_credits"]:
+            fields = {f: c[f] for f in _CREDIT_FIELDS}
+            # a credit the merge found on both items was deleted
+            if not ItemCredit.objects.filter(pk=c["pk"]).update(
+                item_id=source.pk, **fields
+            ):
+                ItemCredit.objects.create(item_id=source.pk, **fields)
+        for c in entry["target_credits"]:
+            ItemCredit.objects.filter(pk=c["pk"], item_id=target.pk).update(
+                character_name=c["character_name"], person_id=c["person_id"]
+            )
         for label, pk in entry["pieces"]:
-            p = apps.get_model(label).objects.filter(pk=pk, item_id=target_id).first()
+            p = apps.get_model(label).objects.filter(pk=pk, item_id=target.pk).first()
             if p:
                 p.item = source
                 p.save(update_fields=["item_id"])
                 if isinstance(p, (Content, ListMember)):
                     p.update_index()
         Item.objects.filter(
-            pk__in=entry["repointed"], merged_to_item_id=target_id
+            pk__in=entry["repointed"], merged_to_item_id=target.pk
         ).update(merged_to_item=source)
-        target = Item.objects.get(pk=target_id)
-        t, v = entry["target_primary"]
-        if (target.primary_lookup_id_type, target.primary_lookup_id_value) != (t, v):
-            target.primary_lookup_id_type = t
-            target.primary_lookup_id_value = v
-            target.save(
-                update_fields=["primary_lookup_id_type", "primary_lookup_id_value"]
-            )
-        if entry.get("recast_from"):
-            source.recast_to(apps.get_model(entry["recast_from"]))
+        _restore_state(source, entry["source_state"])
+        _restore_state(target, entry["target_state"])
+        for item, work_pk in (
+            (source, entry["source_work"]),
+            (target, entry["target_work"]),
+        ):
+            if isinstance(item, Edition):
+                item.set_work(
+                    Work.objects.filter(pk=work_pk).first() if work_pk else None
+                )
     return "reverted"
 
 

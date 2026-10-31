@@ -248,15 +248,17 @@ class FediverseInstance(AbstractSite):
         dedup report can find it.
         """
         for site in self.linked_sites[: self.LINKED_FETCH_LIMIT]:
-            existing = (
-                ExternalResource.objects.filter(
-                    id_type=site.ID_TYPE, id_value=site.id_value
-                )
-                .select_related("item")
-                .first()
+            existing = ExternalResource.objects.filter(
+                id_type=site.ID_TYPE, id_value=site.id_value
+            ).first()
+            # the polymorphic manager loads the subclass; select_related would not
+            item = (
+                Item.objects.filter(pk=existing.item_id).first()
+                if existing and existing.item_id
+                else None
             )
-            if existing and existing.item and _is_live(existing.item):
-                return existing.item
+            if item and _is_live(item):
+                return item
             reason = "no_item"
             try:
                 with short_requests(self.LINKED_FETCH_TIMEOUT):
