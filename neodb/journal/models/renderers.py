@@ -47,7 +47,24 @@ _INLINE_CLOSE = re.compile(
     r"</(?:a|b|code|del|em|i|mark|rp|rt|ruby|s|span|strong|sub|sup|u)>$"
 )
 # Han, kana and their punctuation, but not Hangul, which spaces its words.
-_CJK_CHAR = re.compile("[　-ヿ㐀-䶿一-鿿豈-﫿＀-￯]")
+_CJK_CHAR = re.compile(
+    r"[\u3000-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uffef]"
+)
+
+
+def _text_char(text: str, index: int, step: int) -> str:
+    """The nearest character from index, in direction step, outside a tag."""
+    while 0 <= index < len(text):
+        if step < 0 and text[index] == ">":
+            index = text.rfind("<", 0, index) - 1
+        elif step > 0 and text[index] == "<":
+            end = text.find(">", index)
+            if end < 0:
+                return ""
+            index = end + 1
+        else:
+            return text[index]
+    return ""
 
 
 def soft_breaks_to_spaces(html: str) -> str:
@@ -82,7 +99,11 @@ def soft_breaks_to_spaces(html: str) -> str:
             )
             if not soft:
                 out.append("\n")
-            elif not (_CJK_CHAR.match(before) and _CJK_CHAR.match(after)):
+            elif not (
+                # the text on each side, past any inline tag such as </em>
+                _CJK_CHAR.match(_text_char(text, index - 1, -1))
+                and _CJK_CHAR.match(_text_char(text, index + 1, 1))
+            ):
                 out.append(" ")
         out.append(text[start:])
         return "".join(out)

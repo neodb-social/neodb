@@ -226,6 +226,7 @@ class TestArticleModel:
         body = (
             "line one\nline two *em*\nnext\n\n"
             "中文第一行\n中文第二行\n\n"
+            "中文*强调*\n中文\n*强调*中文\n\n"
             "hard  \nbreak\n\n"
             "- item a\n  wrapped\n\n"
             "```\ncode\nblock\n```"
@@ -236,6 +237,7 @@ class TestArticleModel:
         content = Post.objects.get(pk=article.latest_post_id).content
         assert "<p>line one line two <em>em</em> next</p>" in content
         assert "<p>中文第一行中文第二行</p>" in content
+        assert "<p>中文<em>强调</em>中文<em>强调</em>中文</p>" in content
         assert "<p>hard<br>break</p>" in content
         assert "<li>item a wrapped</li>" in content
         assert "<pre><code>code\nblock\n</code></pre>" in content
