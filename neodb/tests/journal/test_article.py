@@ -222,9 +222,32 @@ class TestArticleModel:
         assert "&lt;" not in post.content
         assert "<em>again</em>" in post.content
 
+    def test_article_post_content_keeps_soft_line_breaks(self):
+        body = (
+            "line one\nline two *em*\nnext\n\n"
+            "中文第一行\n中文第二行\n\n"
+            "hard  \nbreak\n\n"
+            "- item a\n  wrapped\n\n"
+            "```\ncode\nblock\n```"
+        )
+        article = Article.update_local_article(
+            owner=self.identity, title="Breaks", body=body, visibility=0
+        )
+        content = Post.objects.get(pk=article.latest_post_id).content
+        assert "<p>line one line two <em>em</em> next</p>" in content
+        assert "<p>中文第一行中文第二行</p>" in content
+        assert "<p>hard<br>break</p>" in content
+        assert "<li>item a wrapped</li>" in content
+        assert "<pre><code>code\nblock\n</code></pre>" in content
+        # federation keeps the rendered HTML as it is
+        assert article.ap_object["content"] == article.html_content
+
     def test_journal_article_posts_rewrites_escaped_content(self):
         article = Article.update_local_article(
-            owner=self.identity, title="Old", body="Hello *world*", visibility=0
+            owner=self.identity,
+            title="Old",
+            body="Hello *world*\nagain",
+            visibility=0,
         )
         book = Edition.objects.create(title="Reviewed book")
         review = Review.update_item_review(

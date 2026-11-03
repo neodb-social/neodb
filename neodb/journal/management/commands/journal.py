@@ -22,6 +22,7 @@ from journal.models import (
     update_journal_for_merged_item,
 )
 from journal.models.itemlist import ListMember
+from journal.models.renderers import soft_breaks_to_spaces
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.html import FediverseHtmlParser
 from takahe.models import Post
@@ -179,7 +180,9 @@ class Command(SiteCommand):
             source = post.type_data["object"].get("content")
             if not isinstance(source, str) or not source:
                 continue
-            content = FediverseHtmlParser(source, find_hashtags=True).html
+            content = FediverseHtmlParser(
+                soft_breaks_to_spaces(source), find_hashtags=True
+            ).html
             if content == post.content:
                 continue
             changed += 1
