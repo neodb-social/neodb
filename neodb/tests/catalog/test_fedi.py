@@ -497,6 +497,27 @@ class TestFediverseInstance:
             "",
         ]:
             assert FediverseInstance.peer_search_endpoint("peer.com", bad) == default
+        # a manually listed peer with a port keeps working
+        assert (
+            FediverseInstance.peer_search_endpoint(
+                "peer.com:8443", "https://peer.com:8443/s"
+            )
+            == "https://peer.com:8443/s"
+        )
+        assert (
+            FediverseInstance.peer_search_endpoint("peer.com:8443", None)
+            == "https://peer.com:8443/api/catalog/search"
+        )
+
+    def test_peer_search_result_keeps_port_of_listed_peer(self):
+        r = FediverseInstance.peer_search_result(
+            "peer.com:8443", {"url": "/book/1", "display_title": "A"}
+        )
+        assert r and r.source_url == "https://peer.com:8443/book/1"
+        r = FediverseInstance.peer_search_result(
+            "peer.com:8443", {"url": "https://evil.com/book/1", "display_title": "A"}
+        )
+        assert r is None
 
     def test_peer_search_result_tolerates_partial_items(self):
         def result(item):

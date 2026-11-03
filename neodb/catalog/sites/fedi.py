@@ -289,10 +289,13 @@ class FediverseInstance(AbstractSite):
         try:
             u = urlparse(url)
             h = (u.hostname or "").lower()
+            # a manually listed peer may carry a port
+            host = (urlparse(f"https://{host}").hostname or "").lower()
         except ValueError:
             return False
-        host = host.lower()
-        return u.scheme == "https" and (h == host or h.endswith("." + host))
+        return (
+            bool(host) and u.scheme == "https" and (h == host or h.endswith("." + host))
+        )
 
     @classmethod
     def peer_search_endpoint(cls, host: str, advertised: str | None) -> str:
