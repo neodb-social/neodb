@@ -363,6 +363,8 @@ class FediverseInstance(AbstractSite):
     async def peer_search_task(
         cls, host, q, page, category=None, page_size=5, endpoint: str | None = None
     ):
+        # endpoint is resolved by the sync caller: the settings lookup may hit
+        # the database, which a coroutine must not do
         p = (page - 1) * page_size // 20 + 1
         offset = (page - 1) * page_size % 20
         endpoint = cls.peer_search_endpoint(host, endpoint)

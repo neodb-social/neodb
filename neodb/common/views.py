@@ -104,14 +104,13 @@ def ap_redirect(request, uri):
 # Features this server offers to NeoDB peers, advertised as metadata.neodbFeatures;
 # docs/internals/activitypub.md defines each token and the absent-key rule.
 def _neodb_features() -> dict[str, Any]:
-    if settings.DEBUG:
-        return {}
-    if not SiteConfig.system.allow_incoming_federated_search:
+    if (
+        settings.DEBUG
+        or (getattr(settings, "SETUP", None) and settings.SETUP.NO_FEDERATION)
+        or not SiteConfig.system.allow_incoming_federated_search
+    ):
         return {"neodbFeatures": []}
-    endpoint = (
-        SiteConfig.system.catalog_search_endpoint
-        or settings.SITE_INFO["site_url"].rstrip("/") + "/api/catalog/search"
-    )
+    endpoint = settings.SITE_INFO["site_url"].rstrip("/") + "/api/catalog/search"
     return {
         "neodbFeatures": ["catalog.search"],
         "neodbFeatureParams": {"catalog.search": {"endpoint": endpoint}},

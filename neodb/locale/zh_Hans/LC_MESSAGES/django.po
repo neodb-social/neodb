@@ -5164,14 +5164,6 @@ msgstr "允许其它节点联邦搜索本站"
 msgid "Tell other NeoDB instances via NodeInfo whether they may include this site's catalog in their search results. The search API stays available to apps either way."
 msgstr "通过 NodeInfo 告知其它 NeoDB 实例是否可以在其搜索结果中包含本站目录。无论如何设置，应用仍可使用搜索 API。"
 
-#: common/views_manage.py
-msgid "Catalog search endpoint"
-msgstr "目录搜索端点"
-
-#: common/views_manage.py
-msgid "Catalog search URL advertised to other NeoDB instances via NodeInfo. Peers use it only if it is https on this site's domain or a subdomain. Leave empty to use this site's /api/catalog/search."
-msgstr "通过 NodeInfo 向其它 NeoDB 实例公布的目录搜索 URL。仅当它是本站域名或其子域名下的 https 地址时，其它实例才会使用。留空则使用本站的 /api/catalog/search。"
-
 #: common/views_manage.py:864
 msgid "Hidden categories"
 msgstr "隐藏的分类"

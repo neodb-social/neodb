@@ -54,7 +54,8 @@ e.g. <https://neodb.social/nodeinfo/2.0/>:
 
 A NeoDB instance treats a domain as a NeoDB peer when its NodeInfo has `neodb`
 in `protocols` and `nodeEnvironment` of `production`. A debug instance reports
-`development`, so peers leave it alone.
+`development`, so peers leave it alone; it, and an instance with federation
+disabled, also advertise `neodbFeatures: []`.
 
 ### Features
 

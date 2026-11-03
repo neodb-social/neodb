@@ -1025,15 +1025,6 @@ class FederationSettings(SiteConfigSettingsPage):
                 "stays available to apps either way."
             ),
         },
-        "catalog_search_endpoint": {
-            "title": _("Catalog search endpoint"),
-            "help_text": _(
-                "Catalog search URL advertised to other NeoDB instances via "
-                "NodeInfo. Peers use it only if it is https on this site's "
-                "domain or a subdomain. Leave empty to use this site's "
-                "/api/catalog/search."
-            ),
-        },
         "hidden_categories": {
             "title": _("Hidden categories"),
             "help_text": _("Category values to hide from the catalog, one per line."),
@@ -1058,7 +1049,6 @@ class FederationSettings(SiteConfigSettingsPage):
             "search_sites",
             "search_peers",
             "allow_incoming_federated_search",
-            "catalog_search_endpoint",
             "hidden_categories",
             "guest_search_max_pages",
         ],
