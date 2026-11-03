@@ -28,7 +28,7 @@
         <a href="{{ note.item.url }}">{{ note.item.display_title }}</a><small class="title_deco">{{ note.item.title_deco }}</small>
       {% endif %}
       <div class="note-card{% if note.sensitive %} spoiler{% endif %}"
-           {% if note.sensitive %}_="on click toggle .revealed on me"{% endif %}>
+           {% if note.sensitive %}_="on click if not target.closest('span.spoiler') toggle .revealed on me"{% endif %}>
         {% if note.title or note.progress_value %}
           <div class="note-card-title">
             {% if note.title %}<strong>{{ note.title }}</strong>{% endif %}
@@ -36,7 +36,7 @@
           </div>
         {% endif %}
         <div class="note-card-content{% if not note.sensitive %} tldr{% endif %}"
-             {% if not note.sensitive %}_="on click toggle .tldr on me"{% endif %}>
+             {% if not note.sensitive %}_="on click if not target.closest('span.spoiler') toggle .tldr on me"{% endif %}>
           {{ note.html|safe }}
           <div class="attachments">
             {% for attachment in note.attachment_list %}
