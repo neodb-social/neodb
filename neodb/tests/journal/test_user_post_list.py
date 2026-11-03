@@ -188,12 +188,16 @@ def test_own_article_card_menu_offers_edit_and_delete():
     article = Article.update_local_article(
         owner=author.identity, title="Menu", body="Body", visibility=0
     )
+    book = Edition.objects.create(title="Menu Mark Book")
+    Mark(author.identity, book).update(ShelfType.WISHLIST, "noted", None, [], 0)
     url = _user_post_list_url(author.identity.handle)
     client = Client()
     client.force_login(author, backend="mastodon.auth.OAuth2Backend")
     content = client.get(url).content.decode()
     assert f'href="{article.edit_url}"' in content
     assert f'href="{article.delete_url}"' in content
+    # a mark has nothing to edit or delete from the menu, so it gets none
+    assert content.count('class="post-action-menu"') == 1
 
     other = User.register(email="menu_other@example.com", username="menuother")
     client.force_login(other, backend="mastodon.auth.OAuth2Backend")
