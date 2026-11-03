@@ -4,7 +4,7 @@ from functools import cached_property
 from typing import Any, Iterable, Sequence
 
 from django.db import IntegrityError, transaction
-from django.db.models import Count, F, Q, QuerySet
+from django.db.models import Count, F, QuerySet
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -688,12 +688,19 @@ class Mark:
             # A mark on a child rolls up to its parent, so map every row back
             # to its root before counting owners. The join is a reverse
             # one-to-one, so a row on a root itself yields NULL and falls back
-            # to its own item id.
+            # to its own item id. The child ids are resolved first so the
+            # ShelfMember filter stays on item_id alone: an OR across the join
+            # makes postgres hash-join the whole table, which exhausts the
+            # dynamic shared memory of a container (EGGPLANT-1MK).
             parent_field = ROLLED_UP_MARK_COUNT_TYPES[item_type]
-            rows = (
-                ShelfMember.objects.filter(
-                    Q(item_id__in=root_ids) | Q(**{f"{parent_field}__in": root_ids})
+            child_path = parent_field.removeprefix("item__")
+            child_ids = list(
+                Item.objects.filter(**{f"{child_path}__in": root_ids}).values_list(
+                    "id", flat=True
                 )
+            )
+            rows = (
+                ShelfMember.objects.filter(item_id__in=root_ids + child_ids)
                 .annotate(root_id=Coalesce(F(parent_field), F("item_id")))
                 .values("root_id")
                 .annotate(n=Count("owner_id", distinct=True))
