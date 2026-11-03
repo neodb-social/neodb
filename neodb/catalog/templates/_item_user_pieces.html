@@ -107,8 +107,9 @@
           {% if note.progress_value %}<span class="tag-list"><span><a>{{ note.progress_display }}</a></span></span>{% endif %}
         </div>
       {% endif %}
-      <div class="note-card-content tldr" _="on click toggle .tldr on me">
-        {{ note.content|linebreaksbr }}
+      <div class="note-card-content tldr"
+           _="on click if not target.closest('span.spoiler') toggle .tldr on me">
+        {{ note.html|safe }}
         <div class="attachments">
           {% for attachment in note.attachment_list %}
             {% if attachment.type == "image" %}

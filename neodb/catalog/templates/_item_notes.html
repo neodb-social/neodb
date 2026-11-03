@@ -9,7 +9,7 @@
     <section class="note">
       <span class="action">
         {% if note.latest_post %}
-          {% include "action_reply_piece.html" with post=note.latest_post piece=note href=note.url %}
+          {% include "action_reply_piece.html" with post=note.latest_post piece=note %}
           {% include "action_like_post.html" with post=note.latest_post %}
           {% include "action_boost_post.html" with post=note.latest_post %}
           {% include "action_open_post.html" with post=note.latest_post %}
@@ -28,7 +28,7 @@
         <a href="{{ note.item.url }}">{{ note.item.display_title }}</a><small class="title_deco">{{ note.item.title_deco }}</small>
       {% endif %}
       <div class="note-card{% if note.sensitive %} spoiler{% endif %}"
-           {% if note.sensitive %}_="on click toggle .revealed on me"{% endif %}>
+           {% if note.sensitive %}_="on click if not target.closest('span.spoiler') toggle .revealed on me"{% endif %}>
         {% if note.title or note.progress_value %}
           <div class="note-card-title">
             {% if note.title %}<strong>{{ note.title }}</strong>{% endif %}
@@ -36,8 +36,8 @@
           </div>
         {% endif %}
         <div class="note-card-content{% if not note.sensitive %} tldr{% endif %}"
-             {% if not note.sensitive %}_="on click toggle .tldr on me"{% endif %}>
-          {{ note.content|linebreaksbr }}
+             {% if not note.sensitive %}_="on click if not target.closest('span.spoiler') toggle .tldr on me"{% endif %}>
+          {{ note.html|safe }}
           <div class="attachments">
             {% for attachment in note.attachment_list %}
               {% if attachment.type == "image" %}
@@ -65,6 +65,7 @@
           </a>
         </div>
       </div>
+      {% if note.latest_post %}<div id="replies_{{ note.latest_post.pk }}"></div>{% endif %}
       {% if note.rows and note.rows > 1 %}
         <a hx-get="{% url 'catalog:notes' note.item.url_path note.item.uuid %}?from={{ note.uuid }}"
            hx-trigger="click"

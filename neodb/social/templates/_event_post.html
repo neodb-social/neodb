@@ -118,7 +118,7 @@
           <div>{{ post.summary|default:'' }}</div>
         {% endif %}
         <div class="post-content-row">
-          <div class="post-content-main{% if post.converted_preview_card %} pagecard-order{% endif %}{% if piece.classname == 'note' %}{% if post.sensitive %} spoiler{% endif %}{% elif post.type != 'Article' %}{% if post.summary or post.sensitive %} spoiler{% endif %}{% endif %}" {% if piece.classname == 'note' %}{% if post.sensitive %}_="on click toggle .revealed on me"{% endif %} {% elif post.type != 'Article' %} {% if post.summary or post.sensitive %}_="on click toggle .revealed on me"{% endif %} {% endif %}>
+          <div class="post-content-main{% if post.converted_preview_card %} pagecard-order{% endif %}{% if piece.classname == 'note' %}{% if post.sensitive or piece.has_spoiler %} spoiler{% endif %}{% elif post.type != 'Article' %}{% if post.summary or post.sensitive %} spoiler{% endif %}{% endif %}" {% if piece.classname == 'note' %}{% if post.sensitive or piece.has_spoiler %}_="on click toggle .revealed on me"{% endif %} {% elif post.type != 'Article' %} {% if post.summary or post.sensitive %}_="on click toggle .revealed on me"{% endif %} {% endif %}>
             <div class="attachments">
               {% for attachment in post.attachments.all %}
                 {% if attachment.is_image %}
@@ -148,12 +148,17 @@
               {% endfor %}
             </div>
             <div id="content_{{ post.pk }}"
-                 class="content{% if collapse_content %} tldr{% endif %}"
-                 {% if collapse_content %}_="on click if not target.closest('a') toggle .tldr on me"{% endif %}>
+                 class="content{% if collapse_content and piece.classname != 'note' %} tldr{% endif %}"
+                 {% if collapse_content and piece.classname != 'note' %}_="on click if not target.closest('a') toggle .tldr on me"{% endif %}>
               {% if piece and piece.classname == "note" %}
-                <blockquote class="note-quote">
-                  {{ post.safe_content_local|default:"" }}
-                </blockquote>
+                {% with parts=post|note_content_parts %}
+                  <blockquote class="note-quote">
+                    <div {% if collapse_content %}class="tldr" _="on click if not target.closest('a') toggle .tldr on me"{% endif %}>
+                      {{ parts.0 }}
+                    </div>
+                    {{ parts.1 }}
+                  </blockquote>
+                {% endwith %}
               {% elif piece.classname == "article" or piece.classname == "review" %}
                 {% include "_article_teaser.html" with article=piece %}
               {% elif post.type == "Article" %}

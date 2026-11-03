@@ -13,7 +13,7 @@ from .attachment import (
     source_for_post_attachment,
 )
 from .common import Content
-from .renderers import render_text
+from .renderers import has_spoiler, render_spoiler_text, render_text, spoiler_warning
 from .shelf import ShelfMember
 
 if TYPE_CHECKING:
@@ -108,6 +108,10 @@ class Note(Content):
     @property
     def html(self):
         return render_text(self.content)
+
+    @property
+    def has_spoiler(self) -> bool:
+        return has_spoiler(self.content)
 
     @property
     def progress_display(self) -> str:
@@ -219,8 +223,17 @@ class Note(Content):
         content: str = obj.get("content", "").strip()
         # media is not a field here: update_by_ap_object mirrors the post's
         # attachments into the registry after the save
+        title = cls.title_from_ap_object(obj, post.summary)
+        if (
+            post.local
+            and piece
+            and not piece.title
+            and title == spoiler_warning(piece.item)
+        ):
+            # the warning _post_spoiler put on the post, not a title
+            title = piece.title
         params: dict[str, object] = {
-            "title": cls.title_from_ap_object(obj, post.summary),
+            "title": title,
             "content": content,
             "sensitive": obj.get("sensitive", post.sensitive),
         }
@@ -279,12 +292,25 @@ class Note(Content):
     def shelfmember(self) -> ShelfMember | None:
         return ShelfMember.objects.filter(item=self.item, owner=self.owner).first()
 
+    def _post_spoiler(self) -> tuple[str | None, str, bool]:
+        """Summary, content and sensitive flag for a post of this note.
+
+        A post cannot hide part of its text, so as for a comment, >!...!<
+        markup is dropped and the whole post is sensitive, under the title or
+        a generated warning. ``content`` keeps the markup for the pages here.
+        """
+        if not self.has_spoiler:
+            return self.title, self.content, self.sensitive
+        warning, content = render_spoiler_text(self.content, self.item)
+        return self.title or warning, content, True
+
     def to_crosspost_params(self):
         footer = f"\n—\n《{self.item.display_title}》 {self.progress_display}\n{self.item.absolute_url}"
+        summary, content, sensitive = self._post_spoiler()
         params = {
-            "spoiler_text": self.title,
-            "content": self.content + footer,
-            "sensitive": self.sensitive,
+            "spoiler_text": summary,
+            "content": content + footer,
+            "sensitive": sensitive,
             "reply_to_ids": (
                 self.shelfmember.metadata.copy() if self.shelfmember else {}
             ),
@@ -329,11 +355,12 @@ class Note(Content):
     def to_post_params(self) -> dict[str, Any]:
         footer = f'\n<p>—<br><a href="{self.item.absolute_url}">{self.item.display_title}</a> {self.progress_display}\n</p>'
         post = self.shelfmember.latest_post if self.shelfmember else None
+        summary, content, sensitive = self._post_spoiler()
         params: dict[str, Any] = {
-            "summary": self.title,
-            "content": self.content,
+            "summary": summary,
+            "content": content,
             "append_content": footer,
-            "sensitive": self.sensitive,
+            "sensitive": sensitive,
             "reply_to_pk": post.pk if post else None,
         }
         # "attachments" is passed only on an import, so an ordinary edit
