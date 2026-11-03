@@ -108,7 +108,7 @@
         </div>
       {% endif %}
       <div class="note-card-content tldr" _="on click toggle .tldr on me">
-        {{ note.content|linebreaksbr }}
+        {{ note.html|safe }}
         <div class="attachments">
           {% for attachment in note.attachment_list %}
             {% if attachment.type == "image" %}

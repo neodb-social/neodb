@@ -60,6 +60,22 @@ def test_item_note_renders_inline_spoiler():
     assert "&lt;b&gt;x&lt;/b&gt;" in content
 
 
+def test_own_note_in_item_sidebar_renders_inline_spoiler():
+    user, client = _member("ownspoiler")
+    book = Edition.objects.create(title="Own Spoiler Book")
+    Note.objects.create(
+        item=book,
+        owner=user.identity,
+        content="before >!my twist!< after",
+        visibility=0,
+    )
+
+    content = client.get(book.url).content.decode()
+
+    assert "my twist</span>" in content
+    assert "&gt;!my twist" not in content
+
+
 def test_note_spoiler_makes_post_sensitive_without_markup():
     user = User.register(email="notepost@example.com", username="notepost")
     book = Edition.objects.create(title="Post Book")
