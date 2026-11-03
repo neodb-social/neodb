@@ -691,7 +691,7 @@ class Mark:
             # to its own item id. The child ids are resolved first so the
             # ShelfMember filter stays on item_id alone: an OR across the join
             # makes postgres hash-join the whole table, which exhausts the
-            # dynamic shared memory of a container (EGGPLANT-1MK).
+            # dynamic shared memory of a container.
             parent_field = ROLLED_UP_MARK_COUNT_TYPES[item_type]
             child_path = parent_field.removeprefix("item__")
             child_ids = list(

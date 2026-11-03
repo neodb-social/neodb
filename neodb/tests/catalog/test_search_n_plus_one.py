@@ -351,11 +351,21 @@ class TestCatalogIndexBatchNoNPlusOne:
         assert expected[season.pk][1] == 2
         assert expected[podcast.pk][1] == 1
 
-        index, _ = self._replace_items([i.pk for i in items])
+        index, queries = self._replace_items([i.pk for i in items])
         docs = {int(d["id"]): d for d in index.replace_docs.call_args[0][0]}
         for pk, (tags, mark_count) in expected.items():
             assert docs[pk]["tag"] == tags
             assert docs[pk]["mark_count"] == mark_count
+        # The rollup must filter shelf members on item_id alone. An OR across
+        # the child join makes postgres hash-join the whole table.
+        shelf_wheres = [
+            q["sql"].split(" WHERE ", 1)[1]
+            for q in queries
+            if 'FROM "journal_shelfmember"' in q["sql"]
+        ]
+        assert shelf_wheres
+        for where in shelf_wheres:
+            assert "program_id" not in where and "season_id" not in where, where
 
     def test_season_title_includes_the_show_without_a_per_item_lookup(self):
         show = TVShow.objects.create(
