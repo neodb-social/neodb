@@ -7,7 +7,7 @@ from django.utils import timezone
 from lxml import html
 
 from catalog.models import Edition
-from journal.models import Article, Collection, Mark, ShelfType
+from journal.models import Article, Collection, Mark, Note, ShelfType
 from takahe.models import Identity as TakaheIdentity
 from takahe.models import Post
 from takahe.utils import Takahe
@@ -264,3 +264,34 @@ def test_own_reply_menu_offers_edit_and_delete(menu_users):
         reverse("journal:post_delete", args=[reply.pk]),
     } <= _menu_links(author_client.get(url).content)
     assert not _menu_links(other_client.get(url).content)
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_own_note_menu_offers_edit_and_delete(menu_users):
+    author, author_client, _, other_client = menu_users
+    book = Edition.objects.create(title="Menu Note Book")
+    Mark(author.identity, book).update(ShelfType.PROGRESS, "", None, [], 0)
+    shelfmember = Mark(author.identity, book).shelfmember
+    assert shelfmember is not None
+    mark_post = shelfmember.latest_post
+    assert mark_post is not None
+    note = Note.objects.create(
+        owner=author.identity, item=book, content="A note", visibility=0
+    )
+    assert note.latest_post is not None
+    edit = reverse("journal:note", args=[book.uuid, note.uuid])
+    delete = reverse("journal:post_delete", args=[note.latest_post.pk])
+    # the note shows as a reply to the mark, and as a card of its own
+    for url in (
+        reverse("journal:post_replies", args=[mark_post.pk]),
+        _user_post_list_url(author.identity.handle),
+    ):
+        response = author_client.get(url)
+        assert {edit, delete} <= _menu_links(response.content)
+        assert "Are you sure to delete this note and its post?" in (
+            response.content.decode()
+        )
+        assert delete not in _menu_links(other_client.get(url).content)
+
+    author_client.post(delete)
+    assert not Note.objects.filter(pk=note.pk).exists()
