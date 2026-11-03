@@ -307,6 +307,20 @@ class TestAppleMusic:
         assert site.resource.item.genre == ["pop", "music"]
         assert site.resource.item.length == 2368
 
+    @use_local_response
+    def test_scrape_track_without_duration(self):
+        t_url = "https://music.apple.com/us/album/flow-motion-remastered/711472863"
+        site = SiteManager.get_site_by_url(t_url)
+        assert site is not None
+        site.get_resource_ready()
+        assert site.ready
+        assert site.resource is not None
+        meta = site.resource.metadata
+        assert meta["localized_title"][0]["text"] == "Flow Motion (Remastered)"
+        assert meta["artist"] == ["Faust"]
+        assert meta["track_list"] == "Casablanca Moon\nFlow Motion\nRun"
+        assert meta["length"] == 420
+
 
 @pytest.mark.django_db(databases="__all__")
 class TestYouTubeMusic:
