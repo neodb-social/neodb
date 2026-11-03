@@ -100,8 +100,9 @@
    hx-target="#quote_{{ article.latest_post.pk }}"><span class="metrics">{{ quotes_count|default:'' }}</span> {% trans "Quote" %}</a></span>
               {% if request.user.is_authenticated and request.user.identity == article.owner %}
                 {% firstof article.edit_url as piece_edit_url %}
+                {% firstof article.delete_url as piece_delete_url %}
               {% endif %}
-              {% include "_post_action_menu.html" with post=article.latest_post piece=article piece_edit_url=piece_edit_url %}
+              {% include "_post_action_menu.html" with post=article.latest_post piece=article piece_edit_url=piece_edit_url piece_delete_url=piece_delete_url %}
               {% include "action_open_post.html" with post=article.latest_post %}
             {% endif %}
             {% if request.user.is_authenticated and request.user.identity == article.owner %}

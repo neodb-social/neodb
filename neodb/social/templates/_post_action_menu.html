@@ -12,14 +12,29 @@
               <a href="{{ piece_edit_url }}" title="{% trans 'Edit' %}">{% trans "Edit" %}</a>
             </span>
           </li>
+        {% elif not piece and post.author_id == request.user.identity.pk %}
+          <li>{% include "action_edit_post.html" with menu_label=1 %}</li>
+        {% elif post.piece.classname == "note" and post.author_id == request.user.identity.pk %}
+          <li>
+            <span>
+              <a href="#"
+                 hx-get="{% url 'journal:note' post.piece.item.uuid post.piece.uuid %}"
+                 hx-target="body"
+                 hx-swap="beforeend"
+                 title="{% trans 'Edit' %}">{% trans "Edit" %}</a>
+            </span>
+          </li>
         {% endif %}
         {% if post.author_id == request.user.identity.pk %}
           <li>{% include "action_pin_post.html" with menu_label=1 %}</li>
-          {% if not piece %}
-            <li>{% include "action_edit_post.html" with menu_label=1 %}</li>
-          {% endif %}
-          {% if not post.piece %}
+          {% if not post.piece or post.piece.classname == "note" %}
             <li>{% include "action_delete_post.html" with menu_label=1 %}</li>
+          {% elif piece_delete_url %}
+            <li>
+              <span>
+                <a href="{{ piece_delete_url }}" title="{% trans 'Delete' %}">{% trans "Delete" %}</a>
+              </span>
+            </li>
           {% endif %}
         {% else %}
           <li>{% include "action_flag_post.html" with menu_label=1 %}</li>

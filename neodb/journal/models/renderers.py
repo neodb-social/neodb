@@ -42,6 +42,78 @@ def render_md(s: str) -> str:
     return cast(str, _markdown(s))
 
 
+_PRE_BLOCK = re.compile(r"(<pre\b.*?</pre>)", re.DOTALL | re.IGNORECASE)
+_INLINE_CLOSE = re.compile(
+    r"</(?:a|b|code|del|em|i|mark|rp|rt|ruby|s|span|strong|sub|sup|u)>$"
+)
+# Han, kana and their punctuation, but not Hangul, which spaces its words.
+_CJK_CHAR = re.compile(
+    r"[\u3000-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff00-\uffef]"
+)
+
+
+def _text_char(text: str, index: int, step: int) -> str:
+    """The nearest character from index, in direction step, outside a tag."""
+    while 0 <= index < len(text):
+        if step < 0 and text[index] == ">":
+            index = text.rfind("<", 0, index) - 1
+        elif step > 0 and text[index] == "<":
+            end = text.find(">", index)
+            if end < 0:
+                return ""
+            index = end + 1
+        else:
+            return text[index]
+    return ""
+
+
+def soft_breaks_to_spaces(html: str) -> str:
+    """Make each soft line break in rendered markdown an explicit space.
+
+    mistune keeps a soft break as a newline, which a browser reads as a space.
+    FediverseHtmlParser drops every newline outside <pre>, so words on
+    adjacent source lines would run together in a post. Two CJK characters
+    take no space. A newline that ends a block or follows <br> is left for the
+    parser to drop.
+    """
+
+    def convert(text: str) -> str:
+        out: list[str] = []
+        start = 0
+        for index, char in enumerate(text):
+            if char != "\n":
+                continue
+            out.append(text[start:index])
+            start = index + 1
+            before = text[index - 1] if index else ""
+            after = text[index + 1] if index + 1 < len(text) else ""
+            soft = (
+                after != ""
+                and not after.isspace()
+                and before != ""
+                and not before.isspace()
+                and (
+                    before != ">"
+                    or _INLINE_CLOSE.search(text, max(0, index - 10), index)
+                )
+            )
+            if not soft:
+                out.append("\n")
+            elif not (
+                # the text on each side, past any inline tag such as </em>
+                _CJK_CHAR.match(_text_char(text, index - 1, -1))
+                and _CJK_CHAR.match(_text_char(text, index + 1, 1))
+            ):
+                out.append(" ")
+        out.append(text[start:])
+        return "".join(out)
+
+    return "".join(
+        part if index % 2 else convert(part)
+        for index, part in enumerate(_PRE_BLOCK.split(html))
+    )
+
+
 def cached_body_property(func):
     """Reuse body-derived presentation values on a single model instance.
 

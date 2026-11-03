@@ -27,7 +27,8 @@
           <summary>{% trans "Title and description" %}</summary>
           <form class="entity-form markdown-content"
                 method="post"
-                enctype="multipart/form-data">
+                enctype="multipart/form-data"
+                data-submit-once>
             {% csrf_token %}
             {{ form }}
             <input class="button" type="submit" value="{% trans 'Save' %}">

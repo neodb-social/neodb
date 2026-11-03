@@ -9992,3 +9992,7 @@ msgstr ""
 #, python-brace-format
 msgid "Unable to connect to {domain}."
 msgstr ""
+
+#: journal/templates/action_delete_post.html:7
+msgid "Are you sure to delete this note and its post?"
+msgstr ""

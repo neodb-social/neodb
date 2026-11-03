@@ -22,7 +22,12 @@ from users.models import APIdentity
 from .atproto import DOCUMENT_NSID, build_document
 from .attachment import link_attachments_to_piece
 from .common import Piece, VisibilityType
-from .renderers import cached_body_property, render_md, sanitize_md_images
+from .renderers import (
+    cached_body_property,
+    render_md,
+    sanitize_md_images,
+    soft_breaks_to_spaces,
+)
 from .tag import Tag as TagModel
 
 logger = logging.getLogger(__name__)
@@ -343,7 +348,8 @@ class Article(Piece):
         # we don't surface them as separate AP ``attachment`` entries.
         return {
             "post_type": "Article",
-            "content": self.html_content,
+            "content": soft_breaks_to_spaces(self.html_content),
+            "content_is_html": True,
             "summary": self.summary or None,
             "sensitive": self.sensitive,
             "language": self.language or "",

@@ -28,6 +28,9 @@ def test_compose_has_explicit_publish_controls_without_creating_article(author):
     response = client.get(reverse("journal:article_compose"))
     document = html.fromstring(response.content)
     assert document.xpath('//button[@type="submit"][contains(., "Publish article")]')
+    assert document.xpath(
+        '//form[@data-submit-once][contains(@class, "article-editor-form")]'
+    )
     assert document.xpath('//button[@data-article-preview][@type="button"]')
     assert document.xpath('//details[@id="article-publish-settings"]')
     assert not Article.objects.exists()

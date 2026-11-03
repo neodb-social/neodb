@@ -410,6 +410,8 @@ section.activity.post>section.replies {
 			margin: 0;
 			color: var(--pico-muted-color);
 			opacity: 0.5;
+			// section.replies underlines every summary
+			text-decoration: none;
 
 			&:hover,
 			&[open] {

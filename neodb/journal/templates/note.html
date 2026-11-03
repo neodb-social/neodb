@@ -26,6 +26,7 @@
     <div>
       <form action="{% url 'journal:note' item.uuid %}"
             method="post"
+            data-submit-once
             onsubmit="return this.elements.mode.value === 'progress' || !!$('#{{ form.content.id_for_label }}').val() || confirm('{% trans "Note with empty content will be deleted, sure to continue?" %}');">
         {% csrf_token %}
         {{ form.uuid }}

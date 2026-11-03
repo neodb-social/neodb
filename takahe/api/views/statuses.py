@@ -1,5 +1,7 @@
+import hashlib
 from typing import Literal
 
+from django.core.cache import cache
 from django.http import HttpRequest
 from api.views import get_object_or_404
 from django.utils import timezone
@@ -140,10 +142,57 @@ def _resolve_owned_attachments(
     return attachments
 
 
+# Mastodon clients send an Idempotency-Key with each new status, so that a
+# retried request gets the status the first one created instead of a copy.
+IDEMPOTENCY_TTL = 3600
+# a claim outlives the request, but not by much if the worker is killed
+IDEMPOTENCY_CLAIM_TTL = 120
+
+
+def _idempotency_cache_key(request: HttpRequest) -> str | None:
+    value = request.headers.get("Idempotency-Key", "").strip()
+    if not value:
+        return None
+    digest = hashlib.sha256(value.encode()).hexdigest()
+    return f"idempotency:status:{request.identity.pk}:{digest}"
+
+
+def _replay_status(
+    request: HttpRequest, stored: str | None
+) -> schemas.Status | schemas.ScheduledStatus:
+    kind, _, pk = (stored or "").partition(":")
+    if kind == "status":
+        return schemas.Status.from_post(
+            post_for_id(request, pk), identity=request.identity
+        )
+    if kind == "scheduled":
+        scheduled = get_object_or_404(ScheduledStatus, pk=pk, author=request.identity)
+        return schemas.ScheduledStatus.from_scheduled_status(scheduled)
+    raise ApiError(409, "A request with this Idempotency-Key is still in progress")
+
+
 @scope_required("write:statuses")
 @api_view.post
 def post_status(
     request, details: PostStatusSchema
+) -> schemas.Status | schemas.ScheduledStatus:
+    key = _idempotency_cache_key(request)
+    if key is None:
+        return _create_status(request, details)
+    if not cache.add(key, "", timeout=IDEMPOTENCY_CLAIM_TTL):
+        return _replay_status(request, cache.get(key))
+    try:
+        result = _create_status(request, details)
+    except BaseException:
+        cache.delete(key)
+        raise
+    kind = "scheduled" if isinstance(result, schemas.ScheduledStatus) else "status"
+    cache.set(key, f"{kind}:{result.id}", timeout=IDEMPOTENCY_TTL)
+    return result
+
+
+def _create_status(
+    request: HttpRequest, details: PostStatusSchema
 ) -> schemas.Status | schemas.ScheduledStatus:
     # Check text length
     if details.status and len(details.status) > request.config.post_length:

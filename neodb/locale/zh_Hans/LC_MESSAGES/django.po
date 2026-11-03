@@ -10097,3 +10097,7 @@ msgstr "无法发布到 {domain}：{error}"
 #, python-brace-format
 msgid "Unable to connect to {domain}."
 msgstr "无法连接到 {domain}。"
+
+#: journal/templates/action_delete_post.html:7
+msgid "Are you sure to delete this note and its post?"
+msgstr "确认删除这则笔记及其帖文吗？"

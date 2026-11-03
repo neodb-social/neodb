@@ -14,12 +14,14 @@
           <span class="timestamp">
             {% if post.edited %}<i class="fa-solid fa-pencil"></i>{% endif %}
           </span>
-          {% if post.author_id == request.user.identity.pk %}
-            {% include "action_delete_post.html" %}
-          {% endif %}
           {% include "action_reply_post.html" %}
           {% include "action_like_post.html" %}
           {% include "action_boost_post.html" %}
+          {% if post.author_id == request.user.identity.pk %}
+            {% if not post.piece or post.piece.classname == "note" %}
+              {% include "_post_action_menu.html" with piece=post.piece piece_edit_url="" piece_delete_url="" %}
+            {% endif %}
+          {% endif %}
           {% include "action_open_post.html" %}
         </span>
         <span>

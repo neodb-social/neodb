@@ -98,7 +98,8 @@
         {% if can_reply %}
           <form class="dc-message-compose"
                 method="post"
-                action="{% url 'social:conversation_reply' entry.pk %}">
+                action="{% url 'social:conversation_reply' entry.pk %}"
+                data-submit-once>
             {% csrf_token %}
             <textarea name="content"
                       rows="3"

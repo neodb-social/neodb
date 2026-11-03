@@ -1,10 +1,16 @@
+import datetime
+import hashlib
+
 import pytest
+from django.core.cache import cache
+from django.utils import timezone
 
 from activities.models import (
     Post,
     PostAttachment,
     PostAttachmentStates,
     PostInteraction,
+    ScheduledStatus,
 )
 from users.models import Follow
 
@@ -317,3 +323,57 @@ def test_reblog_requires_public_visibility(
     response = api_client.post(f"/api/v1/statuses/{public.pk}/reblog")
     assert response.status_code == 200
     assert response.json()["reblogged"] is True
+
+
+def _post_with_key(api_client, key: str, **data):
+    return api_client.post(
+        "/api/v1/statuses",
+        content_type="application/json",
+        data=data,
+        headers={"Idempotency-Key": key},
+    )
+
+
+@pytest.mark.django_db
+def test_post_status_idempotency_key_returns_first_status(api_client, identity):
+    first = _post_with_key(api_client, "key-1", status="Posted once")
+    assert first.status_code == 200
+    again = _post_with_key(api_client, "key-1", status="Posted once")
+    assert again.status_code == 200
+    assert again.json()["id"] == first.json()["id"]
+    assert Post.objects.filter(author=identity).count() == 1
+    # with a new key, or with none, every request posts
+    _post_with_key(api_client, "key-2", status="Posted once")
+    api_client.post(
+        "/api/v1/statuses",
+        content_type="application/json",
+        data={"status": "Posted once"},
+    )
+    assert Post.objects.filter(author=identity).count() == 3
+
+
+@pytest.mark.django_db
+def test_post_status_idempotency_key_returns_first_scheduled(api_client, identity):
+    when = (timezone.now() + datetime.timedelta(days=1)).isoformat()
+    first = _post_with_key(api_client, "key-1", status="Later", scheduled_at=when)
+    again = _post_with_key(api_client, "key-1", status="Later", scheduled_at=when)
+    assert again.status_code == 200
+    assert again.json()["id"] == first.json()["id"]
+    assert ScheduledStatus.objects.filter(author=identity).count() == 1
+
+
+@pytest.mark.django_db
+def test_post_status_idempotency_key_released_on_error(api_client, identity):
+    assert _post_with_key(api_client, "key-1", status="").status_code == 400
+    response = _post_with_key(api_client, "key-1", status="Second try")
+    assert response.status_code == 200
+    assert Post.objects.filter(author=identity).count() == 1
+
+
+@pytest.mark.django_db
+def test_post_status_idempotency_key_in_progress(api_client, identity):
+    digest = hashlib.sha256(b"key-1").hexdigest()
+    cache.set(f"idempotency:status:{identity.pk}:{digest}", "", timeout=60)
+    response = _post_with_key(api_client, "key-1", status="Racing")
+    assert response.status_code == 409
+    assert not Post.objects.filter(author=identity).exists()

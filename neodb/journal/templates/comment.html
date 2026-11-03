@@ -16,7 +16,9 @@
       <strong>{% trans "Comment" %} - {{ item.parent_item.display_title }}: {{ item.display_title }}</strong>
     </header>
     <div>
-      <form action="{% url 'journal:comment' item.uuid %}" method="post">
+      <form action="{% url 'journal:comment' item.uuid %}"
+            method="post"
+            data-submit-once>
         {% csrf_token %}
         {{ form.text }}
         <div class="post-options">

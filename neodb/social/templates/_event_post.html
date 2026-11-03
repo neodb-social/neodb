@@ -64,8 +64,14 @@
             {% if translate_enabled and request.user.is_authenticated %}
               {% include "action_translate_post.html" %}
             {% endif %}
-            {% if show_all_actions %}
-              {% include "_post_action_menu.html" %}
+            {% if post.author_id == request.user.identity.pk %}
+              {% firstof post.piece.edit_url as piece_edit_url %}
+              {% firstof post.piece.delete_url as piece_delete_url %}
+              {% if show_all_actions or not post.piece or piece_edit_url or piece_delete_url or post.piece.classname == "note" %}
+                {% include "_post_action_menu.html" with piece=post.piece %}
+              {% endif %}
+            {% elif show_all_actions %}
+              {% include "_post_action_menu.html" with piece=post.piece %}
             {% endif %}
             {% if not compact_actions %}
               {% include "action_open_post.html" %}

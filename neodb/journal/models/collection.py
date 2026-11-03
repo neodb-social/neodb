@@ -153,6 +153,10 @@ class Collection(List[CollectionMember]):
         return reverse("journal:collection_edit", args=[self.uuid])
 
     @property
+    def delete_url(self) -> str:
+        return reverse("journal:collection_delete", args=[self.uuid])
+
+    @property
     def is_dynamic(self):
         return self.query is not None
 

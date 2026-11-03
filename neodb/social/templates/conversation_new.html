@@ -25,7 +25,8 @@
         {% endif %}
         <form class="dc-message-compose"
               method="post"
-              action="{% url 'social:conversation_new' %}">
+              action="{% url 'social:conversation_new' %}"
+              data-submit-once>
           {% csrf_token %}
           <label>
             {% trans "To" %}

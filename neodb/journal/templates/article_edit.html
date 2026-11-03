@@ -13,7 +13,8 @@
     <main>
       <form method="post"
             class="article-editor-form"
-            enctype="multipart/form-data">
+            enctype="multipart/form-data"
+            data-submit-once>
         {% csrf_token %}
         {{ form.id }}
         <header class="article-editor-top">

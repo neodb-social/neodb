@@ -29,6 +29,7 @@
         <form method="post"
               id="edit-form"
               enctype="multipart/form-data"
+              {% if not item %}data-submit-once{% endif %}
               {% if item %} hx-post="{% url 'catalog:edit' item.url_path item.uuid %}" hx-encoding="multipart/form-data" hx-target="#edit-preview" hx-swap="innerHTML" hx-on::config-request="event.detail.parameters.sure = '0'" {% endif %}
               _=" init set .rjf-add-button's innerHTML to '➕' end">
           {% csrf_token %}
