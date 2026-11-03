@@ -302,6 +302,42 @@ class TestCatalogIndexBatchNoNPlusOne:
             f"SQL: {[q['sql'] for q in q_large][len(q_small) :]}"
         )
 
+    def _make_podcasts(self, count: int, prefix: str) -> list[Podcast]:
+        podcasts = []
+        for n in range(count):
+            podcast = Podcast.objects.create(
+                localized_title=[{"lang": "en", "text": f"{prefix} {n}"}],
+                primary_lookup_id_type=IdType.RSS,
+                primary_lookup_id_value=f"https://example.com/{prefix}-{n}.xml",
+            )
+            episode = PodcastEpisode.objects.create(
+                localized_title=[{"lang": "en", "text": f"{prefix} {n} ep"}],
+                program=podcast,
+                guid=f"{prefix}-{n}",
+                pub_date=timezone.now(),
+            )
+            Mark(self.owner, podcast).update(ShelfType.COMPLETE, visibility=0)
+            Mark(self.other, episode).update(ShelfType.COMPLETE, visibility=0)
+            podcasts.append(podcast)
+        return podcasts
+
+    def test_rolled_up_query_count_does_not_grow_with_batch_size(self):
+        small = self._make_podcasts(2, "Small")
+        large = self._make_podcasts(6, "Large")
+
+        index_small, q_small = self._replace_items([i.pk for i in small])
+        index_large, q_large = self._replace_items([i.pk for i in large])
+
+        docs = {int(d["id"]): d for d in index_large.replace_docs.call_args[0][0]}
+        assert len(index_small.replace_docs.call_args[0][0]) == 2
+        assert all(docs[i.pk]["mark_count"] == 2 for i in large)
+
+        assert len(q_large) == len(q_small), (
+            f"replace_items fired {len(q_large)} queries for 6 podcasts but only "
+            f"{len(q_small)} for 2. Extra SQL: "
+            f"{[q['sql'] for q in q_large][len(q_small) :]}"
+        )
+
     def test_batched_docs_match_the_per_item_values(self):
         tagged = Edition.objects.create(title="Tagged")
         Mark(self.owner, tagged).update(
@@ -351,11 +387,21 @@ class TestCatalogIndexBatchNoNPlusOne:
         assert expected[season.pk][1] == 2
         assert expected[podcast.pk][1] == 1
 
-        index, _ = self._replace_items([i.pk for i in items])
+        index, queries = self._replace_items([i.pk for i in items])
         docs = {int(d["id"]): d for d in index.replace_docs.call_args[0][0]}
         for pk, (tags, mark_count) in expected.items():
             assert docs[pk]["tag"] == tags
             assert docs[pk]["mark_count"] == mark_count
+        # The rollup must filter shelf members on item_id alone. An OR across
+        # the child join makes postgres hash-join the whole table.
+        shelf_wheres = [
+            q["sql"].split(" WHERE ", 1)[1]
+            for q in queries
+            if 'FROM "journal_shelfmember"' in q["sql"]
+        ]
+        assert shelf_wheres
+        for where in shelf_wheres:
+            assert "program_id" not in where and "season_id" not in where, where
 
     def test_season_title_includes_the_show_without_a_per_item_lookup(self):
         show = TVShow.objects.create(

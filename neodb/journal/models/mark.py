@@ -1,15 +1,16 @@
 import copy
+from collections import defaultdict
 from datetime import datetime, timedelta
 from functools import cached_property
+from itertools import batched
 from typing import Any, Iterable, Sequence
 
 from django.db import IntegrityError, transaction
-from django.db.models import Count, F, Q, QuerySet
-from django.db.models.functions import Coalesce
+from django.db.models import Count, F, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from catalog.models import Item
+from catalog.models import Item, PodcastEpisode, TVEpisode
 from journal.models.common import (
     Piece,
     prefetch_latest_posts,
@@ -36,11 +37,46 @@ from .shelf import (
 
 
 #: Item types whose mark count also counts marks on their child items, mapped
-#: to the path that leads from a child's ``ShelfMember`` row to its parent id.
-ROLLED_UP_MARK_COUNT_TYPES = {
-    "Podcast": "item__podcastepisode__program_id",
-    "TVSeason": "item__tvepisode__season_id",
+#: to the child model, the foreign key on it that names the parent, and
+#: whether deleted or merged children are skipped, as in each type's
+#: ``child_item_ids``.
+ROLLED_UP_MARK_COUNT_TYPES: dict[str, tuple[type[Item], str, bool]] = {
+    "Podcast": (PodcastEpisode, "program_id", True),
+    "TVSeason": (TVEpisode, "season_id", False),
 }
+
+#: Longer IN lists are planned as a full scan of the shelf member index.
+_MARK_COUNT_CHUNK = 1000
+
+
+def _rolled_up_mark_counts(item_type: str, root_ids: list[int]) -> dict[int, int]:
+    """Distinct owners over each root and its children, keyed by root id.
+
+    Shelf members are filtered on item_id alone so that the lookup stays on
+    the index. An OR across the child join makes postgres hash-join the
+    whole table, which exhausts the dynamic shared memory of a container.
+    """
+    child_model, parent_fk, live_only = ROLLED_UP_MARK_COUNT_TYPES[item_type]
+    child_to_root: dict[int, int] = dict(
+        child_model.objects.filter(**{f"{parent_fk}__in": root_ids}).values_list(
+            "item_ptr_id", parent_fk
+        )
+    )
+    if live_only and child_to_root:
+        live: set[int] = set()
+        for chunk in batched(child_to_root, _MARK_COUNT_CHUNK):
+            live.update(
+                Item.objects.filter(
+                    id__in=chunk, is_deleted=False, merged_to_item__isnull=True
+                ).values_list("id", flat=True)
+            )
+        child_to_root = {c: r for c, r in child_to_root.items() if c in live}
+    owners: dict[int, set[int]] = defaultdict(set)
+    for chunk in batched([*root_ids, *child_to_root], _MARK_COUNT_CHUNK):
+        rows = QuerySet(ShelfMember).filter(item_id__in=chunk)
+        for item_id, owner_id in rows.values_list("item_id", "owner_id"):
+            owners[child_to_root.get(item_id, item_id)].add(owner_id)
+    return {root: len(s) for root, s in owners.items()}
 
 
 class Mark:
@@ -646,13 +682,9 @@ class Mark:
 
     @staticmethod
     def get_mark_count_for_item(item: Item) -> int:
-        if item.get_type() in ROLLED_UP_MARK_COUNT_TYPES:
-            return (
-                ShelfMember.objects.filter(item_id__in=item.child_item_ids + [item.pk])
-                .values("owner_id")
-                .distinct()
-                .count()
-            )
+        item_type = item.get_type()
+        if item_type in ROLLED_UP_MARK_COUNT_TYPES:
+            return _rolled_up_mark_counts(item_type, [item.pk]).get(item.pk, 0)
         else:
             return ShelfMember.objects.filter(item=item).count()
 
@@ -683,21 +715,6 @@ class Mark:
             for row in rows:
                 counts[row["item_id"]] = row["n"]
         for item_type, root_ids in rolled_up.items():
-            if not root_ids:
-                continue
-            # A mark on a child rolls up to its parent, so map every row back
-            # to its root before counting owners. The join is a reverse
-            # one-to-one, so a row on a root itself yields NULL and falls back
-            # to its own item id.
-            parent_field = ROLLED_UP_MARK_COUNT_TYPES[item_type]
-            rows = (
-                ShelfMember.objects.filter(
-                    Q(item_id__in=root_ids) | Q(**{f"{parent_field}__in": root_ids})
-                )
-                .annotate(root_id=Coalesce(F(parent_field), F("item_id")))
-                .values("root_id")
-                .annotate(n=Count("owner_id", distinct=True))
-            )
-            for row in rows:
-                counts[row["root_id"]] = row["n"]
+            if root_ids:
+                counts.update(_rolled_up_mark_counts(item_type, root_ids))
         return counts
