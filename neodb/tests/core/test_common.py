@@ -310,6 +310,47 @@ class TestNodeInfo:
         data = response.json()
         assert "federation" not in data["metadata"]
 
+    def _nodeinfo_metadata(self, monkeypatch, **options) -> dict:
+        system = SiteConfig.system.model_copy(update=options)
+        monkeypatch.setattr(SiteConfig, "system", system)
+        monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
+        return Client().get("/nodeinfo/2.0/").json()["metadata"]
+
+    def test_nodeinfo_catalog_search_defaults(self, monkeypatch):
+        metadata = self._nodeinfo_metadata(monkeypatch)
+        assert metadata["neodbFeatures"] == ["catalog.search"]
+        assert metadata["neodbFeatureParams"] == {
+            "catalog.search": {
+                "endpoint": settings.SITE_INFO["site_url"] + "/api/catalog/search"
+            }
+        }
+
+    def test_nodeinfo_catalog_search_custom_endpoint(self, monkeypatch):
+        metadata = self._nodeinfo_metadata(
+            monkeypatch, catalog_search_endpoint="https://search.example.org/q"
+        )
+        assert metadata["neodbFeatures"] == ["catalog.search"]
+        assert (
+            metadata["neodbFeatureParams"]["catalog.search"]["endpoint"]
+            == "https://search.example.org/q"
+        )
+
+    def test_nodeinfo_catalog_search_disallowed(self, monkeypatch):
+        metadata = self._nodeinfo_metadata(
+            monkeypatch,
+            allow_incoming_federated_search=False,
+            catalog_search_endpoint="https://search.example.org/q",
+        )
+        assert metadata["neodbFeatures"] == []
+        assert "neodbFeatureParams" not in metadata
+
+    def test_nodeinfo_features_omitted_under_debug(self, monkeypatch, settings):
+        settings.DEBUG = True
+        metadata = self._nodeinfo_metadata(monkeypatch)
+        assert metadata["nodeEnvironment"] == "development"
+        assert "neodbFeatures" not in metadata
+        assert "neodbFeatureParams" not in metadata
+
     def test_nodeinfo_hidden_on_alternative_domain(self, monkeypatch):
         system = SiteConfig.system.model_copy(
             update={"alternative_domains": ["alias.example.org"]}

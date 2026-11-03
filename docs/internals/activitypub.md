@@ -41,9 +41,73 @@ e.g. <https://neodb.social/nodeinfo/2.0/>:
     "repository": "https://github.com/neodb-social/neodb",
     "homepage": "https://neodb.net/"
   },
-  "protocols": ["activitypub", "neodb"]
+  "protocols": ["activitypub", "neodb"],
+  "metadata": {
+    "nodeEnvironment": "production",
+    "neodbFeatures": ["catalog.search"],
+    "neodbFeatureParams": {
+      "catalog.search": {"endpoint": "https://neodb.social/api/catalog/search"}
+    }
+  }
 }
 ```
+
+A NeoDB instance treats a domain as a NeoDB peer when its NodeInfo has `neodb`
+in `protocols` and `nodeEnvironment` of `production`. A debug instance reports
+`development`, so peers leave it alone.
+
+### Features
+
+`metadata.neodbFeatures` lists the NeoDB features a server offers to peers.
+Tokens are lowercase dotted strings; the first label is the area, and `catalog`,
+`journal` and `peer` are reserved for the tokens defined here. A token keeps its
+meaning forever; an incompatible change is a new token. Unknown tokens are
+ignored. `metadata.neodbFeatureParams` is one object keyed by token that holds
+that feature's parameters.
+
+- A server that does not send the list predates it and offers every feature
+  defined before the list existed, which today means `catalog.search` at the
+  default URL. This keeps older servers and other software that claims the
+  `neodb` protocol working as before.
+- A server that sends the list offers exactly what it lists. `[]` means none of
+  the features defined here. A server that serves no search API should send
+  `[]`, or a list without `catalog.search`, so that peers stop sending it
+  searches.
+
+Defined tokens:
+
+| Token | The server | Peers |
+|---|---|---|
+| `catalog.search` | Answers catalog search at the endpoint below with the same request and response shape as `/api/catalog/search` (see below), and lets peers include the results in theirs. An admin removes it with *Allow incoming federated search*. | Send searches to it. A peer whose list lacks it is not searched, even when an admin lists it in *Federated search peers*. |
+
+### Catalog search
+
+`neodbFeatureParams["catalog.search"].endpoint` is the URL to send a search to.
+Peers use it only when it is `https` on the server's domain or a subdomain of
+it, with no userinfo and no fragment; otherwise, or when it is absent, they use
+`https://<domain>/api/catalog/search`. Peers never follow a redirect. They add
+these query parameters:
+
+- `query`: the search text
+- `page`: page number from 1, 20 items per page
+- `category`: optional, a category of `/api/catalog/search`, e.g. `book` or
+  `movie,tv`
+
+The response is a JSON object whose `data` is a list of items. Each item needs
+`url` (a path on the server's domain, or a full `https` URL on that domain) and
+`display_title`; peers also read `category`, `brief`, `cover_image_url` and
+`external_resources` (a list of objects with `url`) when present. Older NeoDB
+servers require every one of those keys to be present (`null` is fine, a
+missing key or a `null` `external_resources` is not) and `url` to be a path,
+so a server that wants to be searched by them keeps that shape. Peers skip an
+item that misses a required field, and an item with an external resource on
+their own domain, since they already have it.
+
+Pitfalls for any server that wants NeoDB peers to read its NodeInfo: the keys
+live under `metadata` (anything else is dropped), `openRegistrations` and
+`usage` must be present or the whole document is rejected, `metadata` must be
+an object, and a search endpoint that answers with a redirect is treated as a
+failure.
 
 ## Extended activities
 

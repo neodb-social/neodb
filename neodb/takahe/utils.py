@@ -1102,6 +1102,46 @@ class Takahe:
         return r
 
     @staticmethod
+    def get_neodb_search_settings() -> tuple[set[str], dict[str, str]]:
+        """
+        What NeoDB peers advertise about federated search in nodeinfo: the
+        domains whose metadata.neodbFeatures list lacks catalog.search, and the
+        endpoint of each domain that advertises one. A peer without the list
+        predates it and is searched at the default URL.
+        """
+        cache_key = "neodb_search_settings"
+        r = cache.get(cache_key, None)
+        if r is None:
+            rows = Domain.objects.filter(
+                nodeinfo__protocols__contains="neodb", local=False
+            ).values_list(
+                "pk",
+                "nodeinfo__metadata__neodbFeatures",
+                "nodeinfo__metadata__neodbFeatureParams",
+            )
+            no_search: set[str] = set()
+            endpoints: dict[str, str] = {}
+            for pk, features, params in rows:
+                if not isinstance(features, list):
+                    continue
+                if "catalog.search" not in features:
+                    no_search.add(pk)
+                    continue
+                search_params = (
+                    params.get("catalog.search") if isinstance(params, dict) else None
+                )
+                endpoint = (
+                    search_params.get("endpoint")
+                    if isinstance(search_params, dict)
+                    else None
+                )
+                if isinstance(endpoint, str):
+                    endpoints[pk] = endpoint
+            r = (no_search, endpoints)
+            cache.set(cache_key, r, timeout=1800)
+        return r
+
+    @staticmethod
     def get_blocked_peers():
         cache_key = "blocked_peers"
         peers = cache.get(cache_key, None)
