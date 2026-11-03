@@ -1511,6 +1511,7 @@ class Post(models.Model):
         application_id=None,
         post_type: str = "Note",
         mentions: Iterable[Identity] | None = None,
+        content_is_html: bool = False,
     ) -> "Post":
         with transaction.atomic():
             if mentions is not None:
@@ -1526,8 +1527,12 @@ class Post(models.Model):
                 visibility = reply_to.Visibilities.local_only
             # Find emoji in this post
             emojis = Emoji.emojis_from_content(content, None)
-            # Strip all unwanted HTML and apply linebreaks filter, grabbing hashtags on the way
-            parser = FediverseHtmlParser(linebreaks_filter(content), find_hashtags=True)
+            # Strip all unwanted HTML and apply linebreaks filter to plain text,
+            # grabbing hashtags on the way
+            parser = FediverseHtmlParser(
+                content if content_is_html else linebreaks_filter(content),
+                find_hashtags=True,
+            )
             content = (
                 parser.html.replace("<p>", "<p>" + raw_prepend_content, 1)
                 + raw_append_content
@@ -1608,10 +1613,14 @@ class Post(models.Model):
         edited: datetime.datetime | None = None,
         language: str | None = None,
         post_type: str | None = None,
+        content_is_html: bool = False,
     ):
         with transaction.atomic():
-            # Strip all HTML and apply linebreaks filter
-            parser = FediverseHtmlParser(linebreaks_filter(content), find_hashtags=True)
+            # Strip all HTML and apply linebreaks filter to plain text
+            parser = FediverseHtmlParser(
+                content if content_is_html else linebreaks_filter(content),
+                find_hashtags=True,
+            )
             self.content = (
                 parser.html.replace("<p>", "<p>" + raw_prepend_content, 1)
                 + raw_append_content

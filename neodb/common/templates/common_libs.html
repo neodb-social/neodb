@@ -67,6 +67,39 @@
   $('html').attr('data-theme', localStorage.getItem("theme_color")||null)
 })();
 </script>
+<script>
+(function(){
+  // A form marked data-submit-once creates something on each post, so a second
+  // click while the first request is loading would create a second copy.
+  const buttons = (form) => form.querySelectorAll('button:not([type]), [type="submit"]');
+  document.addEventListener('submit', (event) => {
+    const form = event.target;
+    if (event.defaultPrevented || !form.matches('form[data-submit-once]')) return;
+    if (form.dataset.submitting) {
+      event.preventDefault();
+      return;
+    }
+    form.dataset.submitting = '1';
+    const submitter = event.submitter;
+    // after the browser has read the form, so a named submitter is still sent
+    setTimeout(() => {
+      buttons(form).forEach((button) => { button.disabled = true; });
+      if (submitter) submitter.setAttribute('aria-busy', 'true');
+    });
+  });
+  // the back button can restore the page with its buttons still disabled
+  window.addEventListener('pageshow', (event) => {
+    if (!event.persisted) return;
+    document.querySelectorAll('form[data-submitting]').forEach((form) => {
+      delete form.dataset.submitting;
+      buttons(form).forEach((button) => {
+        button.disabled = false;
+        button.removeAttribute('aria-busy');
+      });
+    });
+  });
+})();
+</script>
 <link rel="icon" href="{{ site_icon }}">
 <link rel="shortcut icon" href="{{ site_icon }}">
 <link rel="apple-touch-icon" href="{{ site_icon }}">

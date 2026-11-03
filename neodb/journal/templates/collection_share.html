@@ -17,7 +17,8 @@
     </div>
     <div class="add-to-list-modal__body">
       <form action="{% url 'journal:collection_share' collection.uuid %}"
-            method="post">
+            method="post"
+            data-submit-once>
         {% csrf_token %}
         <div>
           <label for="id_visibility_0">

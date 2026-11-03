@@ -23,6 +23,7 @@ from journal.models import (
 )
 from journal.models.itemlist import ListMember
 from journal.search import JournalIndex, JournalQueryParser
+from takahe.html import FediverseHtmlParser
 from takahe.models import Post
 from users.models import APIdentity, User
 
@@ -30,6 +31,8 @@ _CONFIRM = "confirm deleting collection? [Y/N] "
 
 _HELP_TEXT = """
 intergrity:     check and fix remaining journal for merged and deleted items
+article-posts:  check local Article posts whose content was saved escaped
+                (use --fix to rewrite it from the federated content)
 purge:          delete invalid data (visibility=99)
 export:         run export task
 search:         search docs in index
@@ -79,6 +82,7 @@ class Command(SiteCommand):
             "action",
             choices=[
                 "integrity",
+                "article-posts",
                 "purge",
                 "export",
                 "idx-info",
@@ -157,6 +161,34 @@ class Command(SiteCommand):
                 self.stdout.write(f"! {i} : {i.absolute_url}?skipcheck=1")
                 if self.fix:
                     update_journal_for_merged_item(i.url)
+
+    def article_posts(self):
+        # Before content_is_html, the post content of a local Article was its
+        # HTML escaped as plain text. type_data holds what was federated, so
+        # rebuild from it; a plain update changes no state and sends nothing.
+        posts = (
+            Post.objects.filter(
+                local=True, type="Article", type_data__object__type="Article"
+            )
+            .only("pk", "content", "type_data")
+            .order_by("pk")
+        )
+        checked = changed = 0
+        for post in posts.iterator():
+            checked += 1
+            source = post.type_data["object"].get("content")
+            if not isinstance(source, str) or not source:
+                continue
+            content = FediverseHtmlParser(source, find_hashtags=True).html
+            if content == post.content:
+                continue
+            changed += 1
+            if self.verbose:
+                self.stdout.write(f"{post.pk}: {post.content[:80]!r}")
+            if self.fix:
+                Post.objects.filter(pk=post.pk).update(content=content)
+        w = "" if self.fix else "would be "
+        self.stdout.write(f"{checked} posts checked, {changed} {w}rewritten.")
 
     def export(self, owner_ids):
         users = User.objects.filter(identity__in=owner_ids)
@@ -410,6 +442,9 @@ class Command(SiteCommand):
             case "integrity":
                 self.integrity()
                 self.stdout.write(self.style.SUCCESS("Done."))
+
+            case "article-posts":
+                self.article_posts()
 
             case "purge":
                 for pcls in [Content, ListMember]:

@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from catalog.models import Edition
-from journal.models import Mark, ShelfType
+from journal.models import Article, Mark, ShelfType
 from takahe.models import Identity as TakaheIdentity
 from takahe.models import Post
 from takahe.utils import Takahe
@@ -180,3 +180,23 @@ def test_user_post_list_self_sees_all(alice_with_posts):
     assert response.context["show_empty"] is False
     post_pks = {p.pk for p in response.context["posts"]}
     assert old_pk in post_pks
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_own_article_card_menu_offers_edit_and_delete():
+    author = User.register(email="menu_author@example.com", username="menuauthor")
+    article = Article.update_local_article(
+        owner=author.identity, title="Menu", body="Body", visibility=0
+    )
+    url = _user_post_list_url(author.identity.handle)
+    client = Client()
+    client.force_login(author, backend="mastodon.auth.OAuth2Backend")
+    content = client.get(url).content.decode()
+    assert f'href="{article.edit_url}"' in content
+    assert f'href="{article.delete_url}"' in content
+
+    other = User.register(email="menu_other@example.com", username="menuother")
+    client.force_login(other, backend="mastodon.auth.OAuth2Backend")
+    content = client.get(url).content.decode()
+    assert article.edit_url not in content
+    assert article.delete_url not in content

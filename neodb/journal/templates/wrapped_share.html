@@ -16,7 +16,9 @@
       <strong>{% trans "Share annual summary" %}</strong>
     </header>
     <div>
-      <form method="post" action="{% url 'journal:wrapped_share' year %}">
+      <form method="post"
+            action="{% url 'journal:wrapped_share' year %}"
+            data-submit-once>
         {% csrf_token %}
         <input type="hidden" name="img" id="img" value="">
         <div class="wrapped-share-row">

@@ -788,7 +788,10 @@ class Takahe:
         application_id: int | None = None,
         post_type: str | None = None,
         mentions: Iterable[Identity] | None = None,
+        content_is_html: bool = False,
     ) -> Post | None:
+        """``content`` is plain text and gets escaped unless ``content_is_html``
+        is set; ``prepend_content`` and ``append_content`` are raw HTML."""
         identity = Identity.objects.get(pk=author_pk)
         post = (
             Post.objects.filter(author=identity, pk=post_pk).first()
@@ -815,6 +818,7 @@ class Takahe:
                 attachments=attachments,
                 language=language,
                 post_type=post_type,
+                content_is_html=content_is_html,
             )
         else:
             post = Post.create_local(
@@ -835,6 +839,7 @@ class Takahe:
                 application_id=application_id,
                 post_type=post_type or "Note",
                 mentions=mentions,
+                content_is_html=content_is_html,
             )
             TimelineEvent.objects.get_or_create(
                 identity=identity,

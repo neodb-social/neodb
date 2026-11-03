@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from django.template.loader import render_to_string
 from django.test import Client, override_settings
 from django.utils import timezone
@@ -15,6 +16,7 @@ from catalog.models import Edition
 from journal.models import Article, Review
 from journal.search import JournalQueryParser
 from takahe.ap_handlers import post_deleted
+from takahe.models import Post
 from takahe.utils import Takahe
 from users.models import User
 
@@ -196,6 +198,59 @@ class TestArticleModel:
         assert post is not None
         assert post.type_data is not None
         assert post.type_data["object"]["name"] == "V2"
+
+    def test_article_post_content_is_not_escaped(self):
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Markup",
+            body="Hello *world* #topic\n\n```\n#include x\n```",
+            visibility=0,
+        )
+        post = Post.objects.get(pk=article.latest_post_id)
+        assert "&lt;" not in post.content
+        assert "<em>world</em>" in post.content
+        # a hashtag inside a code block is literal text
+        assert post.hashtags == ["topic"]
+        article = Article.update_local_article(
+            owner=self.identity,
+            title="Markup",
+            body="Edited *again*",
+            visibility=0,
+            article=article,
+        )
+        post = Post.objects.get(pk=article.latest_post_id)
+        assert "&lt;" not in post.content
+        assert "<em>again</em>" in post.content
+
+    def test_journal_article_posts_rewrites_escaped_content(self):
+        article = Article.update_local_article(
+            owner=self.identity, title="Old", body="Hello *world*", visibility=0
+        )
+        book = Edition.objects.create(title="Reviewed book")
+        review = Review.update_item_review(
+            book, self.identity, "Review", "Review body", visibility=0
+        )
+        assert review is not None
+        post = Post.objects.get(pk=article.latest_post_id)
+        review_post = Post.objects.get(pk=review.latest_post_id)
+        expected = post.content
+        escaped = "<p>&lt;p&gt;Hello &lt;em&gt;world&lt;/em&gt;&lt;/p&gt;<br></p>"
+        Post.objects.filter(pk=post.pk).update(content=escaped)
+
+        out = io.StringIO()
+        call_command("journal", "article-posts", stdout=out)
+        assert "1 posts checked, 1 would be rewritten." in out.getvalue()
+        assert Post.objects.get(pk=post.pk).content == escaped
+
+        call_command("journal", "article-posts", "--fix", stdout=io.StringIO())
+        fixed = Post.objects.get(pk=post.pk)
+        assert fixed.content == expected
+        assert fixed.state == post.state
+        assert Post.objects.get(pk=review_post.pk).content == review_post.content
+
+        out = io.StringIO()
+        call_command("journal", "article-posts", "--fix", stdout=out)
+        assert "1 posts checked, 0 rewritten." in out.getvalue()
 
     def test_article_delete_clears_post(self):
         article = Article.update_local_article(

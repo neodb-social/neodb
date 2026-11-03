@@ -24,7 +24,8 @@
     <div>
       <form method="post"
             action="{% if edit_post %}{% url 'journal:post_edit' edit_post.pk %}{% else %}{% url 'journal:post_compose' %}{% endif %}"
-            enctype="multipart/form-data">
+            enctype="multipart/form-data"
+            data-submit-once>
         {% csrf_token %}
         <input type="hidden"
                name="sensitive"

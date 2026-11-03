@@ -12,7 +12,9 @@
   <body>
     {% include "_header.html" %}
     <main>
-      <form method="post" class="article-editor-form review-form">
+      <form method="post"
+            class="article-editor-form review-form"
+            data-submit-once>
         {% csrf_token %}
         {{ form.id }}{{ form.item }}
         <header class="article-editor-top">

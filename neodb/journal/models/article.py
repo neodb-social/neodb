@@ -344,6 +344,7 @@ class Article(Piece):
         return {
             "post_type": "Article",
             "content": self.html_content,
+            "content_is_html": True,
             "summary": self.summary or None,
             "sensitive": self.sensitive,
             "language": self.language or "",
