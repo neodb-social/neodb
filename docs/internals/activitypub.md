@@ -53,61 +53,19 @@ e.g. <https://neodb.social/nodeinfo/2.0/>:
 ```
 
 A NeoDB instance treats a domain as a NeoDB peer when its NodeInfo has `neodb`
-in `protocols` and `nodeEnvironment` of `production`. A debug instance reports
-`development`, so peers leave it alone; it, and an instance with federation
-disabled, also advertise `neodbFeatures: []`.
+in `protocols` and `nodeEnvironment` of `production`.
 
 ### Features
 
-`metadata.neodbFeatures` lists the NeoDB features a server offers to peers.
-Tokens are lowercase dotted strings; the first label is the area, and `catalog`,
-`journal` and `peer` are reserved for the tokens defined here. A token keeps its
-meaning forever; an incompatible change is a new token. Unknown tokens are
-ignored. `metadata.neodbFeatureParams` is one object keyed by token that holds
-that feature's parameters.
+`metadata.neodbFeatures` lists the NeoDB features a server offers to peers;
+`metadata.neodbFeatureParams` holds their parameters, keyed by token. A server
+offers exactly what it lists: no list, or `[]`, means none. Tokens are
+lowercase dotted strings whose meaning never changes; unknown tokens are
+ignored.
 
-- A server offers exactly what it lists. A server that does not send the list,
-  or sends `[]`, offers none of the features defined here; in particular it is
-  not searched, whether it runs an older NeoDB or other software. Servers
-  older than this list keep searching every peer that claims the `neodb`
-  protocol, as they always did.
-- A manually listed search peer is searched only when it advertises
-  `catalog.search` too.
-
-Defined tokens:
-
-| Token | The server | Peers |
-|---|---|---|
-| `catalog.search` | Answers catalog search at the endpoint below with the same request and response shape as `/api/catalog/search` (see below), and lets peers include the results in theirs. An admin removes it with *Allow incoming federated search*. | Send searches to it. A peer that does not advertise it is not searched, even when an admin lists it in *Federated search peers*. |
-
-### Catalog search
-
-`neodbFeatureParams["catalog.search"].endpoint` is the URL to send a search to.
-Peers use it only when it is `https` on the server's domain or a subdomain of
-it, with no userinfo and no fragment; otherwise, or when it is absent, they use
-`https://<domain>/api/catalog/search`. Peers never follow a redirect. They add
-these query parameters:
-
-- `query`: the search text
-- `page`: page number from 1, 20 items per page
-- `category`: optional, a category of `/api/catalog/search`, e.g. `book` or
-  `movie,tv`
-
-The response is a JSON object whose `data` is a list of items. Each item needs
-`url` (a path on the server's domain, or a full `https` URL on that domain) and
-`display_title`; peers also read `category`, `brief`, `cover_image_url` and
-`external_resources` (a list of objects with `url`) when present. Older NeoDB
-servers require every one of those keys to be present (`null` is fine, a
-missing key or a `null` `external_resources` is not) and `url` to be a path,
-so a server that wants to be searched by them keeps that shape. Peers skip an
-item that misses a required field, and an item with an external resource on
-their own domain, since they already have it.
-
-Pitfalls for any server that wants NeoDB peers to read its NodeInfo: the keys
-live under `metadata` (anything else is dropped), `openRegistrations` and
-`usage` must be present or the whole document is rejected, `metadata` must be
-an object, and a search endpoint that answers with a redirect is treated as a
-failure.
+| Token | Meaning |
+|---|---|
+| `catalog.search` | Peers may send catalog searches to `neodbFeatureParams["catalog.search"].endpoint` (default `https://<domain>/api/catalog/search`; used only when it is `https` on the server's domain or a subdomain) with the request and response shape of `/api/catalog/search`: `query`, `page` (20 items per page) and optional `category`; `data` is a list of items with `url` (a path on the server's domain), `display_title`, `brief`, `cover_image_url` and `external_resources` (a list). NeoDB advertises it unless *Allow incoming federated search* is off, or the instance runs in debug or without federation; it searches only peers that advertise it. |
 
 ## Extended activities
 
