@@ -66,20 +66,19 @@ meaning forever; an incompatible change is a new token. Unknown tokens are
 ignored. `metadata.neodbFeatureParams` is one object keyed by token that holds
 that feature's parameters.
 
-- A server that does not send the list predates it and offers every feature
-  defined before the list existed, which today means `catalog.search` at the
-  default URL. This keeps older servers and other software that claims the
-  `neodb` protocol working as before.
-- A server that sends the list offers exactly what it lists. `[]` means none of
-  the features defined here. A server that serves no search API should send
-  `[]`, or a list without `catalog.search`, so that peers stop sending it
-  searches.
+- A server offers exactly what it lists. A server that does not send the list,
+  or sends `[]`, offers none of the features defined here; in particular it is
+  not searched, whether it runs an older NeoDB or other software. Servers
+  older than this list keep searching every peer that claims the `neodb`
+  protocol, as they always did.
+- A manually listed search peer is searched only when it advertises
+  `catalog.search` too.
 
 Defined tokens:
 
 | Token | The server | Peers |
 |---|---|---|
-| `catalog.search` | Answers catalog search at the endpoint below with the same request and response shape as `/api/catalog/search` (see below), and lets peers include the results in theirs. An admin removes it with *Allow incoming federated search*. | Send searches to it. A peer whose list lacks it is not searched, even when an admin lists it in *Federated search peers*. |
+| `catalog.search` | Answers catalog search at the endpoint below with the same request and response shape as `/api/catalog/search` (see below), and lets peers include the results in theirs. An admin removes it with *Allow incoming federated search*. | Send searches to it. A peer that does not advertise it is not searched, even when an admin lists it in *Federated search peers*. |
 
 ### Catalog search
 

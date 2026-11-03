@@ -414,10 +414,10 @@ class FediverseInstance(AbstractSite):
         peers = cls.get_peers_for_search()
         if not peers:
             return []
-        no_search, endpoints = Takahe.get_neodb_search_settings()
+        endpoints = Takahe.get_neodb_search_endpoints()
         c = category if category != "movietv" else "movie,tv"
         return [
-            cls.peer_search_task(host, q, page, c, page_size, endpoints.get(host))
+            cls.peer_search_task(host, q, page, c, page_size, endpoints[host])
             for host in peers
-            if host not in no_search
+            if host in endpoints
         ]

@@ -619,30 +619,33 @@ class TestFediverseInstance:
         ]
         assert all(ua.startswith("NeoDB/") for _, ua in calls)
 
-    @pytest.mark.parametrize("search_peers", [[], ["peer.com", "off.com", "old.com"]])
+    @pytest.mark.parametrize(
+        "search_peers", [[], ["peer.com", "plain.com", "off.com", "old.com"]]
+    )
     def test_search_tasks_honor_peer_settings(self, search_peers):
         with (
             patch.object(SiteConfig.system, "search_peers", search_peers),
             patch(
                 "takahe.utils.Takahe.get_neodb_peers",
-                return_value=["peer.com", "off.com", "old.com"],
+                return_value=["peer.com", "plain.com", "off.com", "old.com"],
             ),
             patch(
-                "takahe.utils.Takahe.get_neodb_search_settings",
-                return_value=({"off.com"}, {"peer.com": "https://peer.com/s"}),
+                "takahe.utils.Takahe.get_neodb_search_endpoints",
+                return_value={"peer.com": "https://peer.com/s", "plain.com": None},
             ),
             patch.object(
                 FediverseInstance, "peer_search_task", new_callable=MagicMock
             ) as mock_task,
         ):
             FediverseInstance.search_tasks("q", 1, "all", 5)
+        # off.com and old.com do not advertise catalog.search, listed or not
         assert [c.args for c in mock_task.call_args_list] == [
             ("peer.com", "q", 1, "all", 5, "https://peer.com/s"),
-            ("old.com", "q", 1, "all", 5, None),
+            ("plain.com", "q", 1, "all", 5, None),
         ]
 
     @pytest.mark.django_db(databases="__all__")
-    def test_get_neodb_search_settings(self):
+    def test_get_neodb_search_endpoints(self):
         def add_peer(domain: str, **metadata):
             Domain.objects.create(
                 domain=domain,
@@ -672,14 +675,15 @@ class TestFediverseInstance:
             neodbFeatures=["catalog.search"],
             neodbFeatureParams={"catalog.search": {"endpoint": 123}},
         )
-        cache.delete("neodb_search_settings")
+        cache.delete("neodb_search_endpoints")
         try:
-            assert Takahe.get_neodb_search_settings() == (
-                {"off.example.com", "items.example.com"},
-                {"on.example.com": "https://on.example.com/s"},
-            )
+            assert Takahe.get_neodb_search_endpoints() == {
+                "on.example.com": "https://on.example.com/s",
+                "plain.example.com": None,
+                "badparams.example.com": None,
+            }
         finally:
-            cache.delete("neodb_search_settings")
+            cache.delete("neodb_search_endpoints")
 
     @pytest.mark.django_db(databases="__all__")
     @patch("catalog.sites.fedi.CachedDownloader")

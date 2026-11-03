@@ -1102,31 +1102,22 @@ class Takahe:
         return r
 
     @staticmethod
-    def get_neodb_search_settings() -> tuple[set[str], dict[str, str]]:
+    def get_neodb_search_endpoints() -> dict[str, str | None]:
         """
-        What NeoDB peers advertise about federated search in nodeinfo: the
-        domains whose metadata.neodbFeatures list lacks catalog.search, and the
-        endpoint of each domain that advertises one. A peer without the list
-        predates it and is searched at the default URL.
+        Domains whose nodeinfo metadata.neodbFeatures lists catalog.search,
+        mapped to the endpoint each advertises (None for the default). A
+        domain that does not advertise it is not searched.
         """
-        cache_key = "neodb_search_settings"
+        cache_key = "neodb_search_endpoints"
         r = cache.get(cache_key, None)
         if r is None:
             rows = Domain.objects.filter(
-                nodeinfo__protocols__contains="neodb", local=False
-            ).values_list(
-                "pk",
-                "nodeinfo__metadata__neodbFeatures",
-                "nodeinfo__metadata__neodbFeatureParams",
-            )
-            no_search: set[str] = set()
-            endpoints: dict[str, str] = {}
-            for pk, features, params in rows:
-                if not isinstance(features, list):
-                    continue
-                if "catalog.search" not in features:
-                    no_search.add(pk)
-                    continue
+                nodeinfo__protocols__contains="neodb",
+                nodeinfo__metadata__neodbFeatures__contains=["catalog.search"],
+                local=False,
+            ).values_list("pk", "nodeinfo__metadata__neodbFeatureParams")
+            r = {}
+            for pk, params in rows:
                 search_params = (
                     params.get("catalog.search") if isinstance(params, dict) else None
                 )
@@ -1135,9 +1126,7 @@ class Takahe:
                     if isinstance(search_params, dict)
                     else None
                 )
-                if isinstance(endpoint, str):
-                    endpoints[pk] = endpoint
-            r = (no_search, endpoints)
+                r[pk] = endpoint if isinstance(endpoint, str) else None
             cache.set(cache_key, r, timeout=1800)
         return r
 
