@@ -41,9 +41,31 @@ e.g. <https://neodb.social/nodeinfo/2.0/>:
     "repository": "https://github.com/neodb-social/neodb",
     "homepage": "https://neodb.net/"
   },
-  "protocols": ["activitypub", "neodb"]
+  "protocols": ["activitypub", "neodb"],
+  "metadata": {
+    "nodeEnvironment": "production",
+    "neodbFeatures": ["catalog.search"],
+    "neodbFeatureParams": {
+      "catalog.search": {"endpoint": "https://neodb.social/api/catalog/search"}
+    }
+  }
 }
 ```
+
+A NeoDB instance treats a domain as a NeoDB peer when its NodeInfo has `neodb`
+in `protocols` and `nodeEnvironment` of `production`.
+
+### Features
+
+`metadata.neodbFeatures` lists the NeoDB features a server offers to peers;
+`metadata.neodbFeatureParams` holds their parameters, keyed by token. A server
+offers exactly what it lists: no list, or `[]`, means none. Tokens are
+lowercase dotted strings whose meaning never changes; unknown tokens are
+ignored.
+
+| Token | Meaning |
+|---|---|
+| `catalog.search` | Peers may send catalog searches to `neodbFeatureParams["catalog.search"].endpoint` (default `https://<domain>/api/catalog/search`; used only when it is `https` on the server's domain or a subdomain) with the request and response shape of `/api/catalog/search`: `query`, `page` (20 items per page) and optional `category`; `data` is a list of items with `url` (a path on the server's domain), `display_title`, `brief`, `cover_image_url` and `external_resources` (a list). NeoDB advertises it unless *Allow incoming federated search* is off, or the instance runs in debug or without federation; it searches only peers that advertise it. |
 
 ## Extended activities
 

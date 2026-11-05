@@ -1,6 +1,6 @@
 import logging
 import re
-from urllib.parse import quote_plus, urlparse
+from urllib.parse import quote_plus, urljoin, urlparse
 
 import httpx
 from django.conf import settings
@@ -280,16 +280,101 @@ class FediverseInstance(AbstractSite):
             )
         return None
 
+    @staticmethod
+    def _same_host(url: str, host: str) -> bool:
+        """
+        True when url is https on host or a subdomain of it, so that a peer's
+        nodeinfo or search results can never point traffic at a third party.
+        """
+        try:
+            u = urlparse(url)
+            h = (u.hostname or "").lower()
+            # a manually listed peer may carry a port
+            host = (urlparse(f"https://{host}").hostname or "").lower()
+        except ValueError:
+            return False
+        return (
+            bool(host) and u.scheme == "https" and (h == host or h.endswith("." + host))
+        )
+
     @classmethod
-    async def peer_search_task(cls, host, q, page, category=None, page_size=5):
+    def peer_search_endpoint(cls, host: str, advertised: str | None) -> str:
+        default = f"https://{host}/api/catalog/search"
+        if not advertised:
+            return default
+        try:
+            u = urlparse(advertised)
+        except ValueError:
+            return default
+        if (
+            u.fragment
+            or u.username
+            or u.password
+            or not cls._same_host(advertised, host)
+        ):
+            return default
+        return advertised
+
+    @classmethod
+    def peer_search_result(
+        cls, host: str, item: object
+    ) -> ExternalSearchResultItem | None:
+        """
+        Peers may run older NeoDB or other software, so any field of an item
+        may be missing or malformed; such an item is skipped, not fatal.
+        """
+        if not isinstance(item, dict):
+            return None
+        title = item.get("display_title")
+        path = item.get("url")
+        if not title or not isinstance(title, str) or not isinstance(path, str):
+            return None
+        try:
+            # NeoDB returns a path; a full URL is accepted on the peer's own host
+            url = urljoin(f"https://{host}/", path.strip())
+            if not cls._same_host(url, host):
+                return None
+            for res in item.get("external_resources") or []:
+                if (
+                    isinstance(res, dict)
+                    and urlparse(str(res.get("url") or "")).hostname
+                    in settings.SITE_DOMAINS
+                ):
+                    return None
+        except ValueError, TypeError:
+            return None
+        try:
+            cat = ItemCategory(item.get("category"))
+        except ValueError:
+            cat = None
+        brief = item.get("brief")
+        cover = item.get("cover_image_url")
+        return ExternalSearchResultItem(
+            cat,
+            host,
+            url,
+            title,
+            "",
+            brief if isinstance(brief, str) else "",
+            cover if isinstance(cover, str) else "",
+        )
+
+    @classmethod
+    async def peer_search_task(
+        cls, host, q, page, category=None, page_size=5, endpoint: str | None = None
+    ):
+        # endpoint is resolved by the sync caller: the settings lookup may hit
+        # the database, which a coroutine must not do
         p = (page - 1) * page_size // 20 + 1
         offset = (page - 1) * page_size % 20
-        api_url = f"https://{host}/api/catalog/search?query={quote_plus(q)}&page={p}{'&category=' + category if category and category != 'all' else ''}"
+        endpoint = cls.peer_search_endpoint(host, endpoint)
+        api_url = f"{endpoint}{'&' if '?' in endpoint else '?'}query={quote_plus(q)}&page={p}{'&category=' + category if category and category != 'all' else ''}"
         async with httpx.AsyncClient() as client:
             results = []
             try:
                 response = await client.get(
                     api_url,
+                    headers={"User-Agent": settings.NEODB_USER_AGENT},
                     timeout=2,
                 )
                 r = response.json()
@@ -301,29 +386,11 @@ class FediverseInstance(AbstractSite):
                 reason = "timeout" if isinstance(e, httpx.TimeoutException) else "error"
                 record_search_failure("fediverse", reason)
                 return []
-            if "data" in r:
-                for item in r["data"]:
-                    if any(
-                        urlparse(res["url"]).hostname in settings.SITE_DOMAINS
-                        for res in item.get("external_resources", [])
-                    ):
-                        continue
-                    url = f"https://{host}{item['url']}"  # FIXME update API and use abs urls
-                    try:
-                        cat = ItemCategory(item["category"])
-                    except Exception:
-                        cat = None
-                    results.append(
-                        ExternalSearchResultItem(
-                            cat,
-                            host,
-                            url,
-                            item["display_title"],
-                            "",
-                            item["brief"],
-                            item["cover_image_url"],
-                        )
-                    )
+            data = r.get("data") if isinstance(r, dict) else None
+            for item in data if isinstance(data, list) else []:
+                result = cls.peer_search_result(host, item)
+                if result:
+                    results.append(result)
         return results[offset : offset + page_size]
 
     @classmethod
@@ -342,6 +409,15 @@ class FediverseInstance(AbstractSite):
     def search_tasks(
         cls, q: str, page: int = 1, category: str | None = None, page_size=5
     ):
+        from takahe.utils import Takahe
+
         peers = cls.get_peers_for_search()
+        if not peers:
+            return []
+        endpoints = Takahe.get_neodb_search_endpoints()
         c = category if category != "movietv" else "movie,tv"
-        return [cls.peer_search_task(host, q, page, c, page_size) for host in peers]
+        return [
+            cls.peer_search_task(host, q, page, c, page_size, endpoints[host])
+            for host in peers
+            if host in endpoints
+        ]

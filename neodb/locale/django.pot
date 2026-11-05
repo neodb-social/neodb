@@ -5139,6 +5139,14 @@ msgstr ""
 msgid "NeoDB peer instances for federated search, one per line."
 msgstr ""
 
+#: common/views_manage.py
+msgid "Allow incoming federated search"
+msgstr ""
+
+#: common/views_manage.py
+msgid "Tell other NeoDB instances via NodeInfo whether they may include this site's catalog in their search results. The search API stays available to apps either way."
+msgstr ""
+
 #: common/views_manage.py:864
 msgid "Hidden categories"
 msgstr ""

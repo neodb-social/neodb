@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -99,6 +101,22 @@ def ap_redirect(request, uri):
     return redirect(redirect_to)
 
 
+# Features this server offers to NeoDB peers, advertised as metadata.neodbFeatures;
+# docs/internals/activitypub.md defines each token and the absent-key rule.
+def _neodb_features() -> dict[str, Any]:
+    if (
+        settings.DEBUG
+        or (getattr(settings, "SETUP", None) and settings.SETUP.NO_FEDERATION)
+        or not SiteConfig.system.allow_incoming_federated_search
+    ):
+        return {"neodbFeatures": []}
+    endpoint = settings.SITE_INFO["site_url"].rstrip("/") + "/api/catalog/search"
+    return {
+        "neodbFeatures": ["catalog.search"],
+        "neodbFeatureParams": {"catalog.search": {"endpoint": endpoint}},
+    }
+
+
 def nodeinfo2(request, version: str):
     if version not in ["2.0", "2.1", "2.2"]:
         return _error_response(
@@ -133,6 +151,7 @@ def nodeinfo2(request, version: str):
                 "nodeRevision": settings.NEODB_VERSION,
                 "nodeEnvironment": "development" if settings.DEBUG else "production",
             }
+            | _neodb_features()
             | (
                 {"federation": {"enabled": False}}
                 if getattr(settings, "SETUP", None) and settings.SETUP.NO_FEDERATION

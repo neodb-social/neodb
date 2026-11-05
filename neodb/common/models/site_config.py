@@ -151,6 +151,8 @@ class SiteConfig(models.Model):
         # Search/Catalog
         search_sites: list[str] = []
         search_peers: list[str] = []
+        # Advertised to peers in nodeinfo; peers honor it, the API stays open.
+        allow_incoming_federated_search: bool = True
         hidden_categories: list[str] = []
         # Highest search result page an anonymous visitor may open.
         guest_search_max_pages: int = 100
@@ -369,6 +371,7 @@ class SiteConfig(models.Model):
             # Search/Catalog
             "search_sites": list(getattr(settings, "SEARCH_SITES", [])),
             "search_peers": list(getattr(settings, "SEARCH_PEERS", [])),
+            "allow_incoming_federated_search": True,
             "hidden_categories": list(getattr(settings, "HIDDEN_CATEGORIES", [])),
             # Catalog genres (in-code defaults; no env var)
             **{

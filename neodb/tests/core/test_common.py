@@ -296,6 +296,7 @@ class TestNodeInfo:
             assert response.status_code == 200
             data = response.json()
             assert data["metadata"]["federation"] == {"enabled": False}
+            assert data["metadata"]["neodbFeatures"] == []
         finally:
             if had_setup:
                 settings.SETUP = original
@@ -309,6 +310,35 @@ class TestNodeInfo:
         assert response.status_code == 200
         data = response.json()
         assert "federation" not in data["metadata"]
+
+    def _nodeinfo_metadata(self, monkeypatch, **options) -> dict:
+        system = SiteConfig.system.model_copy(update=options)
+        monkeypatch.setattr(SiteConfig, "system", system)
+        monkeypatch.setattr(SiteConfig, "__forced__", True, raising=False)
+        return Client().get("/nodeinfo/2.0/").json()["metadata"]
+
+    def test_nodeinfo_catalog_search_defaults(self, monkeypatch):
+        metadata = self._nodeinfo_metadata(monkeypatch)
+        assert metadata["neodbFeatures"] == ["catalog.search"]
+        assert metadata["neodbFeatureParams"] == {
+            "catalog.search": {
+                "endpoint": settings.SITE_INFO["site_url"] + "/api/catalog/search"
+            }
+        }
+
+    def test_nodeinfo_catalog_search_disallowed(self, monkeypatch):
+        metadata = self._nodeinfo_metadata(
+            monkeypatch, allow_incoming_federated_search=False
+        )
+        assert metadata["neodbFeatures"] == []
+        assert "neodbFeatureParams" not in metadata
+
+    def test_nodeinfo_search_off_under_debug(self, monkeypatch, settings):
+        settings.DEBUG = True
+        metadata = self._nodeinfo_metadata(monkeypatch)
+        assert metadata["nodeEnvironment"] == "development"
+        assert metadata["neodbFeatures"] == []
+        assert "neodbFeatureParams" not in metadata
 
     def test_nodeinfo_hidden_on_alternative_domain(self, monkeypatch):
         system = SiteConfig.system.model_copy(

@@ -1107,6 +1107,35 @@ class Takahe:
         return r
 
     @staticmethod
+    def get_neodb_search_endpoints() -> dict[str, str | None]:
+        """
+        Domains whose nodeinfo metadata.neodbFeatures lists catalog.search,
+        mapped to the endpoint each advertises (None for the default). A
+        domain that does not advertise it is not searched.
+        """
+        cache_key = "neodb_search_endpoints"
+        r = cache.get(cache_key, None)
+        if r is None:
+            rows = Domain.objects.filter(
+                nodeinfo__protocols__contains="neodb",
+                nodeinfo__metadata__neodbFeatures__contains=["catalog.search"],
+                local=False,
+            ).values_list("pk", "nodeinfo__metadata__neodbFeatureParams")
+            r = {}
+            for pk, params in rows:
+                search_params = (
+                    params.get("catalog.search") if isinstance(params, dict) else None
+                )
+                endpoint = (
+                    search_params.get("endpoint")
+                    if isinstance(search_params, dict)
+                    else None
+                )
+                r[pk] = endpoint if isinstance(endpoint, str) else None
+            cache.set(cache_key, r, timeout=1800)
+        return r
+
+    @staticmethod
     def get_blocked_peers():
         cache_key = "blocked_peers"
         peers = cache.get(cache_key, None)
