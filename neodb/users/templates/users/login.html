@@ -110,7 +110,7 @@
                     class="login-submit"
                     id="passkey-login-btn"
                     disabled>{% trans "Sign in with passkey" %}</button>
-            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=passkey" display="invisible" name="altcha" workers="2"></altcha-widget>
+            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=passkey{{ login_proof_next }}" display="invisible" name="altcha" workers="2"></altcha-widget>
             <small class="login-proof-status" role="status" aria-live="polite"></small>
             <small id="passkey-error" class="login-error" style="display:none"></small>
           </form>
@@ -131,7 +131,7 @@
                    class="login-submit"
                    value="{% trans 'Send verification code' %}"
                    disabled />
-            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=email" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=email{{ login_proof_next }}" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
             <small class="login-proof-status" role="status" aria-live="polite"></small>
             {% if not enable_register_email %}
               <small>{% trans "Email login is only for accounts that already have an email address linked. New accounts cannot be registered with email." %}</small>
@@ -164,7 +164,7 @@
                      class="login-submit"
                      value="{% trans 'Authorize via Fediverse instance' %}"
                      disabled />
-              <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=mastodon" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+              <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=mastodon{{ login_proof_next }}" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
               <small class="login-proof-status" role="status" aria-live="polite"></small>
               <small>
                 {% blocktrans %}If you don't have a <a href="https://joinmastodon.org/servers" target="_blank">Fediverse (Mastodon) account</a> yet, you may register or login with Email first, and link it with Fediverse (Mastodon) later in account settings.{% endblocktrans %}
@@ -182,7 +182,7 @@
                    class="login-submit"
                    value="{% trans 'Authorize via Threads' %}"
                    disabled />
-            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=threads" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=threads{{ login_proof_next }}" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
             <small class="login-proof-status" role="status" aria-live="polite"></small>
           </form>
           <form id="login-bluesky"
@@ -206,7 +206,7 @@
                    class="login-submit"
                    value="{% trans 'Authorize via ATProto server' %}"
                    disabled />
-            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=bluesky" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=bluesky{{ login_proof_next }}" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
             <small class="login-proof-status" role="status" aria-live="polite"></small>
           </form>
           <form>
@@ -228,7 +228,7 @@
                    class="login-submit"
                    value="{% trans 'Authorize via Fediverse instance' %}"
                    disabled />
-            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=mastodon" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
+            <altcha-widget class="login-proof" challenge="{% url 'users:login_proof' %}?method=mastodon{{ login_proof_next }}" auto="onsubmit" display="invisible" name="altcha" workers="2"></altcha-widget>
             <small class="login-proof-status" role="status" aria-live="polite"></small>
           </form>
         {% endif %}
