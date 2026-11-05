@@ -1,6 +1,8 @@
 import logging
 from datetime import timedelta
+from importlib import import_module
 
+from django.conf import settings
 from django.utils import timezone
 
 from common.models import BaseJob, JobManager, SiteConfig
@@ -56,6 +58,47 @@ class TaskCleanup(BaseJob):
             f"Task cleanup finished: {tasks_deleted} tasks deleted, {files_deleted} files deleted, "
             f"{retries_deleted} crosspost retry records deleted."
         )
+
+
+def prune_expired_sessions(batch_size: int = 10_000) -> int | None:
+    """Delete expired sessions, as ``manage.py clearsessions`` does.
+
+    A database backed store is purged in batches, so a large backlog does not
+    become one long transaction. Other stores fall back to their own
+    ``clear_expired()``. Returns the rows deleted, or None if unknown.
+    """
+    store = import_module(settings.SESSION_ENGINE).SessionStore
+    get_model_class = getattr(store, "get_model_class", None)
+    if get_model_class is None:
+        store.clear_expired()
+        return None
+    model = get_model_class()
+    now = timezone.now()
+    total = 0
+    while True:
+        keys = list(
+            model.objects.filter(expire_date__lt=now).values_list("pk", flat=True)[
+                :batch_size
+            ]
+        )
+        if not keys:
+            return total
+        # recheck expiry: a request may have renewed one of these since the select
+        deleted, _ = model.objects.filter(pk__in=keys, expire_date__lt=now).delete()
+        total += deleted
+
+
+@JobManager.register
+class SessionCleanup(BaseJob):
+    """Django never removes expired sessions by itself."""
+
+    @classmethod
+    def get_interval(cls) -> timedelta:
+        return timedelta(days=1)
+
+    def run(self) -> None:
+        deleted = prune_expired_sessions()
+        logger.info(f"Session cleanup finished: {deleted} expired sessions deleted.")
 
 
 def clear_identity_data(identity_pk: int) -> None:

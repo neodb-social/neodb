@@ -1,7 +1,7 @@
 import logging
 import re
 import secrets
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 import django_rq
 from django import forms
@@ -64,8 +64,12 @@ def login(request):
         selected_username = ""
     sites = Mastodon.get_sites() if enable_mastodon else []
     next_url = sanitize_next_url(request.GET.get("next"))
-    if next_url:
+    if next_url and request.user.is_authenticated:
         request.session["next_url"] = next_url
+    # A logged-out visitor's next_url is stored by login_proof(), which the
+    # page's script calls before any login method can start. Writing it here
+    # gave every cookieless GET (mostly crawlers) its own 90-day session row.
+    login_proof_next = "&" + urlencode({"next": next_url}) if next_url else ""
     invite_status = -1 if SiteConfig.system.invite_only else 0
     if SiteConfig.system.invite_only and request.GET.get("invite"):
         if Takahe.verify_invite(request.GET.get("invite")):
@@ -90,6 +94,7 @@ def login(request):
             "enable_threads": SiteConfig.system.enable_login_threads,
             "enable_bluesky": SiteConfig.system.enable_login_bluesky,
             "invite_status": invite_status,
+            "login_proof_next": login_proof_next,
         },
     )
 
@@ -104,6 +109,11 @@ def login_proof(request: HttpRequest) -> JsonResponse:
     if method == "threads" and not SiteConfig.system.enable_login_threads:
         return JsonResponse({"error": "Threads login is disabled"}, status=400)
     response = JsonResponse(create_login_proof_challenge(request, method))
+    # the challenge has just put this visitor in a session, so the post-login
+    # redirect can wait here until a login method is actually used
+    next_url = sanitize_next_url(request.GET.get("next"))
+    if next_url:
+        request.session["next_url"] = next_url
     response["Cache-Control"] = "no-store, private"
     return response
 

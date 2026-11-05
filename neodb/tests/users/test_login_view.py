@@ -7,6 +7,8 @@ from unittest.mock import patch
 import pytest
 import requests
 from altcha import Challenge, Payload, Solution, derive_key_pbkdf2, solve_challenge
+from django.conf import settings
+from django.contrib.sessions.models import Session
 from django.test import Client, override_settings
 from django.urls import reverse
 
@@ -124,6 +126,49 @@ class TestLoginMethodSelection:
         assert response.status_code == 200
         assert response.context["selected_method"] == "email"
         assert response.context["selected_domain"] == ""
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestLoginPageSession:
+    """Opening the login page must not create a session by itself.
+
+    Crawlers follow ``/account/login?next=...`` links without cookies, so a
+    session written here becomes one orphan row per hit. ``next`` rides on the
+    login proof request instead, which every login method makes first.
+    """
+
+    def test_next_creates_no_session(self, client: Client) -> None:
+        response = client.get(reverse("users:login"), {"next": "/users/info/"})
+        assert response.status_code == 200
+        assert settings.SESSION_COOKIE_NAME not in response.cookies
+        assert not Session.objects.exists()
+        assert b"?method=email&amp;next=%2Fusers%2Finfo%2F" in response.content
+
+    def test_unsafe_next_is_not_forwarded(self, client: Client) -> None:
+        response = client.get(reverse("users:login"), {"next": "https://evil.example/"})
+        assert b"evil.example" not in response.content
+        assert b'?method=email"' in response.content
+
+    def test_login_proof_stores_next(self, client: Client) -> None:
+        response = client.get(
+            reverse("users:login_proof"), {"method": "email", "next": "/users/info/"}
+        )
+        assert response.status_code == 200
+        assert client.session["next_url"] == "/users/info/"
+
+    def test_login_proof_ignores_unsafe_next(self, client: Client) -> None:
+        client.get(
+            reverse("users:login_proof"),
+            {"method": "email", "next": "https://evil.example/"},
+        )
+        assert "next_url" not in client.session
+
+    def test_logged_in_user_still_stores_next(self, client: Client) -> None:
+        user = User.register(email="session@example.com", username="sessionuser")
+        client.force_login(user)
+        response = client.get(reverse("users:login"), {"next": "/users/info/"})
+        assert client.session["next_url"] == "/users/info/"
+        assert b'href="/users/info/"' in response.content
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -637,6 +682,25 @@ class TestMastodonOAuthCallback:
         assert b"Invalid account data from Fediverse instance" in response.content
         assert "_auth_user_id" not in client.session
         self.fetch.assert_not_called()
+
+    def test_next_from_login_proof_survives_oauth(self, client: Client) -> None:
+        user = User.register(username="oauthuser")
+        MastodonAccount.objects.create(
+            user=user, domain="mastodon.online", uid="7", handle="old@mastodon.online"
+        )
+        client.get(reverse("users:login"), {"next": "/users/info/"})
+        client.get(
+            reverse("users:login_proof"),
+            {"method": "mastodon", "next": "/users/info/"},
+        )
+        self._prime(client)
+        response = client.get(
+            reverse("mastodon:oauth"), {"code": "oauth-code", "state": "oauth-state"}
+        )
+        assert response.status_code == 302
+        assert response["Location"] == "/users/info/"
+        assert client.session["_auth_user_id"] == str(user.pk)
+        assert "next_url" not in client.session
 
     def test_existing_account_logs_in_and_refreshes_tokens(
         self, client: Client
