@@ -196,6 +196,7 @@ class TestMusicBrainzReleaseGroup:
         release_data = {
             "label-info": [
                 {"label": {"name": "EMI"}},
+                {"catalog-number": "AWD383256", "label": None},
                 {"label": {"name": "Capitol Records"}},
             ]
         }
