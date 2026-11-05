@@ -6,6 +6,9 @@
         <i class="fa-solid fa-ellipsis"></i>
       </summary>
       <ul role="menu">
+        {% if post.author_id == request.user.identity.pk %}
+          <li>{% include "action_pin_post.html" with menu_label=1 %}</li>
+        {% endif %}
         {% if piece_edit_url %}
           <li>
             <span>
@@ -26,7 +29,6 @@
           </li>
         {% endif %}
         {% if post.author_id == request.user.identity.pk %}
-          <li>{% include "action_pin_post.html" with menu_label=1 %}</li>
           {% if not post.piece or post.piece.classname == "note" %}
             <li>{% include "action_delete_post.html" with menu_label=1 %}</li>
           {% elif piece_delete_url %}

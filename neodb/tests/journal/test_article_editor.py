@@ -126,7 +126,11 @@ def test_sensitive_reader_keeps_cover_and_contents_inside_reveal(author):
     assert document.xpath('//button[contains(@class,"article-reveal")]')
     assert document.xpath('//a[contains(@href,"?tag=R%26D")]')
     assert not document.xpath("//aside")
-    assert document.xpath(f'//a[@href="{article.delete_url}"]')
+    deletes = document.xpath(f'//a[@href="{article.delete_url}"]')
+    assert len(deletes) == 1
+    menu = deletes[0].xpath('ancestor::span[@class="post-action-menu"]')[0]
+    labels = [li.text_content().strip() for li in menu.xpath(".//li")]
+    assert labels == ["Pin", "Edit", "Delete"]
 
 
 def test_translation_replaces_the_text_but_not_the_cover(author, monkeypatch):

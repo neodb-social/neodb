@@ -42,7 +42,9 @@ def test_review_reader_keeps_item_rating_and_review_actions(writer):
     )
     assert document.xpath('//*[contains(@class,"review-subject-rating")]')
     assert document.xpath(f'//a[@href="{review.edit_url}"]')
-    assert document.xpath(f'//a[@href="{review.delete_url}"]')
+    deletes = document.xpath(f'//a[@href="{review.delete_url}"]')
+    assert len(deletes) == 1
+    assert deletes[0].xpath('ancestor::span[@class="post-action-menu"]')
     assert review.latest_post is not None
     assert document.xpath(f'//div[@id="replies_{review.latest_post.pk}"]')
     assert document.xpath(f'//div[@id="quote_{review.latest_post.pk}"]')

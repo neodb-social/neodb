@@ -159,9 +159,11 @@
               <span>
                 <a href="{% url 'journal:collection_edit' collection.uuid %}">{% trans "Edit" %}</a>
               </span>
-              <span>
-                <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans "Delete" %}</a>
-              </span>
+              {% if not collection.latest_post %}
+                <span>
+                  <a href="{% url 'journal:collection_delete' collection.uuid %}">{% trans "Delete" %}</a>
+                </span>
+              {% endif %}
             {% elif editable %}
               <span>
                 <a href="{% url 'journal:collection_edit' collection.uuid %}"
