@@ -269,13 +269,13 @@ class Article(Piece):
         marker is the user-facing translation of "(may contain sensitive
         content)" appended in parens; it appears regardless of whether
         the user wrote a summary so receivers always see the cue."""
-        text = (self.summary or "").strip()
+        return self.with_sensitive_marker(self.summary)
+
+    def with_sensitive_marker(self, text: str) -> str:
+        text = (text or "").strip()
         if self.sensitive:
             marker = _("(may contain sensitive content)")
-            if text:
-                text = text + " " + marker
-            else:
-                text = marker
+            text = text + " " + marker if text else marker
         return text
 
     def _ap_image_object(self) -> dict | None:

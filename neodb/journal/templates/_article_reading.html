@@ -10,7 +10,7 @@
     <article class="article-story">
       <header>
         <h1><span id="{{ article.classname }}_{{ article.uuid }}_title">{{ article.title }}</span></h1>
-        {% if article.classname == "article" and article.display_summary %}<p class="article-deck">{{ article.display_summary }}</p>{% endif %}
+        {% if article.classname == "article" and article.display_summary %}<p id="article_{{ article.uuid }}_summary" class="article-deck">{{ article.display_summary }}</p>{% endif %}
         <div class="article-byline">
           <a class="article-author" href="{{ article.owner.url }}">
             <img src="{{ article.owner.avatar|relative_uri }}"

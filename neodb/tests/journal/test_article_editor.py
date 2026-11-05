@@ -213,3 +213,42 @@ def test_remote_author_reader_does_not_link_to_anonymous_forbidden_archive(autho
     archive = reverse("journal:user_article_list", args=[identity.handle])
     assert not document.xpath(f'//a[starts-with(@href,"{archive}")]')
     assert document.xpath('//ul[@class="article-story-tags"]/li[.="reading"]')
+
+
+def test_translation_swaps_the_summary_and_keeps_the_sensitive_marker(
+    author, monkeypatch
+):
+    calls = []
+
+    def fake_translate(message, lang, src):
+        calls.append(message)
+        return f"[{lang}] {message}"
+
+    monkeypatch.setattr("journal.views.article.translate", fake_translate)
+    user, client = author
+    article = Article.update_local_article(
+        owner=user.identity,
+        title="Titled",
+        body="Body <b>",
+        summary="Deck & more",
+        sensitive=True,
+        visibility=0,
+    )
+    document = html.fromstring(client.get(article.url).content)
+    deck = document.get_element_by_id(f"article_{article.uuid}_summary")
+    assert (deck.text or "").startswith("Deck & more (")
+    response = client.post(reverse("journal:article_translate", args=[article.uuid]))
+    fragment = html.fromstring(f"<div>{response.content.decode()}</div>")
+    deck = fragment.get_element_by_id(f"article_{article.uuid}_summary")
+    assert deck.get("hx-swap-oob") == "true"
+    assert deck.get("class") == "article-deck"
+    assert (deck.text or "").startswith("[en] Deck & more (")
+    assert (deck.text or "").count("(") == 1
+    assert "Deck & more" in calls
+    assert not any("sensitive" in c for c in calls)
+
+    plain = Article.update_local_article(
+        owner=user.identity, title="Plain", body="Body", visibility=0
+    )
+    response = client.post(reverse("journal:article_translate", args=[plain.uuid]))
+    assert f"article_{plain.uuid}_summary" not in response.content.decode()
