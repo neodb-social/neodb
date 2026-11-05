@@ -211,9 +211,13 @@ def article_translate(request, article_uuid: str):
     target_lang = request.user.language or "en"
     text = translate(text, target_lang, lang)
     title = translate(article.title, target_lang, lang)
-    return HttpResponse(
-        f'<span hx-swap-oob="true" id="article_{article.uuid}_title">{escape(title)}</span>{text}'
-    )
+    html = f'<span hx-swap-oob="true" id="article_{article.uuid}_title">{escape(title)}</span>'
+    if article.summary.strip():
+        summary = article.with_sensitive_marker(
+            translate(article.summary, target_lang, lang)
+        )
+        html += f'<p hx-swap-oob="true" id="article_{article.uuid}_summary" class="article-deck">{escape(summary)}</p>'
+    return HttpResponse(html + text)
 
 
 MAX_FEED_ITEMS = 10

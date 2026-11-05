@@ -1,0 +1,64 @@
+{% load i18n %}
+{% load mastodon %}
+{% if not relationship %}
+  {% current_user_relationship identity as relationship %}
+{% endif %}
+<span class="follow-action">
+  {% if not relationship.unavailable and not relationship.rejecting %}
+    {% if relationship.requested %}
+      <span>
+        <a title="{% trans "Accept follow request" %}"
+           class="activated"
+           hx-confirm="{% trans 'Sure to accept follow request?' %}"
+           hx-post="{% url 'users:accept_follow_request' identity.handle %}{% if compact %}?compact=1{% endif %}"
+           hx-target="{% if compact %}closest .follow-action{% else %}closest .action{% endif %}"
+           hx-swap="innerHTML">
+          <i class="fa-solid fa-check"></i>
+        </a>
+      </span>
+      <span>
+        <a title="{% trans "Reject follow request" %}"
+           class="activated"
+           hx-confirm="{% trans 'Sure to reject follow request?' %}"
+           hx-post="{% url 'users:reject_follow_request' identity.handle %}{% if compact %}?compact=1{% endif %}"
+           hx-target="{% if compact %}closest .follow-action{% else %}closest .action{% endif %}"
+           hx-swap="innerHTML">
+          <i class="fa-solid fa-xmark"></i>
+        </a>
+      </span>
+    {% endif %}
+    {% if relationship.following %}
+      <span>
+        <a title="{% trans "Click to unfollow" %}"
+           class="activated"
+           hx-confirm="{% trans 'Sure to unfollow?' %}"
+           hx-post="{% url 'users:unfollow' identity.handle %}{% if compact %}?compact=1{% endif %}"
+           hx-target="{% if compact %}closest .follow-action{% else %}closest .action{% endif %}"
+           hx-swap="innerHTML">
+          <i class="fa-solid fa-user-check"></i>
+        </a>
+      </span>
+    {% elif relationship.requesting %}
+      <span>
+        <a title="{% trans "Click to cancel follow request" %}"
+           class="activated"
+           hx-confirm="{% trans 'Sure to cancel follow request?' %}"
+           hx-post="{% url 'users:unfollow' identity.handle %}{% if compact %}?compact=1{% endif %}"
+           hx-target="{% if compact %}closest .follow-action{% else %}closest .action{% endif %}"
+           hx-swap="innerHTML">
+          <i class="fa-solid fa-user-clock"></i>
+        </a>
+      </span>
+    {% else %}
+      <span>
+        <a title="{% trans "Click to follow" %}"
+           hx-confirm="{% trans 'Sure to follow?' %}"
+           hx-post="{% url 'users:follow' identity.handle %}{% if compact %}?compact=1{% endif %}"
+           hx-target="{% if compact %}closest .follow-action{% else %}closest .action{% endif %}"
+           hx-swap="innerHTML">
+          <i class="fa-solid fa-user-plus"></i>
+        </a>
+      </span>
+    {% endif %}
+  {% endif %}
+</span>

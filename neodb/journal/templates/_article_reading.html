@@ -10,7 +10,7 @@
     <article class="article-story">
       <header>
         <h1><span id="{{ article.classname }}_{{ article.uuid }}_title">{{ article.title }}</span></h1>
-        {% if article.classname == "article" and article.display_summary %}<p class="article-deck">{{ article.display_summary }}</p>{% endif %}
+        {% if article.classname == "article" and article.display_summary %}<p id="article_{{ article.uuid }}_summary" class="article-deck">{{ article.display_summary }}</p>{% endif %}
         <div class="article-byline">
           <a class="article-author" href="{{ article.owner.url }}">
             <img src="{{ article.owner.avatar|relative_uri }}"
@@ -20,18 +20,32 @@
             <span>{{ article.owner.display_name }}<small><time datetime="{{ article.created_time|date:'c' }}">{{ article.created_time|date }}</time>{% if article.reading_time %} · {% blocktrans count counter=article.reading_time %}{{ counter }} min read{% plural %}{{ counter }} min read{% endblocktrans %}{% endif %}</small></span>
           </a>
           {% if request.user.is_authenticated %}
-            <div class="article-header-actions">
+            <span class="action inline article-header-actions">
+              {% if request.user.identity != article.owner %}
+                {% include "users/_follow_action.html" with identity=article.owner compact=1 %}
+              {% endif %}
               {% if translate_enabled and article.latest_post %}
-                <button type="button"
-                        class="article-translate-link"
-                        {% if article.classname == "review" %}hx-post="{% url 'journal:review_translate' article.uuid %}"{% else %}hx-post="{% url 'journal:article_translate' article.uuid %}"{% endif %}
-                        hx-trigger="click once"
-                        hx-target="#{{ article.classname }}_{{ article.uuid }}_text"><i class="fa-solid fa-language" aria-hidden="true"></i> {% trans "Translate" %}</button>
+                <span>
+                  <a class="article-translate-link"
+                     title="{% trans 'Translate' %}"
+                     {% if article.classname == "review" %}hx-post="{% url 'journal:review_translate' article.uuid %}"{% else %}hx-post="{% url 'journal:article_translate' article.uuid %}"{% endif %}
+                     hx-trigger="click once"
+                     hx-target="#{{ article.classname }}_{{ article.uuid }}_text"><i class="fa-solid fa-language"></i></a>
+                </span>
               {% endif %}
-              {% if request.user.identity == article.owner %}
-                <a class="article-edit-link" href="{{ article.edit_url }}">{% trans "Edit" %}</a>
+              {% if article.latest_post %}
+                {% include "action_like_post.html" with post=article.latest_post %}
+                {% include "action_boost_post.html" with post=article.latest_post %}
+                {% if request.user.identity == article.owner %}
+                  {% firstof article.edit_url as piece_edit_url %}
+                  {% firstof article.delete_url as piece_delete_url %}
+                {% endif %}
+                {% include "_post_action_menu.html" with post=article.latest_post piece=article piece_edit_url=piece_edit_url piece_delete_url=piece_delete_url %}
+              {% elif request.user.identity == article.owner %}
+                <span><a href="{{ article.edit_url }}"
+   title="{% trans 'Edit' %}"><i class="fa-solid fa-pen"></i></a></span>
               {% endif %}
-            </div>
+            </span>
           {% endif %}
         </div>
       </header>
@@ -90,14 +104,8 @@
             {% if article.latest_post %}
               {% include "action_like_post.html" with post=article.latest_post %}
               {% include "action_boost_post.html" with post=article.latest_post %}
-              <span><a hx-get="{% url 'journal:piece_replies' article.uuid %}"
-   hx-swap="outerHTML"
-   hx-trigger="click once"
-   hx-target="#replies_{{ article.latest_post.pk }}"><span class="metrics">{{ article.latest_post.stats.replies|default:'' }}</span> {% trans "Reply" %}</a></span>
-              <span><a hx-get="{% url 'journal:post_quote' article.latest_post.pk %}"
-   hx-swap="outerHTML"
-   hx-trigger="click once"
-   hx-target="#quote_{{ article.latest_post.pk }}"><span class="metrics">{{ quotes_count|default:'' }}</span> {% trans "Quote" %}</a></span>
+              {% include "action_reply_piece.html" with post=article.latest_post piece=article %}
+              {% include "action_quote_post.html" with post=article.latest_post %}
               {% if request.user.is_authenticated and request.user.identity == article.owner %}
                 {% firstof article.edit_url as piece_edit_url %}
                 {% firstof article.delete_url as piece_delete_url %}
@@ -105,7 +113,7 @@
               {% include "_post_action_menu.html" with post=article.latest_post piece=article piece_edit_url=piece_edit_url piece_delete_url=piece_delete_url %}
               {% include "action_open_post.html" with post=article.latest_post %}
             {% endif %}
-            {% if request.user.is_authenticated and request.user.identity == article.owner %}
+            {% if not article.latest_post and request.user.is_authenticated and request.user.identity == article.owner %}
               <span><a href="{{ article.delete_url }}">{% trans "Delete" %}</a></span>
             {% endif %}
           </span>
