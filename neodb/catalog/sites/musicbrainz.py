@@ -172,10 +172,11 @@ def _extract_track_info(release_data: Dict[str, Any]) -> Dict[str, Any]:
 def _extract_label_info(release_data: Dict[str, Any]) -> List[str]:
     """Extract label/company information from release data"""
     labels = []
-    if "label-info" in release_data:
-        for label_info in release_data["label-info"]:
-            if "label" in label_info and "name" in label_info["label"]:
-                labels.append(label_info["label"]["name"])
+    # a catalog number alone comes back as {"catalog-number": ..., "label": null}
+    for label_info in release_data.get("label-info") or []:
+        name = (label_info.get("label") or {}).get("name")
+        if name:
+            labels.append(name)
     return labels
 
 
@@ -590,7 +591,7 @@ class MusicBrainzRelease(AbstractSite):
                         if "artist-credit" in release:
                             artist_names = []
                             for credit in release["artist-credit"]:
-                                if isinstance(credit, dict) and "artist" in credit:
+                                if isinstance(credit, dict) and credit.get("artist"):
                                     artist_names.append(credit["artist"]["name"])
                                 elif isinstance(credit, str):
                                     artist_names.append(credit)
