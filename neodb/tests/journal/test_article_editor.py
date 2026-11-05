@@ -127,10 +127,14 @@ def test_sensitive_reader_keeps_cover_and_contents_inside_reveal(author):
     assert document.xpath('//a[contains(@href,"?tag=R%26D")]')
     assert not document.xpath("//aside")
     deletes = document.xpath(f'//a[@href="{article.delete_url}"]')
-    assert len(deletes) == 1
-    menu = deletes[0].xpath('ancestor::span[@class="post-action-menu"]')[0]
-    labels = [li.text_content().strip() for li in menu.xpath(".//li")]
-    assert labels == ["Pin", "Edit", "Delete"]
+    assert len(deletes) == 2
+    for link in deletes:
+        menu = link.xpath('ancestor::span[@class="post-action-menu"]')[0]
+        labels = [li.text_content().strip() for li in menu.xpath(".//li")]
+        assert labels == ["Pin", "Edit", "Delete"]
+    header = document.xpath('//span[contains(@class,"article-header-actions")]')[0]
+    assert not header.xpath('.//span[@class="follow-action"]')
+    assert header.xpath('.//a[@title="Like"]') and header.xpath('.//a[@title="Boost"]')
 
 
 def test_translation_replaces_the_text_but_not_the_cover(author, monkeypatch):
@@ -144,7 +148,7 @@ def test_translation_replaces_the_text_but_not_the_cover(author, monkeypatch):
         metadata={**article.metadata, "cover_url": "https://example.com/cover.jpg"}
     )
     document = html.fromstring(client.get(article.url).content)
-    button = document.find('.//button[@class="article-translate-link"]')
+    button = document.find('.//a[@class="article-translate-link"]')
     assert button is not None
     assert button.get("hx-target") == f"#article_{article.uuid}_text"
     text = document.get_element_by_id(f"article_{article.uuid}_text")
@@ -256,3 +260,26 @@ def test_translation_swaps_the_summary_and_keeps_the_sensitive_marker(
     )
     response = client.post(reverse("journal:article_translate", args=[plain.uuid]))
     assert f"article_{plain.uuid}_summary" not in response.content.decode()
+
+
+def test_reader_header_offers_follow_and_the_follow_swap_stays_compact(author):
+    user, client = author
+    article = Article.update_local_article(
+        owner=user.identity, title="Followable", body="Body", visibility=0
+    )
+    reader = User.register(email="reader@example.com", username="reader")
+    reader_client = Client()
+    reader_client.force_login(reader, backend="mastodon.auth.OAuth2Backend")
+    document = html.fromstring(reader_client.get(article.url).content)
+    header = document.xpath('//span[contains(@class,"article-header-actions")]')[0]
+    follow = header.xpath('.//span[@class="follow-action"]//a')[0]
+    assert follow.get("hx-post").endswith("?compact=1")
+    assert follow.get("hx-target") == "closest .follow-action"
+    assert not header.xpath(f'.//a[@href="{article.edit_url}"]')
+    assert header.xpath('.//span[@class="post-action-menu"]')
+    response = reader_client.post(follow.get("hx-post"))
+    fragment = html.fromstring(response.content)
+    assert fragment.xpath('//a[@title="Click to cancel follow request"]')
+    assert not fragment.xpath('//a[@title="Click to mute"]')
+    full = reader_client.post(reverse("users:unfollow", args=[user.identity.handle]))
+    assert html.fromstring(full.content).xpath('//a[@title="Click to mute"]')

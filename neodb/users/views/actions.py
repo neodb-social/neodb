@@ -61,16 +61,24 @@ def fetch_refresh(request):
             )
 
 
+def _render_relationship(request: AuthedHttpRequest, identity: APIdentity):
+    """The sidebar swaps the whole action row; a compact caller such as the
+    article header only holds the follow icon and asks for that alone."""
+    if request.GET.get("compact"):
+        return render(
+            request,
+            "users/_follow_action.html",
+            context={"identity": identity, "compact": True},
+        )
+    return render(request, "users/profile_actions.html", context={"identity": identity})
+
+
 @login_required
 @target_identity_required
 @require_http_methods(["POST"])
 def follow(request: AuthedHttpRequest, user_name):
     request.user.identity.follow(request.target_identity)
-    return render(
-        request,
-        "users/profile_actions.html",
-        context={"identity": request.target_identity},
-    )
+    return _render_relationship(request, request.target_identity)
 
 
 @login_required
@@ -78,11 +86,7 @@ def follow(request: AuthedHttpRequest, user_name):
 @require_http_methods(["POST"])
 def unfollow(request: AuthedHttpRequest, user_name):
     request.user.identity.unfollow(request.target_identity)
-    return render(
-        request,
-        "users/profile_actions.html",
-        context={"identity": request.target_identity},
-    )
+    return _render_relationship(request, request.target_identity)
 
 
 @login_required
@@ -90,11 +94,7 @@ def unfollow(request: AuthedHttpRequest, user_name):
 @require_http_methods(["POST"])
 def mute(request: AuthedHttpRequest, user_name):
     request.user.identity.mute(request.target_identity)
-    return render(
-        request,
-        "users/profile_actions.html",
-        context={"identity": request.target_identity},
-    )
+    return _render_relationship(request, request.target_identity)
 
 
 @login_required
@@ -102,11 +102,7 @@ def mute(request: AuthedHttpRequest, user_name):
 @require_http_methods(["POST"])
 def unmute(request: AuthedHttpRequest, user_name):
     request.user.identity.unmute(request.target_identity)
-    return render(
-        request,
-        "users/profile_actions.html",
-        context={"identity": request.target_identity},
-    )
+    return _render_relationship(request, request.target_identity)
 
 
 @login_required
@@ -114,11 +110,7 @@ def unmute(request: AuthedHttpRequest, user_name):
 @require_http_methods(["POST"])
 def block(request: AuthedHttpRequest, user_name):
     request.user.identity.block(request.target_identity)
-    return render(
-        request,
-        "users/profile_actions.html",
-        context={"identity": request.target_identity},
-    )
+    return _render_relationship(request, request.target_identity)
 
 
 @login_required
@@ -132,11 +124,7 @@ def unblock(request: AuthedHttpRequest, user_name):
     if target_user and not target_user.is_active:
         raise Http404(_("User no longer exists"))
     request.user.identity.unblock(target)
-    return render(
-        request,
-        "users/profile_actions.html",
-        context={"identity": target},
-    )
+    return _render_relationship(request, target)
 
 
 @login_required
@@ -144,11 +132,7 @@ def unblock(request: AuthedHttpRequest, user_name):
 @require_http_methods(["POST"])
 def accept_follow_request(request: AuthedHttpRequest, user_name):
     request.user.identity.accept_follow_request(request.target_identity)
-    return render(
-        request,
-        "users/profile_actions.html",
-        context={"identity": request.target_identity},
-    )
+    return _render_relationship(request, request.target_identity)
 
 
 @login_required
@@ -156,11 +140,7 @@ def accept_follow_request(request: AuthedHttpRequest, user_name):
 @require_http_methods(["POST"])
 def reject_follow_request(request: AuthedHttpRequest, user_name):
     request.user.identity.reject_follow_request(request.target_identity)
-    return render(
-        request,
-        "users/profile_actions.html",
-        context={"identity": request.target_identity},
-    )
+    return _render_relationship(request, request.target_identity)
 
 
 @login_required
