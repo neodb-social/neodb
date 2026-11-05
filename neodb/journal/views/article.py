@@ -212,7 +212,7 @@ def article_translate(request, article_uuid: str):
     text = translate(text, target_lang, lang)
     title = translate(article.title, target_lang, lang)
     html = f'<span hx-swap-oob="true" id="article_{article.uuid}_title">{escape(title)}</span>'
-    if article.summary:
+    if article.summary.strip():
         summary = article.with_sensitive_marker(
             translate(article.summary, target_lang, lang)
         )
