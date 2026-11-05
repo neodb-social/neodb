@@ -83,7 +83,8 @@ def prune_expired_sessions(batch_size: int = 10_000) -> int | None:
         )
         if not keys:
             return total
-        deleted, _ = model.objects.filter(pk__in=keys).delete()
+        # recheck expiry: a request may have renewed one of these since the select
+        deleted, _ = model.objects.filter(pk__in=keys, expire_date__lt=now).delete()
         total += deleted
 
 

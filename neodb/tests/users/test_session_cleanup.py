@@ -1,3 +1,4 @@
+import builtins
 from datetime import timedelta
 
 import pytest
@@ -6,6 +7,7 @@ from django.contrib.sessions.models import Session
 from django.utils import timezone
 
 from common.models import JobManager
+from users.jobs import cleanup
 from users.jobs.cleanup import SessionCleanup, prune_expired_sessions
 
 
@@ -27,6 +29,22 @@ class TestSessionCleanup:
         live = _session(timedelta(days=1))
         assert prune_expired_sessions(batch_size=2) == len(expired)
         assert list(Session.objects.values_list("pk", flat=True)) == [live]
+
+    def test_session_renewed_after_select_is_kept(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        renewed = _session(timedelta(hours=-1))
+
+        def select_then_renew(iterable):
+            keys = builtins.list(iterable)
+            Session.objects.filter(pk=renewed).update(
+                expire_date=timezone.now() + timedelta(days=1)
+            )
+            return keys
+
+        monkeypatch.setattr(cleanup, "list", select_then_renew, raising=False)
+        assert prune_expired_sessions() == 0
+        assert Session.objects.filter(pk=renewed).exists()
 
     def test_nothing_to_delete(self) -> None:
         _session(timedelta(days=1))
