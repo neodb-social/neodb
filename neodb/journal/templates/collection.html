@@ -131,24 +131,8 @@
         <section>
           <span class="action">
             {% if collection.latest_post %}
-              <span>
-                <a hx-get="{% url 'journal:piece_replies' collection.uuid %}"
-                   hx-swap="outerHTML"
-                   hx-trigger="click once"
-                   hx-target="#replies_{{ collection.latest_post.pk }}">
-                  <span class="metrics">{{ collection.latest_post.stats.replies | default:'' }}</span>
-                  {% trans "Reply" %}
-                </a>
-              </span>
-              <span>
-                <a hx-get="{% url 'journal:post_quote' collection.latest_post.pk %}"
-                   hx-swap="outerHTML"
-                   hx-trigger="click once"
-                   hx-target="#quote_{{ collection.latest_post.pk }}">
-                  <span class="metrics">{{ quotes_count|default:'' }}</span>
-                  {% trans "Quote" %}
-                </a>
-              </span>
+              {% include "action_reply_piece.html" with post=collection.latest_post piece=collection %}
+              {% include "action_quote_post.html" with post=collection.latest_post %}
             {% endif %}
             {% if request.user.is_authenticated and request.user.identity == collection.owner %}
               {% if collection.is_dynamic %}
