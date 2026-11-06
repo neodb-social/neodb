@@ -1,9 +1,8 @@
 import socket
 
 import pytest
-from django.core.cache import cache
+from django.core.cache import caches
 
-from mediaproxy import views
 from mediaproxy.views import public_http_url_verdict
 
 ACCEL = {"HTTP_X_TAKAHE_ACCEL": "1"}
@@ -70,13 +69,16 @@ def test_verdict_unresolved_host_is_none_and_memoized_briefly(monkeypatch):
 
 def test_verdict_ttls(monkeypatch):
     ttls: dict[str, tuple[object, int]] = {}
-    real_set = cache.set
+    backend = caches["default"]
+    real_set = backend.set
 
     def recording_set(key, value, timeout, *args, **kwargs):
         ttls[key] = (value, timeout)
         return real_set(key, value, timeout, *args, **kwargs)
 
-    monkeypatch.setattr(views.cache, "set", recording_set)
+    # patch the backend, not the views.cache proxy: since pytest 9.2 undoing a
+    # patch on the proxy deletes the attribute instead of restoring it
+    monkeypatch.setattr(backend, "set", recording_set)
     public_http_url_verdict("https://1.1.1.1/a.png")
     public_http_url_verdict("https://10.0.0.1/a.png")
 
