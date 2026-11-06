@@ -940,10 +940,10 @@ wheels = [
 
 [[package]]
 name = "django-typed-models"
-version = "0.15.2"
-source = { git = "https://github.com/alphatownsman/django-typed-models.git#e4a42fbf9972abeade556243c13f2c03c5dad367" }
+version = "0.17.0"
+source = { git = "https://github.com/alphatownsman/django-typed-models.git#bc2b79aa2db39557612907ade935728ca3ddc83e" }
 dependencies = [
-    { name = "django-stubs-ext" },
+    { name = "django" },
     { name = "typing-extensions" },
 ]
 
