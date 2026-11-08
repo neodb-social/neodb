@@ -26,6 +26,8 @@ class TimelineService:
             "subject_post",
             "subject_post__author",
             "subject_post__author__domain",
+            "subject_post__preview_card",
+            "subject_post__application",
             "subject_identity",
             "subject_identity__domain",
             "subject_post_interaction",

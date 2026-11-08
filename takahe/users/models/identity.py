@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import ssl
+from collections.abc import Iterable
 from functools import cached_property, partial
 from typing import Literal, Optional
 from urllib.parse import urlparse
@@ -1852,6 +1853,23 @@ class Identity(StatorModel):
     @cached_property
     def config_identity(self) -> Config.IdentityOptions:
         return Config.load_identity(self)
+
+    @classmethod
+    def prime_config_identity(cls, identities: Iterable["Identity | None"]) -> None:
+        """
+        Fills config_identity on every instance with one query, as rows from
+        select_related are separate instances even for the same identity.
+        """
+        pending = [
+            i
+            for i in identities
+            if i is not None and "config_identity" not in i.__dict__
+        ]
+        if not pending:
+            return
+        options = Config.load_identities(i.pk for i in pending)
+        for identity in pending:
+            identity.__dict__["config_identity"] = options[identity.pk]
 
 
 @receiver(post_save, sender=Identity)

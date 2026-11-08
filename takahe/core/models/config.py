@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from functools import partial
 from typing import ClassVar
 
@@ -93,8 +94,12 @@ class Config(models.Model):
         """
         Loads config options and returns an object with them
         """
+        return cls._build_options(options_class, cls.objects.filter(**filters))
+
+    @classmethod
+    def _build_options(cls, options_class, configs: Iterable["Config"]):
         values = {}
-        for config in cls.objects.filter(**filters):
+        for config in configs:
             values[config.key] = config.image.url if config.image else config.json
             if values[config.key] is None:
                 del values[config.key]
@@ -130,6 +135,23 @@ class Config(models.Model):
             cls.IdentityOptions,
             {"identity": identity, "user__isnull": True, "domain__isnull": True},
         )
+
+    @classmethod
+    def load_identities(
+        cls, identity_ids: Iterable[int]
+    ) -> dict[int, "Config.IdentityOptions"]:
+        """
+        Loads identity config options for many identities in one query
+        """
+        grouped: dict[int, list[Config]] = {pk: [] for pk in identity_ids}
+        for config in cls.objects.filter(
+            identity_id__in=list(grouped), user__isnull=True, domain__isnull=True
+        ):
+            grouped[config.identity_id].append(config)
+        return {
+            pk: cls._build_options(cls.IdentityOptions, configs)
+            for pk, configs in grouped.items()
+        }
 
     @classmethod
     def load_domain(cls, domain):
