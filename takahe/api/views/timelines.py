@@ -25,6 +25,8 @@ def home(
         "subject_post_interaction__post",
         "subject_post_interaction__post__author",
         "subject_post_interaction__post__author__domain",
+        "subject_post_interaction__post__preview_card",
+        "subject_post_interaction__post__application",
     )
     queryset = queryset.prefetch_related(
         "subject_post__mentions__domain",

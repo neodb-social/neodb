@@ -239,6 +239,7 @@ class Status(Schema):
             posts, identity
         )
         bookmarks = users_models.Bookmark.for_identity(identity, posts)
+        users_models.Identity.prime_config_identity(post.author for post in posts)
         return [
             cls.from_post(
                 post,
@@ -274,6 +275,19 @@ class Status(Schema):
         )
         bookmarks = users_models.Bookmark.for_identity(
             identity, events, "subject_post_id"
+        )
+        users_models.Identity.prime_config_identity(
+            author
+            for event in events
+            for author in (
+                event.subject_post.author if event.subject_post else None,
+                event.subject_post_interaction.identity
+                if event.subject_post_interaction
+                else None,
+                event.subject_post_interaction.post.author
+                if event.subject_post_interaction
+                else None,
+            )
         )
         return [
             cls.from_timeline_event(
