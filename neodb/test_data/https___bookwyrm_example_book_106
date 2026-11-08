@@ -1,0 +1,22 @@
+{
+ "@context": "https://www.w3.org/ns/activitystreams",
+ "id": "https://bookwyrm.example/book/106",
+ "type": "Work",
+ "title": "A Work",
+ "subtitle": "",
+ "description": "",
+ "languages": [],
+ "series": "",
+ "seriesNumber": "",
+ "subjects": [],
+ "authors": [],
+ "publishedDate": "",
+ "firstPublishedDate": "",
+ "work": "https://bookwyrm.example/book/1069",
+ "isbn10": "",
+ "isbn13": "",
+ "oclcNumber": "",
+ "pages": null,
+ "physicalFormat": "",
+ "publishers": []
+}

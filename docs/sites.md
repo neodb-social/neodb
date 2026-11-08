@@ -14,6 +14,7 @@ The following external sites are supported for importing catalog items.
 | BnF catalogue général | Book (Edition) | |
 | Board Game Geek | Game | |
 | BooksTW 博客來 | Book (Edition) | |
+| BookWyrm (any instance NeoDB federates with) | Book (Edition) | |
 | Discogs | Music (Album) | |
 | Douban 豆瓣 | Book (Edition, Work) · Music (Album) · Movie · TV (Show, Season, Episode) · Game · Performance (Performance, Production) | Yes — upload [Doubak](https://doubak.com) or [Doufen](https://doufen.org) archive |
 | Goodreads | Book (Edition, Work) | Yes — upload CSV export |

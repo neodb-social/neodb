@@ -1,0 +1,22 @@
+{
+ "@context": "https://www.w3.org/ns/activitystreams",
+ "id": "https://bookwyrm.example/book/999",
+ "type": "Edition",
+ "title": "Mismatch",
+ "subtitle": "",
+ "description": "",
+ "languages": [],
+ "series": "",
+ "seriesNumber": "",
+ "subjects": [],
+ "authors": [],
+ "publishedDate": "",
+ "firstPublishedDate": "",
+ "work": "https://bookwyrm.example/book/1059",
+ "isbn10": "",
+ "isbn13": "",
+ "oclcNumber": "",
+ "pages": null,
+ "physicalFormat": "",
+ "publishers": []
+}

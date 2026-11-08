@@ -49,6 +49,7 @@ class TestFediverseInstance:
         mock_json_data = {
             "id": "https://eggplant.place/movie/6AUSh8LPNYZZBTZcsDtxo4",
             "type": "Movie",
+            "category": "movie",
             "title": "Billy Lynn's Long Halftime Walk",
             "description": "Test description",
             "external_resources": [],
@@ -86,6 +87,7 @@ class TestFediverseInstance:
         mock_json_data = {
             "id": "https://different.place/movie/123",
             "type": "Movie",
+            "category": "movie",
             "title": "Test Movie",
         }
 
@@ -169,6 +171,7 @@ class TestFediverseInstance:
         mock_json_data = {
             "id": "https://external.place/movie/123",
             "type": "Movie",
+            "category": "movie",
             "external_resources": [
                 {"url": "https://neodb.social/movie/456"},
                 {"url": "https://external.com/movie/789"},
@@ -245,6 +248,7 @@ class TestFediverseInstance:
                 "takahe.utils.Takahe.get_neodb_peers",
                 return_value=["peer1.com", "peer2.com"],
             ),
+            patch("takahe.utils.Takahe.get_bookwyrm_peers", return_value=[]),
         ):
             mock_validator.return_value.return_value = None  # Valid URL
             mock_get_json.return_value = {
@@ -299,6 +303,7 @@ class TestFediverseInstance:
             ) as mock_get_json,
             patch("catalog.sites.fedi.settings.SITE_DOMAINS", ["local.test"]),
             patch("takahe.utils.Takahe.get_blocked_peers", return_value=[]),
+            patch("takahe.utils.Takahe.get_bookwyrm_peers", return_value=[]),
             patch("takahe.utils.Takahe.get_neodb_peers", return_value=["peer1.com"]),
         ):
             mock_validator.return_value.return_value = None  # Valid URL
@@ -325,6 +330,7 @@ class TestFediverseInstance:
             ) as mock_get_json,
             patch("catalog.sites.fedi.settings.SITE_DOMAINS", ["local.test"]),
             patch("takahe.utils.Takahe.get_blocked_peers", return_value=[]),
+            patch("takahe.utils.Takahe.get_bookwyrm_peers", return_value=[]),
             patch("takahe.utils.Takahe.get_neodb_peers", return_value=["peer1.com"]),
         ):
             mock_validator.return_value.return_value = None  # Valid URL
@@ -719,6 +725,7 @@ class TestFediverseInstance:
         mock_json_data = {
             "id": "https://external.place/movie/123",
             "type": "Movie",
+            "category": "movie",
             "external_resources": [{"url": "https://neodb.social/movie/456"}],
         }
 
@@ -746,6 +753,7 @@ class TestFediverseInstance:
         mock_json_data = {
             "id": "https://eggplant.place/movie/6AUSh8LPNYZZBTZcsDtxo4",
             "type": "Movie",
+            "category": "movie",
             "title": "Test Movie",
             "external_resources": [{"url": "https://another.fediverse/movie/123"}],
         }
@@ -783,6 +791,7 @@ class TestFediverseInstance:
         mock_json_data = {
             "id": "https://eggplant.place/movie/6AUSh8LPNYZZBTZcsDtxo4",
             "type": "Movie",
+            "category": "movie",
             "title": "Test Movie",
             "external_resources": [
                 {"url": "https://example.com/book/123"}  # Book resource for Movie

@@ -300,6 +300,52 @@ see them.
   The `post` link on `ShelfItem` entries is emitted but not yet consumed
   automatically on ingest.
 
+## BookWyrm reviews
+
+BookWyrm sends a review to non-BookWyrm servers as an `Article`. NeoDB keeps
+the post in the timeline and also maps it to a remote Review and Rating on
+the reviewed book:
+
+- `inReplyToBook` names the BookWyrm Edition. NeoDB imports it as a catalog
+  source (`IdType.BookWyrm`, the canonical `https://<host>/book/<n>` URL as id
+  value). The edition's ISBN, Open Library and Goodreads ids are lookup ids, so
+  the review lands on an existing item that shares one; only a book with no
+  match creates a new Edition from BookWyrm's metadata.
+- `rating`, 0.5 to 5 stars in halves, becomes a Rating of stars × 2. Its
+  remote id is the review id plus `#rating`.
+- `name` is the translated `Review of "<book>" (<n> stars): <headline>`.
+  The headline becomes the Review title; when it is missing BookWyrm renders
+  `None`, and NeoDB then uses the name without `: None`.
+- A review marked `sensitive` adds the Rating only, because a Review has no
+  content warning. The text stays on the post.
+- Edits and deletes take the same path as other remote pieces.
+
+Comments, quotations and rating-only statuses arrive as `Note` and are not
+mapped. Takahe hands every remote `Article` to NeoDB, which maps only those
+with `relatedWith` or `inReplyToBook`.
+
+A BookWyrm book URL is fetched only from a known BookWyrm server: a peer domain
+whose nodeinfo names `bookwyrm`, or the server of the review's own author,
+which covers an instance whose nodeinfo NeoDB has not fetched yet. Servers in
+secure mode get a GET signed by the instance actor when an anonymous GET is
+refused. `FediverseInstance` (the remote NeoDB fallback) refuses BookWyrm hosts
+and payloads without `category`, so a BookWyrm URL never becomes a `fedi`
+resource. Pasting a BookWyrm book URL into "add from URL" imports it the same
+way.
+
+Reviews received before this mapping existed are still stored as posts. To
+link them, run:
+
+```
+neodb-manage journal bookwyrm-reviews        # report only
+neodb-manage journal bookwyrm-reviews --fix  # register servers, link reviews
+```
+
+It first registers the BookWyrm servers listed on [FediDB](https://fedidb.org)
+as peer domains with a placeholder nodeinfo; takahe then fetches their real
+nodeinfo. `--delay` sets the seconds between reviews (default 1), because some
+instances refuse bursts.
+
 ## Relay
 
 NeoDB instances may share public ratings and reviews through a default relay,

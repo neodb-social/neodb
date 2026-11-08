@@ -10026,3 +10026,7 @@ msgstr ""
 msgctxt "posted in a community"
 msgid "in"
 msgstr ""
+
+#: catalog/models/common.py:47 catalog/models/common.py:126
+msgid "BookWyrm"
+msgstr ""

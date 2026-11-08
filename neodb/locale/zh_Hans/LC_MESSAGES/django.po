@@ -10131,3 +10131,7 @@ msgstr "线上"
 msgctxt "posted in a community"
 msgid "in"
 msgstr "发布于"
+
+#: catalog/models/common.py:47 catalog/models/common.py:126
+msgid "BookWyrm"
+msgstr "BookWyrm"

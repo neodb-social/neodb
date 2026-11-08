@@ -1,0 +1,22 @@
+{
+ "@context": "https://www.w3.org/ns/activitystreams",
+ "id": "https://bookwyrm.example/book/102",
+ "type": "Edition",
+ "title": "Only Ten",
+ "subtitle": "",
+ "description": "",
+ "languages": [],
+ "series": "",
+ "seriesNumber": "",
+ "subjects": [],
+ "authors": [],
+ "publishedDate": "1999",
+ "firstPublishedDate": "",
+ "work": "https://bookwyrm.example/book/1029",
+ "isbn10": "0-306-40615-2",
+ "isbn13": "",
+ "oclcNumber": "",
+ "pages": null,
+ "physicalFormat": "",
+ "publishers": []
+}
