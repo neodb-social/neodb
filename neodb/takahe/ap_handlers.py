@@ -1,5 +1,6 @@
 import logging
 import re
+from datetime import datetime
 from time import sleep
 from typing import Any
 from urllib.parse import urlparse
@@ -115,6 +116,19 @@ def is_bookwyrm_review(post: Any, obj: dict[str, Any]) -> bool:
     return post.type == "Article" and isinstance(obj.get("inReplyToBook"), str)
 
 
+def _delete_older(
+    cls: type[Rating] | type[Review],
+    owner: APIdentity,
+    item: Item,
+    remote_id: str,
+    updated: datetime,
+) -> None:
+    for p in cls.objects.filter(
+        owner=owner, item=item, remote_id=remote_id, edited_time__lt=updated
+    ):
+        p.delete()
+
+
 def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> str:
     """Map a remote BookWyrm review onto a Review and Rating of its book.
 
@@ -124,13 +138,22 @@ def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> s
     """
     review_id = obj.get("id")
     published = obj.get("published")
-    if not isinstance(review_id, str) or not isinstance(published, str):
+    updated = obj.get("updated") or published
+    if (
+        not isinstance(review_id, str)
+        or not isinstance(published, str)
+        or not isinstance(updated, str)
+    ):
+        return "invalid"
+    try:
+        datetime.fromisoformat(published)
+        updated_time = datetime.fromisoformat(updated)
+    except ValueError:
         return "invalid"
     item = resolve_book(obj["inReplyToBook"], urlparse(post.object_uri).hostname)
     if not item:
         logger.info(f"BookWyrm review {review_id}: book not resolved")
         return "no_book"
-    updated = obj.get("updated") or published
     rating = obj.get("rating")
     rated = isinstance(rating, (int, float)) and 0 < rating <= 5
     rating_id = review_id + "#rating"
@@ -149,11 +172,13 @@ def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> s
             post,
         )
     else:
-        # an edit removed the rating; another review's rating stays
-        for r in Rating.objects.filter(owner=owner, item=item, remote_id=rating_id):
-            r.delete()
+        # an edit removed the rating; another review's rating stays, and so
+        # does one newer than this version, which arrived out of order
+        _delete_older(Rating, owner, item, rating_id, updated_time)
     if obj.get("sensitive"):
-        # Review has no content warning, so a spoiler stays on the post
+        # Review has no content warning, so a spoiler stays on the post, and
+        # an edit that added the warning drops the copy made before it
+        _delete_older(Review, owner, item, review_id, updated_time)
         return "linked" if rated else "spoiler"
     name = obj.get("name")
     content = obj.get("content")

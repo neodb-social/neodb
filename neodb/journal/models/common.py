@@ -1241,6 +1241,21 @@ def prefetch_latest_posts(pieces: Sequence["Piece"]) -> None:
         piece.__dict__["latest_post"] = posts_by_id.get(post_id) if post_id else None
 
 
+def pick_post_piece(pieces: list["Piece"]) -> "Piece | None":
+    """The piece a post stands for when several are linked to it: a mark post
+    also carries the mark's comment and rating, a BookWyrm review post its
+    rating."""
+    from journal.models import Review, ShelfMember
+
+    if len(pieces) == 1:
+        return pieces[0]
+    for cls in (ShelfMember, Review):
+        piece = next((p for p in pieces if p.__class__ == cls), None)
+        if piece:
+            return piece
+    return None
+
+
 def prefetch_pieces_for_posts(
     posts: list["Post"], viewer: APIdentity | None = None
 ) -> None:
@@ -1267,16 +1282,13 @@ def prefetch_pieces_for_posts(
     pieces_by_id: dict[int, Piece] = {
         p.pk: p for p in Piece.objects.filter(pk__in=all_piece_ids)
     }
-    # Resolve piece per post (prefer ShelfMember when multiple)
+    # Resolve piece per post
     all_pieces: list[Piece | None] = []
     item_ids: set[int] = set()
     for post in posts:
         pids = piece_ids_by_post.get(post.pk, [])
         pcs = [pieces_by_id[pid] for pid in pids if pid in pieces_by_id]
-        if len(pcs) == 1:
-            piece = pcs[0]
-        else:
-            piece = next((p for p in pcs if p.__class__ == ShelfMember), None)
+        piece = pick_post_piece(pcs)
         post.__dict__["piece"] = piece
         all_pieces.append(piece)
         item_id = getattr(piece, "item_id", None) if piece else None

@@ -10,6 +10,7 @@ from django.utils import timezone
 from catalog.common.downloaders import set_mock_mode
 from catalog.models import Edition, ExternalResource, IdType
 from journal.models import Article, Rating, Review
+from journal.models.common import prefetch_pieces_for_posts
 from takahe.ap_handlers import (
     bookwyrm_review_title,
     link_bookwyrm_review,
@@ -169,6 +170,69 @@ class TestBookWyrmReview:
         assert Review.objects.get(item=self._item()).title == "Changed my mind"
         assert not Rating.objects.filter(item=self._item()).exists()
 
+    def test_post_stands_for_review(self):
+        obj = _review()
+        post = self._post(obj)
+        post_fetched(post.pk, obj)
+        review = Review.objects.get(remote_id=obj["id"])
+        assert Post.objects.get(pk=post.pk).piece == review
+        posts = [Post.objects.get(pk=post.pk)]
+        prefetch_pieces_for_posts(posts)
+        assert posts[0].piece == review
+
+    def test_edit_adding_spoiler_drops_review(self):
+        obj = _review()
+        post = self._post(obj)
+        post_fetched(post.pk, obj)
+        edited = _review(
+            sensitive=True,
+            updated=(timezone.now() + timedelta(minutes=1)).isoformat(),
+        )
+        post_fetched(post.pk, edited)
+        assert not Review.objects.filter(remote_id=obj["id"]).exists()
+        assert Rating.objects.get(remote_id=obj["id"] + "#rating").grade == 8
+        assert Post.objects.filter(pk=post.pk).exists()
+
+    def test_stale_version_keeps_rating(self):
+        obj = _review()
+        post = self._post(obj)
+        post_fetched(post.pk, obj)
+        # an older, unrated version delivered after the newer one
+        post_fetched(post.pk, _review(rating=None))
+        assert Rating.objects.get(remote_id=obj["id"] + "#rating").grade == 8
+
+    def test_invalid_timestamp(self):
+        obj = _review(published="yesterday")
+        post = self._post(obj)
+        owner = Takahe.get_or_create_remote_apidentity(self.identity)
+        assert link_bookwyrm_review(owner, post, obj) == "invalid"
+
+    def test_backfill_keeps_newest_review(self):
+        older = _review(1, name='Review of "X" (2 stars): Old take', rating=2)
+        newer = _review(2, name='Review of "X" (5 stars): New take', rating=5)
+        p1 = self._post(older)
+        p2 = self._post(newer)
+        Post.objects.filter(pk=p1.pk).update(
+            published=timezone.now() - timedelta(days=30)
+        )
+        Post.objects.filter(pk=p2.pk).update(
+            published=timezone.now() - timedelta(days=1)
+        )
+        with patch(
+            "catalog.sites.bookwyrm.BookWyrm.fetch_fedidb_hosts", return_value={}
+        ):
+            call_command(
+                "journal",
+                "bookwyrm-reviews",
+                "--fix",
+                "--delay",
+                "0",
+                stdout=StringIO(),
+            )
+        review = Review.objects.get(item=self._item())
+        assert review.title == "New take"
+        assert Rating.objects.get(item=self._item()).grade == 10
+
     def test_delete_removes_review_and_rating(self):
         obj = _review()
         post = self._post(obj)
@@ -208,7 +272,8 @@ class TestBookWyrmReview:
         ):
             out = StringIO()
             call_command("journal", "bookwyrm-reviews", stdout=out)
-            assert "already_linked 1, to_link 1" in out.getvalue()
+            summary = out.getvalue().splitlines()[-1]
+            assert "already_linked 1" in summary and "to_link 1" in summary
             assert "1 unknown would be registered" in out.getvalue()
             assert not Domain.objects.filter(pk="listed.example").exists()
             assert not Review.objects.filter(remote_id=pending["id"]).exists()
@@ -217,7 +282,8 @@ class TestBookWyrmReview:
             call_command(
                 "journal", "bookwyrm-reviews", "--fix", "--delay", "0", stdout=out
             )
-        assert "already_linked 1, linked 1" in out.getvalue()
+        summary = out.getvalue().splitlines()[-1]
+        assert "already_linked 1" in summary and "linked 1" in summary
         assert (Domain.objects.get(pk="listed.example").nodeinfo or {})["software"] == {
             "name": "bookwyrm",
             "version": "0.7.5",

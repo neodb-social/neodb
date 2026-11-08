@@ -238,7 +238,10 @@ class Command(SiteCommand):
                 type_data__object__has_key="inReplyToBook",
             )
             .select_related("author")
-            .order_by("pk")
+            # the first review of a book imported for an author wins: a piece's
+            # edited_time is when it was saved here, so every older version
+            # looks stale; start from the newest
+            .order_by("-published", "-pk")
         )
         # pieces and posts live in separate databases
         post_ids = list(posts.values_list("pk", flat=True))

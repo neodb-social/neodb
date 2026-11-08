@@ -1538,12 +1538,10 @@ class Post(models.Model):
 
     @cached_property
     def piece(self):
-        from journal.models import Piece, ShelfMember
+        from journal.models import Piece
+        from journal.models.common import pick_post_piece
 
-        pcs = Piece.objects.filter(posts=self.pk)
-        if len(pcs) == 1:
-            return pcs[0]
-        return next((p for p in pcs if p.__class__ == ShelfMember), None)
+        return pick_post_piece(list(Piece.objects.filter(posts=self.pk)))
 
     @cached_property
     def item(self):
