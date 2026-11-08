@@ -12,12 +12,18 @@
         {% if summary %}<p class="piece-summary">{{ summary|striptags }}</p>{% endif %}
       </header>
       <div class="markdown-content">{{ post.safe_content_local }}</div>
-      {% with tags=post.type_data.object.tag %}
+      {% with tags=post.article_hashtags %}
         {% if tags %}
           <footer>
             <p class="tag-list">
-              {% for t in tags %}
-                {% if t.type == "Hashtag" and t.name %}<span class="tag"><a>{{ t.name }}</a></span>{% endif %}
+              {% for name, href in tags %}
+                <span class="tag">
+                  {% if href %}
+                    <a href="{{ href }}" target="_blank" rel="nofollow noopener noreferrer">{{ name }}</a>
+                  {% else %}
+                    <span class="tag-chip">{{ name }}</span>
+                  {% endif %}
+                </span>
               {% endfor %}
             </p>
           </footer>

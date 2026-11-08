@@ -296,3 +296,39 @@ def test_converted_card_survives_new_and_edited_stator_handlers(
     assert post.preview_card_id == original_card_id
     assert post.preview_card.image_url.endswith("/icons/page.png")
     assert not type(post.preview_card).objects.filter(url=clean_url).exists()
+
+
+@pytest.mark.django_db
+def test_converted_card_falls_back_to_image(config_system, remote_identity):
+    data = converted_object(remote_identity, Post.Types.page)
+    del data["icon"]
+    data["image"] = {
+        "type": "Image",
+        "url": "https://images.remote.test/thumb.jpg",
+        "width": 1200,
+        "height": 630,
+    }
+
+    post = Post.by_ap(data=data, create=True)
+
+    assert post.preview_card.image_url == "https://images.remote.test/thumb.jpg"
+    assert post.preview_card.image_width == 1200
+    assert post.preview_card.image_height == 630
+
+
+@pytest.mark.django_db
+def test_converted_card_skips_unusable_icon(config_system, remote_identity):
+    data = converted_object(remote_identity, Post.Types.page)
+    data["icon"] = {"type": "Image", "url": "data:image/png;base64,AA", "width": 9}
+    data["image"] = "https://images.remote.test/thumb.jpg"
+
+    post = Post.by_ap(data=data, create=True)
+
+    assert post.preview_card.image_url == "https://images.remote.test/thumb.jpg"
+    assert post.preview_card.image_width is None
+
+    data["image"] = None
+    data["updated"] = "2026-07-19T12:00:00Z"
+    post = Post.by_ap(data=data, update=True)
+    post.preview_card.refresh_from_db()
+    assert post.preview_card.image_url == ""

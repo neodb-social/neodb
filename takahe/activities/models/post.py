@@ -2587,12 +2587,18 @@ class Post(StatorModel):
         if not card_url or not card_url.startswith(("https://", "http://")):
             return
 
-        icon_url, icon = get_ap_link(data.get("icon"))
-        if icon_url and (
-            not icon_url.startswith(("https://", "http://"))
-            or len(icon_url) > PreviewCard._meta.get_field("image_url").max_length
-        ):
-            icon_url = None
+        max_length = PreviewCard._meta.get_field("image_url").max_length
+        # Lemmy and PieFed send a link post's thumbnail as image, not icon
+        for key in ("icon", "image"):
+            icon_url, icon = get_ap_link(data.get(key))
+            if (
+                icon_url
+                and icon_url.startswith(("https://", "http://"))
+                and len(icon_url) <= max_length
+            ):
+                break
+        else:
+            icon_url, icon = None, {}
 
         parsed_url = urlparse(card_url)
         provider_url = (

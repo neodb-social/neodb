@@ -10004,3 +10004,25 @@ msgstr ""
 #: journal/templates/action_delete_post.html:7
 msgid "Are you sure to delete this note and its post?"
 msgstr ""
+
+#: social/templates/_converted_object_card.html:11
+msgid "Duration"
+msgstr ""
+
+#: social/templates/_converted_object_card.html:29
+msgid "Time"
+msgstr ""
+
+#: social/templates/_converted_object_card.html:44
+#: social/templates/_converted_object_card.html:52
+msgid "Location"
+msgstr ""
+
+#: social/templates/_converted_object_card.html:47
+msgid "Online"
+msgstr ""
+
+#: social/templates/_converted_object_card.html:66
+msgctxt "posted in a community"
+msgid "in"
+msgstr ""
