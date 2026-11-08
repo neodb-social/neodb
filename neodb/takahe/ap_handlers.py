@@ -1,6 +1,6 @@
 import logging
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from time import sleep
 from typing import Any
 from urllib.parse import urlparse
@@ -116,6 +116,30 @@ def is_bookwyrm_review(post: Any, obj: dict[str, Any]) -> bool:
     return post.type == "Article" and isinstance(obj.get("inReplyToBook"), str)
 
 
+# Rating and Review save edited_time as the local save time, so the remote
+# version a piece holds is kept in its metadata to order later versions.
+_REMOTE_UPDATED = "remote_updated"
+
+
+def _remote_updated(p: Rating | Review) -> datetime | None:
+    v = (p.metadata or {}).get(_REMOTE_UPDATED)
+    try:
+        return datetime.fromisoformat(v) if isinstance(v, str) else None
+    except ValueError:
+        return None
+
+
+def _note_remote_updated(
+    p: Rating | Review | None, remote_id: str, updated: datetime
+) -> None:
+    if p is None or p.remote_id != remote_id:
+        return
+    known = _remote_updated(p)
+    if known is None or updated > known:
+        p.metadata = {**(p.metadata or {}), _REMOTE_UPDATED: updated.isoformat()}
+        type(p).objects.filter(pk=p.pk).update(metadata=p.metadata)
+
+
 def _delete_older(
     cls: type[Rating] | type[Review],
     owner: APIdentity,
@@ -123,10 +147,10 @@ def _delete_older(
     remote_id: str,
     updated: datetime,
 ) -> None:
-    for p in cls.objects.filter(
-        owner=owner, item=item, remote_id=remote_id, edited_time__lt=updated
-    ):
-        p.delete()
+    for p in cls.objects.filter(owner=owner, item=item, remote_id=remote_id):
+        known = _remote_updated(p)
+        if known is None or updated > known:
+            p.delete()
 
 
 def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> str:
@@ -148,6 +172,8 @@ def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> s
     try:
         datetime.fromisoformat(published)
         updated_time = datetime.fromisoformat(updated)
+        if updated_time.tzinfo is None:
+            updated_time = updated_time.replace(tzinfo=UTC)
     except ValueError:
         return "invalid"
     item = resolve_book(obj["inReplyToBook"], urlparse(post.object_uri).hostname)
@@ -158,7 +184,7 @@ def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> s
     rated = isinstance(rating, (int, float)) and 0 < rating <= 5
     rating_id = review_id + "#rating"
     if rated:
-        Rating.update_by_ap_object(
+        rating_piece = Rating.update_by_ap_object(
             owner,
             item,
             {
@@ -171,6 +197,7 @@ def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> s
             },
             post,
         )
+        _note_remote_updated(rating_piece, rating_id, updated_time)
     else:
         # an edit removed the rating; another review's rating stays, and so
         # does one newer than this version, which arrived out of order
@@ -182,7 +209,7 @@ def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> s
         return "linked" if rated else "spoiler"
     name = obj.get("name")
     content = obj.get("content")
-    Review.update_by_ap_object(
+    review = Review.update_by_ap_object(
         owner,
         item,
         {
@@ -195,6 +222,7 @@ def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> s
         },
         post,
     )
+    _note_remote_updated(review, review_id, updated_time)
     return "linked"
 
 

@@ -193,6 +193,18 @@ class TestBookWyrmReview:
         assert Rating.objects.get(remote_id=obj["id"] + "#rating").grade == 8
         assert Post.objects.filter(pk=post.pk).exists()
 
+    def test_delayed_edits_apply_removals(self):
+        # both versions predate their delivery here
+        obj = _review()
+        post = self._post(obj)
+        post_fetched(post.pk, obj)
+        post_fetched(
+            post.pk,
+            _review(rating=None, sensitive=True, updated="2026-10-02T12:00:00+00:00"),
+        )
+        assert not Rating.objects.filter(remote_id=obj["id"] + "#rating").exists()
+        assert not Review.objects.filter(remote_id=obj["id"]).exists()
+
     def test_stale_version_keeps_rating(self):
         obj = _review()
         post = self._post(obj)
