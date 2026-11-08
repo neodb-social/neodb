@@ -2,6 +2,7 @@ import concurrent.futures
 import logging
 
 from django.conf import settings
+from django.core.files import File
 from django.db import models, transaction
 from django.template.defaultfilters import linebreaks_filter
 
@@ -13,7 +14,7 @@ from activities.models import (
     PostInteractionStates,
 )
 from core.exceptions import ActivityPubError
-from core.files import make_safe_client, resize_image
+from core.files import ImageFile, make_safe_client, resize_image
 from core.html import FediverseHtmlParser
 from stator.exceptions import TryAgainLater
 from users.models import (
@@ -351,23 +352,27 @@ class IdentityService:
             self.identity.summary = None
         self.identity.save()
 
-    def set_icon(self, file):
-        """
-        Sets the user's avatar image
-        """
-        self.identity.icon.save(
-            file.name,
-            resize_image(file, size=(400, 400)),
-        )
+    @staticmethod
+    def resize_icon(file: File) -> ImageFile:
+        return resize_image(file, size=(400, 400))
 
-    def set_image(self, file):
+    @staticmethod
+    def resize_header(file: File) -> ImageFile:
+        return resize_image(file, size=(1500, 500))
+
+    def set_icon(self, file: ImageFile) -> None:
         """
-        Sets the user's header image
+        Sets the user's avatar image from a resize_icon() result
         """
-        self.identity.image.save(
-            file.name,
-            resize_image(file, size=(1500, 500)),
-        )
+        # the stored extension sets the actor icon mediaType, so it must
+        # match the re-encoded content, never the client file name
+        self.identity.icon.save(file.name, file)
+
+    def set_image(self, file: ImageFile) -> None:
+        """
+        Sets the user's header image from a resize_header() result
+        """
+        self.identity.image.save(file.name, file)
 
     @classmethod
     def handle_internal_add_follow(cls, payload):
