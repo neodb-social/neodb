@@ -6,7 +6,7 @@ from core.models import Config
 from django.core.files import File
 from django.http import Http404, HttpRequest
 from api.views import get_object_or_404
-from hatchway import ApiResponse, QueryOrBody, api_view
+from hatchway import ApiError, ApiResponse, QueryOrBody, api_view
 from users.services import IdentityService
 from users.shortcuts import by_handle_or_404
 
@@ -37,6 +37,13 @@ def update_credentials(
 ) -> schemas.Account:
     identity = request.identity
     service = IdentityService(identity)
+    # set_summary() and the image saves write the row, so reject a bad
+    # image before any field changes
+    try:
+        avatar_file = service.resize_icon(avatar) if avatar else None
+        header_file = service.resize_header(header) if header else None
+    except OSError:
+        raise ApiError(400, "Unsupported image file")
     if display_name is not None:
         identity.name = display_name
     if note is not None:
@@ -68,10 +75,10 @@ def update_credentials(
                 if not attr_value:
                     continue
                 identity.metadata.append({"name": attr_name, "value": attr_value})
-    if avatar:
-        service.set_icon(avatar)
-    if header:
-        service.set_image(header)
+    if avatar_file:
+        service.set_icon(avatar_file)
+    if header_file:
+        service.set_image(header_file)
     identity.save()
     identity.transition_perform(IdentityStates.edited)
     return schemas.Account.from_identity(identity, source=True)

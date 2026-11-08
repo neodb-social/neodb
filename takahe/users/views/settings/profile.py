@@ -109,9 +109,9 @@ class ProfilePage(IdentityViewMixin, FormView):
         icon = form.cleaned_data.get("icon")
         image = form.cleaned_data.get("image")
         if isinstance(icon, File):
-            service.set_icon(icon)
+            service.set_icon(service.resize_icon(icon))
         if isinstance(image, File):
-            service.set_image(image)
+            service.set_image(service.resize_header(image))
         self.identity.metadata = form.cleaned_data.get("metadata")
 
         # Clear images if specified

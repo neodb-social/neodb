@@ -68,6 +68,7 @@ dependencies = [
     "django-htmx>=1.17.3",
     "markdown-it-py>=3.0.0",
     "pillow>=12.2.0",
+    "pillow-heif>=1.8.1",
     "pycountry>=23.12.11",
     "pydantic-settings>=2.2.1",
     "pydantic[email]>=2.7.1",

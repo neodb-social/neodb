@@ -1,6 +1,68 @@
+import io
 import json
 
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test.client import BOUNDARY, MULTIPART_CONTENT, encode_multipart
+from PIL import Image
+
+
+@pytest.fixture
+def _media_root(settings, tmp_path) -> None:
+    settings.MEDIA_ROOT = str(tmp_path)
+    settings.MEDIA_URL = "https://media.example.com/media/"
+
+
+def _image(format: str) -> bytes:
+    buffer = io.BytesIO()
+    Image.new("RGB", (64, 48), "red").save(buffer, format=format)
+    return buffer.getvalue()
+
+
+def _patch_multipart(client, data: dict):
+    return client.patch(
+        "/api/v1/accounts/update_credentials",
+        data=encode_multipart(BOUNDARY, data),
+        content_type=MULTIPART_CONTENT,
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures("_media_root")
+def test_update_credentials_accepts_heic(api_client, identity):
+    response = _patch_multipart(
+        api_client,
+        {
+            "avatar": SimpleUploadedFile("p.heic", _image("HEIF"), "image/heic"),
+            "header": SimpleUploadedFile("h.png", _image("PNG"), "image/png"),
+        },
+    )
+    assert response.status_code == 200, response.content
+    identity.refresh_from_db()
+    # stored names follow the re-encoded content, which sets the AP mediaType
+    assert identity.icon.name.endswith(".webp")
+    assert identity.image.name.endswith(".webp")
+    with Image.open(identity.icon) as img:
+        assert (img.format, img.size) == ("WEBP", (400, 400))
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures("_media_root")
+@pytest.mark.parametrize("field", ["avatar", "header"])
+def test_update_credentials_rejects_unsupported_image(api_client, identity, field):
+    name, summary = identity.name, identity.summary
+    response = _patch_multipart(
+        api_client,
+        {
+            "display_name": "Changed",
+            "note": "changed",
+            field: SimpleUploadedFile("p.jpg", b"not an image", "image/jpeg"),
+        },
+    )
+    assert response.status_code == 400, response.content
+    identity.refresh_from_db()
+    assert (identity.name, identity.summary) == (name, summary)
+    assert not identity.icon and not identity.image
 
 
 @pytest.mark.django_db

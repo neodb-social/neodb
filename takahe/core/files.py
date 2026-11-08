@@ -8,6 +8,10 @@ from django.conf import settings
 from django.core.files import File
 from django.core.files.base import ContentFile
 from PIL import Image, ImageOps
+from pillow_heif import register_heif_opener
+
+# iOS clients upload HEIC photos as is
+register_heif_opener()
 
 # ---------------------------------------------------------------------------
 # SSRF protection -- shared across all outbound HTTP paths
