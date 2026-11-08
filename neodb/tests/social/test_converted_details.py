@@ -117,6 +117,12 @@ def test_event_end_time_same_and_other_day():
     assert details["end_same_day"] is True
     obj["endTime"] = "2026-11-15T02:00:00-05:00"
     assert _details(obj)["end_same_day"] is False
+    # an end in another offset is shown in the start's offset
+    obj["endTime"] = "2026-11-14T23:00:00Z"
+    details = _details(obj)
+    assert details["end"].utcoffset() == timedelta(hours=-5)
+    assert details["end"].hour == 18
+    assert details["end_same_day"] is True
     # an end before the start is dropped
     obj["endTime"] = "2026-11-14T10:00:00-05:00"
     assert "end" not in _details(obj)
@@ -203,6 +209,8 @@ def test_peertube_video():
         ("P1D", None, None),
         ("59", None, None),
         ("PT1.5S", None, None),
+        ("PT1234567S", None, None),
+        ("PT" + "9" * 4301 + "S", None, None),
         (59, None, None),
         (None, None, None),
     ],
@@ -238,6 +246,21 @@ def test_page_list_attachment_skips_images_and_own_host():
     details = _details(obj)
     assert details["link_url"] == "https://example.org/article"
     assert details["community"] == "c/books@piefed.social"
+
+
+def test_page_malformed_urls_are_dropped():
+    obj = dict(
+        LEMMY_PAGE,
+        audience="https://[bad/community",
+        attachment=[
+            {"type": "Link", "href": "https://[bad/article"},
+            {"type": "Link", "href": "https://example.org/article"},
+        ],
+    )
+    assert _details(obj) == {
+        "link_url": "https://example.org/article",
+        "link_host": "example.org",
+    }
 
 
 def test_page_link_on_own_host_is_ignored():

@@ -48,7 +48,7 @@ def format_ld_date(value: datetime.datetime) -> str:
     return f"{value.strftime(DATETIME_MS_FORMAT)[:-4]}Z"
 
 
-_AS_DURATION_RE = re.compile(r"PT(?=\d)(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?")
+_AS_DURATION_RE = re.compile(r"PT(?=\d)(?:(\d{1,6})H)?(?:(\d{1,6})M)?(?:(\d{1,6})S)?")
 _AS_PUBLIC = "https://www.w3.org/ns/activitystreams#Public"
 
 
@@ -68,6 +68,15 @@ def _as_http_url(value: Any) -> str | None:
     if isinstance(value, str) and value.startswith(("http://", "https://")):
         return value
     return None
+
+
+def _url_host(url: str | None) -> str | None:
+    if not url:
+        return None
+    try:
+        return urlparse(url).hostname
+    except ValueError:
+        return None
 
 
 def _as_datetime(value: Any) -> datetime.datetime | None:
@@ -1857,6 +1866,12 @@ class Post(models.Model):
             if start:
                 details["start"] = start
                 if end and end > start:
+                    # one offset label covers the whole range
+                    try:
+                        end = end.astimezone(start.tzinfo)
+                    except OverflowError:
+                        end = None
+                if end and end > start:
                     details["end"] = end
                     details["end_same_day"] = end.date() == start.date()
             locations = obj.get("location")
@@ -1885,7 +1900,7 @@ class Post(models.Model):
             if channel_url and channel_url != _AS_PUBLIC:
                 details["channel_url"] = channel_url
         elif self.type == self.Types.page:
-            own_hosts = {urlparse(u).hostname for u in (self.url, self.object_uri) if u}
+            own_hosts = {_url_host(self.url), _url_host(self.object_uri)} - {None}
             attachments = obj.get("attachment")
             if not isinstance(attachments, list):
                 attachments = [attachments]
@@ -1893,17 +1908,17 @@ class Post(models.Model):
                 if not isinstance(a, dict) or a.get("type") != "Link":
                     continue
                 href = _as_http_url(a.get("href"))
-                host = urlparse(href).hostname if href else None
+                host = _url_host(href)
                 if host and host not in own_hosts:
                     details["link_url"] = href
                     details["link_host"] = host
                     break
             community_url = _as_http_url(obj.get("audience"))
-            if community_url and community_url != _AS_PUBLIC:
-                parsed = urlparse(community_url)
-                name = parsed.path.strip("/")
-                if name and parsed.hostname:
-                    details["community"] = f"{name}@{parsed.hostname}"
+            community_host = _url_host(community_url)
+            if community_url and community_host and community_url != _AS_PUBLIC:
+                name = urlparse(community_url).path.strip("/")
+                if name:
+                    details["community"] = f"{name}@{community_host}"
                     details["community_url"] = community_url
         return details or None
 
