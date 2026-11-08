@@ -10109,3 +10109,25 @@ msgstr "无法连接到 {domain}。"
 #: journal/templates/action_delete_post.html:7
 msgid "Are you sure to delete this note and its post?"
 msgstr "确认删除这则笔记及其帖文吗？"
+
+#: social/templates/_converted_object_card.html:11
+msgid "Duration"
+msgstr "时长"
+
+#: social/templates/_converted_object_card.html:29
+msgid "Time"
+msgstr "时间"
+
+#: social/templates/_converted_object_card.html:44
+#: social/templates/_converted_object_card.html:52
+msgid "Location"
+msgstr "地点"
+
+#: social/templates/_converted_object_card.html:47
+msgid "Online"
+msgstr "线上"
+
+#: social/templates/_converted_object_card.html:66
+msgctxt "posted in a community"
+msgid "in"
+msgstr "发布于"

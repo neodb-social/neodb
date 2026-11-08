@@ -1,19 +1,75 @@
 {% load i18n %}
-{% with card=post.converted_preview_card %}
+{% load tz %}
+{% with card=post.converted_preview_card details=post.converted_details %}
   {% if card %}
     <a class="converted-object-card converted-object-card-{{ card.card_type }}"
        href="{{ card.url }}"
        target="_blank"
        rel="nofollow noopener noreferrer">
       {% if card.image_url %}<img src="{{ card.image_proxy_url.relative }}" alt="" loading="lazy">{% endif %}
+      {% if card.image_url and details.duration_text %}
+        <span class="converted-object-duration" title="{% trans "Duration" %}">{{ details.duration_text }}</span>
+      {% endif %}
       <span class="converted-object-card-body">
         <strong>{{ card.title|default:post.type }}</strong>
         {% if card.description %}<span>{{ card.description }}</span>{% endif %}
         <small>
           {{ post.type }}
+          {% if details.duration_text and not card.image_url %}· {{ details.duration_text }}{% endif %}
           {% if card.provider_name %}· {{ card.provider_name }}{% endif %}
         </small>
       </span>
     </a>
+  {% endif %}
+  {% if details.start or details.venue or details.online_url or details.address or details.link_url or details.community %}
+    <div class="converted-object-details">
+      {% if details.start %}
+        {% localtime off %}
+          <div>
+            <i class="fa-regular fa-calendar" title="{% trans "Time" %}"></i>
+            <time datetime="{{ details.start|date:'c' }}">{{ details.start|date:"D" }}, {{ details.start|date:"DATE_FORMAT" }} · {{ details.start|time:"TIME_FORMAT" }}</time>
+            {% if details.end %}
+              –
+              <time datetime="{{ details.end|date:'c' }}">
+                {% if not details.end_same_day %}{{ details.end|date:"D" }}, {{ details.end|date:"DATE_FORMAT" }} ·{% endif %}
+                {{ details.end|time:"TIME_FORMAT" }}
+              </time>
+            {% endif %}
+            <small class="converted-object-tz">({{ details.start|date:"e" }})</small>
+          </div>
+        {% endlocaltime %}
+      {% endif %}
+      {% if details.online_url %}
+        <div>
+          <i class="fa-solid fa-video" title="{% trans "Location" %}"></i>
+          <a href="{{ details.online_url }}"
+             target="_blank"
+             rel="nofollow noopener noreferrer">{% trans "Online" %}</a>
+        </div>
+      {% endif %}
+      {% if details.venue or details.address %}
+        <div>
+          <i class="fa-solid fa-location-dot" title="{% trans "Location" %}"></i>
+          {% if details.venue %}<span>{{ details.venue }}</span>{% endif %}
+          {% if details.address %}<small>{{ details.address }}</small>{% endif %}
+        </div>
+      {% endif %}
+      {% if details.link_url or details.community %}
+        <div>
+          {% if details.link_url %}
+            <i class="fa-solid fa-link" title="{% trans "Link" %}"></i>
+            <a href="{{ details.link_url }}"
+               target="_blank"
+               rel="nofollow noopener noreferrer">{{ details.link_host }}</a>
+          {% endif %}
+          {% if details.community %}
+            {% translate "in" context "posted in a community" %}
+            <a href="{{ details.community_url }}"
+               target="_blank"
+               rel="nofollow noopener noreferrer">{{ details.community }}</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
   {% endif %}
 {% endwith %}

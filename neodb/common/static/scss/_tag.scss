@@ -5,7 +5,8 @@
   span {
     margin-right: 0.35rem;
 
-    a {
+    a,
+    .tag-chip {
       color: var(--dc-strong);
       background: var(--dc-border);
       padding: 0.15rem 0.6rem;

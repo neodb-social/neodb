@@ -40,11 +40,53 @@
 	// Page/converted objects: render the linked page card first, then user
 	// content, then image attachments. DOM order is unchanged; only visual
 	// order is reordered.
-	.pagecard-order > .converted-object-card {
+	.pagecard-order > .converted-object-card,
+	.pagecard-order > .converted-object-details {
 		order: -2;
 	}
 
+	.converted-object-details {
+		margin: 0.5em 0 0.75em;
+		font-size: var(--dc-fs-sm);
+
+		> div {
+			overflow-wrap: anywhere;
+		}
+
+		i {
+			width: 1.25em;
+			color: var(--pico-muted-color);
+			text-align: center;
+		}
+
+		small {
+			color: var(--pico-muted-color);
+		}
+
+		.converted-object-tz {
+			white-space: nowrap;
+		}
+	}
+
+	.converted-object-card + .converted-object-details {
+		margin-top: -0.4em;
+	}
+
+	.converted-object-duration {
+		position: absolute;
+		bottom: 0.4em;
+		left: 0.4em;
+		padding: 0 0.35em;
+		border-radius: var(--pico-border-radius);
+		background: rgba(0, 0, 0, 0.7);
+		color: #fff;
+		font-size: 0.75em;
+		font-variant-numeric: tabular-nums;
+		line-height: 1.5;
+	}
+
 	.converted-object-card {
+		position: relative;
 		display: flex;
 		gap: 0.75em;
 		margin: 0.75em 0;
