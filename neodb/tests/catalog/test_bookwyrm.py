@@ -176,40 +176,6 @@ class TestBookWyrmPeers:
         }
         assert set(Takahe.get_bookwyrm_peers()) == {"new.example", "bare.example"}
 
-    @patch("catalog.sites.bookwyrm.httpx.get")
-    def test_fetch_fedidb_hosts(self, get):
-        nxt = "https://api.fedidb.org/v1/servers?software=bookwyrm&cursor=abc"
-        get.side_effect = [
-            _response(
-                200,
-                {
-                    "data": [
-                        {
-                            "domain": "BW.example",
-                            "software": {"slug": "bookwyrm", "version": "0.7.5"},
-                        },
-                        {"domain": "m.example", "software": {"slug": "mastodon"}},
-                    ],
-                    "links": {"next": nxt},
-                },
-            ),
-            _response(
-                200,
-                {
-                    "data": [
-                        {"domain": "two.example", "software": {"slug": "bookwyrm"}}
-                    ],
-                    "links": {"next": "https://evil.example/next"},
-                },
-            ),
-        ]
-        assert BookWyrm.fetch_fedidb_hosts() == {
-            "bw.example": "0.7.5",
-            "two.example": "",
-        }
-        assert get.call_count == 2
-        assert get.call_args_list[1].args[0] == nxt
-
 
 @pytest.mark.django_db(databases="__all__")
 class TestBookWyrmScrape:

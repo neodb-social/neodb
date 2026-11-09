@@ -4,6 +4,7 @@ import mimetypes
 from typing import Any
 from urllib.parse import urlparse
 
+import httpx
 from django.conf import settings
 from django.core.files.storage import storages
 from django.db import transaction
@@ -25,6 +26,7 @@ from journal.models.attachment import (
     is_owned_upload,
     link_attachments_to_piece,
 )
+from takahe.utils import Takahe
 from users.models import APIdentity
 
 logger = logging.getLogger(__name__)
@@ -353,3 +355,52 @@ def backfill_attachments_20260818() -> int:
         f"{collections} collections, {notes} notes"
     )
     return total
+
+
+_FEDIDB_SERVERS_URL = "https://api.fedidb.org/v1/servers"
+
+
+def _fedidb_bookwyrm_hosts(limit: int = 40, max_pages: int = 20) -> dict[str, str]:
+    """BookWyrm servers FediDB lists, mapped to the version it reports."""
+    hosts: dict[str, str] = {}
+    url: str | None = f"{_FEDIDB_SERVERS_URL}?software=bookwyrm&limit={limit}"
+    for _ in range(max_pages):
+        if not url:
+            break
+        r = httpx.get(
+            url, headers={"User-Agent": settings.NEODB_USER_AGENT}, timeout=10
+        )
+        r.raise_for_status()
+        page = r.json()
+        for server in page.get("data") or []:
+            software = server.get("software") or {}
+            domain = server.get("domain")
+            version = software.get("version")
+            if isinstance(domain, str) and software.get("slug") == "bookwyrm":
+                domain = domain.strip().lower()
+                if domain:
+                    hosts[domain] = version.strip() if isinstance(version, str) else ""
+        nxt = (page.get("links") or {}).get("next")
+        url = (
+            nxt
+            if isinstance(nxt, str) and nxt.startswith(_FEDIDB_SERVERS_URL)
+            else None
+        )
+    return hosts
+
+
+def register_bookwyrm_peers_20261109() -> int:
+    """Seed takahe with the BookWyrm servers FediDB lists, so links to their
+    books are taken before takahe has seen each server itself.
+
+    A one-off: NeoDB does not depend on FediDB, and an unreachable FediDB
+    only logs a warning.
+    """
+    try:
+        hosts = _fedidb_bookwyrm_hosts()
+    except (httpx.HTTPError, ValueError) as e:
+        logger.warning(f"FediDB not reachable: {e}")
+        return 0
+    n = Takahe.register_bookwyrm_peers(hosts)
+    logger.info(f"{len(hosts)} BookWyrm servers on FediDB, {n} registered")
+    return n
