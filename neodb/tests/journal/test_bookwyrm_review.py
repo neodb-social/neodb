@@ -2,6 +2,7 @@ from datetime import timedelta
 from io import StringIO
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 from django.core.cache import cache
 from django.core.management import call_command
@@ -9,6 +10,10 @@ from django.utils import timezone
 
 from catalog.common.downloaders import set_mock_mode
 from catalog.models import Edition, ExternalResource, IdType
+from journal.jobs.migrations import (
+    _fedidb_bookwyrm_hosts,
+    register_bookwyrm_peers_20261109,
+)
 from journal.models import Article, Rating, Review
 from journal.models.common import prefetch_pieces_for_posts
 from takahe.ap_handlers import (
@@ -230,17 +235,9 @@ class TestBookWyrmReview:
         Post.objects.filter(pk=p2.pk).update(
             published=timezone.now() - timedelta(days=1)
         )
-        with patch(
-            "catalog.sites.bookwyrm.BookWyrm.fetch_fedidb_hosts", return_value={}
-        ):
-            call_command(
-                "journal",
-                "bookwyrm-reviews",
-                "--fix",
-                "--delay",
-                "0",
-                stdout=StringIO(),
-            )
+        call_command(
+            "journal", "bookwyrm-reviews", "--fix", "--delay", "0", stdout=StringIO()
+        )
         review = Review.objects.get(item=self._item())
         assert review.title == "New take"
         assert Rating.objects.get(item=self._item()).grade == 10
@@ -277,32 +274,79 @@ class TestBookWyrmReview:
         post_fetched(post.pk, done)
         pending = _review(2, rating=3, inReplyToBook=f"https://{HOST}/book/103")
         self._post(pending)
-        cache.delete(Takahe.BOOKWYRM_PEERS_CACHE_KEY)
-        fedidb = {"listed.example": "0.7.5"}
-        with patch(
-            "catalog.sites.bookwyrm.BookWyrm.fetch_fedidb_hosts", return_value=fedidb
-        ):
-            out = StringIO()
-            call_command("journal", "bookwyrm-reviews", stdout=out)
-            summary = out.getvalue().splitlines()[-1]
-            assert "already_linked 1" in summary and "to_link 1" in summary
-            assert "1 unknown would be registered" in out.getvalue()
-            assert not Domain.objects.filter(pk="listed.example").exists()
-            assert not Review.objects.filter(remote_id=pending["id"]).exists()
+        out = StringIO()
+        call_command("journal", "bookwyrm-reviews", stdout=out)
+        summary = out.getvalue().splitlines()[-1]
+        assert "already_linked 1" in summary and "to_link 1" in summary
+        assert not Review.objects.filter(remote_id=pending["id"]).exists()
 
-            out = StringIO()
-            call_command(
-                "journal", "bookwyrm-reviews", "--fix", "--delay", "0", stdout=out
-            )
+        out = StringIO()
+        call_command("journal", "bookwyrm-reviews", "--fix", "--delay", "0", stdout=out)
         summary = out.getvalue().splitlines()[-1]
         assert "already_linked 1" in summary and "linked 1" in summary
-        assert (Domain.objects.get(pk="listed.example").nodeinfo or {})["software"] == {
-            "name": "bookwyrm",
-            "version": "0.7.5",
-        }
         assert (
             Review.objects.get(remote_id=pending["id"]).item.display_title
             == "Small Press Zine No. 7"
         )
         assert Rating.objects.get(remote_id=pending["id"] + "#rating").grade == 6
+
+
+def _fedidb_page(data: list, nxt: str | None = None) -> MagicMock:
+    r = MagicMock()
+    r.json.return_value = {"data": data, "links": {"next": nxt}}
+    return r
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestRegisterFediDBPeers:
+    def test_fetch_hosts(self):
+        nxt = "https://api.fedidb.org/v1/servers?software=bookwyrm&cursor=abc"
+        pages = [
+            _fedidb_page(
+                [
+                    {
+                        "domain": "BW.example",
+                        "software": {"slug": "bookwyrm", "version": "0.7.5"},
+                    },
+                    {"domain": "m.example", "software": {"slug": "mastodon"}},
+                ],
+                nxt,
+            ),
+            _fedidb_page(
+                [{"domain": "two.example", "software": {"slug": "bookwyrm"}}],
+                "https://evil.example/next",
+            ),
+        ]
+        with patch("journal.jobs.migrations.httpx.get", side_effect=pages) as get:
+            assert _fedidb_bookwyrm_hosts() == {
+                "bw.example": "0.7.5",
+                "two.example": "",
+            }
+        assert get.call_count == 2
+        assert get.call_args_list[1].args[0] == nxt
+
+    def test_register(self):
         cache.delete(Takahe.BOOKWYRM_PEERS_CACHE_KEY)
+        page = _fedidb_page(
+            [
+                {
+                    "domain": "listed.example",
+                    "software": {"slug": "bookwyrm", "version": "0.7.5"},
+                }
+            ]
+        )
+        with patch("journal.jobs.migrations.httpx.get", return_value=page):
+            assert register_bookwyrm_peers_20261109() == 1
+        assert (Domain.objects.get(pk="listed.example").nodeinfo or {})["software"] == {
+            "name": "bookwyrm",
+            "version": "0.7.5",
+        }
+        assert "listed.example" in Takahe.get_bookwyrm_peers()
+        cache.delete(Takahe.BOOKWYRM_PEERS_CACHE_KEY)
+
+    def test_fedidb_unreachable(self):
+        with patch(
+            "journal.jobs.migrations.httpx.get",
+            side_effect=httpx.ConnectError("down"),
+        ):
+            assert register_bookwyrm_peers_20261109() == 0

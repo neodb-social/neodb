@@ -11,7 +11,6 @@ from django.utils import timezone
 from tqdm import tqdm
 
 from catalog.models import Item
-from catalog.sites.bookwyrm import BookWyrm
 from common.management.base import SiteCommand
 from journal.exporters.ndjson import NdjsonExporter
 from journal.models import (
@@ -41,8 +40,7 @@ _HELP_TEXT = """
 intergrity:     check and fix remaining journal for merged and deleted items
 article-posts:  check local Article posts whose content was saved escaped
                 (use --fix to rewrite it from the federated content)
-bookwyrm-reviews: link stored BookWyrm review posts to catalog items, after
-                registering BookWyrm servers listed on FediDB (use --fix
+bookwyrm-reviews: link stored BookWyrm review posts to catalog items (use --fix
                 to write; --delay sets seconds between reviews)
 purge:          delete invalid data (visibility=99)
 export:         run export task
@@ -210,27 +208,7 @@ class Command(SiteCommand):
         w = "" if self.fix else "would be "
         self.stdout.write(f"{checked} posts checked, {changed} {w}rewritten.")
 
-    def bookwyrm_hosts_warmup(self):
-        try:
-            listed = BookWyrm.fetch_fedidb_hosts()
-        except Exception as e:
-            self.stdout.write(self.style.WARNING(f"FediDB not reachable: {e}"))
-            return
-        known = set(Takahe.get_bookwyrm_peers())
-        new = {h: v for h, v in listed.items() if h not in known}
-        if self.fix and new:
-            n = Takahe.register_bookwyrm_peers(new)
-            self.stdout.write(
-                f"{len(listed)} BookWyrm servers on FediDB, {n} registered."
-            )
-        else:
-            w = "" if self.fix else "would be "
-            self.stdout.write(
-                f"{len(listed)} BookWyrm servers on FediDB, {len(new)} unknown {w}registered."
-            )
-
     def bookwyrm_reviews(self, delay: float):
-        self.bookwyrm_hosts_warmup()
         posts = (
             Post.objects.filter(
                 local=False,

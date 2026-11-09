@@ -344,13 +344,14 @@ link them, run:
 
 ```
 neodb-manage journal bookwyrm-reviews        # report only
-neodb-manage journal bookwyrm-reviews --fix  # register servers, link reviews
+neodb-manage journal bookwyrm-reviews --fix  # link reviews
 ```
 
-It first registers the BookWyrm servers listed on [FediDB](https://fedidb.org)
-as peer domains with a placeholder nodeinfo; takahe then fetches their real
-nodeinfo. `--delay` sets the seconds between reviews (default 1), because some
-instances refuse bursts.
+`--delay` sets the seconds between reviews (default 1), because some instances
+refuse bursts. Before that, a one-off job queued by the `journal` migration
+`0021_register_bookwyrm_peers` registers the BookWyrm servers listed on
+[FediDB](https://fedidb.org) as peer domains with a placeholder nodeinfo;
+takahe then fetches their real nodeinfo.
 
 ## Relay
 

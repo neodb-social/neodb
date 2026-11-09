@@ -28,8 +28,8 @@ def resolve_book(url: str, author_host: str | None = None) -> Edition | None:
     try:
         site.get_resource_ready()
         item = site.get_item()
-    except DownloadError, ParseError, ValueError:
-        logger.warning(f"BookWyrm book not fetched: {site.url}")
+    except (DownloadError, ParseError, ValueError) as e:
+        logger.warning(f"BookWyrm book not fetched: {site.url}: {e}")
         return None
     if (
         isinstance(item, Edition)

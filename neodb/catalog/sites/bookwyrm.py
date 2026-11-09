@@ -41,7 +41,6 @@ _OPENLIBRARY_EDITION = re.compile(r"^OL\d+M$")
 _OPENLIBRARY_WORK = re.compile(r"^OL\d+W$")
 _DIGITS = re.compile(r"^\d+$")
 _PUBLISHED_DATE = re.compile(r"^(\d{4})(?:-(\d{1,2}))?")
-FEDIDB_SERVERS_URL = "https://api.fedidb.org/v1/servers"
 
 
 def _str(v: Any) -> str:
@@ -289,29 +288,3 @@ class BookWyrm(AbstractSite):
                 }
             ]
         return d
-
-    @classmethod
-    def fetch_fedidb_hosts(cls, limit: int = 40, max_pages: int = 20) -> dict[str, str]:
-        """BookWyrm servers FediDB lists, mapped to the version it reports."""
-        hosts: dict[str, str] = {}
-        url: str | None = f"{FEDIDB_SERVERS_URL}?software=bookwyrm&limit={limit}"
-        for _ in range(max_pages):
-            if not url:
-                break
-            r = httpx.get(
-                url, headers={"User-Agent": settings.NEODB_USER_AGENT}, timeout=10
-            )
-            r.raise_for_status()
-            page = r.json()
-            for server in page.get("data") or []:
-                software = server.get("software") or {}
-                domain = _str(server.get("domain")).lower()
-                if domain and software.get("slug") == "bookwyrm":
-                    hosts[domain] = _str(software.get("version"))
-            nxt = (page.get("links") or {}).get("next")
-            url = (
-                nxt
-                if isinstance(nxt, str) and nxt.startswith(FEDIDB_SERVERS_URL)
-                else None
-            )
-        return hosts
