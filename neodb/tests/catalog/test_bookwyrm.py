@@ -12,7 +12,7 @@ from catalog.common.downloaders import (
     set_mock_mode,
 )
 from catalog.common.scrapers import ParseError
-from catalog.models import Edition, ExternalResource, IdType
+from catalog.models import Edition, ExternalResource, IdType, Work
 from catalog.sites.bookwyrm import BookWyrm
 from catalog.sites.fedi import FediverseInstance
 from takahe.models import Domain
@@ -37,16 +37,22 @@ def _response(status: int, data=None) -> MagicMock:
     return r
 
 
+@pytest.fixture(autouse=True)
+def public_hosts():
+    """The fixture host does not resolve; let the URL safety check pass."""
+    with patch("catalog.sites.bookwyrm.is_valid_url", return_value=True):
+        yield
+
+
 @pytest.fixture
 def mock_http():
     """Serve test_data files, and answer any signed fetch with a 404."""
-    for n in range(101, 107):
+    for n in range(101, 110):
         cache.delete(f"dl:https://{HOST}/book/{n}")
     cache.delete(f"dl:https://{HOST}/author/410578")
     set_mock_mode(True)
     with (
         patch("takahe.auth.sign_get", return_value=_response(404)) as signed,
-        patch("catalog.bookwyrm.is_valid_url", return_value=True),
     ):
         yield signed
     set_mock_mode(False)
@@ -252,10 +258,27 @@ class TestBookWyrmScrape:
             BookWyrm(f"https://{HOST}/book/105").scrape()
         assert resolve_book(f"https://{HOST}/book/105", HOST) is None
 
-    def test_work_rejected(self, mock_http):
-        with pytest.raises(ParseError):
-            BookWyrm(f"https://{HOST}/book/106").scrape()
+    def test_work(self, mock_http):
+        content = BookWyrm(f"https://{HOST}/book/106").scrape()
+        assert content.metadata["preferred_model"] == "Work"
+        assert content.metadata["author"] == ["Jennifer Mandula"]
+        assert content.lookup_ids == {IdType.OpenLibrary_Work: "OL45883W"}
+        assert "pub_year" not in content.metadata
+        # reviews attach to editions only
         assert resolve_book(f"https://{HOST}/book/106", HOST) is None
+        res = ExternalResource.objects.get(id_value=f"https://{HOST}/book/106")
+        assert isinstance(res.item, Work)
+
+    def test_edition_names_its_work(self, mock_http):
+        content = BookWyrm(BOOK).scrape()
+        assert content.metadata["required_resources"] == [
+            {
+                "model": "Work",
+                "id_type": IdType.BookWyrm,
+                "id_value": f"https://{HOST}/book/1019",
+                "title": "The Geomagician",
+            }
+        ]
 
     def test_signed_fetch_after_refusal(self):
         cache.delete(f"dl:{BOOK}")
@@ -266,7 +289,7 @@ class TestBookWyrmScrape:
             patch("takahe.auth.sign_get", return_value=_response(200, data)) as signed,
         ):
             downloader.return_value.download.side_effect = DownloadError(refused)
-            assert BookWyrm(BOOK).fetch_edition() == data
+            assert BookWyrm(BOOK).fetch_book() == data
         signed.assert_called_once_with(BOOK, timeout=BookWyrm.FETCH_TIMEOUT)
 
     def test_no_signed_fetch_after_timeout(self):
@@ -277,7 +300,7 @@ class TestBookWyrmScrape:
         ):
             downloader.return_value.download.side_effect = DownloadError(timeout)
             with pytest.raises(DownloadError):
-                BookWyrm(BOOK).fetch_edition()
+                BookWyrm(BOOK).fetch_book()
         signed.assert_not_called()
 
     def test_signed_fetch_refused_too(self):
@@ -288,7 +311,7 @@ class TestBookWyrmScrape:
         ):
             downloader.return_value.download.side_effect = DownloadError(refused)
             with pytest.raises(DownloadError):
-                BookWyrm(BOOK).fetch_edition()
+                BookWyrm(BOOK).fetch_book()
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -303,6 +326,13 @@ class TestResolveBook:
         res = ExternalResource.objects.get(id_type=IdType.BookWyrm, id_value=BOOK)
         assert res.item_id == existing.pk
         assert not ExternalResource.objects.filter(id_type=IdType.Fediverse).exists()
+
+    def test_edition_linked_to_work(self, mock_http):
+        edition = resolve_book(f"https://{HOST}/book/108", HOST)
+        assert isinstance(edition, Edition)
+        work = edition.get_work()
+        assert isinstance(work, Work)
+        assert work.display_title == "The Geomagician"
 
     def test_no_ids_creates_edition(self, mock_http):
         item = resolve_book(f"https://{HOST}/book/103", HOST)

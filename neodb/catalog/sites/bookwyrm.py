@@ -31,12 +31,14 @@ from catalog.models import Edition
 from catalog.models.utils import binding_to_format, detect_isbn_asin
 from common.models import detect_language
 from common.models.lang import ISO_639_1, normalize_language
+from common.validators import is_valid_url
 from journal.models.renderers import html_to_text
 
 logger = logging.getLogger(__name__)
 
 _BOOK_PATH = re.compile(r"^/book/(\d+)/?$")
 _OPENLIBRARY_EDITION = re.compile(r"^OL\d+M$")
+_OPENLIBRARY_WORK = re.compile(r"^OL\d+W$")
 _DIGITS = re.compile(r"^\d+$")
 _PUBLISHED_DATE = re.compile(r"^(\d{4})(?:-(\d{1,2}))?")
 FEDIDB_SERVERS_URL = "https://api.fedidb.org/v1/servers"
@@ -109,6 +111,8 @@ class BookWyrm(AbstractSite):
 
     @classmethod
     def fetch_json(cls, url: str) -> Any:
+        if not is_valid_url(url):
+            raise ValueError(f"BookWyrm: refusing unsafe url {url}")
         try:
             return (
                 CachedDownloader(
@@ -132,14 +136,13 @@ class BookWyrm(AbstractSite):
                 logger.warning(f"BookWyrm signed fetch failed: {url} {se}")
             raise e
 
-    def fetch_edition(self) -> dict[str, Any]:
+    def fetch_book(self) -> dict[str, Any]:
         if not self.url:
             raise ParseError(self, "url")
         data = self.fetch_json(self.url)
         if not isinstance(data, dict):
-            raise ParseError(self, "edition")
-        if data.get("type") != "Edition":
-            # a Work URL names no single edition to link a review to
+            raise ParseError(self, "book")
+        if data.get("type") not in ("Edition", "Work"):
             raise ParseError(self, f"type {data.get('type')}")
         if data.get("id") != self.url:
             raise ParseError(self, f"id mismatch {data.get('id')}")
@@ -171,6 +174,8 @@ class BookWyrm(AbstractSite):
         ol = _str(data.get("openlibraryKey")).upper()
         if _OPENLIBRARY_EDITION.match(ol):
             ids[IdType.OpenLibrary] = ol
+        elif data.get("type") == "Work" and _OPENLIBRARY_WORK.match(ol):
+            ids[IdType.OpenLibrary_Work] = ol
         gr = _str(data.get("goodreadsKey"))
         if _DIGITS.match(gr):
             ids[IdType.Goodreads] = gr
@@ -180,11 +185,10 @@ class BookWyrm(AbstractSite):
         return ids
 
     def scrape(self) -> ResourceContent:
-        data = self.fetch_edition()
+        data = self.fetch_book()
         title = _str(data.get("title"))
         if not title:
             raise ParseError(self, "title")
-        subtitle = _str(data.get("subtitle"))
         brief = html_to_text(_str(data.get("description"))).strip()
         languages = []
         for name in data.get("languages") or []:
@@ -192,6 +196,37 @@ class BookWyrm(AbstractSite):
             if code and code.split("-")[0] in ISO_639_1 and code not in languages:
                 languages.append(code)
         lang = languages[0] if languages else detect_language(f"{title} {brief}")
+        ids = self.lookup_ids_from(data)
+        cover = data.get("cover")
+        img_url = _str(cover.get("url") if isinstance(cover, dict) else cover)
+        raw_img, img_ext = (
+            BasicImageDownloader.download_image(img_url, None, headers={})
+            if img_url
+            else (None, None)
+        )
+        metadata: dict[str, Any] = {
+            "title": title,
+            "localized_title": [{"lang": lang, "text": title}],
+            "author": self.fetch_authors(data.get("authors")),
+            "language": languages,
+            "localized_description": ([{"lang": lang, "text": brief}] if brief else []),
+            "cover_image_url": img_url or None,
+        }
+        if data["type"] == "Work":
+            metadata["preferred_model"] = "Work"
+        else:
+            metadata.update(self.edition_metadata(data, lang, ids))
+        return ResourceContent(
+            metadata=metadata,
+            cover_image=raw_img,
+            cover_image_extention=img_ext,
+            lookup_ids=ids,
+        )
+
+    def edition_metadata(
+        self, data: dict[str, Any], lang: str, ids: dict[IdType, str]
+    ) -> dict[str, Any]:
+        subtitle = _str(data.get("subtitle"))
         pub_year = pub_month = None
         m = _PUBLISHED_DATE.match(_str(data.get("publishedDate")))
         if m:
@@ -202,23 +237,11 @@ class BookWyrm(AbstractSite):
         publishers = [_str(p) for p in data.get("publishers") or [] if _str(p)]
         physical_format = _str(data.get("physicalFormat"))
         series = _str(data.get("series"))
-        ids = self.lookup_ids_from(data)
-        cover = data.get("cover")
-        img_url = _str(cover.get("url") if isinstance(cover, dict) else cover)
-        raw_img, img_ext = (
-            BasicImageDownloader.download_image(img_url, None, headers={})
-            if img_url
-            else (None, None)
-        )
-        metadata = {
-            "title": title,
-            "localized_title": [{"lang": lang, "text": title}],
+        d: dict[str, Any] = {
             "subtitle": subtitle or None,
             "localized_subtitle": (
                 [{"lang": lang, "text": subtitle}] if subtitle else []
             ),
-            "author": self.fetch_authors(data.get("authors")),
-            "language": languages,
             "publisher": publishers[:1],
             "pub_year": pub_year,
             "pub_month": pub_month,
@@ -229,15 +252,21 @@ class BookWyrm(AbstractSite):
             "pages": pages if isinstance(pages, int) and pages > 0 else None,
             "series": series or None,
             "isbn": ids.get(IdType.ISBN),
-            "localized_description": ([{"lang": lang, "text": brief}] if brief else []),
-            "cover_image_url": img_url or None,
         }
-        return ResourceContent(
-            metadata=metadata,
-            cover_image=raw_img,
-            cover_image_extention=img_ext,
-            lookup_ids=ids,
-        )
+        work = _str(data.get("work"))
+        if self.book_host(work) and self.book_host(work) == self.book_host(
+            self.url or ""
+        ):
+            # by id, not url: the url route needs the host on the peer list
+            d["required_resources"] = [
+                {
+                    "model": "Work",
+                    "id_type": IdType.BookWyrm,
+                    "id_value": self.url_to_id(work),
+                    "title": _str(data.get("title")),
+                }
+            ]
+        return d
 
     @classmethod
     def fetch_fedidb_hosts(cls, limit: int = 40, max_pages: int = 20) -> dict[str, str]:

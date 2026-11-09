@@ -5,7 +5,6 @@ from catalog.common.downloaders import DownloadError
 from catalog.common.scrapers import ParseError
 from catalog.models import Edition
 from catalog.sites.bookwyrm import BookWyrm
-from common.validators import is_valid_url
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +20,6 @@ def resolve_book(url: str, author_host: str | None = None) -> Edition | None:
     if not host or BookWyrm.host_refused(host):
         return None
     if host == author_host:
-        if not is_valid_url(url):
-            return None
         site = BookWyrm(url)
     else:
         site = SiteManager.get_site_by_url(url, detect_redirection=False)

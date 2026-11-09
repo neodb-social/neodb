@@ -333,6 +333,12 @@ and payloads without `category`, so a BookWyrm URL never becomes a `fedi`
 resource. Pasting a BookWyrm book URL into "add from URL" imports it the same
 way.
 
+BookWyrm serves editions and works under the same `/book/<n>` path, so one
+site handles both and picks the model from the fetched `type`. A Work becomes
+a catalog Work, with its Open Library work id as lookup id. An Edition names
+its Work as parent, so importing an edition also imports and links the work.
+Reviews attach to editions only.
+
 Reviews received before this mapping existed are still stored as posts. To
 link them, run:
 

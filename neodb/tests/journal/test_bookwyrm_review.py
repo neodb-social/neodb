@@ -87,7 +87,7 @@ class TestBookWyrmReview:
         signed = MagicMock(status_code=404)
         with (
             patch("takahe.auth.sign_get", return_value=signed),
-            patch("catalog.bookwyrm.is_valid_url", return_value=True),
+            patch("catalog.sites.bookwyrm.is_valid_url", return_value=True),
         ):
             yield
         set_mock_mode(False)
