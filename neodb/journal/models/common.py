@@ -617,6 +617,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 p.crosspost_when_save = crosspost
             p.previous_visibility = visibility
             p.save(link_post_id=post.id)
+        if not local:
+            keep_remote_edited_time(p, d["edited_time"])
         # subclass may have to add additional code to update type_data in local post
         return p
 
@@ -1239,6 +1241,17 @@ def prefetch_latest_posts(pieces: Sequence["Piece"]) -> None:
         post_id = piece_to_latest.get(piece.pk)
         piece.__dict__["latest_post_id"] = post_id
         piece.__dict__["latest_post"] = posts_by_id.get(post_id) if post_id else None
+
+
+def keep_remote_edited_time(piece: "Piece", edited: datetime) -> None:
+    """Store the version time of a remote piece, which auto_now replaced on save.
+
+    update_by_ap_object takes an incoming version only if it is newer than
+    edited_time, so that must hold the remote time, not when it was saved
+    here, as List.apply_ap_envelope also does.
+    """
+    type(piece).objects.filter(pk=piece.pk).update(edited_time=edited)
+    setattr(piece, "edited_time", edited)
 
 
 def prefetch_pieces_for_posts(

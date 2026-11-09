@@ -25,7 +25,7 @@ from .atproto import (
     build_subject,
     format_datetime,
 )
-from .common import q_item_in_category
+from .common import keep_remote_edited_time, q_item_in_category
 from .itemlist import List, ListMember
 from .renderers import render_post_with_macro, render_rating, render_spoiler_text
 
@@ -423,6 +423,7 @@ class ShelfMember(ListMember):
         }
         p, _ = cls.objects.update_or_create(owner=owner, item=item, defaults=d)
         p.link_post_id(post.id)
+        keep_remote_edited_time(p, d["edited_time"])
         return p
 
     def get_crosspost_postfix(self):

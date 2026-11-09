@@ -1765,6 +1765,19 @@ class Post(StatorModel):
                 raise ActorMismatchError(
                     f"Object attributedTo does not name the author of post {post.pk}"
                 )
+            # a delayed older version must not rewrite a newer one; an equal
+            # one passes, as Mastodon resends poll tallies without `updated`
+            try:
+                incoming = parse_ld_date(data.get("updated")) or parse_ld_date(
+                    data.get("published")
+                )
+            except TypeError, ValueError:
+                incoming = None
+            if incoming and incoming.tzinfo is None:
+                incoming = incoming.replace(tzinfo=datetime.UTC)
+            stored = post.edited or post.published
+            if incoming and stored and incoming < stored:
+                return post
         if update or created:
             post.type = data["type"]
             url, _ = get_ap_link(data.get("url"), preferred_media_type="text/html")
