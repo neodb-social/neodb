@@ -132,6 +132,9 @@ class Rating(Content):
         }
         p = cls.objects.update_or_create(owner=owner, item=item, defaults=d)[0]
         p.link_post_id(post.id)
+        # edited_time is auto_now; keep the remote version time
+        cls.objects.filter(pk=p.pk).update(edited_time=d["edited_time"])
+        p.edited_time = d["edited_time"]
         return p
 
     @classmethod

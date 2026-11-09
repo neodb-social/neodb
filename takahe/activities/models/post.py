@@ -1232,7 +1232,8 @@ class Post(StatorModel):
         try:
             json_data = json_from_response(response)
             ap_data = canonicalise(json_data, include_security=True, outbound=False)
-            post = Post.by_ap(ap_data, create=False, update=True)
+            with transaction.atomic():
+                post = Post.by_ap(ap_data, create=False, update=True)
         except (
             json.JSONDecodeError,
             ValueError,
@@ -1754,6 +1755,13 @@ class Post(StatorModel):
             else:
                 raise cls.DoesNotExist(f"No post with ID {data['id']}", data)
         if update and not created:
+            if transaction.get_connection().in_atomic_block:
+                # handle one update of a post at a time, as Mastodon does
+                post = (
+                    cls.objects.select_for_update(of=("self",))
+                    .select_related("author__domain")
+                    .get(pk=post.pk)
+                )
             # Only the stored author may change a post, and local posts
             # never take their content from inbound documents.
             if post.local:
@@ -1765,6 +1773,19 @@ class Post(StatorModel):
                 raise ActorMismatchError(
                     f"Object attributedTo does not name the author of post {post.pk}"
                 )
+            # a delayed older version must not rewrite a newer one; an equal
+            # one passes, as Mastodon resends poll tallies without `updated`
+            try:
+                incoming = parse_ld_date(data.get("updated")) or parse_ld_date(
+                    data.get("published")
+                )
+            except TypeError, ValueError:
+                incoming = None
+            if incoming and incoming.tzinfo is None:
+                incoming = incoming.replace(tzinfo=datetime.UTC)
+            stored = post.edited or post.published
+            if incoming and stored and incoming < stored:
+                return post
         if update or created:
             post.type = data["type"]
             url, _ = get_ap_link(data.get("url"), preferred_media_type="text/html")
@@ -2135,7 +2156,8 @@ class Post(StatorModel):
         if ap_data.get("id") != object_uri:
             return post
         try:
-            return cls.by_ap(ap_data, create=False, update=True)
+            with transaction.atomic():
+                return cls.by_ap(ap_data, create=False, update=True)
         except cls.DoesNotExist, ActivityPubFormatError, ActorMismatchError:
             return post
 

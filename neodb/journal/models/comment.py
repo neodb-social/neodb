@@ -72,7 +72,11 @@ class Comment(Content):
         }
         if obj.get("relatedWithItemPosition"):
             d["metadata"] = {"position": obj["relatedWithItemPosition"]}
-        return cls.apply_ap_update(p, owner, item, d, post.id)
+        p = cls.apply_ap_update(p, owner, item, d, post.id)
+        # edited_time is auto_now; keep the remote version time
+        cls.objects.filter(pk=p.pk).update(edited_time=d["edited_time"])
+        p.edited_time = d["edited_time"]
+        return p
 
     @property
     def html(self):

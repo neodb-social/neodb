@@ -617,6 +617,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
                 p.crosspost_when_save = crosspost
             p.previous_visibility = visibility
             p.save(link_post_id=post.id)
+        if not local:
+            # edited_time is auto_now; keep the remote version time
+            cls.objects.filter(pk=p.pk).update(edited_time=d["edited_time"])
+            p.edited_time = d["edited_time"]
         # subclass may have to add additional code to update type_data in local post
         return p
 

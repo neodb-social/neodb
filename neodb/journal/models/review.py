@@ -153,7 +153,11 @@ class Review(Content):
             "created_time": datetime.fromisoformat(obj["published"]),
             "edited_time": datetime.fromisoformat(updated),
         }
-        return cls.apply_ap_update(p, owner, item, d, post.id)
+        p = cls.apply_ap_update(p, owner, item, d, post.id)
+        # edited_time is auto_now; keep the remote version time
+        cls.objects.filter(pk=p.pk).update(edited_time=d["edited_time"])
+        p.edited_time = d["edited_time"]
+        return p
 
     def get_crosspost_postfix(self):
         tags = render_post_with_macro(
