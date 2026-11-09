@@ -1232,7 +1232,8 @@ class Post(StatorModel):
         try:
             json_data = json_from_response(response)
             ap_data = canonicalise(json_data, include_security=True, outbound=False)
-            post = Post.by_ap(ap_data, create=False, update=True)
+            with transaction.atomic():
+                post = Post.by_ap(ap_data, create=False, update=True)
         except (
             json.JSONDecodeError,
             ValueError,
@@ -1754,6 +1755,13 @@ class Post(StatorModel):
             else:
                 raise cls.DoesNotExist(f"No post with ID {data['id']}", data)
         if update and not created:
+            if transaction.get_connection().in_atomic_block:
+                # handle one update of a post at a time, as Mastodon does
+                post = (
+                    cls.objects.select_for_update(of=("self",))
+                    .select_related("author__domain")
+                    .get(pk=post.pk)
+                )
             # Only the stored author may change a post, and local posts
             # never take their content from inbound documents.
             if post.local:
@@ -2148,7 +2156,8 @@ class Post(StatorModel):
         if ap_data.get("id") != object_uri:
             return post
         try:
-            return cls.by_ap(ap_data, create=False, update=True)
+            with transaction.atomic():
+                return cls.by_ap(ap_data, create=False, update=True)
         except cls.DoesNotExist, ActivityPubFormatError, ActorMismatchError:
             return post
 

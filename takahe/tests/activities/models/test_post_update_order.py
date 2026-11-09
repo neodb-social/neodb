@@ -1,6 +1,8 @@
 """An inbound Update older than the stored version does not rewrite the post."""
 
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from activities.models import Post
 from users.models import Identity
@@ -64,6 +66,22 @@ def test_equal_and_newer_updates_apply(remote_identity: Identity, monkeypatch):
     post.refresh_from_db()
     assert "newer" in post.content
     assert len(enqueued) == 3
+
+
+@pytest.mark.django_db
+def test_update_locks_the_post(remote_identity: Identity, monkeypatch):
+    _capture_neodb_jobs(monkeypatch)
+    Post.by_ap(
+        _note(remote_identity, "first", updated="2026-01-02T00:00:00Z"), create=True
+    )
+
+    with CaptureQueriesContext(connection) as ctx:
+        Post.by_ap(
+            _note(remote_identity, "second", updated="2026-01-03T00:00:00Z"),
+            update=True,
+        )
+
+    assert any("FOR UPDATE" in q["sql"] for q in ctx.captured_queries)
 
 
 @pytest.mark.django_db
