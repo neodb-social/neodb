@@ -33,6 +33,7 @@ from deepmerge import always_merger
 from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVector
+from django.core.exceptions import SuspiciousOperation
 from django.db import models, transaction
 from django.db.models.functions import RowNumber
 from django.db.models.signals import post_delete, post_save
@@ -136,7 +137,13 @@ def _as_first(value: Any) -> Any:
 
 def _as_text(value: Any) -> str:
     value = _as_first(value)
-    return strip_tags(value).strip() if isinstance(value, str) else ""
+    if not isinstance(value, str):
+        return ""
+    try:
+        return strip_tags(value).strip()
+    except SuspiciousOperation:
+        # strip_tags gives up on deeply nested markup
+        return ""
 
 
 def _as_http_url(value: Any) -> str | None:

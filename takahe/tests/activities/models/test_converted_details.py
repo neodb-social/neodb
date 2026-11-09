@@ -125,6 +125,9 @@ def test_event_malformed_values():
     obj: dict[str, Any] = dict(GANCIO_EVENT, startTime="next saturday", endTime=42)
     obj["location"] = {"type": "Place", "name": "", "address": None}
     assert _post(obj).converted_details is None
+    # strip_tags raises SuspiciousOperation on this
+    bad = dict(obj, location={"type": "Place", "name": "<a" * 1000, "address": "Hall"})
+    assert _post(bad).converted_details == {"address": "Hall"}
     obj["startTime"] = "2026-11-14T16:00:00"
     assert _post(obj).converted_details == {
         "start": datetime(2026, 11, 14, 16, 0, tzinfo=UTC)
