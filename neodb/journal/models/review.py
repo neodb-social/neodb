@@ -29,7 +29,7 @@ from .atproto import (
     format_datetime,
 )
 from .attachment import link_attachments_to_piece
-from .common import Content, keep_remote_edited_time
+from .common import Content
 from .rating import Rating
 from .renderers import (
     cached_body_property,
@@ -154,7 +154,9 @@ class Review(Content):
             "edited_time": datetime.fromisoformat(updated),
         }
         p = cls.apply_ap_update(p, owner, item, d, post.id)
-        keep_remote_edited_time(p, d["edited_time"])
+        # edited_time is auto_now; keep the remote version time
+        cls.objects.filter(pk=p.pk).update(edited_time=d["edited_time"])
+        p.edited_time = d["edited_time"]
         return p
 
     def get_crosspost_postfix(self):

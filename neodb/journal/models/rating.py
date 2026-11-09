@@ -11,7 +11,7 @@ from catalog.models.tv import TVSeason
 from takahe.utils import Takahe
 from users.models import APIdentity
 
-from .common import Content, keep_remote_edited_time
+from .common import Content
 
 MIN_RATING_COUNT = 5
 RATING_INCLUDES_CHILD_ITEMS = [TVShow, Performance]
@@ -132,7 +132,9 @@ class Rating(Content):
         }
         p = cls.objects.update_or_create(owner=owner, item=item, defaults=d)[0]
         p.link_post_id(post.id)
-        keep_remote_edited_time(p, d["edited_time"])
+        # edited_time is auto_now; keep the remote version time
+        cls.objects.filter(pk=p.pk).update(edited_time=d["edited_time"])
+        p.edited_time = d["edited_time"]
         return p
 
     @classmethod

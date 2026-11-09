@@ -12,7 +12,7 @@ from catalog.models import Item
 from takahe.utils import Takahe
 from users.models import APIdentity
 
-from .common import Content, keep_remote_edited_time
+from .common import Content
 from .rating import Rating
 from .renderers import render_post_with_macro, render_spoiler_text, render_text
 from .shelf import ShelfManager, ShelfType
@@ -73,7 +73,9 @@ class Comment(Content):
         if obj.get("relatedWithItemPosition"):
             d["metadata"] = {"position": obj["relatedWithItemPosition"]}
         p = cls.apply_ap_update(p, owner, item, d, post.id)
-        keep_remote_edited_time(p, d["edited_time"])
+        # edited_time is auto_now; keep the remote version time
+        cls.objects.filter(pk=p.pk).update(edited_time=d["edited_time"])
+        p.edited_time = d["edited_time"]
         return p
 
     @property

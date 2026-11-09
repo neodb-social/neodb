@@ -1,7 +1,7 @@
 """Remote pieces keep the remote version time, so edits are ordered by it.
 
-edited_time is auto_now; without keep_remote_edited_time it held the local
-save time, and an edit made before that moment was dropped as stale.
+edited_time is auto_now; it used to hold the local save time, and an edit
+made before that moment was dropped as stale.
 """
 
 from datetime import datetime
