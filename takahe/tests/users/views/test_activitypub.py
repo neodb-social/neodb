@@ -1,5 +1,6 @@
 import pytest
 from activities.models import Post
+from core.views import StaticContentView
 from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
@@ -7,6 +8,7 @@ from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from users.models import Domain, InboxMessage
+from users.views.activitypub import EmptyOutbox, SystemActorView
 
 
 @pytest.mark.django_db
@@ -43,6 +45,36 @@ def test_webfinger_system_actor(client):
     assert data["id"] == "https://example.com/actor/"
     assert data["inbox"] == "https://example.com/actor/inbox/"
     assert data["endpoints"]["sharedInbox"] == "https://example.com/inbox/"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("outbox_first", [True, False])
+def test_system_actor_and_outbox_keep_own_content(client, monkeypatch, outbox_first):
+    """
+    The static content of each view is cached per process; the first of
+    /actor/ and /actor/outbox/ served must not decide the other's body.
+    """
+    monkeypatch.setattr(settings.SETUP, "NO_FEDERATION", False)
+    for cls in (StaticContentView, EmptyOutbox, SystemActorView):
+        if "static_content" in cls.__dict__:
+            monkeypatch.delattr(cls, "static_content")
+
+    def actor():
+        data = client.get("/actor/", HTTP_ACCEPT="application/activity+json").json()
+        assert data["type"] == "Application"
+        assert data["publicKey"]["id"].endswith("#main-key")
+
+    def outbox():
+        data = client.get(
+            "/actor/outbox/", HTTP_ACCEPT="application/activity+json"
+        ).json()
+        assert data["type"] == "OrderedCollection"
+        assert data["totalItems"] == 0
+
+    for check in (outbox, actor) if outbox_first else (actor, outbox):
+        check()
+    actor()
+    outbox()
 
 
 @pytest.mark.django_db
