@@ -47,12 +47,14 @@ class StaticContentView(View):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if getattr(StaticContentView, "static_content", None) is None:
-            StaticContentView.static_content = self.get_static_content()
+        # cached on each subclass, never on a base class that siblings share
+        cls = type(self)
+        if "static_content" not in cls.__dict__:
+            cls.static_content = self.get_static_content()
 
     def get(self, request, *args, **kwargs):
         return HttpResponse(
-            StaticContentView.static_content,
+            type(self).static_content,
             content_type=self.content_type,
         )
 
