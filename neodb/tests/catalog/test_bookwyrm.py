@@ -47,7 +47,7 @@ def public_hosts():
 @pytest.fixture
 def mock_http():
     """Serve test_data files, and answer any signed fetch with a 404."""
-    for n in range(101, 110):
+    for n in range(101, 111):
         cache.delete(f"dl:https://{HOST}/book/{n}")
     cache.delete(f"dl:https://{HOST}/author/410578")
     set_mock_mode(True)
@@ -270,15 +270,26 @@ class TestBookWyrmScrape:
         assert isinstance(res.item, Work)
 
     def test_edition_names_its_work(self, mock_http):
-        content = BookWyrm(BOOK).scrape()
+        content = BookWyrm(f"https://{HOST}/book/108").scrape()
         assert content.metadata["required_resources"] == [
             {
                 "model": "Work",
                 "id_type": IdType.BookWyrm,
-                "id_value": f"https://{HOST}/book/1019",
-                "title": "The Geomagician",
+                "id_value": f"https://{HOST}/book/106",
+                "title": "Edition Of A Work",
             }
         ]
+        # a work that cannot be fetched is not named
+        assert "required_resources" not in BookWyrm(BOOK).scrape().metadata
+
+    @pytest.mark.parametrize("n", [109, 110])
+    def test_only_a_work_is_named_as_parent(self, mock_http, n):
+        # 109 names an edition as its work, 110 names itself; either could loop
+        url = f"https://{HOST}/book/{n}"
+        assert "required_resources" not in BookWyrm(url).scrape().metadata
+        edition = resolve_book(url, HOST)
+        assert isinstance(edition, Edition)
+        assert edition.get_work() is None
 
     def test_signed_fetch_after_refusal(self):
         cache.delete(f"dl:{BOOK}")

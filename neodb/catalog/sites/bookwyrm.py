@@ -223,6 +223,30 @@ class BookWyrm(AbstractSite):
             lookup_ids=ids,
         )
 
+    def parent_work_id(self, work: str) -> str | None:
+        """The canonical url of this edition's Work, if it is one on this host.
+
+        Only a Work may be the parent: it names no parent itself, so linking
+        stops there, while an Edition named here could link back in a loop.
+        """
+        host = self.book_host(work)
+        if not host or host != self.book_host(self.url or ""):
+            return None
+        work_id = self.url_to_id(work)
+        if work_id == self.url:
+            return None
+        try:
+            parent = self.fetch_json(work_id)
+        except DownloadError, ValueError:
+            return None
+        if (
+            isinstance(parent, dict)
+            and parent.get("type") == "Work"
+            and parent.get("id") == work_id
+        ):
+            return work_id
+        return None
+
     def edition_metadata(
         self, data: dict[str, Any], lang: str, ids: dict[IdType, str]
     ) -> dict[str, Any]:
@@ -253,16 +277,14 @@ class BookWyrm(AbstractSite):
             "series": series or None,
             "isbn": ids.get(IdType.ISBN),
         }
-        work = _str(data.get("work"))
-        if self.book_host(work) and self.book_host(work) == self.book_host(
-            self.url or ""
-        ):
+        work_id = self.parent_work_id(_str(data.get("work")))
+        if work_id:
             # by id, not url: the url route needs the host on the peer list
             d["required_resources"] = [
                 {
                     "model": "Work",
                     "id_type": IdType.BookWyrm,
-                    "id_value": self.url_to_id(work),
+                    "id_value": work_id,
                     "title": _str(data.get("title")),
                 }
             ]
