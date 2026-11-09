@@ -1,8 +1,12 @@
 import logging
+import re
+from datetime import UTC, datetime
 from time import sleep
 from typing import Any
+from urllib.parse import urlparse
 
 
+from catalog.bookwyrm import resolve_book
 from catalog.models import Item
 from common.sentry import count as sentry_count
 from common.sentry import url_domain
@@ -92,6 +96,136 @@ def _parse_piece_objects(objects) -> list[dict[str, Any]]:
     return pieces
 
 
+# BookWyrm sends reviews to other software as an Article named, in the
+# author's language, 'Review of "<book>" (<n> stars): <headline>', or without
+# the rating part when unrated; a missing headline renders as "None".
+_BOOKWYRM_RATED_NAME = re.compile(r"^.*?\(\s*\d+(?:[.,]\d+)?[^()]*\)\s*:\s*(.*)$", re.S)
+_BOOKWYRM_UNRATED_NAME = re.compile(r"^.*?[\"\u201d\u00bb]\s*:\s*(.*)$", re.S)
+
+
+def bookwyrm_review_title(name: str, rated: bool) -> str:
+    name = name.strip()
+    m = (_BOOKWYRM_RATED_NAME if rated else _BOOKWYRM_UNRATED_NAME).match(name)
+    headline = m[1].strip() if m else ""
+    if headline and headline != "None":
+        return headline[:500]
+    return re.sub(r"\s*:\s*None$", "", name)[:500]
+
+
+def is_bookwyrm_review(post: Any, obj: dict[str, Any]) -> bool:
+    return post.type == "Article" and isinstance(obj.get("inReplyToBook"), str)
+
+
+# Rating and Review save edited_time as the local save time, so the remote
+# version a piece holds is kept in its metadata to order later versions.
+_REMOTE_UPDATED = "remote_updated"
+
+
+def _remote_updated(p: Rating | Review) -> datetime | None:
+    v = (p.metadata or {}).get(_REMOTE_UPDATED)
+    try:
+        return datetime.fromisoformat(v) if isinstance(v, str) else None
+    except ValueError:
+        return None
+
+
+def _note_remote_updated(
+    p: Rating | Review | None, remote_id: str, updated: datetime
+) -> None:
+    if p is None or p.remote_id != remote_id:
+        return
+    known = _remote_updated(p)
+    if known is None or updated > known:
+        p.metadata = {**(p.metadata or {}), _REMOTE_UPDATED: updated.isoformat()}
+        type(p).objects.filter(pk=p.pk).update(metadata=p.metadata)
+
+
+def _delete_older(
+    cls: type[Rating] | type[Review],
+    owner: APIdentity,
+    item: Item,
+    remote_id: str,
+    updated: datetime,
+) -> None:
+    for p in cls.objects.filter(owner=owner, item=item, remote_id=remote_id):
+        known = _remote_updated(p)
+        if known is None or updated > known:
+            p.delete()
+
+
+def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> str:
+    """Map a remote BookWyrm review onto a Review and Rating of its book.
+
+    Returns "linked", or why nothing was linked: "no_book" when the book
+    cannot be fetched or matched, "spoiler" for an unrated review with a
+    content warning, "invalid" for a malformed review.
+    """
+    review_id = obj.get("id")
+    published = obj.get("published")
+    updated = obj.get("updated") or published
+    if (
+        not isinstance(review_id, str)
+        or not isinstance(published, str)
+        or not isinstance(updated, str)
+    ):
+        return "invalid"
+    try:
+        datetime.fromisoformat(published)
+        updated_time = datetime.fromisoformat(updated)
+        if updated_time.tzinfo is None:
+            updated_time = updated_time.replace(tzinfo=UTC)
+    except ValueError:
+        return "invalid"
+    item = resolve_book(obj["inReplyToBook"], urlparse(post.object_uri).hostname)
+    if not item:
+        logger.info(f"BookWyrm review {review_id}: book not resolved")
+        return "no_book"
+    rating = obj.get("rating")
+    rated = isinstance(rating, (int, float)) and 0 < rating <= 5
+    rating_id = review_id + "#rating"
+    if rated:
+        rating_piece = Rating.update_by_ap_object(
+            owner,
+            item,
+            {
+                "id": rating_id,
+                "value": rating,
+                "best": 5,
+                "worst": 0.5,
+                "published": published,
+                "updated": updated,
+            },
+            post,
+        )
+        _note_remote_updated(rating_piece, rating_id, updated_time)
+    else:
+        # an edit removed the rating; another review's rating stays, and so
+        # does one newer than this version, which arrived out of order
+        _delete_older(Rating, owner, item, rating_id, updated_time)
+    if obj.get("sensitive"):
+        # Review has no content warning, so a spoiler stays on the post, and
+        # an edit that added the warning drops the copy made before it
+        _delete_older(Review, owner, item, review_id, updated_time)
+        return "linked" if rated else "spoiler"
+    name = obj.get("name")
+    content = obj.get("content")
+    review = Review.update_by_ap_object(
+        owner,
+        item,
+        {
+            "id": review_id,
+            "name": bookwyrm_review_title(name if isinstance(name, str) else "", rated)
+            or item.display_title,
+            "content": content if isinstance(content, str) else "",
+            "published": published,
+            "updated": updated,
+        },
+        post,
+    )
+    _note_remote_updated(review, review_id, updated_time)
+    return "linked"
+
+
 def post_created(pk, post_data):
     return _post_fetched(pk, True, post_data)
 
@@ -134,6 +268,11 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
                 return
             sleep(retry)
             retry += 1
+    if not local:
+        remote_obj = post_data or (post.type_data or {}).get("object") or {}
+        if "relatedWith" not in remote_obj and not is_bookwyrm_review(post, remote_obj):
+            # takahe hands over every remote Article; leave the others alone
+            return
     owner = Takahe.get_or_create_remote_apidentity(post.author)
     if local:
         if post_data and post_data.get("backdated"):
@@ -189,6 +328,9 @@ def _post_fetched(pk, local, post_data, create: bool | None = None):
         # endpoint. They are mutually exclusive with the single-item
         # pieces (Mark/Review/Note/...) so dispatch them before the
         # single-item enforcement below.
+        if is_bookwyrm_review(post, ap_objects) and not pieces:
+            link_bookwyrm_review(owner, post, ap_objects)
+            return
         shelf_pieces = [p for p in pieces if p["type"] == "Shelf"]
         if shelf_pieces:
             for sp in shelf_pieces:

@@ -1,6 +1,7 @@
 import io
 import logging
 import mimetypes
+import re
 from collections.abc import Iterable
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -26,6 +27,11 @@ DEV_CONSOLE_CLIENT_ID = "app-00000000000-dev"
 DEV_CONSOLE_SCOPES = ["read", "write", "push"]
 
 logger = logging.getLogger(__name__)
+
+# same rule as takahe's Domain.is_valid_domain
+_VALID_DOMAIN = re.compile(
+    r"^(?:[a-z0-9](?:[a-z0-9-_]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-_]{0,61}[a-z]$"
+)
 
 _PostQS = TypeVar("_PostQS", bound=QuerySet)
 
@@ -1105,6 +1111,63 @@ class Takahe:
             r = list(peers.values_list("pk", flat=True))
             cache.set(cache_key, r, timeout=1800)
         return r
+
+    BOOKWYRM_PEERS_CACHE_KEY = "bookwyrm_peers"
+
+    @staticmethod
+    def get_bookwyrm_peers() -> list[str]:
+        r = cache.get(Takahe.BOOKWYRM_PEERS_CACHE_KEY, None)
+        if r is None:
+            r = list(
+                Domain.objects.filter(
+                    nodeinfo__software__name="bookwyrm",
+                    local=False,
+                    blocked=False,
+                )
+                .exclude(domain__in=[d.lower() for d in settings.SITE_DOMAINS])
+                .values_list("pk", flat=True)
+            )
+            cache.set(Takahe.BOOKWYRM_PEERS_CACHE_KEY, r, timeout=1800)
+        return r
+
+    @staticmethod
+    def register_bookwyrm_peers(hosts: dict[str, str]) -> int:
+        """Record hosts a directory lists as BookWyrm, mapped to their version.
+
+        A domain takahe has not seen, or has no nodeinfo for, gets a minimal
+        nodeinfo naming bookwyrm and is left "outdated", so the stator fetches
+        the real document and replaces it. A domain with nodeinfo is left
+        alone: its own document beats the directory.
+        """
+        local = {d.lower() for d in settings.SITE_DOMAINS}
+        known = {
+            d.pk: d
+            for d in Domain.objects.filter(pk__in=list(hosts.keys())).only(
+                "pk", "nodeinfo", "local", "blocked"
+            )
+        }
+        n = 0
+        for host, version in hosts.items():
+            if host in local or not _VALID_DOMAIN.match(host):
+                continue
+            nodeinfo = {"software": {"name": "bookwyrm", "version": version}}
+            d = known.get(host)
+            if d is None:
+                Domain.objects.create(
+                    domain=host, local=False, nodeinfo=nodeinfo, state="outdated"
+                )
+            elif d.nodeinfo or d.local or d.blocked:
+                continue
+            else:
+                Domain.objects.filter(pk=host).update(
+                    nodeinfo=nodeinfo,
+                    state="outdated",
+                    state_changed=timezone.now(),
+                    state_next_attempt=None,
+                )
+            n += 1
+        cache.delete(Takahe.BOOKWYRM_PEERS_CACHE_KEY)
+        return n
 
     @staticmethod
     def get_neodb_search_endpoints() -> dict[str, str | None]:

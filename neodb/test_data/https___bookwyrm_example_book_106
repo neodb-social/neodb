@@ -1,0 +1,30 @@
+{
+ "@context": "https://www.w3.org/ns/activitystreams",
+ "id": "https://bookwyrm.example/book/106",
+ "type": "Work",
+ "title": "The Geomagician",
+ "subtitle": "",
+ "description": "<p>A work.</p>",
+ "languages": [
+  "English"
+ ],
+ "series": "",
+ "seriesNumber": "",
+ "subjects": [],
+ "authors": [
+  "https://bookwyrm.example/author/410578"
+ ],
+ "publishedDate": "",
+ "firstPublishedDate": "",
+ "work": "https://bookwyrm.example/book/1069",
+ "isbn10": "",
+ "isbn13": "",
+ "oclcNumber": "",
+ "pages": null,
+ "physicalFormat": "",
+ "publishers": [],
+ "openlibraryKey": "OL45883W",
+ "editions": [
+  "https://bookwyrm.example/book/108"
+ ]
+}

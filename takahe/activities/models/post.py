@@ -2015,7 +2015,8 @@ class Post(StatorModel):
                         )
                 else:
                     parent.calculate_stats()
-            if "relatedWith" in data:
+            # NeoDB picks which Articles it maps to its own pieces
+            if "relatedWith" in data or post.type == cls.Types.article:
                 settings.NEODB_MQ.enqueue(
                     "takahe.ap_handlers.post_fetched", post.pk, data
                 )

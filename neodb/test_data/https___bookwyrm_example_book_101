@@ -1,0 +1,41 @@
+{
+ "@context": "https://www.w3.org/ns/activitystreams",
+ "id": "https://bookwyrm.example/book/101",
+ "type": "Edition",
+ "title": "The Geomagician",
+ "subtitle": "A Novel",
+ "description": "<p>Mary Anning wants to be a <em>geomagician</em>.</p><p>Second paragraph.</p>",
+ "languages": [
+  "English"
+ ],
+ "series": "Fossil Magic",
+ "seriesNumber": "1",
+ "subjects": [
+  "Fantasy"
+ ],
+ "authors": [
+  "https://bookwyrm.example/author/410578",
+  "https://elsewhere.example/author/1",
+  "https://bookwyrm.example/author/404"
+ ],
+ "publishedDate": "2026-03-30T00:00:00+00:00",
+ "firstPublishedDate": "",
+ "work": "https://bookwyrm.example/book/1019",
+ "isbn10": "0593983319",
+ "isbn13": "9780593983317",
+ "oclcNumber": "1234567",
+ "pages": 452,
+ "physicalFormat": "EBook",
+ "publishers": [
+  "Del Rey",
+  "Other"
+ ],
+ "sortTitle": "geomagician",
+ "cover": {
+  "type": "Image",
+  "url": "https://bookwyrm.example/images/covers/geomagician.jpeg",
+  "name": "cover"
+ },
+ "openlibraryKey": "OL60000001M",
+ "goodreadsKey": "220000001"
+}

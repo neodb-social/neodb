@@ -435,3 +435,59 @@ def test_to_mastodon_json_ext_neodb_includes_all_related_with(
     assert len(related) == 2
     types = {o["type"] for o in related}
     assert types == {"Status", "Rating"}
+
+
+def _capture_neodb_jobs(monkeypatch) -> list:
+    enqueued: list = []
+    monkeypatch.setattr(
+        "django.conf.settings.NEODB_MQ",
+        type("Queue", (), {"enqueue": lambda self, *a, **kw: enqueued.append(a)})(),
+    )
+    return enqueued
+
+
+_BOOKWYRM_REVIEW = {
+    "type": "Article",
+    "name": 'Review of "The Geomagician" (4 stars): Come for the dinos',
+    "content": "<p>Good.</p>",
+    "published": "2026-10-01T12:00:00.000000+00:00",
+    "inReplyToBook": "https://remote.test/book/2183082",
+    "rating": 4.0,
+    "sensitive": False,
+    "tag": [],
+    "to": ["https://www.w3.org/ns/activitystreams#Public"],
+}
+
+
+@pytest.mark.django_db
+def test_by_ap_article_hands_over_to_neodb(remote_identity: Identity, monkeypatch):
+    """Every remote Article reaches NeoDB, which picks the ones it maps."""
+    enqueued = _capture_neodb_jobs(monkeypatch)
+    data = {
+        **_BOOKWYRM_REVIEW,
+        "id": "https://remote.test/test-actor/review/1",
+        "attributedTo": remote_identity.actor_uri,
+    }
+
+    post = Post.by_ap(data=data, create=True)
+
+    assert post.type_data == {"object": data}
+    assert [a[:2] for a in enqueued] == [("takahe.ap_handlers.post_fetched", post.pk)]
+
+
+@pytest.mark.django_db
+def test_by_ap_note_with_book_link_not_handed_over(
+    remote_identity: Identity, monkeypatch
+):
+    """BookWyrm comments and quotes arrive as Notes and stay out of NeoDB."""
+    enqueued = _capture_neodb_jobs(monkeypatch)
+    data = {
+        **_BOOKWYRM_REVIEW,
+        "type": "Note",
+        "id": "https://remote.test/test-actor/comment/1",
+        "attributedTo": remote_identity.actor_uri,
+    }
+
+    Post.by_ap(data=data, create=True)
+
+    assert enqueued == []

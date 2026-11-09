@@ -108,6 +108,9 @@ class FediverseInstance(AbstractSite):
                 return False
             if host in Takahe.get_blocked_peers():
                 return False
+            if host in Takahe.get_bookwyrm_peers():
+                # BookWyrm editions pass the type and id checks below
+                return False
             return cls.get_json_from_url(u) is not None
         except DownloadError:
             if host and host in Takahe.get_neodb_peers():
@@ -158,6 +161,9 @@ class FediverseInstance(AbstractSite):
             or j.get("type", "").lower() not in cls.supported_types.keys()
         ):
             raise ValueError("Not a supported format or type")
+        if "category" not in j:
+            # every NeoDB item carries it; a BookWyrm Edition does not
+            raise ValueError("Not a NeoDB item")
         if j.get("id") != url:
             raise ValueError(f"ID mismatch: {j.get('id')} != {url}")
         return j

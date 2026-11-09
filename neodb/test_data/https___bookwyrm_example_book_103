@@ -1,0 +1,22 @@
+{
+ "@context": "https://www.w3.org/ns/activitystreams",
+ "id": "https://bookwyrm.example/book/103",
+ "type": "Edition",
+ "title": "Small Press Zine No. 7",
+ "subtitle": "",
+ "description": "",
+ "languages": [],
+ "series": "",
+ "seriesNumber": "",
+ "subjects": [],
+ "authors": [],
+ "publishedDate": "2026-11",
+ "firstPublishedDate": "",
+ "work": "https://bookwyrm.example/book/1039",
+ "isbn10": "",
+ "isbn13": "",
+ "oclcNumber": "",
+ "pages": null,
+ "physicalFormat": "",
+ "publishers": []
+}

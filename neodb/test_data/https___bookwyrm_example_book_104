@@ -1,0 +1,23 @@
+{
+ "@context": "https://www.w3.org/ns/activitystreams",
+ "id": "https://bookwyrm.example/book/104",
+ "type": "Edition",
+ "title": "Open Library Twin",
+ "subtitle": "",
+ "description": "",
+ "languages": [],
+ "series": "",
+ "seriesNumber": "",
+ "subjects": [],
+ "authors": [],
+ "publishedDate": "",
+ "firstPublishedDate": "",
+ "work": "https://bookwyrm.example/book/1049",
+ "isbn10": "",
+ "isbn13": "",
+ "oclcNumber": "",
+ "pages": null,
+ "physicalFormat": "",
+ "publishers": [],
+ "openlibraryKey": "ol7353617m"
+}

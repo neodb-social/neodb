@@ -1,6 +1,9 @@
 from argparse import RawTextHelpFormatter
 from datetime import timedelta
+from collections import Counter
 from itertools import batched
+from time import sleep
+from urllib.parse import urlparse
 
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -8,6 +11,7 @@ from django.utils import timezone
 from tqdm import tqdm
 
 from catalog.models import Item
+from catalog.sites.bookwyrm import BookWyrm
 from common.management.base import SiteCommand
 from journal.exporters.ndjson import NdjsonExporter
 from journal.models import (
@@ -17,6 +21,7 @@ from journal.models import (
     Content,
     Note,
     Piece,
+    PiecePost,
     Review,
     ShelfMember,
     update_journal_for_merged_item,
@@ -25,7 +30,9 @@ from journal.models.itemlist import ListMember
 from journal.models.renderers import soft_breaks_to_spaces
 from journal.search import JournalIndex, JournalQueryParser
 from takahe.html import FediverseHtmlParser
+from takahe.ap_handlers import link_bookwyrm_review
 from takahe.models import Post
+from takahe.utils import Takahe
 from users.models import APIdentity, User
 
 _CONFIRM = "confirm deleting collection? [Y/N] "
@@ -34,6 +41,9 @@ _HELP_TEXT = """
 intergrity:     check and fix remaining journal for merged and deleted items
 article-posts:  check local Article posts whose content was saved escaped
                 (use --fix to rewrite it from the federated content)
+bookwyrm-reviews: link stored BookWyrm review posts to catalog items, after
+                registering BookWyrm servers listed on FediDB (use --fix
+                to write; --delay sets seconds between reviews)
 purge:          delete invalid data (visibility=99)
 export:         run export task
 search:         search docs in index
@@ -84,6 +94,7 @@ class Command(SiteCommand):
             choices=[
                 "integrity",
                 "article-posts",
+                "bookwyrm-reviews",
                 "purge",
                 "export",
                 "idx-info",
@@ -145,6 +156,12 @@ class Command(SiteCommand):
             help="Number of hours to look back for edited items (used with idx-catchup)",
         )
         parser.add_argument(
+            "--delay",
+            type=float,
+            default=1.0,
+            help="seconds to wait between reviews (used with bookwyrm-reviews)",
+        )
+        parser.add_argument(
             "--dry-run",
             action="store_true",
             help="report what idx-sync would change without writing to index",
@@ -192,6 +209,73 @@ class Command(SiteCommand):
                 Post.objects.filter(pk=post.pk).update(content=content)
         w = "" if self.fix else "would be "
         self.stdout.write(f"{checked} posts checked, {changed} {w}rewritten.")
+
+    def bookwyrm_hosts_warmup(self):
+        try:
+            listed = BookWyrm.fetch_fedidb_hosts()
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f"FediDB not reachable: {e}"))
+            return
+        known = set(Takahe.get_bookwyrm_peers())
+        new = {h: v for h, v in listed.items() if h not in known}
+        if self.fix and new:
+            n = Takahe.register_bookwyrm_peers(new)
+            self.stdout.write(
+                f"{len(listed)} BookWyrm servers on FediDB, {n} registered."
+            )
+        else:
+            w = "" if self.fix else "would be "
+            self.stdout.write(
+                f"{len(listed)} BookWyrm servers on FediDB, {len(new)} unknown {w}registered."
+            )
+
+    def bookwyrm_reviews(self, delay: float):
+        self.bookwyrm_hosts_warmup()
+        posts = (
+            Post.objects.filter(
+                local=False,
+                type="Article",
+                type_data__object__has_key="inReplyToBook",
+            )
+            .select_related("author")
+            # the first review of a book imported for an author wins: a piece's
+            # edited_time is when it was saved here, so every older version
+            # looks stale; start from the newest
+            .order_by("-published", "-pk")
+        )
+        # pieces and posts live in separate databases
+        post_ids = list(posts.values_list("pk", flat=True))
+        linked = set(
+            PiecePost.objects.filter(post_id__in=post_ids).values_list(
+                "post_id", flat=True
+            )
+        )
+        outcomes: Counter[str] = Counter()
+        by_host: dict[str, Counter[str]] = {}
+        for post in posts.iterator():
+            obj = post.type_data["object"]
+            host = urlparse(str(obj.get("inReplyToBook"))).hostname or "?"
+            if post.pk in linked:
+                outcome = "already_linked"
+            elif not self.fix:
+                outcome = "to_link"
+            else:
+                owner = Takahe.get_or_create_remote_apidentity(post.author)
+                try:
+                    outcome = link_bookwyrm_review(owner, post, obj)
+                except Exception as e:
+                    outcome = "error"
+                    self.stdout.write(self.style.ERROR(f"{post.object_uri}: {e}"))
+                if delay > 0:
+                    sleep(delay)
+            outcomes[outcome] += 1
+            by_host.setdefault(host, Counter())[outcome] += 1
+            if self.verbose:
+                self.stdout.write(f"{outcome}: {post.object_uri}")
+        for host, c in sorted(by_host.items()):
+            self.stdout.write(f"{host}: " + ", ".join(f"{k} {v}" for k, v in c.items()))
+        total = ", ".join(f"{k} {v}" for k, v in outcomes.items()) or "none found"
+        self.stdout.write(self.style.SUCCESS(f"BookWyrm reviews: {total}."))
 
     def export(self, owner_ids):
         users = User.objects.filter(identity__in=owner_ids)
@@ -448,6 +532,9 @@ class Command(SiteCommand):
 
             case "article-posts":
                 self.article_posts()
+
+            case "bookwyrm-reviews":
+                self.bookwyrm_reviews(kwargs.get("delay") or 0)
 
             case "purge":
                 for pcls in [Content, ListMember]:
