@@ -1,0 +1,13 @@
+{
+ "id": "https://bookwyrm.example/user/reader/review/99",
+ "type": "Article",
+ "published": "2026-10-01T12:00:00.000000+00:00",
+ "attributedTo": "https://bookwyrm.example/user/reader",
+ "content": "<p>Another review.</p>",
+ "tag": [],
+ "sensitive": false,
+ "inReplyToBook": "https://bookwyrm.example/book/103",
+ "rating": 3,
+ "name": "Review of \"Small Press Zine No. 7\" (3 stars): Other",
+ "@context": "https://www.w3.org/ns/activitystreams"
+}

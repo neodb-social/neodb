@@ -7,7 +7,9 @@ from urllib.parse import urlparse
 
 
 from catalog.bookwyrm import resolve_book
+from catalog.common.downloaders import DownloadError
 from catalog.models import Item
+from catalog.sites.bookwyrm import BookWyrm
 from common.sentry import count as sentry_count
 from common.sentry import url_domain
 from common.utils import discord_send
@@ -153,6 +155,47 @@ def _delete_older(
             p.delete()
 
 
+def _review_times(obj: dict[str, Any]) -> tuple[str, str, datetime] | None:
+    """published, updated and the parsed updated time; None if malformed."""
+    published = obj.get("published")
+    updated = obj.get("updated") or published
+    if not isinstance(published, str) or not isinstance(updated, str):
+        return None
+    try:
+        datetime.fromisoformat(published)
+        updated_time = datetime.fromisoformat(updated)
+    except ValueError:
+        return None
+    if updated_time.tzinfo is None:
+        updated_time = updated_time.replace(tzinfo=UTC)
+    return published, updated, updated_time
+
+
+def _refetch_review(obj: dict[str, Any], host: str | None) -> dict[str, Any] | None:
+    """The review as its server serves it now, if that names another book.
+
+    An instance that merges an edition into another moves its reviews to the
+    surviving book, and the old book URL 404s; the copy federated before the
+    merge still names the old one.
+    """
+    review_id = obj["id"]
+    if not host or urlparse(review_id).hostname != host or BookWyrm.host_refused(host):
+        return None
+    try:
+        fresh = BookWyrm.fetch_json(review_id)
+    except (DownloadError, ValueError) as e:
+        logger.info(f"BookWyrm review {review_id}: not refetched: {e}")
+        return None
+    if (
+        isinstance(fresh, dict)
+        and fresh.get("id") == review_id
+        and isinstance(fresh.get("inReplyToBook"), str)
+        and fresh["inReplyToBook"] != obj["inReplyToBook"]
+    ):
+        return fresh
+    return None
+
+
 def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> str:
     """Map a remote BookWyrm review onto a Review and Rating of its book.
 
@@ -161,25 +204,22 @@ def link_bookwyrm_review(owner: APIdentity, post: Any, obj: dict[str, Any]) -> s
     content warning, "invalid" for a malformed review.
     """
     review_id = obj.get("id")
-    published = obj.get("published")
-    updated = obj.get("updated") or published
-    if (
-        not isinstance(review_id, str)
-        or not isinstance(published, str)
-        or not isinstance(updated, str)
-    ):
+    times = _review_times(obj)
+    if not isinstance(review_id, str) or times is None:
         return "invalid"
-    try:
-        datetime.fromisoformat(published)
-        updated_time = datetime.fromisoformat(updated)
-        if updated_time.tzinfo is None:
-            updated_time = updated_time.replace(tzinfo=UTC)
-    except ValueError:
-        return "invalid"
-    item = resolve_book(obj["inReplyToBook"], urlparse(post.object_uri).hostname)
+    host = urlparse(post.object_uri).hostname
+    item = resolve_book(obj["inReplyToBook"], host)
+    if not item:
+        fresh = _refetch_review(obj, host)
+        fresh_times = _review_times(fresh) if fresh else None
+        if fresh and fresh_times:
+            item = resolve_book(fresh["inReplyToBook"], host)
+            if item:
+                obj, times = fresh, fresh_times
     if not item:
         logger.info(f"BookWyrm review {review_id}: book not resolved")
         return "no_book"
+    published, updated, updated_time = times
     rating = obj.get("rating")
     rated = isinstance(rating, (int, float)) and 0 < rating <= 5
     rating_id = review_id + "#rating"

@@ -1,0 +1,8 @@
+{
+ "@context": "https://www.w3.org/ns/activitystreams",
+ "id": "https://bookwyrm.example/book/111",
+ "type": "Edition",
+ "title": "Merged Twice",
+ "authors": [],
+ "publishers": []
+}

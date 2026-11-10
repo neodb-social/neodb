@@ -4,9 +4,31 @@ from catalog.common import SiteManager
 from catalog.common.downloaders import DownloadError
 from catalog.common.scrapers import ParseError
 from catalog.models import Edition
-from catalog.sites.bookwyrm import BookWyrm
+from catalog.sites.bookwyrm import BookWyrm, BookWyrmMerged
 
 logger = logging.getLogger(__name__)
+
+
+def _ready_edition(site: BookWyrm, follow_merge: bool) -> Edition | None:
+    try:
+        site.get_resource_ready()
+        item = site.get_item()
+    except BookWyrmMerged as e:
+        if follow_merge:
+            # same host as site.url, so already accepted; followed only once
+            return _ready_edition(BookWyrm(e.canonical_url), False)
+        logger.warning(f"BookWyrm book not fetched: {site.url}: {e}")
+        return None
+    except (DownloadError, ParseError, ValueError) as e:
+        logger.warning(f"BookWyrm book not fetched: {site.url}: {e}")
+        return None
+    if (
+        isinstance(item, Edition)
+        and not item.is_deleted
+        and item.merged_to_item_id is None
+    ):
+        return item
+    return None
 
 
 def resolve_book(url: str, author_host: str | None = None) -> Edition | None:
@@ -25,16 +47,4 @@ def resolve_book(url: str, author_host: str | None = None) -> Edition | None:
         site = SiteManager.get_site_by_url(url, detect_redirection=False)
         if not isinstance(site, BookWyrm):
             return None
-    try:
-        site.get_resource_ready()
-        item = site.get_item()
-    except (DownloadError, ParseError, ValueError) as e:
-        logger.warning(f"BookWyrm book not fetched: {site.url}: {e}")
-        return None
-    if (
-        isinstance(item, Edition)
-        and not item.is_deleted
-        and item.merged_to_item_id is None
-    ):
-        return item
-    return None
+    return _ready_edition(site, True)

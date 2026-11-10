@@ -47,6 +47,19 @@ def _str(v: Any) -> str:
     return v.strip() if isinstance(v, str) else ""
 
 
+class BookWyrmMerged(ParseError):
+    """The book was merged into another one on its own instance.
+
+    Newer BookWyrm answers a merged-away book URL with the book that absorbed
+    it, so the url asked for is never imported; canonical_url names the
+    surviving book.
+    """
+
+    def __init__(self, site: AbstractSite, canonical_url: str):
+        super().__init__(site, f"id (merged into {canonical_url})")
+        self.canonical_url = canonical_url
+
+
 @SiteManager.register
 class BookWyrm(AbstractSite):
     SITE_NAME = SiteName.BookWyrm
@@ -120,13 +133,16 @@ class BookWyrm(AbstractSite):
         if not is_valid_url(url):
             raise ValueError(f"BookWyrm: refusing unsafe url {url}")
         try:
-            return (
-                CachedDownloader(
-                    url, headers=cls.request_header, timeout=cls.FETCH_TIMEOUT
-                )
-                .download()
-                .json()
-            )
+            resp = CachedDownloader(
+                url, headers=cls.request_header, timeout=cls.FETCH_TIMEOUT
+            ).download()
+            try:
+                return resp.json()
+            except ValueError:
+                # e.g. a bot challenge that redirects every request to HTML
+                raise ValueError(
+                    f"BookWyrm: no JSON at {url}, served from {resp.url}"
+                ) from None
         except DownloadError as e:
             # a refusal (401/403 in secure mode) may pass when signed; a
             # timeout will not, so it is not retried
@@ -150,8 +166,14 @@ class BookWyrm(AbstractSite):
             raise ParseError(self, "book")
         if data.get("type") not in ("Edition", "Work"):
             raise ParseError(self, f"type {data.get('type')}")
-        if data.get("id") != self.url:
-            raise ParseError(self, f"id mismatch {data.get('id')}")
+        data_id = data.get("id")
+        if data_id != self.url:
+            host = self.book_host(self.url)
+            if isinstance(data_id, str) and host and self.book_host(data_id) == host:
+                canonical = self.url_to_id(data_id)
+                if canonical != self.url:
+                    raise BookWyrmMerged(self, canonical)
+            raise ParseError(self, f"id mismatch {data_id}")
         return data
 
     def fetch_authors(self, urls: Any) -> list[str]:
