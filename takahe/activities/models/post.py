@@ -6,7 +6,8 @@ import mimetypes
 import re
 import ssl
 from collections.abc import Iterable
-from typing import Optional
+from functools import cached_property
+from typing import Any, Optional
 from urllib.parse import quote, urlparse
 
 import httpx
@@ -32,6 +33,7 @@ from deepmerge import always_merger
 from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVector
+from django.core.exceptions import SuspiciousOperation
 from django.db import models, transaction
 from django.db.models.functions import RowNumber
 from django.db.models.signals import post_delete, post_save
@@ -123,6 +125,75 @@ def _is_quote_uri(value: str) -> bool:
         and value.startswith(("https://", "http://"))
         and len(value) <= _QUOTE_URI_MAX_LENGTH
     )
+
+
+_AS_DURATION_RE = re.compile(r"PT(?=\d)(?:(\d{1,6})H)?(?:(\d{1,6})M)?(?:(\d{1,6})S)?")
+_AS_PUBLIC = "https://www.w3.org/ns/activitystreams#Public"
+
+
+def _as_first(value: Any) -> Any:
+    return (value[0] if value else None) if isinstance(value, list) else value
+
+
+def _as_text(value: Any) -> str:
+    value = _as_first(value)
+    if not isinstance(value, str):
+        return ""
+    try:
+        return strip_tags(value).strip()
+    except SuspiciousOperation:
+        # strip_tags gives up on deeply nested markup
+        return ""
+
+
+def _as_http_url(value: Any) -> str | None:
+    value = _as_first(value)
+    if isinstance(value, dict):
+        value = value.get("href") or value.get("id")
+    if isinstance(value, str) and value.startswith(("http://", "https://")):
+        return value
+    return None
+
+
+def _url_host(url: str | None) -> str | None:
+    if not url:
+        return None
+    try:
+        return urlparse(url).hostname
+    except ValueError:
+        return None
+
+
+def _as_datetime(value: Any) -> datetime.datetime | None:
+    value = _as_first(value)
+    if not isinstance(value, str):
+        return None
+    try:
+        dt = datetime.datetime.fromisoformat(value)
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=datetime.UTC)
+    return dt
+
+
+def _as_duration(value: Any) -> int | None:
+    m = _AS_DURATION_RE.fullmatch(value) if isinstance(value, str) else None
+    if not m:
+        return None
+    h, mi, s = (int(g or 0) for g in m.groups())
+    return h * 3600 + mi * 60 + s or None
+
+
+def _as_place_address(address: Any) -> str:
+    address = _as_first(address)
+    if isinstance(address, dict):
+        parts = (
+            _as_text(address.get(k))
+            for k in ("streetAddress", "addressLocality", "addressCountry")
+        )
+        return ", ".join(p for p in parts if p)
+    return _as_text(address)
 
 
 def _attach_preview_card(post_pk: int, content: str) -> None:
@@ -826,6 +897,101 @@ class Post(StatorModel):
         if isinstance(url, str) and url.startswith(("http://", "https://")):
             return url
         return None
+
+    @cached_property
+    def converted_details(self) -> dict[str, Any] | None:
+        """Event time and place, Video duration, or Page link and community.
+
+        Read from the AS object kept in type_data for the web UI only. Remote
+        values arrive as strings, objects or lists, so each one is normalized
+        before use and anything unexpected is dropped.
+        """
+        if self.type not in self.CONVERTED_TYPES or not isinstance(
+            self.type_data, dict
+        ):
+            return None
+        obj = self.type_data.get("object")
+        if not isinstance(obj, dict):
+            return None
+        details: dict[str, Any] = {}
+        if self.type == self.Types.event:
+            start = _as_datetime(obj.get("startTime"))
+            end = _as_datetime(obj.get("endTime"))
+            if start:
+                details["start"] = start
+                if end and end > start:
+                    # one offset label covers the whole range
+                    try:
+                        end = end.astimezone(start.tzinfo)
+                    except OverflowError:
+                        end = None
+                if end and end > start:
+                    details["end"] = end
+                    details["end_same_day"] = end.date() == start.date()
+            locations = obj.get("location")
+            if not isinstance(locations, list):
+                locations = [locations]
+            places = [p for p in locations if isinstance(p, dict)]
+            place = next((p for p in places if p.get("type") == "Place"), None)
+            place = place or (places[0] if places else None)
+            if place:
+                venue = _as_text(place.get("name"))
+                if _as_http_url(venue):
+                    details["online_url"] = venue
+                elif venue:
+                    details["venue"] = venue
+                address = _as_place_address(place.get("address"))
+                if address and address != venue:
+                    details["address"] = address
+        elif self.type == self.Types.video:
+            duration = _as_duration(_as_first(obj.get("duration")))
+            if duration:
+                h, rest = divmod(duration, 3600)
+                m, s = divmod(rest, 60)
+                details["duration"] = duration
+                details["duration_text"] = f"{h}:{m:02}:{s:02}" if h else f"{m}:{s:02}"
+            channel_url = _as_http_url(obj.get("audience"))
+            if channel_url and channel_url != _AS_PUBLIC:
+                details["channel_url"] = channel_url
+        elif self.type == self.Types.page:
+            own_hosts = {_url_host(self.url), _url_host(self.object_uri)} - {None}
+            attachments = obj.get("attachment")
+            if not isinstance(attachments, list):
+                attachments = [attachments]
+            for a in attachments:
+                if not isinstance(a, dict) or a.get("type") != "Link":
+                    continue
+                href = _as_http_url(a.get("href"))
+                host = _url_host(href)
+                if host and host not in own_hosts:
+                    details["link_url"] = href
+                    details["link_host"] = host
+                    break
+            community_url = _as_http_url(obj.get("audience"))
+            community_host = _url_host(community_url)
+            if community_url and community_host and community_url != _AS_PUBLIC:
+                name = urlparse(community_url).path.strip("/")
+                if name:
+                    details["community"] = f"{name}@{community_host}"
+                    details["community_url"] = community_url
+        return details or None
+
+    @property
+    def article_hashtags(self) -> list[tuple[str, str | None]]:
+        """Hashtag names of a federated Article, each with its http(s) href."""
+        if self.type != self.Types.article or not isinstance(self.type_data, dict):
+            return []
+        obj = self.type_data.get("object")
+        tags = obj.get("tag") if isinstance(obj, dict) else None
+        if not isinstance(tags, list):
+            tags = [tags]
+        return [
+            (name, _as_http_url(t.get("href")))
+            for t in tags
+            if isinstance(t, dict)
+            and t.get("type") == "Hashtag"
+            and (name := _as_text(t.get("name")))
+        ]
 
     def safe_content(self, *, local: bool = True):
         if self.type in self.CONVERTED_TYPES:

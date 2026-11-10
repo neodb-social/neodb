@@ -6,9 +6,13 @@
        href="{{ card.url }}"
        target="_blank"
        rel="nofollow noopener noreferrer">
-      {% if card.image_url %}<img src="{{ card.image_proxy_url.relative }}" alt="" loading="lazy">{% endif %}
-      {% if card.image_url and details.duration_text %}
-        <span class="converted-object-duration" title="{% trans "Duration" %}">{{ details.duration_text }}</span>
+      {% if card.image_url %}
+        <span class="converted-object-thumb">
+          <img src="{{ card.image_proxy_url.relative }}" alt="" loading="lazy">
+          {% if details.duration_text %}
+            <span class="converted-object-duration" title="{% trans "Duration" %}">{{ details.duration_text }}</span>
+          {% endif %}
+        </span>
       {% endif %}
       <span class="converted-object-card-body">
         <strong>{{ card.title|default:post.type }}</strong>

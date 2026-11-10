@@ -17,6 +17,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser
+from django.core.exceptions import SuspiciousOperation
 from django.core.files.storage import Storage, storages
 from django.db import models, transaction
 from django.template.defaultfilters import linebreaks_filter
@@ -58,7 +59,13 @@ def _as_first(value: Any) -> Any:
 
 def _as_text(value: Any) -> str:
     value = _as_first(value)
-    return strip_tags(value).strip() if isinstance(value, str) else ""
+    if not isinstance(value, str):
+        return ""
+    try:
+        return strip_tags(value).strip()
+    except SuspiciousOperation:
+        # strip_tags gives up on deeply nested markup
+        return ""
 
 
 def _as_http_url(value: Any) -> str | None:

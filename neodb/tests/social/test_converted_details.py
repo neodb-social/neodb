@@ -178,6 +178,9 @@ def test_event_empty_name_and_malformed_times():
     )
     obj["location"] = {"type": "Place", "name": "", "address": None}
     assert _post(obj).converted_details is None
+    # strip_tags raises SuspiciousOperation on this
+    bad = dict(obj, location={"type": "Place", "name": "<a" * 1000, "address": "Hall"})
+    assert _post(bad).converted_details == {"address": "Hall"}
     obj["startTime"] = ["2026-11-14T16:00:00Z"]
     assert _post(obj).converted_details == {
         "start": datetime(2026, 11, 14, 16, 0, tzinfo=UTC)

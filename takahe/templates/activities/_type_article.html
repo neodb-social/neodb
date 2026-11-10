@@ -17,16 +17,12 @@
   {{ sanitized_content }}
 </div>
 
-{% if post.type_data and post.type_data.object %}
-  {% with tags=post.type_data.object.tag %}
-    {% if tags %}
-      <div class="article-tags">
-        {% for t in tags %}
-          {% if t.type == 'Hashtag' and t.name %}
-            <span class="tag">{% if t.href %}<a href="{{ t.href }}" rel="tag">{{ t.name }}</a>{% else %}{{ t.name }}{% endif %}</span>
-          {% endif %}
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
-{% endif %}
+{% with tags=post.article_hashtags %}
+  {% if tags %}
+    <div class="article-tags">
+      {% for name, href in tags %}
+        <span class="tag">{% if href %}<a href="{{ href }}" rel="tag">{{ name }}</a>{% else %}{{ name }}{% endif %}</span>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
