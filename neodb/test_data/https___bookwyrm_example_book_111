@@ -1,0 +1,13 @@
+{
+ "@context": "https://www.w3.org/ns/activitystreams",
+ "id": "https://bookwyrm.example/book/101",
+ "type": "Edition",
+ "title": "The Geomagician",
+ "subtitle": "A Novel",
+ "description": "",
+ "languages": ["English"],
+ "authors": [],
+ "publishedDate": "2026-03-10T00:00:00+00:00",
+ "isbn13": "9780593983317",
+ "publishers": ["Del Rey"]
+}

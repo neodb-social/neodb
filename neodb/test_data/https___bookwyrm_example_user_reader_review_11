@@ -1,0 +1,13 @@
+{
+ "id": "https://bookwyrm.example/user/reader/review/11",
+ "type": "Article",
+ "published": "yesterday",
+ "attributedTo": "https://bookwyrm.example/user/reader",
+ "content": "<p>Bad timestamp.</p>",
+ "tag": [],
+ "sensitive": false,
+ "inReplyToBook": "https://bookwyrm.example/book/103",
+ "rating": 3,
+ "name": "Review of \"Small Press Zine No. 7\" (3 stars): Bad time",
+ "@context": "https://www.w3.org/ns/activitystreams"
+}

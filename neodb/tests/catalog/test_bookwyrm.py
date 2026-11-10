@@ -13,7 +13,7 @@ from catalog.common.downloaders import (
 )
 from catalog.common.scrapers import ParseError
 from catalog.models import Edition, ExternalResource, IdType, Work
-from catalog.sites.bookwyrm import BookWyrm
+from catalog.sites.bookwyrm import BookWyrm, BookWyrmMerged
 from catalog.sites.fedi import FediverseInstance
 from takahe.models import Domain, RsaKeys
 from takahe.utils import Takahe
@@ -47,7 +47,7 @@ def public_hosts():
 @pytest.fixture
 def mock_http():
     """Serve test_data files, and answer any signed fetch with a 404."""
-    for n in range(101, 111):
+    for n in range(101, 113):
         cache.delete(f"dl:https://{HOST}/book/{n}")
     cache.delete(f"dl:https://{HOST}/author/410578")
     set_mock_mode(True)
@@ -220,9 +220,36 @@ class TestBookWyrmScrape:
         )
 
     def test_id_mismatch_rejected(self, mock_http):
-        with pytest.raises(ParseError):
+        # an id on another host is no merge on this one
+        with pytest.raises(ParseError) as e:
             BookWyrm(f"https://{HOST}/book/105").scrape()
+        assert type(e.value) is ParseError
         assert resolve_book(f"https://{HOST}/book/105", HOST) is None
+
+    def test_merged_book(self, mock_http):
+        old = f"https://{HOST}/book/111"
+        with pytest.raises(BookWyrmMerged) as e:
+            BookWyrm(old).fetch_book()
+        assert e.value.canonical_url == BOOK
+        item = resolve_book(old, HOST)
+        assert isinstance(item, Edition)
+        assert item.display_title == "The Geomagician"
+        res = ExternalResource.objects.get(id_type=IdType.BookWyrm, id_value=BOOK)
+        assert res.item_id == item.pk
+        assert not ExternalResource.objects.filter(id_value=old).exists()
+
+    def test_merge_followed_once(self, mock_http):
+        # 112 was merged into 111, which was merged into 101
+        assert resolve_book(f"https://{HOST}/book/112", HOST) is None
+        assert not ExternalResource.objects.filter(id_value__contains=HOST).exists()
+
+    def test_non_json_names_final_url(self):
+        challenge = MagicMock(url=f"https://{HOST}/.within.website/?redir=/book/101")
+        challenge.json.side_effect = ValueError("Expecting value")
+        with patch("catalog.sites.bookwyrm.CachedDownloader") as downloader:
+            downloader.return_value.download.return_value = challenge
+            with pytest.raises(ValueError, match="within.website"):
+                BookWyrm.fetch_json(BOOK)
 
     def test_work(self, mock_http):
         content = BookWyrm(f"https://{HOST}/book/106").scrape()

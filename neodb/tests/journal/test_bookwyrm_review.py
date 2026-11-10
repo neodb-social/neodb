@@ -8,8 +8,10 @@ from django.core.cache import cache
 from django.core.management import call_command
 from django.utils import timezone
 
+from catalog.bookwyrm import resolve_book
 from catalog.common.downloaders import set_mock_mode
 from catalog.models import Edition, ExternalResource, IdType
+from catalog.sites.bookwyrm import BookWyrm
 from journal.jobs.migrations import (
     _fedidb_bookwyrm_hosts,
     register_bookwyrm_peers_20261109,
@@ -29,6 +31,8 @@ from users.models import APIdentity
 
 HOST = "bookwyrm.example"
 BOOK = f"https://{HOST}/book/101"
+# merged away on its server: 404 now
+GONE_BOOK = f"https://{HOST}/book/120"
 
 
 @pytest.mark.parametrize(
@@ -79,6 +83,7 @@ class TestBookWyrmReview:
             f"dl:{BOOK}",
             f"dl:https://{HOST}/book/103",
             f"dl:https://{HOST}/author/410578",
+            *[f"dl:https://{HOST}/user/reader/review/{n}" for n in range(7, 12)],
         ]:
             cache.delete(key)
         domain, _ = Domain.objects.get_or_create(domain=HOST, defaults={"local": False})
@@ -254,6 +259,50 @@ class TestBookWyrmReview:
         obj = _review(inReplyToBook=f"https://{HOST}/book/105")
         post_fetched(self._post(obj).pk, obj)
         assert not Review.objects.filter(remote_id=obj["id"]).exists()
+
+    def _link(self, obj: dict) -> tuple[str, int, Post]:
+        post = self._post(obj)
+        owner = Takahe.get_or_create_remote_apidentity(self.identity)
+        with patch("takahe.ap_handlers.resolve_book", wraps=resolve_book) as resolve:
+            outcome = link_bookwyrm_review(owner, post, obj)
+        return outcome, resolve.call_count, post
+
+    def test_merged_book_links_refetched_review(self):
+        # the server now serves review 7 on book 103, with a later edit
+        obj = _review(7, inReplyToBook=GONE_BOOK)
+        outcome, calls, post = self._link(obj)
+        assert (outcome, calls) == ("linked", 2)
+        review = Review.objects.get(remote_id=obj["id"])
+        assert review.item.display_title == "Small Press Zine No. 7"
+        assert review.title == "Second read"
+        assert review.body.strip() == "Better on a second read."
+        rating = Rating.objects.get(remote_id=obj["id"] + "#rating")
+        assert (rating.grade, rating.item_id) == (5, review.item_id)
+        assert not ExternalResource.objects.filter(id_value=GONE_BOOK).exists()
+        # the stored copy stays as it was federated
+        stored = Post.objects.get(pk=post.pk).type_data["object"]
+        assert stored["inReplyToBook"] == GONE_BOOK
+
+    @pytest.mark.parametrize("n", [8, 9, 10, 11])
+    def test_refetch_without_new_book(self, n):
+        # the refetched review names the same book (8), has another id (9),
+        # cannot be fetched (10), or has a malformed timestamp (11)
+        obj = _review(n, inReplyToBook=GONE_BOOK)
+        outcome, calls, _ = self._link(obj)
+        assert (outcome, calls) == ("no_book", 1)
+        assert not Review.objects.filter(remote_id=obj["id"]).exists()
+
+    def test_no_refetch_from_other_or_blocked_host(self):
+        obj = _review(7, inReplyToBook=GONE_BOOK)
+        post = self._post(obj)
+        owner = Takahe.get_or_create_remote_apidentity(self.identity)
+        moved = {**obj, "id": "https://elsewhere.example/user/reader/review/7"}
+        with patch.object(BookWyrm, "fetch_json", wraps=BookWyrm.fetch_json) as fetch:
+            assert link_bookwyrm_review(owner, post, moved) == "no_book"
+            with patch("takahe.utils.Takahe.get_blocked_peers", return_value=[HOST]):
+                assert link_bookwyrm_review(owner, post, obj) == "no_book"
+        assert [c.args[0] for c in fetch.call_args_list] == [GONE_BOOK]
+        assert not Review.objects.filter(owner=owner).exists()
 
     def test_other_articles_left_alone(self):
         obj = _review()

@@ -1,0 +1,17 @@
+{
+ "id": "https://bookwyrm.example/user/reader/review/7",
+ "type": "Article",
+ "published": "2026-10-01T12:00:00.000000+00:00",
+ "updated": "2026-10-20T08:00:00.000000+00:00",
+ "attributedTo": "https://bookwyrm.example/user/reader",
+ "content": "<p>Better on a second read.</p>",
+ "to": ["https://www.w3.org/ns/activitystreams#Public"],
+ "cc": ["https://bookwyrm.example/user/reader/followers"],
+ "tag": [],
+ "attachment": [],
+ "sensitive": false,
+ "inReplyToBook": "https://bookwyrm.example/book/103",
+ "rating": 2.5,
+ "name": "Review of \"Small Press Zine No. 7\" (2.5 stars): Second read",
+ "@context": "https://www.w3.org/ns/activitystreams"
+}

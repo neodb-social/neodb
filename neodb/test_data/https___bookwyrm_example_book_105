@@ -1,6 +1,6 @@
 {
  "@context": "https://www.w3.org/ns/activitystreams",
- "id": "https://bookwyrm.example/book/999",
+ "id": "https://other.example/book/999",
  "type": "Edition",
  "title": "Mismatch",
  "subtitle": "",
