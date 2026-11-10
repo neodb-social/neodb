@@ -15,7 +15,7 @@ from catalog.common.scrapers import ParseError
 from catalog.models import Edition, ExternalResource, IdType, Work
 from catalog.sites.bookwyrm import BookWyrm
 from catalog.sites.fedi import FediverseInstance
-from takahe.models import Domain
+from takahe.models import Domain, RsaKeys
 from takahe.utils import Takahe
 
 HOST = "bookwyrm.example"
@@ -267,7 +267,34 @@ class TestBookWyrmScrape:
         ):
             downloader.return_value.download.side_effect = DownloadError(refused)
             assert BookWyrm(BOOK).fetch_book() == data
-        signed.assert_called_once_with(BOOK, timeout=BookWyrm.FETCH_TIMEOUT)
+        # the unsigned 403 is cached by BookWyrm's nginx per Accept variant
+        signed.assert_called_once_with(
+            BOOK,
+            timeout=BookWyrm.FETCH_TIMEOUT,
+            accept='application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+        )
+        assert downloader.call_args.kwargs["headers"]["Accept"] == (
+            "application/activity+json"
+        )
+
+    def test_signed_fetch_sends_other_accept(self, httpx_mock):
+        refused = MagicMock(url=BOOK, logs=[], response_type=RESPONSE_INVALID_CONTENT)
+        data = {"id": BOOK, "type": "Edition", "title": "Signed"}
+        httpx_mock.add_response(
+            url=BOOK, json=data, match_headers={"Accept": BookWyrm.SIGNED_ACCEPT}
+        )
+        private_pem, _ = RsaKeys.generate_keypair()
+        with (
+            patch("catalog.sites.bookwyrm.CachedDownloader") as downloader,
+            patch("common.validators._hostname_is_public", return_value=True),
+            patch(
+                "takahe.auth._system_actor_signing_keys",
+                return_value=("https://local.test/actor/#main-key", private_pem),
+            ),
+        ):
+            downloader.return_value.download.side_effect = DownloadError(refused)
+            assert BookWyrm.fetch_json(BOOK) == data
+        assert "Signature" in httpx_mock.get_request().headers
 
     def test_no_signed_fetch_after_timeout(self):
         timeout = MagicMock(url=BOOK, logs=[], response_type=RESPONSE_NETWORK_ERROR)
