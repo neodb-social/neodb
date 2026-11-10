@@ -138,7 +138,9 @@ def _system_actor_signing_keys() -> tuple[str, str]:
     return actor_uri + "#main-key", private_key
 
 
-def sign_get(url: str, *, timeout: float = 10.0) -> httpx.Response:
+def sign_get(
+    url: str, *, timeout: float = 10.0, accept: str = "application/activity+json"
+) -> httpx.Response:
     """Make a NeoDB-flavored signed GET request and return the httpx response.
 
     Signs the same canonical shape that ``verify_http_signature`` accepts:
@@ -178,7 +180,7 @@ def sign_get(url: str, *, timeout: float = 10.0) -> httpx.Response:
         "Date": date,
         "Host": host,
         "Signature": sig_header,
-        "Accept": "application/activity+json",
+        "Accept": accept,
         "User-Agent": "NeoDB-Federation/1.0",
     }
     return httpx.get(url, headers=headers, timeout=timeout, follow_redirects=False)

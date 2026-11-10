@@ -6,9 +6,30 @@ import pytest
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
-from takahe.auth import _parse_signature_header
+from takahe.auth import _parse_signature_header, sign_get
 from takahe.models import RsaKeys
 from takahe.utils import Takahe
+
+LD_JSON = 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+
+
+@pytest.mark.parametrize(
+    "kwargs, accept",
+    [({}, "application/activity+json"), ({"accept": LD_JSON}, LD_JSON)],
+)
+def test_sign_get_accept(httpx_mock, kwargs, accept):
+    url = "https://remote.example/book/1"
+    private_pem, _ = RsaKeys.generate_keypair()
+    httpx_mock.add_response(url=url, method="GET", match_headers={"Accept": accept})
+    with (
+        patch("common.validators._hostname_is_public", return_value=True),
+        patch(
+            "takahe.auth._system_actor_signing_keys",
+            return_value=("https://example.org/actor/#main-key", private_pem),
+        ),
+    ):
+        assert sign_get(url, **kwargs).status_code == 200
+    assert "Signature" in httpx_mock.get_request().headers
 
 
 @pytest.mark.parametrize(

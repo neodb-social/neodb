@@ -58,6 +58,13 @@ class BookWyrm(AbstractSite):
         "User-Agent": settings.NEODB_USER_AGENT,
         "Accept": "application/activity+json",
     }
+    # BookWyrm's shipped nginx config caches every response for 1m, 403s
+    # included, keyed on Accept but not on Signature. A signed retry with the
+    # unsigned fetch's Accept would get that cached 403 back, so it asks for
+    # another variant; BookWyrm serves any Accept containing "json" as AP.
+    SIGNED_ACCEPT = (
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'
+    )
     FETCH_TIMEOUT = 5
     MAX_AUTHORS = 5
 
@@ -128,7 +135,7 @@ class BookWyrm(AbstractSite):
             from takahe.auth import sign_get
 
             try:
-                r = sign_get(url, timeout=cls.FETCH_TIMEOUT)
+                r = sign_get(url, timeout=cls.FETCH_TIMEOUT, accept=cls.SIGNED_ACCEPT)
                 if r.status_code == 200:
                     return r.json()
             except (httpx.HTTPError, ValueError) as se:

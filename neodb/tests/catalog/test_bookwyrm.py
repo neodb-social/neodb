@@ -267,7 +267,15 @@ class TestBookWyrmScrape:
         ):
             downloader.return_value.download.side_effect = DownloadError(refused)
             assert BookWyrm(BOOK).fetch_book() == data
-        signed.assert_called_once_with(BOOK, timeout=BookWyrm.FETCH_TIMEOUT)
+        # the unsigned 403 is cached by BookWyrm's nginx per Accept variant
+        signed.assert_called_once_with(
+            BOOK,
+            timeout=BookWyrm.FETCH_TIMEOUT,
+            accept='application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+        )
+        assert downloader.call_args.kwargs["headers"]["Accept"] == (
+            "application/activity+json"
+        )
 
     def test_no_signed_fetch_after_timeout(self):
         timeout = MagicMock(url=BOOK, logs=[], response_type=RESPONSE_NETWORK_ERROR)
