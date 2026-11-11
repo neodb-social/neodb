@@ -21,6 +21,7 @@ from journal.models import (
     Mark,
     Note,
     PieceInteraction,
+    Rating,
     Review,
     Tag,
 )
@@ -1292,6 +1293,77 @@ def test_shelf_api_list_delete_and_logs():
     )
 
     assert response.status_code == 404
+
+
+def _shelf_api_token(user: User, name: str) -> str:
+    app = Takahe.get_or_create_app(
+        name, "https://example.org", "https://example.org/callback", user.identity.pk
+    )
+    return Takahe.refresh_token(app, user.identity.pk, user.pk)
+
+
+def _first_mark(path: str, token: str) -> dict:
+    response = Client().get(path, HTTP_AUTHORIZATION=f"Bearer {token}")
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["count"] == 1
+    return payload["data"][0]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_user_shelf_api_hides_private_tags_comment_and_rating():
+    """A tag, comment and rating narrower than a visible mark stay private."""
+    owner = User.register(email="shelf-own@example.com", username="shelfowner")
+    follower = User.register(email="shelf-fol@example.com", username="shelffollower")
+    stranger = User.register(email="shelf-str@example.com", username="shelfstranger")
+    follower.identity.follow(owner.identity, True)
+    item = Edition.objects.create(title="Shelf Privacy Book")
+    Mark(owner.identity, item).update(
+        ShelfType.COMPLETE, comment_text="for me only", rating_grade=8, visibility=0
+    )
+    Tag.objects.create(
+        owner=owner.identity, title="open-tag", visibility=0
+    ).append_item(item)
+    Tag.objects.create(
+        owner=owner.identity, title="secret-tag", visibility=2
+    ).append_item(item)
+    path = f"/api/user/{owner.username}/shelf/complete"
+    tokens = {
+        u: _shelf_api_token(u, f"Shelf Privacy {u.username}")
+        for u in (owner, follower, stranger)
+    }
+
+    def set_visibility(visibility: int) -> None:
+        Comment.objects.filter(owner=owner.identity, item=item).update(
+            visibility=visibility
+        )
+        Rating.objects.filter(owner=owner.identity, item=item).update(
+            visibility=visibility
+        )
+
+    # as left by an import that narrows the comment but not the mark
+    set_visibility(2)
+    for viewer in (follower, stranger):
+        mark = _first_mark(path, tokens[viewer])
+        assert mark["tags"] == ["open-tag"]
+        assert mark["comment_text"] is None
+        assert mark["rating_grade"] is None
+    for own_path in (path, "/api/me/shelf/complete"):
+        mark = _first_mark(own_path, tokens[owner])
+        assert mark["tags"] == ["open-tag", "secret-tag"]
+        assert mark["comment_text"] == "for me only"
+        assert mark["rating_grade"] == 8
+
+    set_visibility(1)
+    mark = _first_mark(path, tokens[follower])
+    assert (mark["comment_text"], mark["rating_grade"]) == ("for me only", 8)
+    mark = _first_mark(path, tokens[stranger])
+    assert (mark["comment_text"], mark["rating_grade"]) == (None, None)
+
+    set_visibility(0)
+    mark = _first_mark(path, tokens[stranger])
+    assert (mark["comment_text"], mark["rating_grade"]) == ("for me only", 8)
+    assert mark["tags"] == ["open-tag"]
 
 
 @pytest.mark.django_db(databases="__all__")
