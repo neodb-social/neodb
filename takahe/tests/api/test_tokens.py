@@ -1,6 +1,60 @@
 import pytest
 
-from api.models import Application, Authorization
+from api.models import Application, Authorization, Token
+
+
+@pytest.mark.django_db
+def test_bearer_token_cannot_authorize_new_grant(api_client, api_token, identity):
+    """
+    A bearer token is not a web session: it must not approve an OAuth grant,
+    which could carry wider scopes than the token itself.
+    """
+    application = Application.objects.create(
+        name="Escalation App",
+        client_id="tk-escalate",
+        client_secret="escalatesecret",
+        redirect_uris="https://example.com/callback",
+    )
+    response = api_client.post(
+        "/oauth/authorize",
+        {
+            "client_id": application.client_id,
+            "redirect_uri": "https://example.com/callback",
+            "scope": "read write push",
+            "identity": identity.pk,
+        },
+    )
+    assert response.status_code == 302
+    assert "/auth/login" in response["Location"]
+    assert not Authorization.objects.filter(application=application).exists()
+
+
+@pytest.mark.django_db
+def test_bearer_token_cannot_read_token_settings(api_client, api_token, identity):
+    """
+    The token settings pages reveal other applications' tokens, so a bearer
+    token must not open them.
+    """
+    other = Token.objects.create(
+        application=Application.objects.create(name="Other", client_id="tk-other"),
+        user=identity.users.first(),
+        identity=identity,
+        token="othersecrettoken",
+        scopes=["read", "write"],
+    )
+    for path in (
+        f"/@{identity.handle}/settings/tokens/",
+        f"/@{identity.handle}/settings/tokens/{other.pk}/",
+    ):
+        response = api_client.get(path)
+        assert response.status_code != 200
+        assert other.token.encode() not in response.content
+
+
+@pytest.mark.django_db
+def test_bearer_token_still_works_on_api(api_client, api_token):
+    response = api_client.get("/api/v1/accounts/verify_credentials")
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db

@@ -16,11 +16,15 @@ class ApiTokenMiddleware:
 
     def __call__(self, request):
         token_value = None
-        auth_header = request.headers.get("authorization")
-        if auth_header and auth_header.startswith("Bearer "):
-            token_value = auth_header[7:]
-        if token_value is None and settings.DEBUG:
-            token_value = request.GET.get("token")
+        # A token is a scoped grant for the API alone. On a web route it would
+        # stand in for the user's session, where OAuth consent and the token
+        # settings pages hand out wider credentials than the token carries.
+        if request.path.startswith("/api/"):
+            auth_header = request.headers.get("authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token_value = auth_header[7:]
+            if token_value is None and settings.DEBUG:
+                token_value = request.GET.get("token")
         request.token = None
         request.identity = None
         if token_value and token_value != "__app__":
