@@ -187,7 +187,10 @@ class TestFediverseInstance:
 
         site = FediverseInstance("https://external.place/movie/123")
 
-        with patch.object(site, "is_local_item_url") as mock_is_local:
+        with (
+            patch.object(site, "is_local_item_url") as mock_is_local,
+            patch("catalog.sites.fedi.is_valid_url", return_value=True),
+        ):
             mock_is_local.side_effect = lambda url: "neodb.social" in url
 
             result = site.get_local_item_from_external_resources()

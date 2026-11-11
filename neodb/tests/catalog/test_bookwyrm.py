@@ -359,7 +359,9 @@ class TestResolveBook:
         assert not ExternalResource.objects.filter(id_type=IdType.Fediverse).exists()
 
     def test_edition_linked_to_work(self, mock_http):
-        edition = resolve_book(f"https://{HOST}/book/108", HOST)
+        # the work is linked by id, and a BookWyrm id is a URL on a test host
+        with patch("catalog.common.sites.is_valid_url", return_value=True):
+            edition = resolve_book(f"https://{HOST}/book/108", HOST)
         assert isinstance(edition, Edition)
         work = edition.get_work()
         assert isinstance(work, Work)
