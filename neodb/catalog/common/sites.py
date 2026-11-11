@@ -451,6 +451,14 @@ class SiteManager:
                 linked_site = SiteManager.get_site_by_id(
                     linked_resource["id_type"], linked_resource["id_value"]
                 )
+                # some ids carry the host (fedi, BookWyrm, RSS, Bandcamp), so
+                # hold the URL to the check the "url" branch above applies
+                if linked_site and not is_valid_url(linked_site.url):
+                    logger.warning(
+                        f"skipped linked resource {linked_resource['id_type']}"
+                        f" with a non-public url"
+                    )
+                    continue
             else:
                 continue
             # For People CHILD links, try to reuse an existing People that is

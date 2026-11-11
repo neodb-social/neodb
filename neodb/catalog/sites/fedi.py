@@ -35,6 +35,7 @@ from catalog.models import (
 from catalog.search import ExternalSearchResultItem, record_search_failure
 from common.models import SiteConfig
 from common.sentry import count as sentry_count
+from common.validators import is_valid_url
 
 logger = logging.getLogger(__name__)
 
@@ -151,6 +152,10 @@ class FediverseInstance(AbstractSite):
 
     @classmethod
     def get_json_from_url(cls, url):
+        # the id of a fedi resource is its URL, so a site built from a stored
+        # or linked id has not been through get_site_by_url's check
+        if not is_valid_url(url):
+            raise ValueError("Not a public URL")
         j = (
             CachedDownloader(url, headers=cls.request_header, timeout=2)
             .download()
@@ -188,6 +193,10 @@ class FediverseInstance(AbstractSite):
         self.linked_sites = []
         data["preferred_model"] = data.get("type", "")
         data["prematched_resources"] = []
+        # the payload becomes ExternalResource.metadata, where these keys tell
+        # the site which further resources to fetch: never the peer's call
+        for key in ("required_resources", "related_resources"):
+            data.pop(key, None)
         model_cls = self.supported_types.get(data["preferred_model"].lower())
         if not model_cls:
             raise ParseError(self, "preferred_model")

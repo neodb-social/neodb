@@ -252,3 +252,60 @@ def test_linked_item_beats_peer_isbn_mapping():
     assert item == linked
     res.refresh_from_db()
     assert res.item_id == linked.pk
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestPeerCannotDirectFetches:
+    """A peer payload must not steer the worker to hosts of its choosing."""
+
+    _INTERNAL = "http://169.254.169.254/latest/meta-data"
+
+    def test_workflow_fields_are_dropped_from_peer_metadata(self):
+        payload = _payload(_PEER_BOOK, "Edition", "The Hobbit", _GOODREADS)
+        payload["category"] = "book"
+        payload["external_resources"] = []
+        linked = [{"id_type": IdType.Fediverse, "id_value": self._INTERNAL}]
+        payload["required_resources"] = list(linked)
+        payload["related_resources"] = list(linked)
+        payload["prematched_resources"] = list(linked)
+        with patch.object(SiteManager, "fetch_linked_resources") as fetch:
+            res = _fetch_peer(_PEER_BOOK, payload)
+        assert res is not None
+        assert res.required_resources == []
+        assert res.related_resources == []
+        assert res.prematched_resources == []
+        fetch.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "id_type,id_value",
+        [
+            (IdType.Fediverse, "http://169.254.169.254/latest/meta-data"),
+            (IdType.Fediverse, "http://localhost:8108/collections"),
+            (IdType.BookWyrm, "https://internal.example/book/1"),
+        ],
+    )
+    def test_linked_id_with_a_non_public_url_is_not_fetched(self, id_type, id_value):
+        # covers rows stored before the fields were dropped on import
+        res = ExternalResource.objects.create(
+            id_type=IdType.Fediverse, id_value=_PEER_BOOK, url=_PEER_BOOK
+        )
+        with (
+            patch("common.validators._hostname_is_public", return_value=False),
+            patch("catalog.common.downloaders.requests.Session") as session,
+            patch("catalog.common.sites.AbstractSite.get_resource_ready") as ready,
+        ):
+            SiteManager.fetch_linked_resources(
+                res,
+                [{"id_type": id_type, "id_value": id_value}],
+                ExternalResource.LinkType.PARENT,
+            )
+        session.assert_not_called()
+        ready.assert_not_called()
+
+    def test_fedi_fetch_refuses_a_non_public_url_before_any_request(self):
+        with (
+            patch("catalog.sites.fedi.CachedDownloader") as downloader,
+            pytest.raises(ValueError),
+        ):
+            FediverseInstance.get_json_from_url(self._INTERNAL)
+        downloader.assert_not_called()
