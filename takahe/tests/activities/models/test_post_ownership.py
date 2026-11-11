@@ -1,8 +1,9 @@
 import pytest
 from pytest_httpx import HTTPXMock
 
-from activities.models import Post, PostInteraction, PostTombstone
+from activities.models import Post, PostInteraction
 from core.exceptions import ActivityPubFormatError, ActorMismatchError
+from django.core.cache import cache
 from users.models import Identity
 
 VICTIM_POST_URI = "https://remote.test/posts/1/"
@@ -556,7 +557,7 @@ def test_refused_delete_leaves_no_tombstone(remote_identity: Identity):
         Post.handle_delete_ap(
             {"type": "Delete", "actor": attacker.actor_uri, "object": VICTIM_POST_URI}
         )
-    assert not PostTombstone.objects.exists()
+    assert cache.get(Post._tombstone_key(VICTIM_POST_URI)) is None
 
 
 @pytest.mark.django_db

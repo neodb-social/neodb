@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 import html
 import json
 import logging
@@ -32,6 +33,7 @@ from core.snowflake import Snowflake
 from deepmerge import always_merger
 from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
+from django.core.cache import cache
 from django.contrib.postgres.search import SearchVector
 from django.core.exceptions import SuspiciousOperation
 from django.db import models, transaction
@@ -57,7 +59,6 @@ from users.models.system_actor import SystemActor
 from activities.models.emoji import Emoji
 from activities.models.fan_out import FanOut
 from activities.models.hashtag import Hashtag
-from activities.models.post_tombstone import PostTombstone
 from activities.models.post_types import (
     PostTypeData,
     PostTypeDataDecoder,
@@ -2436,6 +2437,10 @@ class Post(StatorModel):
             )
         data["object"]["attributedTo"] = actor
 
+    @staticmethod
+    def _tombstone_key(object_uri: str) -> str:
+        return "post_tombstone:" + hashlib.sha256(object_uri.encode()).hexdigest()
+
     @classmethod
     def handle_create_ap(cls, data):
         """
@@ -2446,9 +2451,8 @@ class Post(StatorModel):
         with transaction.atomic():
             cls._ensure_actor_attributed(data, "Create")
             # its author deleted it: this is a replay of the signed Create
-            if PostTombstone.objects.filter(
-                object_uri=get_str_or_id(data["object"])
-            ).exists():
+            object_uri = get_str_or_id(data["object"])
+            if object_uri and cache.get(cls._tombstone_key(object_uri)):
                 return
             # Create it, stator will fan it out locally
             post = cls.by_ap(
@@ -2532,7 +2536,13 @@ class Post(StatorModel):
             if not post.author.is_actor_uri(data["actor"]):
                 raise ActorMismatchError("Actor on delete does not match object")
             if not post.local:
-                PostTombstone.objects.get_or_create(object_uri=post.object_uri)
+                # A relayed copy of its signed Create is accepted for
+                # FANOUT_LIMIT_DAYS; remember the deletion for as long.
+                cache.set(
+                    cls._tombstone_key(post.object_uri),
+                    True,
+                    timeout=settings.FANOUT_LIMIT_DAYS * 86400,
+                )
             post.perform_remote_deletion()
 
     @classmethod

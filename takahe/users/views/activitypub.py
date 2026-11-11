@@ -1,4 +1,5 @@
 import base64
+import datetime
 import json
 import logging
 from urllib.parse import urldefrag, urlparse
@@ -8,7 +9,7 @@ from activities.services import TimelineService
 from core import sentry
 from core.decorators import cache_page
 from core.json import clean_json
-from core.ld import GENERIC_AS_TYPES, canonicalise, get_str_or_id
+from core.ld import GENERIC_AS_TYPES, canonicalise, get_str_or_id, parse_ld_date
 from core.signatures import (
     HttpSignature,
     LDSignature,
@@ -19,6 +20,7 @@ from core.views import StaticContentView
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
 from django.views.decorators.csrf import csrf_exempt
@@ -506,6 +508,26 @@ class Inbox(FederatedView):
                 return HttpResponseUnauthorized(
                     "Signature creator does not match actor"
                 )
+            if relay_mode:
+                # An LD signature never expires, so whoever kept a copy could
+                # relay it again later, e.g. to bring back a deleted post.
+                # Its signed creation time bounds that to the fan-out window.
+                try:
+                    signed_at = parse_ld_date(raw_document["signature"]["created"])
+                    if signed_at.tzinfo is None:
+                        signed_at = signed_at.replace(tzinfo=datetime.UTC)
+                    stale = timezone.now() - signed_at > datetime.timedelta(
+                        days=settings.FANOUT_LIMIT_DAYS
+                    )
+                except AttributeError, KeyError, TypeError, ValueError:
+                    logger.warning("Inbox error: Malformed LD signature block")
+                    return HttpResponseBadRequest("Malformed LD signature")
+                if stale:
+                    logger.warning(
+                        "Inbox error: Relayed LD signature from %s is too old",
+                        creator,
+                    )
+                    return HttpResponseUnauthorized("LD signature is too old")
             try:
                 creator_identity = Identity.by_actor_uri(
                     creator, create=True, transient=True

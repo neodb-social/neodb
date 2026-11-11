@@ -1,5 +1,6 @@
 import base64
 import json
+from datetime import timedelta
 from email.utils import format_datetime
 
 import pytest
@@ -1006,6 +1007,25 @@ def test_relayed_document_drops_terms_its_signature_leaves_out(
     msg = InboxMessage.objects.last()
     assert msg.message["object"]["content"] == "Hello"
     assert "quoteUrl" not in msg.message["object"]
+
+
+@pytest.mark.django_db
+def test_relayed_document_with_old_ld_signature_rejected(
+    client, identity, remote_identity, relay_identity, relay_keypair, keypair, settings
+):
+    """
+    An LD signature never expires, so a relayed one is only accepted within
+    the fan-out window of its signed creation time.
+    """
+    signed = _ld_signed(
+        _make_document(actor_uri=remote_identity.actor_uri), remote_identity, keypair
+    )
+    old = timezone.now() - timedelta(days=settings.FANOUT_LIMIT_DAYS + 1)
+    signed["signature"]["created"] = old.strftime("%Y-%m-%dT%H:%M:%SZ")
+    resp = _relay_sign_and_post(client, identity, signed, relay_keypair)
+    assert resp.status_code == 401
+    assert b"too old" in resp.content
+    assert InboxMessage.objects.count() == 0
 
 
 @pytest.mark.django_db
