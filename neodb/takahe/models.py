@@ -33,7 +33,7 @@ from common.validators import is_valid_url
 
 from .html import ContentRenderer, FediverseHtmlParser
 from .uris import *
-from .uris import ProxyAbsoluteUrl
+from .uris import ProxyAbsoluteUrl, proxy_capability
 
 if TYPE_CHECKING:
     from django_stubs_ext.db.models.manager import RelatedManager
@@ -2309,6 +2309,14 @@ class PostAttachment(models.Model):
             "audio/webm",
         ]
 
+    def proxy_url(self) -> ProxyAbsoluteUrl:
+        # the capability, not the id, is what lets a non-public image through
+        return ProxyAbsoluteUrl(
+            f"/proxy/post_attachment/{self.pk}/",
+            remote_url=self.remote_url,
+            capability=proxy_capability("post_attachment", self.pk),
+        )
+
     def thumbnail_url(self) -> RelativeAbsoluteUrl:
         # a storage url is schemeless whenever its base url is a path, and
         # RelativeAbsoluteUrl raises on that; an absolute one is kept as is
@@ -2317,10 +2325,7 @@ class PostAttachment(models.Model):
         elif self.file:
             return AutoAbsoluteUrl(self.file.url)
         else:
-            return ProxyAbsoluteUrl(
-                f"/proxy/post_attachment/{self.pk}/",
-                remote_url=self.remote_url,
-            )
+            return self.proxy_url()
 
     def full_url(self):
         if self.file:
@@ -2330,10 +2335,7 @@ class PostAttachment(models.Model):
         if self.is_image() or not (self.remote_url or "").startswith(
             ("http://", "https://")
         ):
-            return ProxyAbsoluteUrl(
-                f"/proxy/post_attachment/{self.pk}/",
-                remote_url=self.remote_url,
-            )
+            return self.proxy_url()
         assert self.remote_url is not None
         return RelativeAbsoluteUrl(self.remote_url)
 

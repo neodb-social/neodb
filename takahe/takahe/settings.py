@@ -112,6 +112,10 @@ class Settings(BaseSettings):
     #: by default, so you'll logout everytime the process restarts.
     SECRET_KEY: str = Field(default_factory=lambda: "autokey-" + secrets.token_hex(128))
 
+    #: Retired secret keys that still verify signed values (a JSON list),
+    #: so a key rotation does not break links signed with the old key.
+    SECRET_KEY_FALLBACKS: list[str] = Field(default_factory=list)
+
     #: Set a secret key used to protect the stator. Randomized by default.
     STATOR_TOKEN: str = Field(default_factory=lambda: secrets.token_hex(128))
 
@@ -217,6 +221,7 @@ if not SETUP.DEBUG and SETUP.SECRET_KEY.startswith("autokey-"):
     print("You must set TAKAHE_SECRET_KEY in production")
     sys.exit(1)
 SECRET_KEY = SETUP.SECRET_KEY
+SECRET_KEY_FALLBACKS = SETUP.SECRET_KEY_FALLBACKS
 DEBUG = SETUP.DEBUG
 
 # Application definition

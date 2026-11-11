@@ -6,7 +6,7 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
 from core.uploads import upload_namer
-from core.uris import ProxyAbsoluteUrl, RelativeAbsoluteUrl
+from core.uris import ProxyAbsoluteUrl, RelativeAbsoluteUrl, proxy_capability
 from stator.models import State, StateField, StateGraph, StatorModel
 
 logger = logging.getLogger(__name__)
@@ -98,16 +98,21 @@ class PostAttachment(StatorModel):
             "audio/webm",
         ]
 
+    def proxy_url(self) -> ProxyAbsoluteUrl:
+        # the capability, not the id, is what lets a non-public image through
+        return ProxyAbsoluteUrl(
+            f"/proxy/post_attachment/{self.pk}/",
+            remote_url=self.remote_url,
+            capability=proxy_capability("post_attachment", self.pk),
+        )
+
     def thumbnail_url(self) -> RelativeAbsoluteUrl:
         if self.thumbnail:
             return RelativeAbsoluteUrl(self.thumbnail.url)
         elif self.file:
             return RelativeAbsoluteUrl(self.file.url)
         else:
-            return ProxyAbsoluteUrl(
-                f"/proxy/post_attachment/{self.pk}/",
-                remote_url=self.remote_url,
-            )
+            return self.proxy_url()
 
     def full_url(self):
         if self.file:
@@ -117,10 +122,7 @@ class PostAttachment(StatorModel):
         if self.is_image() or not (self.remote_url or "").startswith(
             ("http://", "https://")
         ):
-            return ProxyAbsoluteUrl(
-                f"/proxy/post_attachment/{self.pk}/",
-                remote_url=self.remote_url,
-            )
+            return self.proxy_url()
         return RelativeAbsoluteUrl(self.remote_url)
 
     @property

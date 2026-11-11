@@ -27,6 +27,7 @@ helpers for it. The column can be dropped in a later release.
 import logging
 import mimetypes
 import os
+import re
 import uuid
 from typing import TYPE_CHECKING, Any
 
@@ -37,6 +38,7 @@ from django.db import models
 from django.utils import timezone
 
 from common.models.misc import MISSING_COVER
+from takahe.uris import proxy_capability
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -72,6 +74,9 @@ SOURCE_MAX_LENGTH = 500
 # remote URL would store a broken one, and these rows are what the note
 # renders, so its media would break.
 REMOTE_URL_MAX_LENGTH = 2500
+
+
+_PROXY_URL_RE = re.compile(r"/proxy/post_attachment/(\d+)/$")
 
 
 def source_for_post_attachment(pk: int) -> str:
@@ -128,6 +133,8 @@ def takahe_attachment_urls(atta: "PostAttachment") -> tuple[str, str]:
     # (takahe/mediaproxy/views.py:145-156). Mirroring it for a non-image would
     # emit a URL that 404s by design, so non-images fall through to remote --
     # which is what that docstring says takahe intends anyway.
+    # Stored without its capability, which ``Attachment`` adds on read: a
+    # signature kept in the row would go stale when the secret key changes.
     proxy = _abs(f"/proxy/post_attachment/{atta.pk}/") if atta.is_image() else ""
     full = file_url or proxy or remote
     preview = thumb_url or file_url or proxy or remote
@@ -214,12 +221,31 @@ class Attachment(models.Model):
     def uuid(self) -> str:
         return self.uid.hex
 
+    def _with_proxy_capability(self, url: str) -> str:
+        """Complete a stored takahe proxy URL with its access capability.
+
+        Only for a row this site made from that very takahe attachment:
+        ``source`` is never taken from user input, whereas ``remote_url`` can
+        come from an imported archive, and signing an id named there would
+        hand out the capability for someone else's media.
+        """
+        m = _PROXY_URL_RE.search(url)
+        if not m:
+            return url
+        pk = int(m[1])
+        if self.source not in (
+            source_for_post_attachment(pk),
+            pending_source_for_post_attachment(pk),
+        ):
+            return url
+        return url + proxy_capability("post_attachment", pk)
+
     @property
     def url(self) -> str:
         """Full-size URL. Falls back to ``remote_url`` for undownloaded media."""
         if self.file:
             return self.file.url
-        return self.remote_url
+        return self._with_proxy_capability(self.remote_url)
 
     @property
     def preview_url(self) -> str:
@@ -231,7 +257,9 @@ class Attachment(models.Model):
         """
         if self.thumbnail:
             return self.thumbnail.url
-        return self.remote_preview_url or self.url
+        if self.remote_preview_url:
+            return self._with_proxy_capability(self.remote_preview_url)
+        return self.url
 
     @property
     def type(self) -> str:

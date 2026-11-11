@@ -14,6 +14,7 @@ from django.test import Client
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.crypto import salted_hmac
 from PIL import Image
 
 from catalog.models import Edition
@@ -375,6 +376,48 @@ class TestPostAttachmentUrls:
         assert isinstance(preview_url, str)
         assert preview_url.startswith(f"https://{settings.SITE_DOMAIN}/")
         assert preview_url.endswith("/media/attachment_thumbnails/a.png")
+
+    def test_proxy_url_carries_the_capability(self):
+        atta = PostAttachment(
+            pk=7, mimetype="image/png", remote_url="https://far.example/a.png"
+        )
+        expected = "/proxy/post_attachment/7/" + _expected_capability(7) + ".png"
+        assert atta.full_url().relative == expected
+        assert atta.thumbnail_url().relative == expected
+
+
+def _expected_capability(pk: int) -> str:
+    # spelled out rather than imported: takahe verifies with its own copy of
+    # this, so the two must agree on salt, algorithm and length
+    return salted_hmac(
+        "takahe.proxy.post_attachment", str(pk), algorithm="sha256"
+    ).hexdigest()[:32]
+
+
+class TestStoredProxyUrlCapability:
+    """A pointer row keeps the bare proxy URL and signs it when read."""
+
+    PROXY = "https://example.org/proxy/post_attachment/7/"
+
+    def test_row_made_from_the_takahe_attachment_is_signed(self):
+        row = Attachment(
+            source="takahe:7", remote_url=self.PROXY, remote_preview_url=self.PROXY
+        )
+        assert row.remote_url == self.PROXY
+        assert row.url == self.PROXY + _expected_capability(7)
+        assert row.preview_url == self.PROXY + _expected_capability(7)
+
+    def test_url_from_elsewhere_is_never_signed(self):
+        # remote_url can come from an imported archive; signing an id named
+        # there would hand out the capability for someone else's media
+        for source in ("", "takahe:8", "takahe-media:7"):
+            row = Attachment(source=source, remote_url=self.PROXY)
+            assert row.url == self.PROXY
+            assert row.preview_url == self.PROXY
+
+    def test_other_urls_are_untouched(self):
+        row = Attachment(source="takahe:7", remote_url="https://far.example/a.mp3")
+        assert row.url == "https://far.example/a.mp3"
 
 
 @pytest.mark.django_db(databases="__all__")
