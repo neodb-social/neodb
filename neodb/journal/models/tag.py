@@ -268,12 +268,15 @@ class TagManager:
             qs = qs.filter(parent__visibility=0)
         return sorted(qs.values_list("parent__title", flat=True))
 
-    def get_items_tags(self, item_ids: list[int]) -> dict[int, list[str]]:
+    def get_items_tags(
+        self, item_ids: list[int], public_only: bool = False
+    ) -> dict[int, list[str]]:
         """Batch-fetch user's tags for multiple items."""
         tags_by_item: dict[int, list[str]] = {item_id: [] for item_id in item_ids}
-        rows = TagMember.objects.filter(
-            parent__owner=self.owner, item_id__in=item_ids
-        ).values_list("item_id", "parent__title")
+        qs = TagMember.objects.filter(parent__owner=self.owner, item_id__in=item_ids)
+        if public_only:
+            qs = qs.filter(parent__visibility=0)
+        rows = qs.values_list("item_id", "parent__title")
         for item_id, title in rows:
             tags_by_item[item_id].append(title)
         for item_id in tags_by_item:

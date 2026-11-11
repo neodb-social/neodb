@@ -1,6 +1,7 @@
 import datetime
 from typing import Any
 
+from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.db.models import QuerySet, prefetch_related_objects
 from django.http import HttpRequest, HttpResponse
@@ -29,10 +30,12 @@ from journal.models.common import (
     prefetch_latest_posts,
     q_owned_piece_visible_to_user,
 )
+from journal.models.comment import Comment
 from journal.models.rating import Rating
 from journal.models.shelf import ShelfMember
 from takahe.utils import Takahe
 from users.apis import UserIdentitySchema
+from users.models import User
 from users.models.apidentity import APIdentity
 
 from ..models import (
@@ -44,8 +47,15 @@ from ..models import (
 CALENDAR_CACHE_SECONDS = 6 * 60 * 60
 
 
-def _prefetch_shelf_members(members: list[ShelfMember]):
-    """Batch-fetch related data for shelf members to avoid N+1 queries."""
+def _prefetch_shelf_members(
+    members: list[ShelfMember], viewer: User | AnonymousUser | None = None
+):
+    """Batch-fetch related data for shelf members to avoid N+1 queries.
+
+    A tag, a comment and a rating each carry their own visibility, which can
+    be narrower than the mark's, so for anyone but the owner they are filled
+    from what `viewer` may see rather than from the owner's full set.
+    """
     if not members:
         return
     items = [m.item for m in members]
@@ -68,9 +78,29 @@ def _prefetch_shelf_members(members: list[ShelfMember]):
     # Batch-fetch user's tags for MarkSchema.tags
     owner = members[0].owner
     item_ids = [m.item_id for m in members]
-    tags_by_item = owner.tag_manager.get_items_tags(item_ids)
+    is_owner = isinstance(viewer, User) and viewer.identity == owner
+    tags_by_item = owner.tag_manager.get_items_tags(item_ids, public_only=not is_owner)
     for m in members:
         m._tags = tags_by_item.get(m.item_id, [])
+    if is_owner:
+        return
+    # replaces the manager's annotations, which ignore sibling visibility
+    visible = q_owned_piece_visible_to_user(
+        viewer if isinstance(viewer, User) else None, owner
+    )
+    comments = dict(
+        Comment.objects.filter(visible, item_id__in=item_ids).values_list(
+            "item_id", "text"
+        )
+    )
+    ratings = dict(
+        Rating.objects.filter(visible, item_id__in=item_ids).values_list(
+            "item_id", "grade"
+        )
+    )
+    for m in members:
+        m._comment_text = comments.get(m.item_id)
+        m._rating_grade = ratings.get(m.item_id)
 
 
 class ShelfPageNumberPagination(PageNumberPagination):
@@ -82,7 +112,9 @@ class ShelfPageNumberPagination(PageNumberPagination):
         **params: Any,
     ):
         val = super().paginate_queryset(queryset, pagination, request, **params)
-        _prefetch_shelf_members(val["data"])
+        _prefetch_shelf_members(
+            val["data"], request.user if isinstance(request.user, User) else None
+        )
         return val
 
 

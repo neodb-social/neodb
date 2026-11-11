@@ -367,6 +367,8 @@ class ShelfMember(ListMember):
         owner_id: int
         item_id: int
         _tags: list[str]
+        _comment_text: str | None
+        _rating_grade: int | None
         current_progress: "ShelfMemberProgress"
 
     webhook_event = "mark"
