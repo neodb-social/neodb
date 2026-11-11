@@ -478,3 +478,30 @@ def test_vote_with_invalid_option_ignored(
     post.refresh_from_db()
     assert post.type_data.voter_count == 0
     assert not post.interactions.filter(type=PostInteraction.Types.vote).exists()
+
+
+@pytest.mark.django_db
+def test_repeated_like_counts_once(
+    identity: Identity, remote_identity: Identity, config_system
+):
+    """
+    Likes of one post by one actor under new activity ids are one like: each
+    would otherwise count and notify the author again.
+    """
+    post = Post.create_local(author=identity, content="hello")
+    object_uri = Post.objects.get(pk=post.pk).object_uri
+    for n in range(3):
+        PostInteraction.handle_ap(
+            {
+                "id": f"https://remote.test/test-actor/likes/{n}",
+                "type": "Like",
+                "actor": remote_identity.actor_uri,
+                "object": object_uri,
+            }
+        )
+    assert (
+        PostInteraction.objects.filter(
+            post=post, type=PostInteraction.Types.like
+        ).count()
+        == 1
+    )

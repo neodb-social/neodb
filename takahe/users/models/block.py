@@ -178,6 +178,18 @@ class Block(StatorModel):
             return None
 
     @classmethod
+    def exists_between(cls, a, b) -> bool:
+        """
+        Whether either identity fully blocks the other
+        """
+        return (
+            cls.objects.active()
+            .filter(mute=False)
+            .filter(models.Q(source=a, target=b) | models.Q(source=b, target=a))
+            .exists()
+        )
+
+    @classmethod
     def create_local_block(cls, source, target) -> "Block":
         """
         Creates or updates a full Block from a local Identity to the target

@@ -1,5 +1,6 @@
 import base64
 import json
+from datetime import timedelta
 from email.utils import format_datetime
 
 import pytest
@@ -279,8 +280,11 @@ def test_http_signature_unknown_actor_deferred(client, identity):
 
 
 @pytest.mark.django_db
-def test_valid_ld_signature_accepted(client, identity, remote_identity, keypair):
-    """Messages with a valid LD Signature are accepted."""
+def test_ld_signature_alone_rejected(client, identity, remote_identity, keypair):
+    """
+    A valid LD Signature without an HTTP signature is refused: it carries no
+    time, so anyone holding a copy could replay it.
+    """
     key_id = f"{remote_identity.actor_uri}#main-key"
     remote_identity.public_key = keypair["public_key"]
     remote_identity.public_key_id = key_id
@@ -295,10 +299,8 @@ def test_valid_ld_signature_accepted(client, identity, remote_identity, keypair)
     document["signature"] = signature_section
 
     resp = _post_to_inbox(client, identity, document)
-    assert resp.status_code == 202
-    msg = InboxMessage.objects.last()
-    assert msg is not None
-    assert msg.metadata is None
+    assert resp.status_code == 401
+    assert InboxMessage.objects.count() == 0
 
 
 @pytest.mark.django_db
@@ -322,9 +324,10 @@ def test_invalid_ld_signature_rejected(client, identity, remote_identity, keypai
 
 
 @pytest.mark.django_db
-def test_ld_signature_unknown_creator_deferred(client, identity):
+def test_ld_signature_alone_from_unknown_creator_rejected(client, identity):
     """
-    LD Signature from an unknown creator (no key) is deferred.
+    An LD Signature from an unknown creator (no key) is not deferred without
+    an HTTP signature either.
     """
     actor_uri = "https://unknown.test/actor/"
     creator_uri = "https://unknown.test/actor/"
@@ -339,17 +342,15 @@ def test_ld_signature_unknown_creator_deferred(client, identity):
     }
 
     resp = _post_to_inbox(client, identity, document)
-    assert resp.status_code == 202
-    msg = InboxMessage.objects.last()
-    assert msg is not None
-    assert msg.metadata is not None
-    assert "ld_sig" in msg.metadata
-    assert msg.metadata["ld_sig"]["creator_uri"] == creator_uri
+    assert resp.status_code == 401
+    assert InboxMessage.objects.count() == 0
 
 
 @pytest.mark.django_db
-def test_malformed_ld_signature_rejected(client, identity):
-    """Messages with a malformed LD signature block are rejected."""
+def test_malformed_ld_signature_rejected(
+    client, identity, relay_identity, relay_keypair
+):
+    """Relayed messages with a malformed LD signature block are rejected."""
     actor_uri = "https://remote.test/test-actor/"
     Domain.objects.create(domain="remote.test", local=False, state="updated")
     Identity.objects.create(
@@ -368,7 +369,7 @@ def test_malformed_ld_signature_rejected(client, identity):
         "type": "RsaSignature2017",
     }
 
-    resp = _post_to_inbox(client, identity, document)
+    resp = _relay_sign_and_post(client, identity, document, relay_keypair)
     assert resp.status_code == 400
 
 
@@ -925,7 +926,10 @@ def test_relay_actorless_activity_attributed_to_ld_creator(
     remote_identity.save()
 
     document = {
-        "@context": "https://www.w3.org/ns/activitystreams",
+        "@context": [
+            "https://www.w3.org/ns/activitystreams",
+            {"FeatureRequest": "https://w3id.org/fep/7aa9#FeatureRequest"},
+        ],
         "id": f"{remote_identity.actor_uri}feature_requests/1",
         "type": "FeatureRequest",
         "object": identity.actor_uri,
@@ -943,6 +947,97 @@ def test_relay_actorless_activity_attributed_to_ld_creator(
     assert msg is not None
     assert msg.message["actor"] == remote_identity.actor_uri
     assert msg.metadata is None
+
+
+def _ld_signed(document: dict, identity: Identity, keypair) -> dict:
+    key_id = f"{identity.actor_uri}#main-key"
+    identity.public_key = keypair["public_key"]
+    identity.public_key_id = key_id
+    identity.save()
+    return dict(
+        document,
+        signature=LDSignature.create_signature(
+            document, keypair["private_key"], key_id
+        ),
+    )
+
+
+@pytest.mark.django_db
+def test_relayed_document_is_read_with_our_terms(
+    client, identity, remote_identity, relay_identity, relay_keypair, keypair
+):
+    """
+    The LD signature covers the expanded graph, not the sender's term
+    definitions: a relayed signed Create whose context renames it Delete is
+    still read as a Create.
+    """
+    signed = _ld_signed(
+        _make_document(actor_uri=remote_identity.actor_uri), remote_identity, keypair
+    )
+    vocab = "https://www.w3.org/ns/activitystreams#"
+    signed["@context"] = {
+        "id": "@id",
+        "type": "@type",
+        "Delete": vocab + "Create",
+        "Note": vocab + "Note",
+        "actor": {"@id": vocab + "actor", "@type": "@id"},
+        "object": {"@id": vocab + "object"},
+        "attributedTo": {"@id": vocab + "attributedTo", "@type": "@id"},
+        "content": {"@id": vocab + "content"},
+    }
+    signed["type"] = "Delete"
+    resp = _relay_sign_and_post(client, identity, signed, relay_keypair)
+    assert resp.status_code == 202
+    msg = InboxMessage.objects.last()
+    assert msg.message["type"] == "Create"
+    assert msg.message["object"]["type"] == "Note"
+
+
+@pytest.mark.django_db
+def test_relayed_document_drops_terms_its_signature_leaves_out(
+    client, identity, remote_identity, relay_identity, relay_keypair, keypair
+):
+    signed = _ld_signed(
+        _make_document(actor_uri=remote_identity.actor_uri), remote_identity, keypair
+    )
+    # undefined in the signed context, so it is not part of the signed graph
+    signed["object"]["quoteUrl"] = "https://elsewhere.test/posts/9"
+    resp = _relay_sign_and_post(client, identity, signed, relay_keypair)
+    assert resp.status_code == 202
+    msg = InboxMessage.objects.last()
+    assert msg.message["object"]["content"] == "Hello"
+    assert "quoteUrl" not in msg.message["object"]
+
+
+@pytest.mark.django_db
+def test_relayed_document_with_old_ld_signature_rejected(
+    client, identity, remote_identity, relay_identity, relay_keypair, keypair, settings
+):
+    """
+    An LD signature never expires, so a relayed one is only accepted within
+    the fan-out window of its signed creation time.
+    """
+    signed = _ld_signed(
+        _make_document(actor_uri=remote_identity.actor_uri), remote_identity, keypair
+    )
+    old = timezone.now() - timedelta(days=settings.FANOUT_LIMIT_DAYS + 1)
+    signed["signature"]["created"] = old.strftime("%Y-%m-%dT%H:%M:%SZ")
+    resp = _relay_sign_and_post(client, identity, signed, relay_keypair)
+    assert resp.status_code == 401
+    assert b"too old" in resp.content
+    assert InboxMessage.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_direct_delivery_keeps_sender_terms(client, identity, remote_identity, keypair):
+    remote_identity.public_key = keypair["public_key"]
+    remote_identity.save()
+    document = _make_document(actor_uri=remote_identity.actor_uri)
+    document["object"]["relatedWith"] = [{"type": "Rating", "value": 8}]
+    resp = _sign_and_post(client, identity, document, keypair)
+    assert resp.status_code == 202
+    msg = InboxMessage.objects.last()
+    assert msg.message["object"]["relatedWith"] == {"type": "Rating", "value": 8}
 
 
 @pytest.mark.django_db

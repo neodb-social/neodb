@@ -4,7 +4,7 @@ import pytest
 from activities.models import Post, QuoteAuthorization
 from django.test import Client
 
-from users.models import Identity
+from users.models import Block, Identity
 
 
 @pytest.fixture(autouse=True)
@@ -164,3 +164,56 @@ def test_handle_quote_request_rejects_non_public(
 
     assert not QuoteAuthorization.objects.filter(target_post=post).exists()
     assert sent["body"]["type"] == "Reject"
+
+
+@pytest.mark.django_db
+def test_handle_quote_request_rejects_blocked_requester(
+    monkeypatch, identity: Identity, remote_identity: Identity, config_system
+):
+    post = Post.create_local(
+        author=identity, content="hi", visibility=Post.Visibilities.public
+    )
+    Block.create_local_block(identity, remote_identity)
+    sent: dict = {}
+
+    def fake_signed_request(self, method, uri, body=None):
+        sent["body"] = body
+
+    monkeypatch.setattr(Identity, "signed_request", fake_signed_request)
+    Post.handle_quote_request_ap(
+        {
+            "type": "QuoteRequest",
+            "id": "https://remote.test/users/quoter/quote-request/3",
+            "actor": remote_identity.actor_uri,
+            "object": post.object_uri,
+            "instrument": "https://remote.test/users/quoter/statuses/44",
+        }
+    )
+    assert not QuoteAuthorization.objects.filter(target_post=post).exists()
+    assert sent["body"]["type"] == "Reject"
+
+
+@pytest.mark.django_db
+def test_handle_quote_request_ignores_quoting_post_on_another_host(
+    monkeypatch, identity: Identity, remote_identity: Identity, config_system
+):
+    post = Post.create_local(
+        author=identity, content="hi", visibility=Post.Visibilities.public
+    )
+    sent: dict = {}
+
+    def fake_signed_request(self, method, uri, body=None):
+        sent["body"] = body
+
+    monkeypatch.setattr(Identity, "signed_request", fake_signed_request)
+    Post.handle_quote_request_ap(
+        {
+            "type": "QuoteRequest",
+            "id": "https://remote.test/users/quoter/quote-request/4",
+            "actor": remote_identity.actor_uri,
+            "object": post.object_uri,
+            "instrument": "https://elsewhere.test/users/other/statuses/1",
+        }
+    )
+    assert not QuoteAuthorization.objects.filter(target_post=post).exists()
+    assert not sent

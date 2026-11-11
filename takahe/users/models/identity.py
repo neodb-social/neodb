@@ -1100,7 +1100,7 @@ class Identity(StatorModel):
         `instrument`, its requester being implicitly the owner of that
         collection (see IMPLICIT_ACTOR_TYPES in users.views.activitypub).
         """
-        from users.models import FeatureAuthorization
+        from users.models import Block, FeatureAuthorization
 
         actor_uri = data.get("actor")
         object_uri = get_str_or_id(data.get("object"))
@@ -1109,6 +1109,20 @@ class Identity(StatorModel):
             logger.warning(
                 "Ignoring FeatureRequest %s: needs actor, object and instrument",
                 data.get("id"),
+            )
+            return
+        # the requester's server mints the request and the collection; a
+        # stamp names the collection, so it has to be the requester's
+        actor_host = urlparse(actor_uri).hostname
+        request_uri = data.get("id")
+        if urlparse(collection_uri).hostname != actor_host or (
+            isinstance(request_uri, str)
+            and urlparse(request_uri).hostname != actor_host
+        ):
+            logger.warning(
+                "Ignoring FeatureRequest %s: not on the host of %s",
+                request_uri,
+                actor_uri,
             )
             return
         try:
@@ -1126,7 +1140,7 @@ class Identity(StatorModel):
         if not requester.inbox_uri:
             logger.warning("No inbox to answer FeatureRequest from %s", actor_uri)
             return
-        if identity.discoverable:
+        if identity.discoverable and not Block.exists_between(identity, requester):
             auth = FeatureAuthorization.objects.create(
                 identity=identity,
                 collection_uri=collection_uri,

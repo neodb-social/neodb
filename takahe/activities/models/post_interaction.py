@@ -534,28 +534,28 @@ class PostInteraction(StatorModel):
                     raise ActivityPubFormatError(
                         f"Cannot handle AP type {data['type']}"
                     )
-                # Boosts of the same post by the same identity are
+                # A boost would fan a private post out to the booster's
+                # followers; only its author may boost it.
+                if (
+                    type == cls.Types.boost
+                    and post.visibility
+                    not in [Post.Visibilities.public, Post.Visibilities.unlisted]
+                    and post.author_id != identity.pk
+                ):
+                    raise ActorMismatchError(f"Cannot boost non-public post {post.pk}")
+                # Likes and boosts of the same post by the same identity are
                 # idempotent - groups (e.g. Lemmy communities) announce a
                 # new post both as Announce(Create(Page)) and as a bare
-                # Announce(Page), each with its own activity id. Lock the
-                # post row (we are always inside a transaction here via
-                # handle_ap) so concurrent duplicate announces serialize.
-                if type == cls.Types.boost:
-                    # A boost would fan a private post out to the booster's
-                    # followers; only its author may boost it.
-                    if (
-                        post.visibility
-                        not in [Post.Visibilities.public, Post.Visibilities.unlisted]
-                        and post.author_id != identity.pk
-                    ):
-                        raise ActorMismatchError(
-                            f"Cannot boost non-public post {post.pk}"
-                        )
+                # Announce(Page), each with its own activity id, and a repeated
+                # Like must not count or notify again. Lock the post row (we
+                # are always inside a transaction here via handle_ap) so
+                # concurrent duplicates serialize.
+                if type in [cls.Types.boost, cls.Types.like]:
                     post = Post.objects.select_for_update().get(pk=post.pk)
                     existing = cls.objects.filter(
                         identity=identity,
                         post=post,
-                        type=cls.Types.boost,
+                        type=type,
                         state__in=PostInteractionStates.group_active(),
                     ).first()
                     if existing:

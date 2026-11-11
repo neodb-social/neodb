@@ -429,3 +429,21 @@ class TestPostWritingViews:
         )
         assert response.status_code == 400
         assert Post.objects.count() == 1
+
+    def test_edited_private_reply_still_names_parent_author(
+        self, original_post: Post, other_writer: User
+    ) -> None:
+        reply = Takahe.post(
+            other_writer.identity.pk,
+            "Reply",
+            Takahe.Visibilities.followers,
+            reply_to_pk=original_post.pk,
+        )
+        assert reply is not None
+        Takahe.post(
+            other_writer.identity.pk,
+            "Edited",
+            Takahe.Visibilities.followers,
+            post_pk=reply.pk,
+        )
+        assert reply.mentions.filter(pk=self.owner.identity.pk).exists()

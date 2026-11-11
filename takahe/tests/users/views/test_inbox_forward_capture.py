@@ -48,11 +48,7 @@ def _ld_sign_and_post(client, identity, remote_identity, keypair, document):
     document["signature"] = LDSignature.create_signature(
         document, keypair["private_key"], key_id
     )
-    return client.post(
-        identity.inbox_uri,
-        data=json.dumps(document),
-        content_type="application/activity+json",
-    )
+    return _http_sign_and_post(client, identity, document, keypair)
 
 
 @pytest.mark.django_db
@@ -114,11 +110,7 @@ def test_deferred_ld_signature_with_nul_is_stored_cleaned(
     document["signature"] = LDSignature.create_signature(
         document, keypair["private_key"], f"{remote_identity.actor_uri}#main-key"
     )
-    resp = client.post(
-        identity.inbox_uri,
-        data=json.dumps(document),
-        content_type="application/activity+json",
-    )
+    resp = _http_sign_and_post(client, identity, document, keypair)
     assert resp.status_code == 202
     message = InboxMessage.objects.last()
     assert message.message["object"]["content"] == "Hello"

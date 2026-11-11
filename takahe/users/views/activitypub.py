@@ -1,4 +1,5 @@
 import base64
+import datetime
 import json
 import logging
 from urllib.parse import urldefrag, urlparse
@@ -8,7 +9,7 @@ from activities.services import TimelineService
 from core import sentry
 from core.decorators import cache_page
 from core.json import clean_json
-from core.ld import GENERIC_AS_TYPES, canonicalise, get_str_or_id
+from core.ld import GENERIC_AS_TYPES, canonicalise, get_str_or_id, parse_ld_date
 from core.signatures import (
     HttpSignature,
     LDSignature,
@@ -19,6 +20,7 @@ from core.views import StaticContentView
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
 from django.views.decorators.csrf import csrf_exempt
@@ -76,6 +78,83 @@ def usable_actor_uri(candidate: str | None) -> str | None:
     if parts.scheme not in ["http", "https"] or not parts.hostname:
         return None
     return candidate
+
+
+def signed_by_actor(key_id_actor: str | None, actor_uri: str) -> bool:
+    """
+    Whether an HTTP signature's keyId, without its fragment, names the actor
+    itself: the actor URI, or the actor URI plus one path segment (GoToSocial's
+    /main-key, BookWyrm's trailing slash). The key used to verify is still the
+    actor's own, fetched from its document, so this only decides direct versus
+    relay.
+    """
+    kid = key_id_actor or ""
+    actor_prefix = actor_uri.rstrip("/")
+    return (
+        kid == actor_uri
+        or kid.rstrip("/") == actor_prefix
+        or (
+            kid.startswith(actor_prefix + "/")
+            and "/" not in kid[len(actor_prefix) + 1 :].rstrip("/")
+        )
+    )
+
+
+def read_inbox_document(
+    document: dict, key_id_actor: str | None
+) -> tuple[str, str | None] | HttpResponse:
+    """
+    Settles the document's type and actor in place, returning the type and
+    the embedded object's type, or the response refusing the document.
+    """
+    # JSON-LD allows a list of types; adopt the first concrete one
+    # (preserving case, which the comparisons below expect) so dispatch
+    # here and in the handlers works off a single type string.
+    document_type = document.get("type")
+    if isinstance(document_type, list):
+        named = [t for t in document_type if isinstance(t, str) and t]
+        document_type = next(
+            (t for t in named if t.lower() not in GENERIC_AS_TYPES),
+            named[0] if named else None,
+        )
+    if not isinstance(document_type, str) or not document_type:
+        logger.warning("Inbox error: missing or invalid type")
+        return HttpResponseBadRequest("Missing or invalid type")
+    document["type"] = document_type
+    document_subtype = None
+    if isinstance(document.get("object"), dict):
+        document_subtype = document["object"].get("type")
+
+    # Find the Identity by the actor on the incoming item
+    # This ensures that the signature used for the headers matches the actor
+    # described in the payload.
+    # `actor` may arrive embedded as an object rather than a bare URI, so
+    # reduce it to the URI once here: identity lookup, relay detection,
+    # signature matching and every handler downstream expect that URI, and
+    # anything that does not name one has to be rejected before it reaches
+    # domain lookup as garbage.
+    actor_uri = usable_actor_uri(get_str_or_id(document.get("actor")))
+    if not actor_uri:
+        implicit_actor = document_type.lower() in IMPLICIT_ACTOR_TYPES
+        # The LD signature creator comes first: it credits the origin,
+        # while a relayed delivery is HTTP-signed by the relay. Where the
+        # two differ this puts the request into relay_mode below, which is
+        # what makes the relay prove itself and the origin prove the
+        # document, rather than the relay's signature carrying it alone.
+        signer_uri = usable_actor_uri(
+            ld_signature_creator(document)
+        ) or usable_actor_uri(key_id_actor)
+        if not implicit_actor or not signer_uri:
+            logger.warning("Inbox error: unspecified or invalid actor")
+            return HttpResponseBadRequest("Unspecified actor")
+        # Adopt the signer as the actor so blocking, signature verification
+        # and the handlers downstream all work off one notion of who sent
+        # the activity. Nothing is trusted yet: the signature is verified
+        # below exactly as it is for any other delivery, and it is that
+        # check which makes this attribution safe.
+        actor_uri = signer_uri
+    document["actor"] = actor_uri
+    return document_type, document_subtype
 
 
 class FederatedView(View):
@@ -235,29 +314,10 @@ class Inbox(FederatedView):
             )
             return HttpResponseBadRequest("Error parsing JSON")
 
-        # JSON-LD allows a list of types; adopt the first concrete one
-        # (preserving case, which the comparisons below expect) so dispatch
-        # here and in the handlers works off a single type string.
-        document_type = document.get("type")
-        if isinstance(document_type, list):
-            named = [t for t in document_type if isinstance(t, str) and t]
-            document_type = next(
-                (t for t in named if t.lower() not in GENERIC_AS_TYPES),
-                named[0] if named else None,
-            )
-        if not isinstance(document_type, str) or not document_type:
-            logger.warning("Inbox error: missing or invalid type")
-            return HttpResponseBadRequest("Missing or invalid type")
-        document["type"] = document_type
-        document_subtype = None
-        if isinstance(document.get("object"), dict):
-            document_subtype = document["object"].get("type")
-
-        # Parse the signatures before looking at the actor: for the activity
+        # Parse the signature before looking at the actor: for the activity
         # types that carry no `actor`, the signer is the only statement of who
         # sent this. The signatures themselves are checked further down.
         http_sig_present = "Signature" in request.headers
-        ld_sig_present = "signature" in document
         signature_details = None
         key_id_actor = None
         if http_sig_present:
@@ -270,39 +330,27 @@ class Inbox(FederatedView):
                 return HttpResponseBadRequest(e.args[0])
             key_id_actor = urldefrag(signature_details["keyid"]).url
 
-        # Find the Identity by the actor on the incoming item
-        # This ensures that the signature used for the headers matches the actor
-        # described in the payload.
-        # `actor` may arrive embedded as an object rather than a bare URI, so
-        # reduce it to the URI once here: identity lookup, relay detection,
-        # signature matching and every handler downstream expect that URI, and
-        # anything that does not name one has to be rejected before it reaches
-        # domain lookup as garbage.
-        actor_uri = usable_actor_uri(get_str_or_id(document.get("actor")))
-        if not actor_uri:
-            implicit_actor = (
-                document_type.lower() in IMPLICIT_ACTOR_TYPES
-                if isinstance(document_type, str)
-                else False
-            )
-            # The LD signature creator comes first: it credits the origin,
-            # while a relayed delivery is HTTP-signed by the relay. Where the
-            # two differ this puts the request into relay_mode below, which is
-            # what makes the relay prove itself and the origin prove the
-            # document, rather than the relay's signature carrying it alone.
-            signer_uri = usable_actor_uri(
-                ld_signature_creator(document)
-            ) or usable_actor_uri(key_id_actor)
-            if not implicit_actor or not signer_uri:
-                logger.warning("Inbox error: unspecified or invalid actor")
-                return HttpResponseBadRequest("Unspecified actor")
-            # Adopt the signer as the actor so blocking, signature verification
-            # and the handlers downstream all work off one notion of who sent
-            # the activity. Nothing is trusted yet: the signature is verified
-            # below exactly as it is for any other delivery, and it is that
-            # check which makes this attribution safe.
-            actor_uri = signer_uri
-        document["actor"] = actor_uri
+        read = read_inbox_document(document, key_id_actor)
+        if isinstance(read, HttpResponse):
+            return read
+        if http_sig_present and not signed_by_actor(key_id_actor, document["actor"]):
+            # Only the actor's LD signature vouches for a document someone
+            # else delivers; read it with our own terms, not the sender's.
+            try:
+                document = canonicalise(
+                    clean_json(json.loads(request.body)),
+                    include_security=True,
+                    outbound=False,
+                    trusted=True,
+                )
+            except ValueError, JsonLdError:
+                logger.warning("Inbox error: relayed document fails to parse")
+                return HttpResponseBadRequest("Error parsing JSON")
+            read = read_inbox_document(document, key_id_actor)
+            if isinstance(read, HttpResponse):
+                return read
+        document_type, document_subtype = read
+        ld_sig_present = "signature" in document
 
         identity = Identity.by_actor_uri(document["actor"], create=True, transient=True)
         if document_type == "Delete":
@@ -347,6 +395,16 @@ class Inbox(FederatedView):
         ]:
             return HttpResponse(status=202)
 
+        # An LD signature alone carries no time, so anyone holding a copy
+        # could replay it: every delivery must be HTTP-signed too.
+        if not http_sig_present:
+            logger.warning(
+                "Inbox: %s from %s has no HTTP signature, rejecting.",
+                document_type,
+                identity,
+            )
+            return HttpResponseUnauthorized("No HTTP signature")
+
         verified = False
         ld_sig_verified = False  # True when the LD signature itself checked out
         relay_mode = False  # True when HTTP signer != document actor
@@ -359,21 +417,7 @@ class Inbox(FederatedView):
         # unknown signers without a cached key, pre-compute data for deferred
         # verification.
         if http_sig_present:
-            # a signer is the actor itself when the keyId, without its
-            # fragment, is the actor URI, or the actor URI plus one path
-            # segment (GoToSocial's /main-key, BookWyrm's trailing slash);
-            # the key used to verify is still the actor's own, fetched from
-            # its document, so this only decides direct versus relay
-            actor_prefix = document["actor"].rstrip("/")
-            kid = key_id_actor or ""
-            relay_mode = not (
-                kid == document["actor"]
-                or kid.rstrip("/") == actor_prefix
-                or (
-                    kid.startswith(actor_prefix + "/")
-                    and "/" not in kid[len(actor_prefix) + 1 :].rstrip("/")
-                )
-            )
+            relay_mode = not signed_by_actor(key_id_actor, document["actor"])
             signer_identity = (
                 Identity.by_actor_uri(key_id_actor, create=True, transient=True)
                 if relay_mode
@@ -464,6 +508,26 @@ class Inbox(FederatedView):
                 return HttpResponseUnauthorized(
                     "Signature creator does not match actor"
                 )
+            if relay_mode:
+                # An LD signature never expires, so whoever kept a copy could
+                # relay it again later, e.g. to bring back a deleted post.
+                # Its signed creation time bounds that to the fan-out window.
+                try:
+                    signed_at = parse_ld_date(raw_document["signature"]["created"])
+                    if signed_at.tzinfo is None:
+                        signed_at = signed_at.replace(tzinfo=datetime.UTC)
+                    stale = timezone.now() - signed_at > datetime.timedelta(
+                        days=settings.FANOUT_LIMIT_DAYS
+                    )
+                except AttributeError, KeyError, TypeError, ValueError:
+                    logger.warning("Inbox error: Malformed LD signature block")
+                    return HttpResponseBadRequest("Malformed LD signature")
+                if stale:
+                    logger.warning(
+                        "Inbox error: Relayed LD signature from %s is too old",
+                        creator,
+                    )
+                    return HttpResponseUnauthorized("LD signature is too old")
             try:
                 creator_identity = Identity.by_actor_uri(
                     creator, create=True, transient=True
@@ -502,14 +566,6 @@ class Inbox(FederatedView):
                     document.get("id"),
                 )
                 return HttpResponseUnauthorized("Bad signature")
-
-        if not (http_sig_present or ld_sig_present):
-            logger.warning(
-                "Inbox: %s from %s has no signature, rejecting.",
-                document["type"],
-                identity,
-            )
-            return HttpResponseUnauthorized("No signature")
 
         # Don't allow injection of internal messages
         if document["type"].startswith("__"):

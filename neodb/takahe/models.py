@@ -1704,7 +1704,12 @@ class Post(models.Model):
             # A direct post's audience is fixed once sent: its recipients may
             # not appear in the text, and the edit must still reach them
             if self.visibility != self.Visibilities.mentioned:
-                self.mentions.set(self.mentions_from_content(content, self.author))
+                mentioned = self.mentions_from_content(content, self.author)
+                # create_local names the parent's author on every reply
+                reply_to = self.in_reply_to_post()
+                if reply_to:
+                    mentioned.add(reply_to.author)
+                self.mentions.set(mentioned)
             self.emojis.set(Emoji.emojis_from_content(content, None))
             if attachments is not None:
                 self.attachments.set(attachments or [])  # type: ignore
