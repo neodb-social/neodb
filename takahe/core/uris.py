@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.utils.crypto import constant_time_compare, salted_hmac
 
 
 class RelativeAbsoluteUrl:
@@ -52,7 +53,12 @@ class ProxyAbsoluteUrl(AutoAbsoluteUrl):
         relative: str,
         identity=None,
         remote_url: str | None = None,
+        capability: str | None = None,
     ):
+        """
+        `capability`, when given, takes the place of the remote URL hash: the
+        proxy view requires it for media that is not public.
+        """
         if remote_url:
             # See if there is a file extension we can grab
             extension = "bin"
@@ -66,8 +72,37 @@ class ProxyAbsoluteUrl(AutoAbsoluteUrl):
             # When provided, attach a hash of the remote URL
             # SHA1 chosen as it generally has the best performance in modern python, and security is not a concern
             # Hash truncation is generally fine, as in the typical use case the hash is scoped to the identity PK.
-            relative += f"{hashlib.sha1(remote_url.encode('utf-8')).hexdigest()[:10]}.{extension}"
+            token = (
+                capability or hashlib.sha1(remote_url.encode("utf-8")).hexdigest()[:10]
+            )
+            relative += f"{token}.{extension}"
         super().__init__(relative, identity)
+
+
+def proxy_capability(kind: str, pk: int | str, secret: str | None = None) -> str:
+    """
+    Unguessable path segment that authorizes fetching proxied media `pk`.
+
+    Proxy URLs are fetched without credentials, by API clients and by <img>
+    tags alike, so access to non-public media rides on the URL itself.
+    """
+    return salted_hmac(
+        f"takahe.proxy.{kind}", str(pk), secret=secret, algorithm="sha256"
+    ).hexdigest()[:32]
+
+
+def proxy_capability_valid(kind: str, pk: int | str, value: str | None) -> bool:
+    """
+    Whether `value`, a proxy URL's last path segment with or without its
+    extension, is the capability for `pk` under the current or a retired key.
+    """
+    token = (value or "").split(".", 1)[0]
+    if not token:
+        return False
+    return any(
+        constant_time_compare(token, proxy_capability(kind, pk, secret))
+        for secret in (settings.SECRET_KEY, *settings.SECRET_KEY_FALLBACKS)
+    )
 
 
 class StaticAbsoluteUrl(RelativeAbsoluteUrl):

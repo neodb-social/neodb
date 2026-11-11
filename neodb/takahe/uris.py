@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 
 from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.utils.crypto import salted_hmac
 
 
 class RelativeAbsoluteUrl:
@@ -52,7 +53,12 @@ class ProxyAbsoluteUrl(AutoAbsoluteUrl):
         relative: str,
         identity=None,
         remote_url: str | None = None,
+        capability: str | None = None,
     ):
+        """
+        `capability`, when given, takes the place of the remote URL hash: the
+        proxy view requires it for media that is not public.
+        """
         if remote_url:
             # See if there is a file extension we can grab
             extension = "bin"
@@ -66,8 +72,23 @@ class ProxyAbsoluteUrl(AutoAbsoluteUrl):
             # When provided, attach a hash of the remote URL
             # SHA1 chosen as it generally has the best performance in modern python, and security is not a concern
             # Hash truncation is generally fine, as in the typical use case the hash is scoped to the identity PK.
-            relative += f"{hashlib.sha1(remote_url.encode('utf-8')).hexdigest()[:10]}.{extension}"
+            token = (
+                capability or hashlib.sha1(remote_url.encode("utf-8")).hexdigest()[:10]
+            )
+            relative += f"{token}.{extension}"
         super().__init__(relative, identity)
+
+
+def proxy_capability(kind: str, pk: int | str) -> str:
+    """
+    Unguessable path segment that authorizes fetching proxied media `pk`.
+
+    Must match takahe's `core.uris.proxy_capability`, which verifies it; both
+    services therefore have to run with the same secret key.
+    """
+    return salted_hmac(f"takahe.proxy.{kind}", str(pk), algorithm="sha256").hexdigest()[
+        :32
+    ]
 
 
 class StaticAbsoluteUrl(RelativeAbsoluteUrl):

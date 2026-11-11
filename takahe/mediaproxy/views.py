@@ -1,8 +1,9 @@
 from urllib.parse import urlparse
 
 import httpx
-from activities.models import Emoji, PostAttachment
+from activities.models import Emoji, Post, PostAttachment
 from core.files import SSRFAttemptError, check_url_safety, make_safe_client
+from core.uris import proxy_capability_valid
 from django.conf import settings
 from django.core.cache import cache
 from django.http import Http404, HttpResponse
@@ -211,13 +212,33 @@ class IdentityImageCacheView(BaseProxyView):
 class PostAttachmentCacheView(BaseProxyView):
     """
     Proxies post media (images only, videos should always be offloaded to remote)
+
+    The attachment id is sequential, so on its own it only opens media of
+    posts anyone may read. Everything else needs the capability that
+    PostAttachment.proxy_url() puts in the last path segment.
     """
+
+    open_visibilities = (
+        Post.Visibilities.public,
+        Post.Visibilities.local_only,
+        Post.Visibilities.unlisted,
+    )
 
     def get_remote_url(self):
         self.post_attachment = get_object_or_404(
-            PostAttachment, pk=self.kwargs["attachment_id"]
+            PostAttachment.objects.select_related("post"),
+            pk=self.kwargs["attachment_id"],
         )
         if not self.post_attachment.is_image():
+            raise Http404()
+        post = self.post_attachment.post
+        if (
+            post is None or post.visibility not in self.open_visibilities
+        ) and not proxy_capability_valid(
+            "post_attachment",
+            self.post_attachment.pk,
+            self.kwargs.get("image_hash"),
+        ):
             raise Http404()
         return self.post_attachment.remote_url
 
