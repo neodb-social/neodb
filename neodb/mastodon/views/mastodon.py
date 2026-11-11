@@ -14,6 +14,8 @@ from mastodon.models import Mastodon
 from mastodon.views.common import disconnect_identity, process_verified_account
 from users.login_proof import verify_login_proof
 
+LINK_INTENT_SESSION_KEY = "mastodon_oauth_intent"
+
 
 @require_http_methods(["GET", "POST"])
 def mastodon_login(request):
@@ -29,9 +31,20 @@ def mastodon_login(request):
     login_domain = (
         login_domain.strip().lower().split("//")[-1].split("/")[0].split("@")[-1]
     )
-    if request.method == "GET" and not request.user.is_authenticated:
-        query = urlencode({"method": "mastodon", "domain": login_domain})
-        return redirect(f"{reverse('users:login')}?{query}")
+    if request.method == "GET":
+        if not request.user.is_authenticated:
+            query = urlencode({"method": "mastodon", "domain": login_domain})
+            return redirect(f"{reverse('users:login')}?{query}")
+        # a re-authorization link, e.g. from a failed crosspost. A GET carries
+        # no proof the user asked for it, so it may only go back to the
+        # instance already linked: a link to any other one would let that
+        # instance attach an identity of its choosing to this account.
+        # Linking another identity stays a POST from account settings.
+        account = request.user.mastodon
+        if not account or account.domain.lower() != login_domain:
+            return render_error(
+                request, _("Authentication failed"), _("Identity not found.")
+            )
     if not verify_login_proof(request, "mastodon"):
         return render_error(request, _("Security check failed. Please try again."))
     sentry_count(
@@ -40,11 +53,20 @@ def mastodon_login(request):
     )
     try:
         login_url = Mastodon.generate_auth_url(login_domain, request)
-        return redirect(login_url)
     except Exception as e:
         return render_error(
             request, _("Error connecting to instance"), f"{login_domain} {e}"
         )
+    if request.user.is_authenticated:
+        # read back by mastodon_oauth: only a POST, which passed the CSRF
+        # check, may end in a new identity on this account
+        request.session[LINK_INTENT_SESSION_KEY] = {
+            "user": request.user.pk,
+            "link": request.method == "POST",
+        }
+    else:
+        request.session.pop(LINK_INTENT_SESSION_KEY, None)
+    return redirect(login_url)
 
 
 @require_http_methods(["GET"])
@@ -70,6 +92,7 @@ def mastodon_oauth(request):
             _("Authentication failed"),
             _("Invalid OAuth state. Please try again."),
         )
+    intent = request.session.pop(LINK_INTENT_SESSION_KEY, None)
     site = request.session.get("mastodon_domain")
     if not site:
         return render_error(
@@ -94,6 +117,18 @@ def mastodon_oauth(request):
             _("Authentication failed"),
             _("Invalid account data from Fediverse instance."),
         )
+    if request.user.is_authenticated and account.user != request.user:
+        may_link = (
+            isinstance(intent, dict)
+            and intent.get("user") == request.user.pk
+            and intent.get("link") is True
+        )
+        if not may_link:
+            return render_error(
+                request,
+                _("Unable to update login information"),
+                _("Security check failed. Please try again."),
+            )
     return process_verified_account(request, account)
 
 
