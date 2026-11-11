@@ -5,6 +5,7 @@ from .hashtag import Hashtag, HashtagStates  # noqa
 from .post import Post, PostStates  # noqa
 from .post_attachment import PostAttachment, PostAttachmentStates  # noqa
 from .post_interaction import PostInteraction, PostInteractionStates  # noqa
+from .post_tombstone import PostTombstone  # noqa
 from .preview_card import PreviewCard, PreviewCardStates  # noqa
 from .quote_authorization import QuoteAuthorization  # noqa
 from .scheduled_status import ScheduledStatus, ScheduledStatusStates  # noqa

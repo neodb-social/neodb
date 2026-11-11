@@ -11,6 +11,7 @@ from django.test import Client
 from django.utils import timezone
 
 from users.models import (
+    Block,
     FeatureAuthorization,
     Identity,
     InboxMessage,
@@ -237,6 +238,45 @@ def test_handle_feature_request_rejects_when_not_discoverable(
     assert not FeatureAuthorization.objects.filter(identity=identity).exists()
     assert sent["body"]["type"] == "Reject"
     assert sent["body"]["object"] == REQUEST_URI
+
+
+@pytest.mark.django_db
+def test_handle_feature_request_rejects_blocked_requester(
+    monkeypatch, identity: Identity, remote_identity: Identity, config_system
+):
+    identity.discoverable = True
+    identity.save()
+    Block.create_local_block(identity, remote_identity)
+    sent: dict = {}
+
+    def fake_signed_request(self, method, uri, body=None):
+        sent["body"] = body
+
+    monkeypatch.setattr(Identity, "signed_request", fake_signed_request)
+    Identity.handle_feature_request_ap(
+        _feature_request(identity.actor_uri, actor_uri=remote_identity.actor_uri)
+    )
+    assert not FeatureAuthorization.objects.filter(identity=identity).exists()
+    assert sent["body"]["type"] == "Reject"
+
+
+@pytest.mark.django_db
+def test_handle_feature_request_ignores_collection_on_another_host(
+    monkeypatch, identity: Identity, remote_identity: Identity, config_system
+):
+    identity.discoverable = True
+    identity.save()
+    sent: dict = {}
+
+    def fake_signed_request(self, method, uri, body=None):
+        sent["body"] = body
+
+    monkeypatch.setattr(Identity, "signed_request", fake_signed_request)
+    request = _feature_request(identity.actor_uri, actor_uri=remote_identity.actor_uri)
+    request["instrument"] = "https://elsewhere.test/users/other/collections/1"
+    Identity.handle_feature_request_ap(request)
+    assert not FeatureAuthorization.objects.filter(identity=identity).exists()
+    assert not sent
 
 
 @pytest.mark.django_db

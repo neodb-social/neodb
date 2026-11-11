@@ -57,6 +57,7 @@ from users.models.system_actor import SystemActor
 from activities.models.emoji import Emoji
 from activities.models.fan_out import FanOut
 from activities.models.hashtag import Hashtag
+from activities.models.post_tombstone import PostTombstone
 from activities.models.post_types import (
     PostTypeData,
     PostTypeDataDecoder,
@@ -1202,7 +1203,13 @@ class Post(StatorModel):
                 language = self.author.config_identity.preferred_posting_language
             self.language = language
             self.edited = timezone.now()
-            self.mentions.set(self.mentions_from_content(content, self.author))
+            mentions = self.mentions_from_content(content, self.author)
+            # create_local names the parent's author on every reply; a
+            # private reply reaches nobody it does not name
+            reply_to = self.in_reply_to_post()
+            if reply_to:
+                mentions.add(reply_to.author)
+            self.mentions.set(mentions)
             self.emojis.set(Emoji.emojis_from_content(content, None))
             self.attachments.set(attachments or [])
             if question is not None or self.type == Post.Types.question:
@@ -1398,6 +1405,8 @@ class Post(StatorModel):
         try:
             json_data = json_from_response(response)
             ap_data = canonicalise(json_data, include_security=True, outbound=False)
+            if ap_data.get("id") != self.object_uri:
+                return None
             with transaction.atomic():
                 post = Post.by_ap(ap_data, create=False, update=True)
         except (
@@ -1725,13 +1734,19 @@ class Post(StatorModel):
             )
             if quoted_post:
                 targets.add(quoted_post.author)
-        # If it's a reply, always include the original author if we know them
-        reply_post = self.in_reply_to_post()
+        # A public reply also reaches the original author and, for one of our
+        # own, that author's followers; a private one reaches only the people
+        # it names. Our own replies always name the original author, though
+        # edits used to drop that mention, so keep sending those to them.
+        public_reply = self.visibility in [
+            Post.Visibilities.public,
+            Post.Visibilities.unlisted,
+            Post.Visibilities.local_only,
+        ]
+        reply_post = self.in_reply_to_post() if public_reply or self.local else None
         if reply_post:
             targets.add(reply_post.author)
-            # And if it's a reply to one of our own, we have to re-fan-out to
-            # the original author's followers
-            if reply_post.author.local:
+            if public_reply and reply_post.author.local:
                 for follower in reply_post.author.inbound_follows.filter(
                     state__in=FollowStates.group_active()
                 ).select_related("source"):
@@ -1784,22 +1799,30 @@ class Post(StatorModel):
         return uris
 
     @staticmethod
-    def _primary_attributed_to(value):
+    def _primary_attributed_to(value, object_id: object = None):
         """Normalize an AS ``attributedTo`` value to a single URI string.
 
         Accepts a URI string, an embedded actor object ({"id": ...}), or
-        an array of either. WriteFreely sends ``[author_person, blog_group]``
-        for blog posts and other servers may invert the order, so when
-        given a list we prefer the first URI that already resolves to a
-        non-Group identity locally (cheap DB lookup, no HTTP). If none of
-        the candidates are known yet we fall back to the first URI, which
-        matches the WriteFreely convention. Returns ``None`` for anything
+        an array of either. PeerTube sends ``[account_person, channel_group]``
+        and other servers may invert the order, so when given a list we
+        prefer the first URI that already resolves to a non-Group identity
+        locally (cheap DB lookup, no HTTP). If none of the candidates are
+        known yet we fall back to the first URI. Only entries on the host of
+        ``object_id`` are candidates when there are any, since by_ap refuses
+        an author on another host. Returns ``None`` for anything
         unrecognizable so the caller's structural check can raise.
+        Signed Create/Update activities never get here with a list:
+        ``_ensure_actor_attributed`` pins their author to the signer.
         """
         if isinstance(value, list):
             uris = Post._attributed_to_uris(value)
             if not uris:
                 return None
+            if isinstance(object_id, str):
+                object_host = urlparse(object_id).hostname
+                uris = [
+                    uri for uri in uris if urlparse(uri).hostname == object_host
+                ] or uris
             # Pick the first candidate already known locally that's not
             # a Group/Organization. Stays robust if the author has been
             # seen previously (e.g. fetched as a follow or earlier post),
@@ -1845,10 +1868,11 @@ class Post(StatorModel):
         try:
             # Normalize attributedTo to a single URI string. Per the
             # ActivityStreams spec it may be a URI, an embedded actor
-            # object, or an array of either. WriteFreely emits
-            # ``[author_person, blog_group]`` for blog posts; the author
-            # is conventionally first, so we take the head.
-            data["attributedTo"] = cls._primary_attributed_to(data.get("attributedTo"))
+            # object, or an array of either.
+            attributed_uris = cls._attributed_to_uris(data.get("attributedTo"))
+            data["attributedTo"] = cls._primary_attributed_to(
+                data.get("attributedTo"), data.get("id")
+            )
             data["type"] = cls._primary_post_type(data.get("type"))
             # Ensure data has the primary fields of all Posts
             if (
@@ -1932,13 +1956,18 @@ class Post(StatorModel):
             # never take their content from inbound documents.
             if post.local:
                 raise ActorMismatchError(f"Remote data for local post {post.pk}")
-            # the primary entry, not any entry: a same-host actor could
-            # otherwise list a neighbour as co-author and edit their post
-            primary = cls._primary_attributed_to(data["attributedTo"])
-            if not isinstance(primary, str) or not post.author.is_actor_uri(primary):
+            # any entry may be the stored author: a signed Update names only
+            # its signer (see _ensure_actor_attributed), and a fetched
+            # document is served at the post's own id
+            author_uri = next(
+                (uri for uri in attributed_uris if post.author.is_actor_uri(uri)),
+                None,
+            )
+            if author_uri is None:
                 raise ActorMismatchError(
                     f"Object attributedTo does not name the author of post {post.pk}"
                 )
+            data["attributedTo"] = author_uri
             # a delayed older version must not rewrite a newer one; an equal
             # one passes, as Mastodon resends poll tallies without `updated`
             try:
@@ -2206,11 +2235,21 @@ class Post(StatorModel):
 
     @classmethod
     def by_object_uri(
-        cls, object_uri, fetch=False, fetch_as=None, fetch_depth: int = 0
+        cls,
+        object_uri,
+        fetch=False,
+        fetch_as=None,
+        fetch_depth: int = 0,
+        *,
+        exact_id: bool = False,
     ) -> "Post":
         """
         Gets the post by URI - either looking up locally, or fetching
         from the other end if it's not here.
+
+        A fetched document whose id differs from object_uri is not stored;
+        its id is looked up or fetched instead, so only the document served
+        at a post's own id can create or change it.
         """
         if not object_uri:
             raise cls.DoesNotExist("No object_uri provided")
@@ -2258,6 +2297,18 @@ class Post(StatorModel):
                         raise cls.DoesNotExist(
                             f"Document at {object_uri} has an id on another host"
                         )
+                    if fetched_id != object_uri:
+                        if exact_id:
+                            raise cls.DoesNotExist(
+                                f"Document at {object_uri} has another id"
+                            )
+                        return cls.by_object_uri(
+                            fetched_id,
+                            fetch=True,
+                            fetch_as=fetch_as,
+                            fetch_depth=fetch_depth,
+                            exact_id=True,
+                        )
                     ap_data["_fetch_depth"] = fetch_depth
                     post = cls.by_ap(
                         ap_data,
@@ -2284,9 +2335,10 @@ class Post(StatorModel):
     def refresh_from_origin(cls, object_uri: str) -> "Post | None":
         """
         Re-fetches a remote post from its origin server and updates our
-        copy, deleting the copy if the origin reports it gone (404/410 or
-        a Tombstone). Used when a third party (e.g. an announcing group)
-        tells us about an edit or deletion we cannot authenticate directly.
+        copy, deleting the copy if the origin reports it gone (410, a
+        Tombstone, or 404 for a public copy). Used when a third party
+        (e.g. an announcing group) tells us about an edit or deletion we
+        cannot authenticate directly.
 
         Returns the refreshed post, or None if it is gone or unknown.
         Leaves the copy untouched when the origin cannot be reached.
@@ -2306,7 +2358,13 @@ class Post(StatorModel):
             TypeError,
         ):
             return post
-        if response.status_code in [404, 410]:
+        # Mastodon answers 404 to a fetcher that may not see a post, which
+        # the system actor never may for a followers-only or direct one
+        if response.status_code == 410 or (
+            response.status_code == 404
+            and post.visibility
+            not in (cls.Visibilities.followers, cls.Visibilities.mentioned)
+        ):
             post.perform_remote_deletion()
             return None
         if response.status_code >= 400:
@@ -2363,29 +2421,20 @@ class Post(StatorModel):
     @classmethod
     def _ensure_actor_attributed(cls, data: dict, verb: str) -> None:
         """
-        Checks the signed actor of a Create/Update against its object.
+        Checks the signed actor of a Create/Update against its object, and
+        pins the object's author to that actor.
 
-        WriteFreely sends ``attributedTo: [author, blog]`` and the outer
-        ``actor`` may be either one, so any entry may sign. by_ap stores
-        the post under the primary entry though, so that one must be on
-        the actor's own host.
+        The actor may be any ``attributedTo`` entry (PeerTube sends
+        ``[account, channel]``), but the post belongs to the signer. Taking
+        another entry as author would let one actor list a same-host
+        neighbour first and post or edit as them.
         """
-        attributed = data["object"]["attributedTo"]
         actor = data["actor"]
-        if actor not in cls._attributed_to_uris(attributed):
+        if actor not in cls._attributed_to_uris(data["object"]["attributedTo"]):
             raise ActorMismatchError(
                 f"{verb} actor does not match its Post object", data
             )
-        primary = cls._primary_attributed_to(attributed)
-        actor_host = urlparse(actor).hostname
-        if (
-            not actor_host
-            or not isinstance(primary, str)
-            or urlparse(primary).hostname != actor_host
-        ):
-            raise ActorMismatchError(
-                f"{verb} actor is not on the host of its Post author", data
-            )
+        data["object"]["attributedTo"] = actor
 
     @classmethod
     def handle_create_ap(cls, data):
@@ -2396,6 +2445,11 @@ class Post(StatorModel):
 
         with transaction.atomic():
             cls._ensure_actor_attributed(data, "Create")
+            # its author deleted it: this is a replay of the signed Create
+            if PostTombstone.objects.filter(
+                object_uri=get_str_or_id(data["object"])
+            ).exists():
+                return
             # Create it, stator will fan it out locally
             post = cls.by_ap(
                 data["object"], create=True, update=True, fetch_author=True
@@ -2409,14 +2463,29 @@ class Post(StatorModel):
         """
         Handles an incoming update request
         """
-        with transaction.atomic():
-            cls._ensure_actor_attributed(data, "Update")
-            # Find it and update it
-            try:
-                cls.by_ap(data["object"], create=False, update=True)
-            except cls.DoesNotExist:
-                # We don't have a copy - assume we got a delete first and ignore.
-                pass
+        listed = cls._attributed_to_uris(data["object"].get("attributedTo"))
+        cls._ensure_actor_attributed(data, "Update")
+        try:
+            with transaction.atomic():
+                # Find it and update it
+                try:
+                    cls.by_ap(data["object"], create=False, update=True)
+                except cls.DoesNotExist:
+                    # We don't have a copy - assume we got a delete first and ignore.
+                    pass
+        except ActorMismatchError:
+            # A co-author signed an edit of a copy stored under another
+            # listed entry (fetched first, or created before the signer
+            # became the author): take the edit from the origin instead.
+            object_uri = data["object"].get("id")
+            post = (
+                cls.objects.filter(object_uri=object_uri, local=False)
+                .select_related("author")
+                .first()
+            )
+            if post is None or not any(post.author.is_actor_uri(u) for u in listed):
+                raise
+            cls.refresh_from_origin(object_uri)
 
     def perform_remote_deletion(self):
         """
@@ -2462,6 +2531,8 @@ class Post(StatorModel):
             # Ensure the actor on the request authored the post
             if not post.author.is_actor_uri(data["actor"]):
                 raise ActorMismatchError("Actor on delete does not match object")
+            if not post.local:
+                PostTombstone.objects.get_or_create(object_uri=post.object_uri)
             post.perform_remote_deletion()
 
     @classmethod
@@ -2614,10 +2685,19 @@ class Post(StatorModel):
             quoting_post_uri = instrument.get("id")
         elif isinstance(instrument, str):
             quoting_post_uri = instrument
+        # the requester's server mints the request and the quoting post; a
+        # stamp names the quoting post, so it has to be the requester's
+        actor_host = urlparse(actor_uri).hostname
+        request_uri = data.get("id")
+        if (
+            isinstance(request_uri, str)
+            and urlparse(request_uri).hostname != actor_host
+        ) or (quoting_post_uri and urlparse(quoting_post_uri).hostname != actor_host):
+            return
         if post.visibility in (
             cls.Visibilities.public,
             cls.Visibilities.unlisted,
-        ):
+        ) and not Block.exists_between(post.author, requesting_identity):
             auth = QuoteAuthorization.objects.create(
                 target_post=post,
                 interacting_object_uri=quoting_post_uri or actor_uri,

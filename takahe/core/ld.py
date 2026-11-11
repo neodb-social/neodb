@@ -1,3 +1,4 @@
+import copy
 import datetime
 import logging
 import os
@@ -683,14 +684,52 @@ def builtin_document_loader(url: str, options={}):
             return schemas["unknown"]
 
 
+DEFAULT_EXTENSION_TERMS = {
+    "blurhash": "toot:blurhash",
+    "Emoji": "toot:Emoji",
+    "focalPoint": {"@container": "@list", "@id": "toot:focalPoint"},
+    "Hashtag": "as:Hashtag",
+    "manuallyApprovesFollowers": "as:manuallyApprovesFollowers",
+    "sensitive": "as:sensitive",
+    "toot": "http://joinmastodon.org/ns#",
+    "votersCount": "toot:votersCount",
+    "featured": {"@id": "toot:featured", "@type": "@id"},
+    "ostatus": "http://ostatus.org#",
+    "conversation": {"@id": "ostatus:conversation", "@type": "@id"},
+    "litepub": "http://litepub.social/ns#",
+    "directMessage": "litepub:directMessage",
+}
+
+# An LD signature covers the expanded graph only: not the sender's term
+# definitions, and not terms it leaves undefined, which the catch-all
+# vocabulary turns into blank-node properties that RDF conversion drops.
+# A document vouched for only by such a signature is read with these terms,
+# with the catch-all reset, so neither can change what we read.
+TRUSTED_INBOUND_CONTEXT = [
+    "https://www.w3.org/ns/activitystreams",
+    "https://w3id.org/security/v1",
+    schemas["*/schemas/litepub-0.1.jsonld"]["document"]["@context"][2],
+    {
+        **DEFAULT_EXTENSION_TERMS,
+        # sent both as a tag: URI string and as an IRI
+        "conversation": "ostatus:conversation",
+        "@vocab": None,
+    },
+]
+
+
 def canonicalise(
-    json_data: dict, include_security: bool = False, outbound: bool = True
+    json_data: dict,
+    include_security: bool = False,
+    outbound: bool = True,
+    trusted: bool = False,
 ) -> dict:
     """
     Given an ActivityPub JSON-LD document, round-trips it through the LD
     systems to end up in a canonicalised, compacted format.
 
-    If no context is provided, supplies one automatically.
+    If no context is provided, supplies one automatically. With trusted, the
+    document is compacted with TRUSTED_INBOUND_CONTEXT instead of its own.
 
     For most well-structured incoming data this won't actually do anything,
     but it's probably good to abide by the spec.
@@ -705,30 +744,17 @@ def canonicalise(
 
     if not context:
         context.append("https://www.w3.org/ns/activitystreams")
-        context.append(
-            {
-                "blurhash": "toot:blurhash",
-                "Emoji": "toot:Emoji",
-                "focalPoint": {"@container": "@list", "@id": "toot:focalPoint"},
-                "Hashtag": "as:Hashtag",
-                "manuallyApprovesFollowers": "as:manuallyApprovesFollowers",
-                "sensitive": "as:sensitive",
-                "toot": "http://joinmastodon.org/ns#",
-                "votersCount": "toot:votersCount",
-                "featured": {"@id": "toot:featured", "@type": "@id"},
-                "ostatus": "http://ostatus.org#",
-                "conversation": {"@id": "ostatus:conversation", "@type": "@id"},
-                "litepub": "http://litepub.social/ns#",
-                "directMessage": "litepub:directMessage",
-            }
-        )
+        context.append(dict(DEFAULT_EXTENSION_TERMS))
 
     if include_security:
         context.append("https://w3id.org/security/v1")
 
     json_data["@context"] = context
 
-    j = jsonld.compact(jsonld.expand(json_data), context)
+    j = jsonld.compact(
+        jsonld.expand(json_data),
+        copy.deepcopy(TRUSTED_INBOUND_CONTEXT) if trusted else context,
+    )
     if not outbound:
         return j
 

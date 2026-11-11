@@ -179,3 +179,97 @@ def test_post_blocked(identity, other_identity, remote_identity):
     # The muted block should be in targets, the full block should not
     targets = post.get_targets()
     assert targets == {identity, other_identity}
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "visibility,reaches_followers",
+    [
+        (Post.Visibilities.public, True),
+        (Post.Visibilities.unlisted, True),
+        (Post.Visibilities.followers, False),
+        (Post.Visibilities.mentioned, False),
+    ],
+)
+def test_reply_reaches_parent_authors_followers_only_when_public(
+    identity, other_identity, remote_identity, visibility, reaches_followers
+):
+    """
+    A private reply to a local post must not reach the parent author's
+    followers, who are not among its recipients.
+    """
+    parent = Post.objects.create(content="<p>Parent</p>", author=identity, local=True)
+    parent.object_uri = parent.absolute_object_uri()
+    parent.save()
+    Follow.objects.create(source=remote_identity, target=identity, state="accepted")
+    reply = Post.objects.create(
+        content="<p>Reply</p>",
+        author=other_identity,
+        local=True,
+        visibility=visibility,
+        in_reply_to=parent.object_uri,
+    )
+    assert (remote_identity in reply.get_targets()) is reaches_followers
+
+
+@pytest.mark.django_db
+def test_edited_private_reply_still_names_parent_author(
+    identity, other_identity, config_system
+):
+    parent = Post.create_local(author=identity, content="parent")
+    reply = Post.create_local(
+        author=other_identity,
+        content="secret",
+        visibility=Post.Visibilities.mentioned,
+        reply_to=parent,
+    )
+    reply = Post.objects.get(pk=reply.pk)
+    reply.edit_local(content="edited secret")
+    assert identity in reply.mentions.all()
+    assert identity in reply.get_targets()
+
+
+@pytest.mark.django_db
+def test_local_private_reply_without_mention_still_reaches_parent_author(
+    identity, other_identity, remote_identity
+):
+    """
+    Edits used to drop the parent author's mention; such a reply's later
+    edits and deletes must still reach them, but not their followers.
+    """
+    parent = Post.objects.create(content="<p>Parent</p>", author=identity, local=True)
+    parent.object_uri = parent.absolute_object_uri()
+    parent.save()
+    Follow.objects.create(source=remote_identity, target=identity, state="accepted")
+    reply = Post.objects.create(
+        content="<p>Reply</p>",
+        author=other_identity,
+        local=True,
+        visibility=Post.Visibilities.followers,
+        in_reply_to=parent.object_uri,
+    )
+    targets = reply.get_targets()
+    assert identity in targets
+    assert remote_identity not in targets
+
+
+@pytest.mark.django_db
+def test_remote_private_reply_targets_only_its_recipients(
+    identity, other_identity, remote_identity
+):
+    parent = Post.objects.create(content="<p>Parent</p>", author=identity, local=True)
+    parent.object_uri = parent.absolute_object_uri()
+    parent.save()
+    Follow.objects.create(source=other_identity, target=identity, state="accepted")
+    Follow.objects.create(
+        source=other_identity, target=remote_identity, state="accepted"
+    )
+    reply = Post.objects.create(
+        content="<p>Secret</p>",
+        author=remote_identity,
+        local=False,
+        visibility=Post.Visibilities.mentioned,
+        in_reply_to=parent.object_uri,
+    )
+    reply.mentions.add(identity)
+    assert reply.get_targets() == {identity}
