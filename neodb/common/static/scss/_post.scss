@@ -612,6 +612,10 @@ section.activity.post>section.replies {
 }
 
 .thread-row-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.5rem;
   overflow-wrap: anywhere;
 
   > a:first-child {
@@ -624,11 +628,6 @@ section.activity.post>section.replies {
 .thread-row-meta {
   font-size: var(--dc-fs-sm);
   color: var(--dc-muted);
-}
-
-.thread-row-host {
-  margin-left: 0.4rem;
-  white-space: nowrap;
 }
 
 .thread-row-meta {

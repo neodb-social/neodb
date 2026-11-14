@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load duration %}
 {% for post in posts %}
-  <article class="thread-row">
+  <div class="thread-row">
     <div class="thread-row-title">
       <a href="{% url 'journal:post_view' post.author.handle post.pk %}">{{ post.thread_title|default:_("Post") }}</a>
       {% with details=post.converted_details %}
@@ -20,7 +20,7 @@
       <span title="{{ post.published }}">{{ post.published|naturaldelta }}</span>
       <span title="{% trans "Replies" %}"><i class="fa-regular fa-comment"></i> {{ post.thread_reply_count }}</span>
     </div>
-  </article>
+  </div>
   {% if forloop.last %}
     <div class="htmx-indicator post-list-more"
          hx-get="{% url 'journal:profile_posts_data' user_name %}?last={{ post.pk }}"
