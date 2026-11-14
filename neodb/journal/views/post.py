@@ -1,4 +1,6 @@
 import logging
+from collections.abc import Iterable
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
@@ -81,6 +83,12 @@ def piece_replies(request: AuthedHttpRequest, piece_uuid: str):
     )
 
 
+def _get_replies(post_id: int, viewer_pk: int | None, nested: bool) -> Iterable[Post]:
+    if nested:
+        return Takahe.get_reply_tree(post_id, viewer_pk)
+    return Takahe.get_replies_for_posts([post_id], viewer_pk)
+
+
 def post_replies(request: AuthedHttpRequest, post_id: int):
     post: Post = get_object_or_404(Post, pk=post_id)
     if post.state in ["deleted", "deleted_fanned_out"]:
@@ -89,7 +97,8 @@ def post_replies(request: AuthedHttpRequest, post_id: int):
     owner = APIdentity.by_takahe_identity(post.author)
     if not owner or _can_view_post(post, owner, viewer) < 0:
         raise PermissionDenied(_("Insufficient permission"))
-    replies = Takahe.get_replies_for_posts([post_id], viewer.pk if viewer else None)
+    nested = request.GET.get("thread") == "1"
+    replies = _get_replies(post_id, viewer.pk if viewer else None, nested)
     reply_prepend = post.reply_prepend(viewer.takahe_identity) if viewer else ""
     return render(
         request,
@@ -99,6 +108,7 @@ def post_replies(request: AuthedHttpRequest, post_id: int):
             "replies": replies,
             "reply_prepend": reply_prepend,
             "show_header": request.GET.get("header") == "1",
+            "nested_replies": nested,
         },
     )
 
@@ -136,12 +146,18 @@ def post_reply(request: AuthedHttpRequest, post_id: int):
         content = mentions_to_prepend + content
     Takahe.reply_post(post_id, request.user.identity.pk, content, visibility)
     record_activity("post", "web")
-    replies = Takahe.get_replies_for_posts([post_id], request.user.identity.pk)
+    nested = request.POST.get("thread") == "1"
+    replies = _get_replies(post_id, request.user.identity.pk, nested)
     reply_prepend = post.reply_prepend(request.user.identity.takahe_identity)
     return render(
         request,
         "replies.html",
-        {"post": post, "replies": replies, "reply_prepend": reply_prepend},
+        {
+            "post": post,
+            "replies": replies,
+            "reply_prepend": reply_prepend,
+            "nested_replies": nested,
+        },
     )
 
 
@@ -521,11 +537,18 @@ def post_view(request, handle: str, post_pk: int):
                 .exclude(state__in=["deleted", "deleted_fanned_out"])
                 .count()
             )
-            return render(
-                request,
-                "single_post.html",
-                {"post": post, "owner": owner, "quotes_count": quotes_count},
-            )
+            context = {"post": post, "owner": owner, "quotes_count": quotes_count}
+            # A thread of a group reads as a forum page: group pages are for
+            # members only, so anonymous viewers keep the plain post page.
+            group = Takahe.get_boosting_group(post) if viewer else None
+            thread_group = APIdentity.by_takahe_identity(group) if group else None
+            if thread_group:
+                context["thread_group"] = thread_group
+                context["nested_replies"] = True
+                context["thread_reply_count"] = Takahe.get_thread_reply_counts(
+                    [post.pk]
+                ).get(post.pk, 0)
+            return render(request, "single_post.html", context)
         case 0:
             if post.local:
                 raise BadRequest("JSON not supported yet")

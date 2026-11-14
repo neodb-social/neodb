@@ -24,6 +24,7 @@ from django.template.defaultfilters import linebreaks_filter
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.utils.safestring import mark_safe
+from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 from lxml import etree
 
@@ -51,6 +52,7 @@ def format_ld_date(value: datetime.datetime) -> str:
 
 _AS_DURATION_RE = re.compile(r"PT(?=\d)(?:(\d{1,6})H)?(?:(\d{1,6})M)?(?:(\d{1,6})S)?")
 _AS_PUBLIC = "https://www.w3.org/ns/activitystreams#Public"
+_LEADING_MENTIONS = re.compile(r"^(?:@[\w.\-]+(?:@[\w.\-]+)?[\s,:]*)+")
 
 
 def _as_first(value: Any) -> Any:
@@ -1291,6 +1293,9 @@ class Post(models.Model):
 
     liked_by_current_user = None
     boosted_by_current_user = None
+    # replies loaded with the post for a nested thread view
+    thread_replies: "list[Post] | None" = None
+    thread_reply_count: int | None = None
 
     if TYPE_CHECKING:
         author_id: int
@@ -1979,6 +1984,24 @@ class Post(models.Model):
     @cached_property
     def content_plain_text(self):
         return FediverseHtmlParser(self.content).plain_text
+
+    @cached_property
+    def thread_title(self) -> str:
+        """
+        Title for a thread list: the object's own name, else the first
+        line of the text without the mentions that address it.
+        """
+        obj = self.type_data.get("object") if isinstance(self.type_data, dict) else None
+        name = obj.get("name") if isinstance(obj, dict) else None
+        if isinstance(name, str) and name.strip():
+            return Truncator(name.strip()).chars(200)
+        if self.summary:
+            return Truncator(self.summary).chars(200)
+        for line in self.content_plain_text.splitlines():
+            line = _LEADING_MENTIONS.sub("", line).strip()
+            if line:
+                return Truncator(line).chars(120)
+        return ""
 
     def _safe_content_note(self, *, local: bool = True):
         return ContentRenderer(local=local).render_post(self.content, self)

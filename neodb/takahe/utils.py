@@ -14,7 +14,7 @@ from django.core.files.images import ImageFile
 from django.core.signing import b62_encode
 from django.db.models import OuterRef, Q, QuerySet, Subquery
 from django.utils import timezone
-from django.db import transaction
+from django.db import connections, transaction
 from django.utils.dateparse import parse_datetime
 from PIL import Image, ImageOps
 
@@ -1533,6 +1533,148 @@ class Takahe:
             .prefetch_related("attachments", "author", "mentions")
             .select_related("application")
         )
+
+    @staticmethod
+    def get_group_threads(
+        group_pk: int, viewer_pk: int | None = None, before_pk: int | None = None
+    ):
+        """
+        Top-level posts a group boosted, newest first by their own date.
+
+        The boost order is not usable here: a boost read back from the
+        group's outbox carries no date, so it is stored when it is fetched.
+        """
+        qs = (
+            Post.objects.exclude(state__in=["deleted", "deleted_fanned_out"])
+            .filter(
+                Q(in_reply_to__isnull=True) | Q(in_reply_to=""),
+                interactions__identity_id=group_pk,
+                interactions__type=PostInteraction.Types.boost,
+                interactions__state__in=["new", "fanned_out"],
+                visibility__in=[0, 1, 4],
+                author__restriction=Identity.Restriction.none,
+            )
+            .distinct()
+        )
+        if viewer_pk:
+            rejected_ids = Takahe.get_rejecting_ids(viewer_pk)
+            if rejected_ids:
+                qs = qs.exclude(author_id__in=rejected_ids)
+        if before_pk:
+            boundary = (
+                Post.objects.filter(pk=before_pk)
+                .values_list("published", flat=True)
+                .first()
+            )
+            if boundary is not None:
+                qs = qs.filter(
+                    Q(published__lt=boundary) | Q(published=boundary, pk__lt=before_pk)
+                )
+            else:
+                qs = qs.filter(pk__lt=before_pk)
+        return qs.order_by("-published", "-pk").select_related("author", "preview_card")
+
+    THREAD_MAX_DEPTH = 50
+
+    @staticmethod
+    def get_thread_reply_counts(post_pks: list[int]) -> dict[int, int]:
+        """
+        Number of public replies below each post, at any depth.
+
+        in_reply_to is text a remote server chose, so a loop is possible;
+        the depth limit ends it.
+        """
+        if not post_pks:
+            return {}
+        table = Post._meta.db_table
+        with connections["takahe"].cursor() as cursor:
+            cursor.execute(
+                f"""
+                WITH RECURSIVE thread(root, uri, depth) AS (
+                    SELECT id, object_uri, 0 FROM {table}
+                    WHERE id = ANY(%s) AND object_uri IS NOT NULL
+                  UNION ALL
+                    SELECT t.root, p.object_uri, t.depth + 1
+                    FROM {table} p JOIN thread t ON p.in_reply_to = t.uri
+                    WHERE t.depth < %s
+                      AND p.object_uri IS NOT NULL
+                      AND p.visibility IN (0, 1, 4)
+                      AND p.state NOT IN ('deleted', 'deleted_fanned_out')
+                )
+                SELECT root, COUNT(DISTINCT uri) - 1 FROM thread GROUP BY root
+                """,
+                [list(post_pks), Takahe.THREAD_MAX_DEPTH],
+            )
+            return dict(cursor.fetchall())
+
+    THREAD_MAX_REPLIES = 200
+    THREAD_RENDER_DEPTH = 6
+
+    @staticmethod
+    def get_reply_tree(post_pk: int, identity_pk: int | None) -> list[Post]:
+        """
+        Replies to a post with their own replies attached as
+        ``thread_replies``, one query per level.
+
+        Every direct reply is returned, as in the flat list. The levels
+        below are loaded with them while the total stays within
+        THREAD_MAX_REPLIES and THREAD_RENDER_DEPTH. A level is attached
+        whole or not at all, so a reply shows all of its replies or none;
+        its reply count shows the ones not loaded, and opening it loads them.
+        """
+        replies = list(
+            Takahe.get_replies_for_posts([post_pk], identity_pk).prefetch_related(
+                "attachments"
+            )
+        )
+        seen = {post_pk} | {p.pk for p in replies}
+        level = replies
+        budget = Takahe.THREAD_MAX_REPLIES - len(replies)
+        for _ in range(Takahe.THREAD_RENDER_DEPTH - 1):
+            by_uri = {p.object_uri: p for p in level if p.object_uri}
+            if not by_uri or budget <= 0:
+                break
+            children = list(
+                Takahe.get_replies_for_posts(
+                    [p.pk for p in level], identity_pk
+                ).prefetch_related("attachments")[: budget + 1]
+            )
+            if len(children) > budget:
+                break
+            children = [p for p in children if p.pk not in seen]
+            for child in children:
+                seen.add(child.pk)
+                parent = by_uri[child.in_reply_to]
+                parent.thread_replies = [*(parent.thread_replies or []), child]
+            budget -= len(children)
+            level = children
+        if identity_pk:
+            flat: list[Post] = []
+            stack = list(replies)
+            while stack:
+                node = stack.pop()
+                flat.append(node)
+                stack.extend(node.thread_replies or [])
+            Takahe.prefetch_interaction_flags(flat, identity_pk)
+        return replies
+
+    @staticmethod
+    def get_boosting_group(post: Post) -> Identity | None:
+        """The group a top-level post was posted to, if a group boosted it."""
+        if post.in_reply_to:
+            return None
+        boost = (
+            PostInteraction.objects.filter(
+                post=post,
+                type=PostInteraction.Types.boost,
+                state__in=["new", "fanned_out"],
+                identity__actor_type="group",
+            )
+            .select_related("identity")
+            .order_by("pk")
+            .first()
+        )
+        return boost.identity if boost else None
 
     @staticmethod
     def pin_hashtag_for_user(identity_pk: int, hashtag: str):

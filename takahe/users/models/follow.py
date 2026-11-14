@@ -126,6 +126,8 @@ class FollowStates(StateGraph):
         from activities.models import TimelineEvent
 
         TimelineEvent.add_follow(instance.target, instance.source)
+        if instance.source.local:
+            instance.target.queue_outbox_backfill()
         return cls.accepted
 
     @classmethod
