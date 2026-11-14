@@ -36,6 +36,9 @@ from playwright.async_api import Browser, Playwright, Route, async_playwright
 
 logger = logging.getLogger("scraper-server")
 SKIPPED_RESOURCES = {"image", "media", "font"}
+# Kept as a name: this script also runs on Python older than the repo's, where
+# the formatter's unparenthesized `except A, B:` is a syntax error.
+LOOKUP_ERRORS = (OSError, ValueError)
 
 
 class Refused(Exception):
@@ -51,7 +54,7 @@ async def is_public_host(host: str, cache: dict[str, bool]) -> bool:
             cache[host] = bool(infos) and all(
                 ipaddress.ip_address(info[4][0]).is_global for info in infos
             )
-        except OSError, ValueError:
+        except LOOKUP_ERRORS:
             cache[host] = False
     return cache[host]
 
