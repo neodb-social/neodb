@@ -1,0 +1,40 @@
+{% load i18n %}
+{% load duration %}
+{% for post in posts %}
+  <article class="thread-row">
+    <div class="thread-row-title">
+      <a href="{% url 'journal:post_view' post.author.handle post.pk %}">{{ post.thread_title|default:_("Post") }}</a>
+      {% with details=post.converted_details %}
+        {% if details.link_host %}
+          <a class="thread-row-host"
+             href="{{ details.link_url }}"
+             target="_blank"
+             rel="nofollow noopener noreferrer">{{ details.link_host }}</a>
+        {% endif %}
+      {% endwith %}
+    </div>
+    <div class="thread-row-meta">
+      <a href="{{ post.author.url }}"
+         class="nickname"
+         title="@{{ post.author.handle }}">{{ post.author.name|default:post.author.username }}</a>
+      <span title="{{ post.published }}">{{ post.published|naturaldelta }}</span>
+      <span title="{% trans "Replies" %}"><i class="fa-regular fa-comment"></i> {{ post.thread_reply_count }}</span>
+    </div>
+  </article>
+  {% if forloop.last %}
+    <div class="htmx-indicator post-list-more"
+         hx-get="{% url 'journal:profile_posts_data' user_name %}?last={{ post.pk }}"
+         hx-trigger="intersect once"
+         hx-swap="outerHTML">
+      <i class="fa-solid fa-compact-disc fa-spin loading"></i>
+    </div>
+  {% endif %}
+{% empty %}
+  <div class="empty">
+    {% if request.GET.last %}
+      {% trans "Nothing more." %}
+    {% else %}
+      {% trans "Nothing so far." %}
+    {% endif %}
+  </div>
+{% endfor %}

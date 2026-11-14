@@ -604,6 +604,50 @@ section.activity.post>section.replies {
   color: var(--pico-muted-color);
 }
 
+// A group profile lists its threads one per row: title, then who and when.
+.thread-row {
+  margin: 0;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--dc-border);
+}
+
+.thread-row-title {
+  overflow-wrap: anywhere;
+
+  > a:first-child {
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+.thread-row-host,
+.thread-row-meta {
+  font-size: var(--dc-fs-sm);
+  color: var(--dc-muted);
+}
+
+.thread-row-host {
+  margin-left: 0.4rem;
+  white-space: nowrap;
+}
+
+.thread-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  margin-top: 0.2rem;
+
+  a {
+    color: inherit;
+  }
+}
+
+// A nested thread indents once per level; keep each step small so a deep
+// branch still has room for its text on a phone.
+section.replies section.replies {
+  padding-left: calc(var(--pico-spacing) * 0.6);
+}
+
 // Visibility and language selects, toggles and the submit button share one
 // row that wraps on a narrow screen instead of stacking like .grid.
 .post-options {
