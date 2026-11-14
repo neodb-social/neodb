@@ -11,6 +11,7 @@ from activities.models import (
     Post,
     PostInteraction,
     PostInteractionStates,
+    PostStates,
     TimelineEvent,
 )
 from users.models import Domain, Follow, Identity, InboxMessage
@@ -80,7 +81,7 @@ def _create(obj) -> dict:
     }
 
 
-def _mock_origin(httpx_mock: HTTPXMock) -> None:
+def _mock_origin(httpx_mock: HTTPXMock, page: dict | None = None) -> None:
     httpx_mock.add_response(
         url=AUTHOR_URI,
         headers=AP_HEADERS,
@@ -91,7 +92,7 @@ def _mock_origin(httpx_mock: HTTPXMock) -> None:
             "preferredUsername": "alice",
         },
     )
-    httpx_mock.add_response(url=PAGE_URI, headers=AP_HEADERS, json=_page_json())
+    httpx_mock.add_response(url=PAGE_URI, headers=AP_HEADERS, json=page or _page_json())
 
 
 def _mock_outbox(httpx_mock: HTTPXMock, items: list) -> None:
@@ -265,6 +266,47 @@ def test_fetch_announced_lists_the_thread_without_fan_out(
     assert not TimelineEvent.objects.filter(
         identity=identity, subject_post=post
     ).exists()
+
+
+@pytest.mark.django_db
+@any_request
+def test_fetch_announced_does_not_deliver_the_post_it_creates(
+    httpx_mock: HTTPXMock, config_system, followed_group, identity, stator
+):
+    page = _page_json()
+    page["tag"] = [
+        {"type": "Mention", "href": identity.actor_uri, "name": f"@{identity.handle}"}
+    ]
+    _mock_origin(httpx_mock, page)
+
+    Post.handle_fetch_announced(
+        {"identity": followed_group.pk, "object": PAGE_URI, "id": ANNOUNCE_ID}
+    )
+
+    post = Post.objects.get(object_uri=PAGE_URI)
+    assert post.state == PostStates.fanned_out
+    # a new post that mentions somebody here would notify them
+    assert identity in post.mentions.all()
+    stator.run_single_cycle()
+    assert not FanOut.objects.filter(subject_post=post).exists()
+    assert not TimelineEvent.objects.filter(identity=identity).exists()
+
+
+@pytest.mark.django_db
+@any_request
+def test_fetch_announced_leaves_a_post_already_here_alone(
+    httpx_mock: HTTPXMock, config_system, followed_group
+):
+    _mock_origin(httpx_mock)
+    Post.by_object_uri(PAGE_URI, fetch=True)
+
+    Post.handle_fetch_announced(
+        {"identity": followed_group.pk, "object": PAGE_URI, "id": ANNOUNCE_ID}
+    )
+
+    post = Post.objects.get(object_uri=PAGE_URI)
+    assert post.state == PostStates.new
+    assert PostInteraction.objects.filter(post=post, identity=followed_group).exists()
 
 
 @pytest.mark.django_db

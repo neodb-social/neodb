@@ -304,14 +304,31 @@ class PostStates(StateGraph):
         ) < datetime.timedelta(days=settings.FANOUT_LIMIT_DAYS)
         if recent:
             cls.targets_fan_out(instance, FanOut.Types.post)
+        next_state = cls._index_new(instance)
+        if recent:
+            publish_post(instance, "update")
+        return next_state
+
+    @classmethod
+    def _index_new(cls, instance: "Post") -> State:
+        """
+        The part of handling a new post that tells nobody about it;
+        returns the state the post goes to.
+        """
         instance.ensure_hashtags()
         if instance.type not in instance.CONVERTED_TYPES:
             _attach_preview_card(instance.pk, instance.content)
-        if recent:
-            publish_post(instance, "update")
         if cls.needs_question_tracking(instance):
             return cls.question_open
         return cls.fanned_out
+
+    @classmethod
+    def settle_quietly(cls, instance: "Post") -> None:
+        """
+        Takes a new post past its fan-out without delivering it, for one
+        fetched to fill a listing and not sent to anybody here.
+        """
+        instance.transition_perform(cls._index_new(instance))
 
     @classmethod
     def handle_fanned_out(cls, instance: "Post"):
@@ -2902,8 +2919,15 @@ class Post(StatorModel):
             or not object_uri.startswith(("https://", "http://"))
         ):
             return
+        started = timezone.now()
         try:
-            post = cls.by_object_uri(object_uri, fetch=True)
+            with transaction.atomic():
+                post = cls.by_object_uri(object_uri, fetch=True)
+                # A post this fetch created is old news: it must not reach
+                # the timelines and notifications a newly seen post gets.
+                # One that was here already keeps its own course.
+                if post.state == PostStates.new and post.created >= started:
+                    PostStates.settle_quietly(post)
         except cls.DoesNotExist:
             return
         # Comments thread under their parent; only threads are listed

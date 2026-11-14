@@ -166,6 +166,27 @@ def test_reply_tree_stops_at_its_limits(group, alice, bob, monkeypatch):
     assert tree[0].thread_replies is None
 
 
+def test_reply_tree_keeps_every_direct_reply(group, alice, bob, monkeypatch):
+    thread = _thread(group, alice, "thread")
+    direct = [_reply(bob, thread, f"reply {n}", days_ago=5 - n) for n in range(3)]
+    _reply(alice, direct[0], "nested one", days_ago=1)
+    _reply(alice, direct[1], "nested two")
+
+    def nested_counts() -> list[int]:
+        tree = Takahe.get_reply_tree(thread.pk, None)
+        assert [p.pk for p in tree] == [p.pk for p in direct]
+        return [len(p.thread_replies or []) for p in tree]
+
+    # fewer than the direct replies: all of them, and nothing below
+    monkeypatch.setattr(Takahe, "THREAD_MAX_REPLIES", 2)
+    assert nested_counts() == [0, 0, 0]
+    # room for one of the two nested replies: a level is whole or absent
+    monkeypatch.setattr(Takahe, "THREAD_MAX_REPLIES", 4)
+    assert nested_counts() == [0, 0, 0]
+    monkeypatch.setattr(Takahe, "THREAD_MAX_REPLIES", 5)
+    assert nested_counts() == [1, 1, 0]
+
+
 def test_thread_title_prefers_the_object_name(alice):
     post = _post(alice, "body text")
     post.type_data = {"object": {"name": "  A named thread "}}

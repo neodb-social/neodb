@@ -1616,34 +1616,37 @@ class Takahe:
         Replies to a post with their own replies attached as
         ``thread_replies``, one query per level.
 
-        Levels below THREAD_RENDER_DEPTH and replies past THREAD_MAX_REPLIES
-        are left out; the reply count on their parent shows they exist, and
-        opening that parent loads them.
+        Every direct reply is returned, as in the flat list. The levels
+        below are loaded with them while the total stays within
+        THREAD_MAX_REPLIES and THREAD_RENDER_DEPTH. A level is attached
+        whole or not at all, so a reply shows all of its replies or none;
+        its reply count shows the ones not loaded, and opening it loads them.
         """
         replies = list(
             Takahe.get_replies_for_posts([post_pk], identity_pk).prefetch_related(
                 "attachments"
-            )[: Takahe.THREAD_MAX_REPLIES]
+            )
         )
         seen = {post_pk} | {p.pk for p in replies}
         level = replies
-        total = len(replies)
+        budget = Takahe.THREAD_MAX_REPLIES - len(replies)
         for _ in range(Takahe.THREAD_RENDER_DEPTH - 1):
             by_uri = {p.object_uri: p for p in level if p.object_uri}
-            if not by_uri or total >= Takahe.THREAD_MAX_REPLIES:
+            if not by_uri or budget <= 0:
                 break
-            children = [
-                p
-                for p in Takahe.get_replies_for_posts(
+            children = list(
+                Takahe.get_replies_for_posts(
                     [p.pk for p in level], identity_pk
-                ).prefetch_related("attachments")[: Takahe.THREAD_MAX_REPLIES - total]
-                if p.pk not in seen
-            ]
+                ).prefetch_related("attachments")[: budget + 1]
+            )
+            if len(children) > budget:
+                break
+            children = [p for p in children if p.pk not in seen]
             for child in children:
                 seen.add(child.pk)
                 parent = by_uri[child.in_reply_to]
                 parent.thread_replies = [*(parent.thread_replies or []), child]
-            total += len(children)
+            budget -= len(children)
             level = children
         if identity_pk:
             flat: list[Post] = []
