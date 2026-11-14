@@ -324,7 +324,7 @@ Then set the template, with the host as NeoDB reaches it (`neodb-scraper` for th
 NEODB_DOWNLOADER_CUSTOMSCRAPER_URL=http://neodb-scraper:8970/scrape?url=__URL__&selector=__SELECTOR__
 ```
 
-The server loads any public URL it is given, so do not publish its port. It refuses private addresses, and `--token <secret>` (add `&token=<secret>` to the template) limits who may call it. It serves as the backup for sites that use the scraping providers; Bandcamp tries it before those providers, and only after its plain request was challenged.
+The server loads any public URL it is given, so do not publish its port. It refuses private addresses, and `--token <secret>` (add `&token=<secret>` to the template) limits who may call it. It serves as the backup for sites that use the scraping providers.
 
 ### Translation
  - `DEEPL_API_KEY`
