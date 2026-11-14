@@ -552,6 +552,12 @@ def user_follow_list(request: AuthedHttpRequest, user_name, list_type: str):
             ids = Takahe.get_mutual_page(target.pk, last_pk, _FOLLOW_LIST_PAGE_SIZE)
             identities = list(APIdentity.objects.filter(pk__in=ids).order_by("pk"))
             title = _("Mutuals")
+        case "groups":
+            ids = Takahe.get_following_group_page(
+                target.pk, last_pk, _FOLLOW_LIST_PAGE_SIZE
+            )
+            identities = list(APIdentity.objects.filter(pk__in=ids).order_by("pk"))
+            title = _("Groups")
         case _:
             raise Http404()
     context = {

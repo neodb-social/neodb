@@ -362,6 +362,45 @@ class Takahe:
         )
 
     @staticmethod
+    def get_following_group_page(
+        identity_pk: int, last_pk: int = 0, limit: int = 60
+    ) -> list[int]:
+        qs = Follow.objects.filter(
+            source_id=identity_pk, state="accepted", target__actor_type="group"
+        )
+        if last_pk:
+            qs = qs.filter(target_id__gt=last_pk)
+        return list(
+            qs.order_by("target_id").values_list("target_id", flat=True)[:limit]
+        )
+
+    @staticmethod
+    def prefetch_local_communities(posts: Iterable[Post]) -> None:
+        """
+        Batch-set ``local_community`` on posts, so a list page looks up the
+        groups its cards name with one query.
+        """
+        by_url: dict[str, list[Post]] = {}
+        for post in posts:
+            details = post.converted_details
+            url = details.get("community_url") if details else None
+            if url:
+                by_url.setdefault(url, []).append(post)
+            else:
+                post.__dict__["local_community"] = None
+        if not by_url:
+            return
+        groups = {
+            group.actor_uri: group
+            for group in Identity.objects.filter(
+                actor_uri__in=by_url.keys(), actor_type="group"
+            )
+        }
+        for url, named in by_url.items():
+            for post in named:
+                post.__dict__["local_community"] = groups.get(url)
+
+    @staticmethod
     def get_follower_page(
         identity_pk: int, last_pk: int = 0, limit: int = 60
     ) -> list[int]:

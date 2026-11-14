@@ -275,6 +275,7 @@ def _public_data(request, typ: int, since_id: int, identity_id: int):
     events = [PostEvent(p) for p in post_list]
     _add_interaction_to_events(events, identity_id)
     prefetch_pieces_for_posts(post_list, request.user.identity)
+    Takahe.prefetch_local_communities(post_list)
     grouped = group_feed_events(cast(list[FeedEvent], events))
     _attach_group_ratings(grouped, request.user)
     return render(
@@ -328,10 +329,9 @@ def data(request):
         .order_by("-id")[:PAGE_SIZE]
     )
     _add_interaction_to_events(events, identity_id)
-    prefetch_pieces_for_posts(
-        [e.subject_post for e in events if e.subject_post is not None],
-        request.user.identity,
-    )
+    posts = [e.subject_post for e in events if e.subject_post is not None]
+    prefetch_pieces_for_posts(posts, request.user.identity)
+    Takahe.prefetch_local_communities(posts)
     # events are TimelineEvent rows; the type checker can't see Django's implicit
     # id/_id attributes that FeedEvent declares, so assert the shape at this boundary.
     grouped = group_feed_events(cast(list[FeedEvent], events))

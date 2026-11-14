@@ -1932,6 +1932,19 @@ class Post(models.Model):
                     details["community_url"] = community_url
         return details or None
 
+    @cached_property
+    def local_community(self) -> "Identity | None":
+        """
+        The group known here at the community address of a Page, so its
+        card can link to the group's page on this site. A list page sets
+        it for all its posts with Takahe.prefetch_local_communities.
+        """
+        details = self.converted_details
+        url = details.get("community_url") if details else None
+        if not url:
+            return None
+        return Identity.objects.filter(actor_uri=url, actor_type="group").first()
+
     @property
     def article_hashtags(self) -> list[tuple[str, str | None]]:
         """Hashtag names of a federated Article, each with its http(s) href."""

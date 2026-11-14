@@ -30,6 +30,9 @@
           &nbsp;·&nbsp;
           <a href="{% url 'journal:user_follow_list' identity.handle 'mutuals' %}"
              {% if list_type == 'mutuals' %}aria-current="page"{% endif %}>{% trans "Mutuals" %}</a>
+          &nbsp;·&nbsp;
+          <a href="{% url 'journal:user_follow_list' identity.handle 'groups' %}"
+             {% if list_type == 'groups' %}aria-current="page"{% endif %}>{% trans "Groups" %}</a>
         </nav>
         <div class="follow-list">{% include "user_follow_list_items.html" %}</div>
       </div>
