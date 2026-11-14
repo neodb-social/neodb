@@ -176,6 +176,26 @@ def test_outbox_fetch_needs_a_local_follower(
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize("blocked", ["group", "domain"])
+def test_backfill_skips_a_blocked_group(
+    httpx_mock: HTTPXMock, config_system, followed_group, blocked: str
+):
+    if blocked == "group":
+        followed_group.restriction = Identity.Restriction.blocked
+        followed_group.save()
+    else:
+        Domain.objects.filter(pk=followed_group.domain_id).update(blocked=True)
+
+    Post.handle_fetch_group_outbox({"identity": followed_group.pk})
+    Post.handle_fetch_announced(
+        {"identity": followed_group.pk, "object": PAGE_URI, "id": ANNOUNCE_ID}
+    )
+
+    assert httpx_mock.get_requests() == []
+    assert _queued("FetchAnnounced") == []
+
+
+@pytest.mark.django_db
 def test_outbox_fetch_ignores_an_outbox_on_another_host(
     httpx_mock: HTTPXMock, config_system, followed_group
 ):

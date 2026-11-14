@@ -2821,6 +2821,24 @@ class Post(StatorModel):
     MAX_GROUP_BACKFILL = 50
     GROUP_BACKFILL_INTERVAL = 3600
 
+    @staticmethod
+    def _backfill_group(pk: int | None) -> Identity | None:
+        """
+        The remote group to backfill, unless moderation blocked it or its
+        domain: the inbox drops what such a group sends, so its past posts
+        are not fetched either.
+        """
+        group = (
+            Identity.objects.filter(pk=pk, local=False, actor_type="group")
+            .select_related("domain")
+            .first()
+        )
+        if group is None or group.blocked:
+            return None
+        if group.domain and group.domain.recursively_blocked():
+            return None
+        return group
+
     @classmethod
     def handle_fetch_group_outbox(cls, data: dict) -> None:
         """
@@ -2831,9 +2849,7 @@ class Post(StatorModel):
         """
         from activities.models import PostInteraction, PostInteractionStates
 
-        group = Identity.objects.filter(
-            pk=data.get("identity"), local=False, actor_type="group"
-        ).first()
+        group = cls._backfill_group(data.get("identity"))
         if group is None or not group.has_local_follower():
             return
         host = urlparse(group.actor_uri).hostname
@@ -2907,9 +2923,7 @@ class Post(StatorModel):
         """
         from activities.models import PostInteraction
 
-        group = Identity.objects.filter(
-            pk=data.get("identity"), local=False, actor_type="group"
-        ).first()
+        group = cls._backfill_group(data.get("identity"))
         object_uri = data.get("object")
         announce_id = data.get("id")
         if (
