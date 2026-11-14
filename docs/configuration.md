@@ -303,6 +303,12 @@ Some sites answer NeoDB's plain requests with a JavaScript challenge page. `NEOD
 uv run misc/scraper-server.py
 ```
 
+or, without a checkout of the source:
+
+```
+uv run https://raw.githubusercontent.com/neodb-social/neodb/main/misc/scraper-server.py
+```
+
 The first start downloads Chromium. On Linux, Chromium also needs system libraries; install them once with `uv run --with playwright playwright install-deps chromium`, or run the script in a Playwright container image:
 
 ```
