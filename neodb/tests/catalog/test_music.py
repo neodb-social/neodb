@@ -1,8 +1,17 @@
+import json
+
 import pytest
+from lxml import html as lxml_html
 
 from catalog.common import *
+from catalog.common.downloaders import (
+    RESPONSE_QUOTA_EXCEEDED,
+    DownloadError,
+    ScraperResponse,
+)
 from catalog.models import Album
 from catalog.models.utils import *
+from catalog.sites import bandcamp
 from catalog.sites.spotify import Spotify
 from catalog.sites.youtube_music import YouTubeMusic
 
@@ -173,19 +182,25 @@ class TestBandcamp:
         assert site.resource.item is not None
         assert isinstance(site.resource.item, Album)
         assert site.resource.item.genre == []
+        meta = site.resource.metadata
+        tracks = meta["track_list"].split("\n")
+        assert len(tracks) == 11
+        assert tracks[0] == "1. In These Times"
+        assert tracks[-1] == "11. The Title"
+        assert meta["length"] == 2478
+        assert meta["release_date"] == "2022-09-23"
+        assert meta["bandcamp_album_id"] == 1246560818
+        assert meta["cover_image_url"] == "https://f4.bcbits.com/img/a3992958598_10.jpg"
+        assert meta["brief"].startswith("In These Times")
+        assert "\r" not in meta["brief"]
+        lookup = site.resource.other_lookup_ids or {}
+        assert lookup.get(IdType.GTIN) == "0075597908541"
 
-    def test_scrape_rejects_page_without_title(self, monkeypatch):
-        # Regression: query_str now returns "" instead
-        # of raising IndexError on a missing element, so the scraper must
-        # reject pages lacking title/artist explicitly rather than silently
-        # saving empty metadata.
-        from lxml import html as lxml_html
-
-        from catalog.sites import bandcamp
-
+    @staticmethod
+    def _fake_page(monkeypatch, body: str) -> None:
         class _FakeResponse:
             def html(self):
-                return lxml_html.fromstring("<html><body></body></html>")
+                return lxml_html.fromstring(f"<html><body>{body}</body></html>")
 
         class _FakeDownloader:
             def __init__(self, *args, **kwargs):
@@ -194,13 +209,170 @@ class TestBandcamp:
             def download(self):
                 return _FakeResponse()
 
-        monkeypatch.setattr(bandcamp, "BasicDownloader2", _FakeDownloader)
+        monkeypatch.setattr(bandcamp, "BandcampDownloader", _FakeDownloader)
+
+    def test_scrape_rejects_page_without_title(self, monkeypatch):
+        # Regression: query_str now returns "" instead
+        # of raising IndexError on a missing element, so the scraper must
+        # reject pages lacking title/artist explicitly rather than silently
+        # saving empty metadata.
+        self._fake_page(monkeypatch, "")
         site = SiteManager.get_site_by_url(
             "https://intlanthem.bandcamp.com/album/in-these-times"
         )
         assert site is not None
         with pytest.raises(ValueError, match="no valid info"):
             site.scrape()
+
+    def test_scrape_falls_back_to_markup(self, monkeypatch):
+        # no embedded data, and a malformed block must not break the parse
+        self._fake_page(
+            monkeypatch,
+            """
+            <script type="application/ld+json">{not json</script>
+            <div id="name-section">
+              <h2 class="trackTitle"> Some Album </h2>
+              <h3>by <span><a href="https://x.bandcamp.com">Some Artist</a></span></h3>
+            </div>
+            <div id="tralbumArt"><a href="https://f4.bcbits.com/img/a1_10.jpg"></a></div>
+            <div class="tralbumData tralbum-about">About text</div>
+            <div class="tralbumData tralbum-credits"> released October 31, 2016 <br></div>
+            <meta name="bc-page-properties" content='{"item_type":"a","item_id":42}'>
+            """,
+        )
+        site = SiteManager.get_site_by_url("https://x.bandcamp.com/album/some-album")
+        assert site is not None
+        pd = site.scrape()
+        assert pd.metadata["title"] == "Some Album"
+        assert pd.metadata["artist"] == ["Some Artist"]
+        assert pd.metadata["release_date"] == "2016-10-31"
+        assert pd.metadata["brief"] == "About text"
+        assert pd.metadata["cover_image_url"] == "https://f4.bcbits.com/img/a1_10.jpg"
+        assert pd.metadata["bandcamp_album_id"] == 42
+        assert pd.metadata["track_list"] == ""
+        assert pd.metadata["length"] is None
+        assert IdType.GTIN not in pd.lookup_ids
+
+    def test_scrape_compilation_tracks(self, monkeypatch):
+        tralbum = json.dumps(
+            {
+                "id": 7,
+                "artist": "Various Artists",
+                "current": {"title": "Comp", "upc": None},
+                "trackinfo": [
+                    {"track_num": 1, "title": "One", "artist": "A", "duration": 60.4},
+                    {"track_num": 2, "title": "Two", "artist": None, "duration": 30.4},
+                    {"track_num": 3, "title": "", "duration": 5},
+                ],
+            }
+        )
+        self._fake_page(
+            monkeypatch, f"<script data-tralbum='{tralbum}' src='x.js'></script>"
+        )
+        site = SiteManager.get_site_by_url("https://x.bandcamp.com/album/comp")
+        assert site is not None
+        pd = site.scrape()
+        assert pd.metadata["title"] == "Comp"
+        assert pd.metadata["artist"] == ["Various Artists"]
+        assert pd.metadata["track_list"] == "1. A - One\n2. Two"
+        assert pd.metadata["length"] == 91
+        assert pd.metadata["bandcamp_album_id"] == 7
+
+
+_BANDCAMP_ALBUM = b'<html><div id="name-section"></div></html>'
+_BANDCAMP_CHALLENGE = b"<html><title>Client Challenge</title></html>"
+
+
+class TestBandcampDownloader:
+    URL = "https://x.bandcamp.com/album/some-album"
+
+    @staticmethod
+    def _setup(
+        monkeypatch,
+        direct: tuple[bytes, int],
+        scrapers: dict[str, bytes | None],
+        providers: list[str],
+        custom: bool,
+    ) -> list[str]:
+        calls: list[str] = []
+
+        def _download(self, url):
+            calls.append("direct")
+            resp = ScraperResponse(url, direct[0], status_code=direct[1])
+            return resp, self.validate_response(resp)
+
+        def _scrape_with_provider(self, provider):
+            calls.append(provider)
+            content = scrapers.get(provider)
+            if content is None:
+                return None, RESPONSE_QUOTA_EXCEEDED
+            return ScraperResponse(self.url, content), RESPONSE_OK
+
+        cls = bandcamp.BandcampDownloader
+        monkeypatch.setattr(cls, "_download", _download)
+        monkeypatch.setattr(cls, "_scrape_with_provider", _scrape_with_provider)
+        monkeypatch.setattr(cls, "get_providers", lambda self: list(providers))
+        monkeypatch.setattr(
+            cls, "get_backup_provider", lambda self: "custom" if custom else None
+        )
+        return calls
+
+    def test_direct_page_skips_scrapers(self, monkeypatch):
+        calls = self._setup(
+            monkeypatch, (_BANDCAMP_ALBUM, 200), {}, ["decodo"], custom=True
+        )
+        resp = bandcamp.BandcampDownloader(self.URL).download()
+        assert resp.content == _BANDCAMP_ALBUM
+        assert calls == ["direct"]
+
+    def test_challenge_tries_custom_before_providers(self, monkeypatch):
+        calls = self._setup(
+            monkeypatch,
+            (_BANDCAMP_CHALLENGE, 200),
+            {
+                "custom": _BANDCAMP_CHALLENGE,
+                "decodo": None,
+                "scrapfly": _BANDCAMP_ALBUM,
+            },
+            ["decodo", "scrapfly", "scraperapi"],
+            custom=True,
+        )
+        resp = bandcamp.BandcampDownloader(self.URL).download()
+        assert resp.content == _BANDCAMP_ALBUM
+        assert calls == ["direct", "custom", "decodo", "scrapfly"]
+
+    def test_custom_scraper_alone_is_used(self, monkeypatch):
+        calls = self._setup(
+            monkeypatch,
+            (_BANDCAMP_CHALLENGE, 200),
+            {"custom": _BANDCAMP_ALBUM},
+            [],
+            custom=True,
+        )
+        resp = bandcamp.BandcampDownloader(self.URL).download()
+        assert resp.content == _BANDCAMP_ALBUM
+        assert calls == ["direct", "custom"]
+
+    def test_challenge_everywhere_raises_clear_error(self, monkeypatch):
+        calls = self._setup(
+            monkeypatch,
+            (_BANDCAMP_CHALLENGE, 200),
+            {"decodo": _BANDCAMP_CHALLENGE},
+            ["decodo"],
+            custom=False,
+        )
+        with pytest.raises(DownloadError, match="bot challenge") as e:
+            bandcamp.BandcampDownloader(self.URL).download()
+        assert e.value.response_type == RESPONSE_NETWORK_ERROR
+        assert calls == ["direct", "decodo"]
+
+    def test_missing_album_skips_scrapers(self, monkeypatch):
+        calls = self._setup(monkeypatch, (b"gone", 404), {}, ["decodo"], custom=True)
+        with pytest.raises(DownloadError) as e:
+            bandcamp.BandcampDownloader(self.URL).download()
+        assert e.value.response_type == RESPONSE_INVALID_CONTENT
+        assert "bot challenge" not in e.value.message
+        assert calls == ["direct"]
 
 
 @pytest.mark.django_db(databases="__all__")
