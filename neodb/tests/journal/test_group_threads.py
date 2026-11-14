@@ -86,6 +86,9 @@ def test_threads_page_by_date_cursor(group, alice):
     page = list(Takahe.get_group_threads(group.pk, before_pk=newest.pk))
 
     assert [p.pk for p in page] == [middle.pk, oldest.pk]
+    # a cursor post that is gone pages by id instead of starting again
+    gone = list(Takahe.get_group_threads(group.pk, before_pk=newest.pk + 1))
+    assert [p.pk for p in gone] == [newest.pk, oldest.pk]
 
 
 def test_threads_leave_out_blocked_authors_and_deleted_posts(group, alice, bob):

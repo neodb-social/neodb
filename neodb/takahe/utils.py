@@ -1570,6 +1570,8 @@ class Takahe:
                 qs = qs.filter(
                     Q(published__lt=boundary) | Q(published=boundary, pk__lt=before_pk)
                 )
+            else:
+                qs = qs.filter(pk__lt=before_pk)
         return qs.order_by("-published", "-pk").select_related("author", "preview_card")
 
     THREAD_MAX_DEPTH = 50

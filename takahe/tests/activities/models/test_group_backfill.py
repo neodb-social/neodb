@@ -1,5 +1,10 @@
+from datetime import timedelta
+
 import pytest
+from django.utils import timezone
 from pytest_httpx import HTTPXMock
+
+from core.ld import format_ld_date
 
 from activities.models import (
     FanOut,
@@ -57,7 +62,8 @@ def _page_json() -> dict:
         "audience": GROUP_URI,
         "name": "Book thread",
         "content": "<p>Body</p>",
-        "published": "2026-07-01T10:00:00Z",
+        # recent, so its age does not keep it out of a home timeline
+        "published": format_ld_date(timezone.now() - timedelta(hours=2)),
     }
 
 
@@ -263,6 +269,24 @@ def test_fetch_announced_lists_the_thread_without_fan_out(
 
 @pytest.mark.django_db
 @any_request
+def test_live_announce_does_reach_the_follower(
+    httpx_mock: HTTPXMock, config_system, followed_group, identity, stator
+):
+    """The control for the test above: the same thread, announced live."""
+    _mock_origin(httpx_mock)
+
+    PostInteraction.handle_ap(_announce(PAGE_URI))
+    stator.run_single_cycle()
+    stator.run_single_cycle()
+
+    post = Post.objects.get(object_uri=PAGE_URI)
+    assert TimelineEvent.objects.filter(
+        identity=identity, subject_post=post, type=TimelineEvent.Types.boost
+    ).exists()
+
+
+@pytest.mark.django_db
+@any_request
 def test_fetch_announced_does_not_list_a_comment(
     httpx_mock: HTTPXMock, config_system, followed_group
 ):
@@ -278,7 +302,7 @@ def test_fetch_announced_does_not_list_a_comment(
             "to": ["https://www.w3.org/ns/activitystreams#Public"],
             "inReplyTo": PAGE_URI,
             "content": "<p>A comment</p>",
-            "published": "2026-07-01T11:00:00Z",
+            "published": format_ld_date(timezone.now() - timedelta(hours=1)),
         },
     )
 
