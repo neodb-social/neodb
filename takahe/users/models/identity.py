@@ -879,6 +879,23 @@ class Identity(StatorModel):
     def is_group(self) -> bool:
         return self.actor_type == "group"
 
+    def has_local_follower(self) -> bool:
+        from users.models import FollowStates
+
+        return self.inbound_follows.filter(
+            state__in=FollowStates.group_active(), source__local=True
+        ).exists()
+
+    def queue_outbox_backfill(self) -> None:
+        """
+        Asks for the threads a remote group announced before we followed it.
+        """
+        if self.local or not self.is_group or not self.outbox_uri:
+            return
+        if not self.has_local_follower():
+            return
+        InboxMessage.create_internal({"type": "FetchGroupOutbox", "identity": self.pk})
+
     ### ActivityPub (outbound) ###
 
     def to_webfinger(self):

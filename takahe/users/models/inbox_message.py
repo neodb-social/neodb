@@ -363,6 +363,10 @@ class InboxMessageStates(StateGraph):
                             Post.handle_fetch_internal(instance.message["object"])
                         case "fetchreplies":
                             Post.handle_fetch_replies(instance.message["object"])
+                        case "fetchgroupoutbox":
+                            Post.handle_fetch_group_outbox(instance.message["object"])
+                        case "fetchannounced":
+                            Post.handle_fetch_announced(instance.message["object"])
                         case "searchurl":
                             from activities.services.search import SearchService
 

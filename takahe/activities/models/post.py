@@ -2765,52 +2765,169 @@ class Post(StatorModel):
     MAX_FETCH_REPLIES = 50
 
     @classmethod
+    def _fetch_collection(cls, uri: str | None) -> dict | None:
+        """
+        Fetches a remote Collection document, or None when it cannot be read.
+        """
+        if not uri or not uri.startswith(("https://", "http://")):
+            logger.warning("Skipping fetch for non-HTTP URI: %s", uri or "<empty>")
+            return None
+        try:
+            response = SystemActor().signed_request(method="get", uri=uri)
+        except httpx.HTTPError, ssl.SSLCertVerificationError, ValueError:
+            logger.warning("Failed to fetch collection: %s", uri)
+            return None
+        if response.status_code >= 400:
+            logger.warning(
+                "Error fetching collection %s: %d", uri, response.status_code
+            )
+            return None
+        try:
+            collection = json_from_response(response)
+        except ValueError, KeyError:
+            logger.warning("Invalid JSON from collection: %s", uri)
+            return None
+        return collection if isinstance(collection, dict) else None
+
+    @staticmethod
+    def _collection_items(collection: dict) -> list:
+        """
+        Items of the first page of a Collection, when the document embeds them.
+        """
+        first = collection.get("first")
+        if isinstance(first, dict):
+            items = first.get("items") or first.get("orderedItems")
+        else:
+            items = collection.get("items") or collection.get("orderedItems")
+        return items if isinstance(items, list) else []
+
+    MAX_GROUP_BACKFILL = 50
+    GROUP_BACKFILL_INTERVAL = 3600
+
+    @classmethod
+    def handle_fetch_group_outbox(cls, data: dict) -> None:
+        """
+        Reads the outbox of a remote group that a local identity follows,
+        and queues a fetch for each object it announced that we do not
+        list under it yet. A group only delivers what it announces after
+        the follow, so this is the one way to see its earlier threads.
+        """
+        from activities.models import PostInteraction, PostInteractionStates
+
+        group = Identity.objects.filter(
+            pk=data.get("identity"), local=False, actor_type="group"
+        ).first()
+        if group is None or not group.has_local_follower():
+            return
+        host = urlparse(group.actor_uri).hostname
+        if not host or urlparse(group.outbox_uri or "").hostname != host:
+            return
+        if not cache.add(
+            f"group_outbox_fetched:{group.pk}", True, cls.GROUP_BACKFILL_INTERVAL
+        ):
+            return
+        collection = cls._fetch_collection(group.outbox_uri)
+        if collection is None:
+            return
+        items = cls._collection_items(collection)
+        first = collection.get("first")
+        if not items and isinstance(first, str) and urlparse(first).hostname == host:
+            page = cls._fetch_collection(first)
+            items = cls._collection_items(page) if page else []
+
+        announced: dict[str, str] = {}
+        for item in items[: cls.MAX_GROUP_BACKFILL]:
+            # Only what the group itself announced, under an id of its host
+            if (
+                not isinstance(item, dict)
+                or get_first_concrete_type(item.get("type")) != "announce"
+                or get_str_or_id(item.get("actor")) != group.actor_uri
+            ):
+                continue
+            announce_id = item.get("id")
+            if (
+                not isinstance(announce_id, str)
+                or urlparse(announce_id).hostname != host
+            ):
+                continue
+            obj = item.get("object")
+            if isinstance(obj, dict):
+                inner_type = get_first_concrete_type(obj.get("type"))
+                if inner_type == "create":
+                    obj = obj.get("object")
+                elif inner_type not in cls.Types.names:
+                    continue
+            object_uri = get_str_or_id(obj)
+            if isinstance(object_uri, str) and object_uri.startswith(
+                ("https://", "http://")
+            ):
+                announced.setdefault(object_uri, announce_id)
+
+        listed = set(
+            PostInteraction.objects.filter(
+                identity=group,
+                type=PostInteraction.Types.boost,
+                state__in=PostInteractionStates.group_active(),
+                post__object_uri__in=announced.keys(),
+            ).values_list("post__object_uri", flat=True)
+        )
+        for object_uri, announce_id in announced.items():
+            if object_uri not in listed:
+                InboxMessage.create_internal(
+                    {
+                        "type": "FetchAnnounced",
+                        "identity": group.pk,
+                        "object": object_uri,
+                        "id": announce_id,
+                    }
+                )
+
+    @classmethod
+    def handle_fetch_announced(cls, data: dict) -> None:
+        """
+        Fetches one object a group announced in the past from its origin,
+        and lists it under the group without telling the group's followers.
+        """
+        from activities.models import PostInteraction
+
+        group = Identity.objects.filter(
+            pk=data.get("identity"), local=False, actor_type="group"
+        ).first()
+        object_uri = data.get("object")
+        announce_id = data.get("id")
+        if (
+            group is None
+            or not isinstance(announce_id, str)
+            or not isinstance(object_uri, str)
+            or not object_uri.startswith(("https://", "http://"))
+        ):
+            return
+        try:
+            post = cls.by_object_uri(object_uri, fetch=True)
+        except cls.DoesNotExist:
+            return
+        # Comments thread under their parent; only threads are listed
+        if post.in_reply_to or post.visibility not in [
+            cls.Visibilities.public,
+            cls.Visibilities.unlisted,
+        ]:
+            return
+        PostInteraction.record_past_boost(group, post, announce_id)
+
+    @classmethod
     def handle_fetch_replies(cls, data):
         """
         Fetches a remote replies collection and queues FetchPost for each
         reply URI not already in the local database.
         """
         replies_uri = data.get("object")
-        if not replies_uri or not replies_uri.startswith(("https://", "http://")):
-            logger.warning(
-                "Skipping fetch for non-HTTP URI: %s", replies_uri or "<empty>"
-            )
+        collection = cls._fetch_collection(replies_uri)
+        if collection is None:
             return
-
-        try:
-            response = SystemActor().signed_request(method="get", uri=replies_uri)
-        except httpx.HTTPError, ssl.SSLCertVerificationError, ValueError:
-            logger.warning("Failed to fetch replies collection: %s", replies_uri)
-            return
-
-        if response.status_code >= 400:
-            logger.warning(
-                "Error fetching replies collection %s: %d",
-                replies_uri,
-                response.status_code,
-            )
-            return
-
-        try:
-            collection = json_from_response(response)
-        except ValueError, KeyError:
-            logger.warning("Invalid JSON from replies collection: %s", replies_uri)
-            return
-
-        # Extract items from the first page of the Collection
-        items: list = []
-        first = collection.get("first")
-        if isinstance(first, dict):
-            items = first.get("items") or first.get("orderedItems") or []
-        elif isinstance(first, str):
-            # first is a URL; for simplicity, fall back to top-level items
-            items = collection.get("items") or collection.get("orderedItems") or []
-        else:
-            items = collection.get("items") or collection.get("orderedItems") or []
 
         # Queue a FetchPost for each URI we don't already have
         count = 0
-        for item in items:
+        for item in cls._collection_items(collection):
             if count >= cls.MAX_FETCH_REPLIES:
                 break
             uri = (
