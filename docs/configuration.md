@@ -295,6 +295,31 @@ The following settings can still be set in `.env` for bootstrap or backward-comp
  - `NEODB_DOWNLOADER_CACHE_TIMEOUT`
  - `NEODB_DOWNLOADER_RETRIES`
 
+#### Self-hosted scraper
+
+Some sites answer NeoDB's plain requests with a JavaScript challenge page. `NEODB_DOWNLOADER_CUSTOMSCRAPER_URL` can point to any service that takes a page URL and returns the rendered HTML. `misc/scraper-server.py` is a minimal one, built on Playwright and headless Chromium. With [uv](https://docs.astral.sh/uv/) installed, start it with:
+
+```
+uv run misc/scraper-server.py
+```
+
+The first start downloads Chromium. On Linux, Chromium also needs system libraries; install them once with `uv run --with playwright playwright install-deps chromium`, or run the script in a Playwright container image:
+
+```
+docker run -d --name neodb-scraper --network <neodb network> --ipc=host \
+  -v ./misc/scraper-server.py:/srv/scraper-server.py:ro \
+  mcr.microsoft.com/playwright/python:v1.58.0-noble \
+  sh -c "pip install -q playwright==1.58.0 && exec python3 /srv/scraper-server.py --host 0.0.0.0"
+```
+
+Then set the template, with the host as NeoDB reaches it (`neodb-scraper` for the container above, `host.docker.internal` for a server on a Docker Desktop or OrbStack host):
+
+```
+NEODB_DOWNLOADER_CUSTOMSCRAPER_URL=http://neodb-scraper:8970/scrape?url=__URL__&selector=__SELECTOR__
+```
+
+The server loads any public URL it is given, so do not publish its port. It refuses private addresses, and `--token <secret>` (add `&token=<secret>` to the template) limits who may call it. It serves as the backup for sites that use the scraping providers; Bandcamp tries it before those providers, and only after its plain request was challenged.
+
 ### Translation
  - `DEEPL_API_KEY`
  - `LT_API_URL`, `LT_API_KEY`
