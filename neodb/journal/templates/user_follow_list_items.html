@@ -17,6 +17,11 @@
         <div>
           <small class="handler">@{{ person.handle }}</small>
         </div>
+        {% if person.is_group %}
+          <div>
+            <small class="follow-card__kind"><i class="fa-solid fa-users"></i> {% trans "Group" %}</small>
+          </div>
+        {% endif %}
       </div>
       {% if person.safe_metadata %}
         <dl class="follow-card__fields">

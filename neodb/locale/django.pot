@@ -10030,3 +10030,16 @@ msgstr ""
 #: catalog/models/common.py:47 catalog/models/common.py:126
 msgid "BookWyrm"
 msgstr ""
+
+#: journal/templates/user_follow_list.html:35 journal/views/profile.py:560
+msgid "Groups"
+msgstr ""
+
+#: journal/templates/user_follow_list_items.html:22
+msgid "Group"
+msgstr ""
+
+#: social/templates/_event_post.html:18
+msgctxt "a post in a group"
+msgid "posted in"
+msgstr ""

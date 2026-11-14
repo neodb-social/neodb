@@ -10135,3 +10135,16 @@ msgstr "发布于"
 #: catalog/models/common.py:47 catalog/models/common.py:126
 msgid "BookWyrm"
 msgstr "BookWyrm"
+
+#: journal/templates/user_follow_list.html:35 journal/views/profile.py:560
+msgid "Groups"
+msgstr "群组"
+
+#: journal/templates/user_follow_list_items.html:22
+msgid "Group"
+msgstr "群组"
+
+#: social/templates/_event_post.html:18
+msgctxt "a post in a group"
+msgid "posted in"
+msgstr "发布于"
