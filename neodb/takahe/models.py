@@ -1936,8 +1936,8 @@ class Post(models.Model):
     def local_community(self) -> "Identity | None":
         """
         The group known here at the community address of a Page, so its
-        card can link to the group's page on this site. A list page sets
-        it for all its posts with Takahe.prefetch_local_communities.
+        card can link to the group's page on this site. A list of posts
+        sets it for all of them at once, through prefetch_pieces_for_posts.
         """
         details = self.converted_details
         url = details.get("community_url") if details else None

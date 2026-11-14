@@ -199,6 +199,30 @@ def test_communities_of_a_list_are_looked_up_once():
     assert len(queries) == 1
 
 
+def test_a_list_of_group_posts_looks_its_community_up_once(alice):
+    _known_group()
+    club = _group("clubpages")
+    for name in ("first", "second", "third"):
+        PostInteraction.objects.create(
+            identity_id=club.pk,
+            post=_page_post(name, COMMUNITY_URL),
+            type="boost",
+            state="fanned_out",
+        )
+    url = reverse("journal:profile_posts_data", kwargs={"user_name": club.handle})
+    client = _login(alice)
+
+    with CaptureQueriesContext(connections["takahe"]) as queries:
+        response = client.get(url)
+
+    assert response.content.decode().count("c/readers@forum.example") == 3
+    by_actor_uri = [
+        q["sql"] for q in queries if '"users_identity"."actor_uri"' in q["sql"]
+    ]
+    lookups = [sql for sql in by_actor_uri if COMMUNITY_URL in sql]
+    assert len(lookups) == 1
+
+
 def test_feed_card_links_a_known_community_to_its_page_here(alice):
     group = _known_group()
     for name, audience in (
