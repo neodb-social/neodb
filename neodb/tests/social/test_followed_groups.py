@@ -209,7 +209,8 @@ def test_a_list_of_group_posts_looks_its_community_up_once(alice):
             type="boost",
             state="fanned_out",
         )
-    url = reverse("journal:profile_posts_data", kwargs={"user_name": club.handle})
+    # the group's profile lists thread rows; its posts page still shows cards
+    url = reverse("journal:user_post_list", kwargs={"user_name": club.handle})
     client = _login(alice)
 
     with CaptureQueriesContext(connections["takahe"]) as queries:
