@@ -1267,12 +1267,15 @@ def prefetch_pieces_for_posts(
     Batch-prefetch piece and item for a list of Post objects to avoid N+1 queries.
     With a viewer, also attach the viewer's own Mark to each item as ``item.mark``
     so the bookmark action can render its state without a query per post.
+    The group a Page card names is looked up here too, for the same reason:
+    every list of posts comes through this call.
     """
     from catalog.models import Item
     from journal.models import Mark, ShelfMember
 
     if not posts:
         return
+    Takahe.prefetch_local_communities(posts)
     post_ids = [p.pk for p in posts]
     # Collect piece IDs grouped by post from the through table
     piece_ids_by_post: dict[int, list[int]] = {}

@@ -399,6 +399,10 @@ main.import-preview {
   }
 }
 
+.follow-card__kind {
+  color: var(--pico-muted-color);
+}
+
 .follow-card__fields {
   grid-column: 1 / -1;
   margin: 0.25rem 0 0;

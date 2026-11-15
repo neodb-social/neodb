@@ -68,9 +68,13 @@
           {% endif %}
           {% if details.community %}
             {% translate "in" context "posted in a community" %}
-            <a href="{{ details.community_url }}"
-               target="_blank"
-               rel="nofollow noopener noreferrer">{{ details.community }}</a>
+            {% if post.local_community %}
+              <a href="{{ post.local_community.url }}">{{ details.community }}</a>
+            {% else %}
+              <a href="{{ details.community_url }}"
+                 target="_blank"
+                 rel="nofollow noopener noreferrer">{{ details.community }}</a>
+            {% endif %}
           {% endif %}
         </div>
       {% endif %}

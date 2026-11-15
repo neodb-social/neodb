@@ -13,12 +13,21 @@
   <section class="activity post">
     {% if event and event.type == "boost" %}
       <div class="boosted">
-        <i class="fa-solid fa-retweet"
-           title="{{ event.published|naturaldelta }}"></i>
-        <a href="{{ event.subject_identity.url }}"
-           class="nickname"
-           title="@{{ event.subject_identity.handle }}">{{ event.subject_identity.name }}</a>
-        {% trans "boosted" %}
+        {% if event.subject_identity.actor_type == "group" %}
+          <i class="fa-solid fa-users" title="{{ event.published|naturaldelta }}"></i>
+          {% translate "posted in" context "a post in a group" as posted_in %}
+          {{ posted_in|capfirst }}
+          <a href="{{ event.subject_identity.url }}"
+             class="nickname"
+             title="@{{ event.subject_identity.handle }}">{{ event.subject_identity.name|default:event.subject_identity.username }}</a>
+        {% else %}
+          <i class="fa-solid fa-retweet"
+             title="{{ event.published|naturaldelta }}"></i>
+          <a href="{{ event.subject_identity.url }}"
+             class="nickname"
+             title="@{{ event.subject_identity.handle }}">{{ event.subject_identity.name }}</a>
+          {% trans "boosted" %}
+        {% endif %}
       </div>
     {% endif %}
     <div class="byline-row">
