@@ -241,20 +241,22 @@ def profile_posts_data(request: AuthedHttpRequest, user_name):
     last_pk = int_(request.GET.get("last", 0))
     viewer_pk = request.user.identity.pk
     if target.is_group:
-        qs = Takahe.get_boosted_posts(target.pk, viewer_pk=viewer_pk, days=None)
-        if last_pk:
-            qs = qs.filter(boost_pk__lt=last_pk)
-        posts = list(qs[:20])
-    else:
-        qs = Takahe.get_recent_posts(
-            target.pk, viewer_pk, days=None, before_pk=last_pk or None
+        threads = list(
+            Takahe.get_group_threads(target.pk, viewer_pk, last_pk or None)[:20]
         )
-        posts = list(qs[:20])
+        counts = Takahe.get_thread_reply_counts([p.pk for p in threads])
+        for post in threads:
+            post.thread_reply_count = counts.get(post.pk, 0)
+        return render(
+            request, "group_threads.html", {"posts": threads, "user_name": user_name}
+        )
+    qs = Takahe.get_recent_posts(
+        target.pk, viewer_pk, days=None, before_pk=last_pk or None
+    )
+    posts = list(qs[:20])
     prefetch_pieces_for_posts(posts)
     return render(
-        request,
-        "profile_posts.html",
-        {"posts": posts, "user_name": user_name, "is_group": target.is_group},
+        request, "profile_posts.html", {"posts": posts, "user_name": user_name}
     )
 
 

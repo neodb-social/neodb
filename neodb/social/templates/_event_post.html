@@ -207,7 +207,7 @@
       </div>
     </div>
     <div id="quote_{{ post.pk }}"></div>
-    <div id="replies_{{ post.pk }}" {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}{% if show_all_actions %}?header=1{% endif %} " hx-swap="outerHTML" hx-trigger="revealed" {% endif %}>
+    <div id="replies_{{ post.pk }}" {% if show_replies %} hx-get="{% url 'journal:post_replies' post.pk %}{% if show_all_actions %}?header=1{% if nested_replies %}&amp;thread=1{% endif %}{% endif %} " hx-swap="outerHTML" hx-trigger="revealed" {% endif %}>
     </div>
   </section>
 {% endif %}

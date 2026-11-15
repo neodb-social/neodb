@@ -65,7 +65,11 @@
             {% endif %}
           {% endfor %}
         </div>
-        <div id="replies_{{ post.pk }}"></div>
+        {% if post.thread_replies %}
+          {% include "replies.html" with replies=post.thread_replies show_header=False nested=True %}
+        {% else %}
+          <div id="replies_{{ post.pk }}"></div>
+        {% endif %}
       </div>
     {% empty %}
       {% if not show_header %}
@@ -73,11 +77,12 @@
       {% endif %}
     {% endfor %}
   {% endwith %}
-  {% if post and request.user.is_authenticated %}
+  {% if post and request.user.is_authenticated and not nested %}
     <form class="reply"
           hx-post="{% url 'journal:post_reply' post.pk %}"
           hx-trigger="submit[this.content.value.trim() !== '']"
           hx-sync="this:drop">
+      {% if nested_replies %}<input type="hidden" name="thread" value="1">{% endif %}
       <textarea name="content"
                 rows="2"
                 required

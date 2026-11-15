@@ -466,3 +466,4 @@ class IdentityService:
         logger.info("SYNC %s: %s", actor.actor_uri, stats)
         actor.stats = stats
         actor.save(update_fields=["stats"])
+        actor.queue_outbox_backfill()

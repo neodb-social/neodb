@@ -575,6 +575,52 @@ class PostInteraction(StatorModel):
         return boost
 
     @classmethod
+    def record_past_boost(
+        cls, group: Identity, post: Post, object_uri: str
+    ) -> "PostInteraction | None":
+        """
+        Records a boost a remote group made before anyone here followed it,
+        as read back from its outbox.
+
+        A live boost goes to every follower's home timeline; this one only
+        lists the post under the group, so it is stored as already fanned
+        out and nobody is notified.
+        """
+        with transaction.atomic():
+            post = Post.objects.select_for_update().get(pk=post.pk)
+            if Block.maybe_get(
+                source=post.author_id, target=group.pk, require_active=True
+            ):
+                return None
+            existing = cls.objects.filter(
+                identity=group,
+                post=post,
+                type=cls.Types.boost,
+                state__in=PostInteractionStates.group_active(),
+            ).first()
+            if existing:
+                return existing
+            if cls.objects.filter(object_uri=object_uri).exists():
+                return None
+            boost = cls.objects.create(
+                object_uri=object_uri,
+                identity=group,
+                post=post,
+                type=cls.Types.boost,
+                published=post.published,
+                state=PostInteractionStates.fanned_out,
+            )
+            TimelineEvent.objects.create(
+                identity=group,
+                type=TimelineEvent.Types.boost,
+                subject_identity=group,
+                subject_post=post,
+                subject_post_interaction=boost,
+            )
+            post.calculate_stats()
+        return boost
+
+    @classmethod
     def handle_ap(cls, data):
         """
         Handles an incoming announce/like
