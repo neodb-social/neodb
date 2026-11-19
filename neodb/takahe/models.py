@@ -2501,18 +2501,18 @@ class Emoji(models.Model):
             .filter(shortcode__in=emojis)
         )
 
-    @classmethod
+    @staticmethod
     @cached(cache=TTLCache(maxsize=1000, ttl=60))
-    def get_by_domain(cls, shortcode, domain: Domain | None) -> "Emoji | None":
+    def get_by_domain(shortcode: str, domain: Domain | None) -> "Emoji | None":
         """
         Given an emoji shortcode and optional domain, looks up the single
         emoji and returns it. Raises Emoji.DoesNotExist if there isn't one.
         """
         try:
             if domain is None or domain.local:
-                return cls.objects.get(local=True, shortcode=shortcode)
+                return Emoji.objects.get(local=True, shortcode=shortcode)
             else:
-                return cls.objects.get(domain=domain, shortcode=shortcode)
+                return Emoji.objects.get(domain=domain, shortcode=shortcode)
         except Emoji.DoesNotExist:
             return None
 
