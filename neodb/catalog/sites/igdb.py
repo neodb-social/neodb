@@ -129,12 +129,14 @@ class IGDB(AbstractSite):
                         r = json.loads(_wrapper.api_request(p, q))
                         break
                     except requests.exceptions.HTTPError as e:
-                        is_429 = (
-                            e.response is not None and e.response.status_code == 429
-                        )
-                        if not is_429 or attempt == _IGDB_MAX_429_RETRIES:
+                        response = e.response
+                        if (
+                            response is None
+                            or response.status_code != 429
+                            or attempt == _IGDB_MAX_429_RETRIES
+                        ):
                             raise
-                        wait = _retry_after_seconds(e.response, default=1.0)
+                        wait = _retry_after_seconds(response, default=1.0)
                         logger.warning(
                             f"IGDB API rate limited, retrying in {wait:.1f}s",
                             extra={"exception": e},

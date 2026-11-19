@@ -399,6 +399,7 @@ class Item(PolymorphicModel):
         people_relations: QuerySet["ItemPeopleRelation"]
         credits: QuerySet["ItemCredit"]
         verified_creators: QuerySet["VerifiedCreator"]
+        release_date: str | None
     schema: ClassVar[type[Schema]] = ItemSchema
     category: ItemCategory  # subclass must specify this
     type: ItemType  # subclass must specify this

@@ -131,7 +131,7 @@ class User(AbstractUser):
     social_accounts: "models.QuerySet[SocialAccount]"
     objects: ClassVar[UserManager] = UserManager()  # pyrefly: ignore[bad-override]
     username_validator = UsernameValidator()
-    username = models.CharField(
+    username = models.CharField(  # pyrefly: ignore[bad-override]
         _("username"),
         max_length=100,
         unique=True,
@@ -304,7 +304,7 @@ class User(AbstractUser):
             identity.summary = summary
             changed = True
         identity.manually_approves_followers = (
-            mastodon.locked if mastodon else identity.manually_approves_followers
+            bool(mastodon.locked) if mastodon else identity.manually_approves_followers
         )
         # it's tedious to update avatar repeatedly, so only sync it once
         if not identity.icon:
