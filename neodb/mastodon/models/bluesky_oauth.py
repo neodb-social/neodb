@@ -397,5 +397,5 @@ class DpopRequest(Request):
                 refreshed = True
                 self._oauth.get_access_token(force_refresh=True)
                 continue
-            break
-        return _handle_response(response)
+            return _handle_response(response)
+        raise AssertionError("the last attempt always returns")

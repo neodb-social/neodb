@@ -43,7 +43,7 @@ UNMARKED = "unmarked"
 
 
 class CollectionMember(ListMember):
-    parent = models.ForeignKey(
+    parent = models.ForeignKey(  # pyrefly: ignore[bad-override]
         "Collection", related_name="members", on_delete=models.CASCADE
     )
 
