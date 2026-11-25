@@ -5,9 +5,9 @@ import pytest
 import requests
 from django.conf import settings
 from django.core.cache import cache
-from django.db import connection
+from django.db import connection, connections
 from django.http import HttpResponse
-from django.test import RequestFactory
+from django.test import Client, RequestFactory
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
@@ -15,7 +15,9 @@ from catalog.apis import get_episodes_in_podcast
 from catalog.models import (
     Album,
     Edition,
+    ExternalResource,
     Game,
+    IdType,
     ItemCredit,
     Movie,
     People,
@@ -26,9 +28,11 @@ from catalog.models import (
     TVEpisode,
     TVSeason,
     TVShow,
+    Work,
 )
 from catalog.models.recommendation import ItemSimilarity
 from common.models import SiteConfig
+from journal.models import Rating
 from takahe.utils import Takahe
 from users.models import User
 
@@ -619,6 +623,91 @@ def test_book_sibling_endpoint_reports_unknown_and_merged(live_server):
     # a single object to a request for a list
     assert response.headers["Location"] == f"{target.api_url}/sibling/"
     assert response.json()["url"] == f"{target.api_url}/sibling/"
+
+
+def _sibling_page(client: Client, edition: Edition) -> tuple[int, dict]:
+    with (
+        CaptureQueriesContext(connections["default"]) as default,
+        CaptureQueriesContext(connections["takahe"]) as takahe,
+    ):
+        response = client.get(
+            f"/api/book/{edition.uuid}/sibling/", headers={"Accept-Language": "en"}
+        )
+    assert response.status_code == 200
+    queries = len(default.captured_queries) + len(takahe.captured_queries)
+    return queries, response.json()
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_book_sibling_endpoint_hydrates_the_page_in_bulk():
+    """Serializing a sibling used to look up its work twice, its external
+    resources and its rating once each, so a page of 20 ran 80 queries."""
+    zh_name = "沃什·威斯特摩兰"
+    with patch("catalog.models.item.Item.update_index"):
+        person = People.objects.create(
+            localized_name=[
+                {"lang": "zh-cn", "text": zh_name},
+                {"lang": "en", "text": "Wash Westmoreland"},
+            ],
+            people_type="person",
+        )
+        work = Work.objects.create(title="Shared Work")
+        anchor = Edition.objects.create(title="Anchor Edition")
+        anchor.set_work(work)
+
+        def add_sibling(n: int) -> Edition:
+            edition = Edition.objects.create(
+                title=f"Sibling {n}",
+                localized_title=[{"lang": "en", "text": f"Sibling {n}"}],
+            )
+            edition.set_work(work)
+            ExternalResource.objects.create(
+                item=edition,
+                id_type=IdType.Goodreads,
+                id_value=f"9000{n}",
+                url=f"https://www.goodreads.com/book/show/9000{n}",
+            )
+            ItemCredit.objects.create(
+                item=edition, person=person, role="author", name=zh_name
+            )
+            return edition
+
+        rated = add_sibling(0)
+        unrated = add_sibling(1)
+        for i in range(5):  # journal.models.rating.MIN_RATING_COUNT
+            rater = User.register(
+                email=f"sibrater{i}@example.com", username=f"sibrater{i}"
+            )
+            Rating.update_item_rating(rated, rater.identity, 8 if i else 6)
+
+    client = Client()
+    _sibling_page(client, anchor)  # warm per-process caches
+    few, payload = _sibling_page(client, anchor)
+    with patch("catalog.models.item.Item.update_index"):
+        for n in range(2, 6):
+            add_sibling(n)
+    many, more = _sibling_page(client, anchor)
+    assert more["count"] == 6
+    assert many == few
+
+    siblings = {entry["uuid"]: entry for entry in payload["data"]}
+    assert set(siblings) == {rated.uuid, unrated.uuid}
+    entry = siblings[rated.uuid]
+    assert entry["parent_uuid"] == work.uuid
+    assert entry["external_resources"] == [
+        {"url": "https://www.goodreads.com/book/show/90000"}
+    ]
+    # the bulk path must answer what the single-item path does
+    single = Rating.get_info_for_item(Edition.objects.get(pk=rated.pk))
+    assert entry["rating"] == single["average"] == 7.6
+    assert entry["rating_count"] == single["count"] == 5
+    assert entry["rating_distribution"] == single["distribution"]
+    assert siblings[unrated.uuid]["rating"] is None
+    assert siblings[unrated.uuid]["rating_count"] == 0
+    assert siblings[unrated.uuid]["rating_distribution"] == [0] * 5
+    # credit names follow the request locale, as on /api/book/{uuid}
+    assert [c["name"] for c in entry["credits"]] == ["Wash Westmoreland"]
+    assert entry["author"] == ["Wash Westmoreland"]
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)

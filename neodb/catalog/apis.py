@@ -635,6 +635,28 @@ def get_book(request, item_uuid: str, response: HttpResponse):
     return _get_item(Edition, item_uuid, response)
 
 
+class EditionPageNumberPagination(PageNumberPagination):
+    def paginate_queryset(
+        self,
+        queryset: QuerySet,
+        pagination: PageNumberPagination.Input,
+        request: HttpRequest,
+        **params: Any,
+    ) -> dict[str, Any]:
+        val = super().paginate_queryset(queryset, pagination, request, **params)
+        # EditionSchema reads parent_uuid, external_resources and rating of
+        # each edition; load them for the whole page instead.
+        editions = list(val["data"])
+        if editions:
+            prefetch_related_objects(editions, Item.external_resources_prefetch())
+            Item.prefetch_edition_works(editions)
+            # Credit names follow the request locale, as on /api/book/{uuid}.
+            Item.attach_localized_credit_names(editions)
+            Rating.attach_to_items(editions)
+        val["data"] = editions
+        return val
+
+
 @api.get(
     "/book/{item_uuid}/sibling/",
     response={
@@ -645,7 +667,7 @@ def get_book(request, item_uuid: str, response: HttpResponse):
     auth=None,
     tags=["catalog"],
 )
-@paginate(PageNumberPagination)
+@paginate(EditionPageNumberPagination)
 def get_sibling_editions_for_book(request, item_uuid: str, response: HttpResponse):
     # Only the siblings are serialized, so skip this edition's credit load.
     i = _get_item(
