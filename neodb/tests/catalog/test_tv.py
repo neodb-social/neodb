@@ -424,21 +424,23 @@ class TestIMDB:
         assert IMDB.parse_episode_label("") is None
 
     @use_local_response
-    def test_get_episode_list_unparsed_labels(self):
+    def test_get_episode_list_unparsed_label(self):
         parse = IMDB.parse_episode_label
-        with mock.patch.object(
-            IMDB,
-            "parse_episode_label",
-            side_effect=lambda label: (
-                None if label.startswith("S4.E0") else parse(label)
+        with (
+            mock.patch.object(
+                IMDB,
+                "parse_episode_label",
+                side_effect=lambda label: (
+                    None if label.startswith("S4.E5 ") else parse(label)
+                ),
+            ),
+            pytest.raises(
+                ParseError,
+                match=r"episode label 'S4\.E5 ∙ .+ for url "
+                r"https://m\.imdb\.com/title/tt0436992/episodes/\?season=4",
             ),
         ):
-            episodes = IMDB.get_episode_list("tt0436992", 4)
-        assert len(episodes) == 13
-        assert 0 not in [e["episode_number"] for e in episodes]
-        with mock.patch.object(IMDB, "parse_episode_label", return_value=None):
-            with pytest.raises(ParseError, match="episode label 'S4.E0 ∙ Voyage"):
-                IMDB.get_episode_list("tt0436992", 4)
+            IMDB.get_episode_list("tt0436992", 4)
 
     @use_local_response
     def test_fetch_episodes_dummy_fallback(self):

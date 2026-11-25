@@ -179,15 +179,17 @@ class IMDB(AbstractSite):
         dl = IMDBDownloader(url)
         h = dl.download().html()
         episodes = []
-        unparsed = []
         for e in h.xpath("//article//a[contains(@class,'ipc-title-link-wrapper')]"):
             label = "".join(
                 e.xpath("div[contains(@class,'ipc-title__text')]/text()")[:1]
             )
             parsed = IMDB.parse_episode_label(label)
             if parsed is None:
-                unparsed.append(label)
-                continue
+                # a partial list would set a wrong episode_count, and an empty
+                # one would make the caller create placeholder episodes
+                raise ParseError(
+                    dl, f"episode label {label!r}, expected like 'S1.E1 ∙ Title'"
+                )
             episode_number, episode_title = parsed
             episode_url = e.xpath("./@href")[0]
             episode_url = "https://www.imdb.com" + episode_url
@@ -200,16 +202,6 @@ class IMDB(AbstractSite):
                     "title": episode_title,
                     "episode_number": episode_number,
                 }
-            )
-        if unparsed:
-            # an empty list would make the caller create placeholder episodes
-            if not episodes:
-                raise ParseError(
-                    dl,
-                    f"episode label {unparsed[0]!r}, expected like 'S1.E1 ∙ Title'",
-                )
-            _logger.warning(
-                f"skipped unparsed IMDB episode labels at {url}: {unparsed}"
             )
         return episodes
 
