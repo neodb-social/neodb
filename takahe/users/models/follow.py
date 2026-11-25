@@ -41,6 +41,9 @@ class FollowStates(StateGraph):
     accepted.transitions_to(rejecting)
     accepted.transitions_to(undone)
     undone.transitions_to(pending_removal)
+    # an Undo from a deleted identity is refused forever, as peers can no
+    # longer fetch its key
+    undone.times_out_to(pending_removal, seconds=7 * 24 * 60 * 60)
     pending_removal.transitions_to(removed)
 
     @classmethod
