@@ -11,7 +11,7 @@ from django.urls import reverse
 
 from catalog.models import Edition, ExternalResource, IdType, Item, ItemCredit, Movie
 from journal.apis.collection import _prefetch_list_member_items
-from journal.models import Mark, ShelfType
+from journal.models import FeaturedCollection, Mark, ShelfType
 from journal.models.collection import Collection
 from takahe.utils import Takahe
 from users.models import User
@@ -869,3 +869,71 @@ class TestDynamicCollectionFilters:
         # select is offered.
         assert "Dynamic Filter Book" in content
         assert 'name="status"' not in content
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestCollectionTargetToggle:
+    """Any signed-in viewer of a collection can set it as a target or stop tracking it."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        self.owner = User.register(
+            email="target_owner@test.com", username="target_owner"
+        )
+        self.viewer = User.register(
+            email="target_viewer@test.com", username="target_viewer"
+        )
+        self.collection = Collection(
+            owner=self.owner.identity, title="Target Collection", brief=""
+        )
+        self.collection.save()
+
+    def _page(self, client: Client, collection: Collection) -> str:
+        response = client.get(
+            reverse("journal:collection_retrieve", args=[collection.uuid])
+        )
+        assert response.status_code == 200
+        return response.content.decode()
+
+    def test_non_owner_can_set_and_stop_tracking(self):
+        assert self.collection.latest_post is not None
+        add_url = reverse(
+            "journal:collection_add_featured", args=[self.collection.uuid]
+        )
+        remove_url = reverse(
+            "journal:collection_remove_featured", args=[self.collection.uuid]
+        )
+        client = Client()
+        client.force_login(self.viewer)
+        content = self._page(client, self.collection)
+        assert content.count('id="feature-form"') == 1
+        assert add_url in content
+
+        assert client.post(add_url).status_code == 302
+        assert self.collection.featured_since(self.viewer.identity)
+        content = self._page(client, self.collection)
+        assert content.count('id="feature-form"') == 1
+        assert remove_url in content
+
+        assert client.post(remove_url).status_code == 302
+        assert not FeaturedCollection.objects.filter(
+            owner=self.viewer.identity, target=self.collection
+        ).exists()
+
+    def test_owner_sees_toggle_without_post(self):
+        unposted = Collection(
+            owner=self.owner.identity, title="Unposted Collection", brief=""
+        )
+        unposted.save(post_when_save=False)
+        assert unposted.latest_post is None
+        client = Client()
+        client.force_login(self.owner)
+        content = self._page(client, unposted)
+        assert content.count('id="feature-form"') == 1
+        assert (
+            reverse("journal:collection_add_featured", args=[unposted.uuid]) in content
+        )
+
+    def test_anonymous_sees_no_toggle(self):
+        content = self._page(Client(), self.collection)
+        assert 'id="feature-form"' not in content
