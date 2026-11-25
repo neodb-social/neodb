@@ -937,3 +937,20 @@ class TestCollectionTargetToggle:
     def test_anonymous_sees_no_toggle(self):
         content = self._page(Client(), self.collection)
         assert 'id="feature-form"' not in content
+
+    def test_static_collection_with_members_is_trackable(self):
+        assert self.collection.trackable is False
+        self.collection.append_item(Edition.objects.create(title="Target Book"))
+        assert Collection.objects.get(pk=self.collection.pk).trackable is True
+
+    def test_target_page_shows_progress(self):
+        book = Edition.objects.create(title="Target Book")
+        self.collection.append_item(book)
+        Mark(self.viewer.identity, book).update(ShelfType.COMPLETE)
+        client = Client()
+        client.force_login(self.viewer)
+        client.post(
+            reverse("journal:collection_add_featured", args=[self.collection.uuid])
+        )
+        content = self._page(client, self.collection)
+        assert '<progress value="100"' in content
