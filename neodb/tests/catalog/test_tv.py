@@ -4,7 +4,7 @@ from unittest import mock
 import pytest
 from django.utils import timezone
 
-from catalog.common import SiteManager, use_local_response
+from catalog.common import ParseError, SiteManager, use_local_response
 from catalog.models import ExternalResource, IdType, Movie, TVEpisode, TVSeason, TVShow
 from catalog.sites import tmdb as tmdb_site
 from catalog.sites.imdb import IMDB
@@ -411,6 +411,34 @@ class TestIMDB:
         assert len(episodes) == 14
         episodes = IMDB.get_episode_list("tt1205438", 4)
         assert len(episodes) == 14
+
+    def test_parse_episode_label(self):
+        assert IMDB.parse_episode_label("S1. E1 ∙ The Target") == (1, "The Target")
+        assert IMDB.parse_episode_label("S1.E12 ∙ Sentencing") == (12, "Sentencing")
+        assert IMDB.parse_episode_label("S4.E0 ∙ Voyage of the Damned") == (
+            0,
+            "Voyage of the Damned",
+        )
+        assert IMDB.parse_episode_label("S1.E1 The Target") is None
+        assert IMDB.parse_episode_label("Pilot ∙ The Target") is None
+        assert IMDB.parse_episode_label("") is None
+
+    @use_local_response
+    def test_get_episode_list_unparsed_labels(self):
+        parse = IMDB.parse_episode_label
+        with mock.patch.object(
+            IMDB,
+            "parse_episode_label",
+            side_effect=lambda label: (
+                None if label.startswith("S4.E0") else parse(label)
+            ),
+        ):
+            episodes = IMDB.get_episode_list("tt0436992", 4)
+        assert len(episodes) == 13
+        assert 0 not in [e["episode_number"] for e in episodes]
+        with mock.patch.object(IMDB, "parse_episode_label", return_value=None):
+            with pytest.raises(ParseError, match="episode label 'S4.E0 ∙ Voyage"):
+                IMDB.get_episode_list("tt0436992", 4)
 
     @use_local_response
     def test_fetch_episodes_dummy_fallback(self):
