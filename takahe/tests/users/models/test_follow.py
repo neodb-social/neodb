@@ -1,7 +1,9 @@
 import json
+from datetime import timedelta
 
 import httpx
 import pytest
+from django.utils import timezone
 from pytest_httpx import HTTPXMock
 
 from users.models import Follow, FollowStates, Identity, InboxMessage
@@ -156,6 +158,41 @@ def test_follow_unauthorized_delivery_is_rejected(
     )
     stator.run_single_cycle()
     assert Follow.objects.get(pk=follow.pk).state == FollowStates.rejecting
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("days_undone,gives_up", [(1, False), (8, True)])
+@pytest.mark.httpx_mock(assert_all_requests_were_expected=False)
+def test_follow_refused_undo_gives_up(
+    identity: Identity,
+    remote_identity: Identity,
+    stator,
+    httpx_mock: HTTPXMock,
+    days_undone: int,
+    gives_up: bool,
+):
+    """
+    An Undo the target keeps refusing is retried for a week, then dropped.
+    Peers refuse every Undo from a deleted identity, as its key is gone.
+    """
+    follow = Follow.objects.create(
+        source=identity,
+        target=remote_identity,
+        uri=f"{identity.actor_uri}follow/1/",
+        state=FollowStates.accepted,
+    )
+    IdentityService(identity).unfollow(remote_identity)
+    Follow.objects.filter(pk=follow.pk).update(
+        state_changed=timezone.now() - timedelta(days=days_undone)
+    )
+    httpx_mock.add_response(
+        url="https://remote.test/@test/inbox/",
+        status_code=401,
+        content=b"Failed to verify the request signature.",
+    )
+    stator.run_single_cycle()
+    state = Follow.objects.filter(pk=follow.pk).values_list("state", flat=True)
+    assert (FollowStates.undone.name not in state) == gives_up
 
 
 def _stats(i: Identity) -> dict:
