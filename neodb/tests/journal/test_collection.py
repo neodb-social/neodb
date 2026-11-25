@@ -939,9 +939,9 @@ class TestCollectionTargetToggle:
         assert 'id="feature-form"' not in content
 
     def test_static_collection_with_members_is_trackable(self):
-        assert self.collection.trackable is False
+        assert self.collection.is_trackable_for(None) is False
         self.collection.append_item(Edition.objects.create(title="Target Book"))
-        assert Collection.objects.get(pk=self.collection.pk).trackable is True
+        assert self.collection.is_trackable_for(None) is True
 
     def test_target_page_shows_progress(self):
         book = Edition.objects.create(title="Target Book")
