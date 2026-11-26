@@ -266,6 +266,8 @@
         // the personal rows arrive after the page; with none to show, the
         // section and its chip go
         document.getElementById('recommendations').addEventListener('htmx:afterSwap', e => {
+          // a badge swapped in a card bubbles up here too
+          if (e.target !== e.currentTarget) return;
           if (e.target.querySelector('.dc-cards')) return;
           e.target.style.display = 'none';
           const chip = document.querySelector('.dc-chips a[href="#recommendations"]');

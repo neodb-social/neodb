@@ -7,6 +7,7 @@ from django.db import connections
 from django.test.utils import CaptureQueriesContext
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
+from lxml import html as lxml_html
 
 from catalog.models import (
     Edition,
@@ -287,6 +288,16 @@ def _cover_oob(item) -> str:
     return f"hx-swap-oob=\"outerHTML:[data-cover-mark='{item.uuid}']\""
 
 
+def _cover_badge(content: bytes, item) -> lxml_html.HtmlElement:
+    badges = [
+        el
+        for el in lxml_html.fragments_fromstring(content.decode())
+        if not isinstance(el, str) and el.get("data-cover-mark") == item.uuid
+    ]
+    assert len(badges) == 1
+    return badges[0]
+
+
 @pytest.mark.django_db(databases="__all__")
 def test_mark_save_inline_swaps_cover_badge(client):
     user = User.register(email="mark-cover@example.com", username="markcover")
@@ -294,21 +305,21 @@ def test_mark_save_inline_swaps_cover_badge(client):
     client.force_login(user, backend="mastodon.auth.OAuth2Backend")
     url = reverse("journal:mark", args=[book.uuid])
 
-    html = client.post(
-        url, _mark_post_data(inline="1"), HTTP_HX_REQUEST="true"
-    ).content.decode()
-    assert _cover_oob(book) in html
-    assert 'class="dc-mark marked"' in html
-    assert "fa-solid fa-check" in html
-    assert 'title="Read"' in html
-    assert 'data-rating="8' in html
+    response = client.post(url, _mark_post_data(inline="1"), HTTP_HX_REQUEST="true")
+    assert _cover_oob(book) in response.content.decode()
+    badge = _cover_badge(response.content, book)
+    assert badge.get("class") == "dc-mark marked"
+    assert badge.get("title") == "Read"
+    assert badge.get("hx-get") == f"{url}?inline=1"
+    assert badge.xpath(".//i[@class='fa-solid fa-check']")
+    assert badge.xpath(".//*[@data-rating='8.0']")
 
-    html = client.post(
-        url, {"delete": "1", "inline": "1"}, HTTP_HX_REQUEST="true"
-    ).content.decode()
-    assert _cover_oob(book) in html
-    assert 'class="dc-mark"' in html
-    assert f'hx-get="{url}?shelf_type=wishlist&amp;inline=1"' in html
+    response = client.post(url, {"delete": "1", "inline": "1"}, HTTP_HX_REQUEST="true")
+    badge = _cover_badge(response.content, book)
+    assert badge.get("class") == "dc-mark"
+    assert badge.get("title") == "Add mark"
+    # the stored shelf, not a fixed one, picks the dialog's status
+    assert badge.get("hx-get") == f"{url}?inline=1"
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -325,7 +336,8 @@ def test_cover_marks_returns_badges_of_viewer_shelved_items_only(client):
     Mark(other.identity, theirs).update(ShelfType.COMPLETE, rating_grade=6)
     client.force_login(user, backend="mastodon.auth.OAuth2Backend")
 
-    items = [done.uuid, wished.uuid, dropped.uuid, theirs.uuid, "bad!", "", "-x"]
+    junk = ["bad!", "", "-x", "!" * 22, "z" * 22, "1" * 100_000]
+    items = [done.uuid, wished.uuid, dropped.uuid, theirs.uuid, *junk]
     response = client.post(reverse("journal:cover_marks"), {"items": ",".join(items)})
     assert response.status_code == 200
     html = response.content.decode()

@@ -86,10 +86,14 @@ def cover_marks(request: AuthedHttpRequest) -> HttpResponse:
     the add-mark badge it was rendered with, so it is left out.
     """
     sent: dict[uuid.UUID, str] = {}
-    for s in request.POST.get("items", "").split(",")[:COVER_MARKS_LIMIT]:
+    items = request.POST.get("items", "").split(",", COVER_MARKS_LIMIT)
+    for s in items[:COVER_MARKS_LIMIT]:
+        # Item.uuid is always 22 characters; decode nothing longer
+        if len(s) != 22:
+            continue
         try:
             sent[uuid.UUID(int=b62_decode(s))] = s
-        except ValueError, IndexError:
+        except ValueError:
             continue
     owner_id = request.user.identity.pk
     rows = list(
