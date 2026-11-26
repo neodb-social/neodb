@@ -58,7 +58,7 @@
             <div class="byline-body">
               <span class="action">
                 {% include "action_post_timestamp.html" with post=collection.latest_post %}
-                {% if request.user.is_authenticated and collection.latest_post.author_id == request.user.identity.pk %}
+                {% if request.user.is_authenticated %}
                   <span>{% include "_feature_stats.html" with featured=featured_since %}</span>
                 {% endif %}
                 {% include "action_like_post.html" with post=collection.latest_post %}
@@ -133,6 +133,8 @@
             {% if collection.latest_post %}
               {% include "action_reply_piece.html" with post=collection.latest_post piece=collection %}
               {% include "action_quote_post.html" with post=collection.latest_post %}
+            {% elif request.user.is_authenticated %}
+              <span>{% include "_feature_stats.html" with featured=featured_since %}</span>
             {% endif %}
             {% if request.user.is_authenticated and request.user.identity == collection.owner %}
               {% if collection.is_dynamic %}

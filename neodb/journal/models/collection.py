@@ -172,7 +172,7 @@ class Collection(List[CollectionMember]):
             r = self.get_query_result(viewer)
             return bool(r and r.total > 0)
         else:
-            return bool(self.query_result and self.query_result.pages == 1)
+            return self.members.exists()
 
     @property
     def html_content(self):
