@@ -34,7 +34,8 @@
   </head>
   <body>
     {% include "_header.html" %}
-    <main class="dc-main" id="discover_top">
+    <main class="dc-main{% if request.user.is_authenticated %} dc-member{% endif %}"
+          id="discover_top">
       {% if request.user.is_authenticated %}
         {% with unread=request.user.unread_announcements %}
           {% if unread %}
@@ -225,6 +226,14 @@
         });
         const spotlight = document.getElementById('spotlight');
         if (spotlight && !spotlight.querySelector('.dc-spot')) spotlight.remove();
+        // the shared covers carry no viewer data: fetch the badges of the
+        // ones this member shelved, once the footer adds the CSRF header
+        const coverItems = [...new Set(Array.from(document.querySelectorAll('[data-cover-mark]'), el => el.dataset.coverMark))];
+        if (coverItems.length) {
+          document.addEventListener('DOMContentLoaded', () => {
+            htmx.ajax('POST', '{% url "journal:cover_marks" %}', {values: {items: coverItems.join(',')}, swap: 'none'});
+          });
+        }
         const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
         const savedIds = [];
         // apply the saved visibility; data-visible feeds the editor

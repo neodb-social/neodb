@@ -1,0 +1,21 @@
+{% load i18n %}
+{% load duration %}
+<a href="#"
+   class="dc-mark{% if shelf_type %} marked{% endif %}"
+   data-cover-mark="{{ uuid }}"
+   {% if oob %}hx-swap-oob="outerHTML:[data-cover-mark='{{ uuid }}']"{% endif %}
+   hx-get="{% url 'journal:mark' uuid %}?{% if not shelf_type %}shelf_type=wishlist&amp;{% endif %}inline=1"
+   hx-target="body"
+   hx-swap="beforeend"
+   title="{% if shelf_type %}{{ label|capfirst }}{% else %}{% trans "Add mark" %}{% endif %}">
+  {% if shelf_type == "complete" %}
+    <i class="fa-solid fa-check"></i>
+  {% elif shelf_type == "dropped" %}
+    <i class="fa-solid fa-ban"></i>
+  {% elif shelf_type %}
+    <i class="fa-solid fa-bookmark"></i>
+  {% else %}
+    <i class="fa-regular fa-bookmark"></i>
+  {% endif %}
+  {% if grade %}<span class="dc-mark-grade">{{ grade|rating_star }}</span>{% endif %}
+</a>

@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.db import connections
 from django.test import Client
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone
 
 from catalog.jobs.discover import DiscoverGenerator
@@ -786,6 +787,25 @@ class TestDiscoverFragments:
         assert member == []
         assert "Anna Director" in content
         assert 'id="layoutEditButton"' in content
+
+    def test_cover_mark_badge_is_shared_and_filled_in_the_browser(self, site_config):
+        book = Edition.objects.create(title="Badge Book")
+        fan = _mark_by_many(book, 1, "badgefan")[0]
+        DiscoverGenerator().run()
+        badges_url = reverse("journal:cover_marks")
+
+        guest = Client().get("/discover/").content.decode()
+        assert f'data-cover-mark="{book.uuid}"' in guest
+        assert "dc-member" not in guest
+        assert badges_url not in guest
+
+        # the fan shelved the book, but the shared card has no viewer data:
+        # the page asks for the badges after it loads
+        member = _member_client(fan).get("/discover/").content.decode()
+        assert f'data-cover-mark="{book.uuid}"' in member
+        assert 'class="dc-mark marked"' not in member
+        assert "dc-main dc-member" in member
+        assert badges_url in member
 
     def test_episode_comment_link_is_switched_on_in_the_browser(self, site_config):
         site_config.discover_show_verified_podcasts = True

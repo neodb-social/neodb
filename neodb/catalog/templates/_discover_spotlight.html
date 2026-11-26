@@ -50,6 +50,7 @@
             <span class="dc-spot-by">{{ item|primary_credit }}</span>
           </span>
         </a>
+        <span class="dc-mark-box {{ item|cover_shape }}">{% include "_cover_mark.html" with uuid=item.uuid only %}</span>
       </li>
     {% endfor %}
   </ul>

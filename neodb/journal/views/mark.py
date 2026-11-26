@@ -1,9 +1,11 @@
 import logging
+import uuid
 from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import BadRequest, PermissionDenied
+from django.core.signing import b62_decode
 from django.http import Http404, HttpResponse, HttpResponseBase, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
@@ -16,13 +18,16 @@ from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, get_uuid_or_404
 
 from ..forms import CommentForm, MarkForm, post_language_initial
-from ..models import Comment, Mark, ShelfManager, ShelfType
+from ..models import Comment, Mark, Rating, ShelfManager, ShelfMember, ShelfType
 from .common import render_list, render_relogin
 from common.validators import get_safe_referer_url
 
 logger = logging.getLogger(__name__)
 
 PAGE_SIZE = 10
+
+# the most covers one page may ask about; discover shows far fewer
+COVER_MARKS_LIMIT = 500
 
 _checkmark = "✔️".encode("utf-8")
 
@@ -53,14 +58,65 @@ def _mark_saved_response(request: AuthedHttpRequest, item: Item) -> HttpResponse
 def _mark_oob_content(request: AuthedHttpRequest, item: Item) -> bytes:
     """
     Out-of-band fragments that refresh every card of ``item`` on the page:
-    the bookmark action and, on list cards, the viewer's mark details.
+    the bookmark action, on list cards the viewer's mark details, and on
+    discover covers the mark badge.
     """
     mark = Mark(request.user.identity, item)
     context = {"item": item, "mark": mark, "oob": True}
+    badge = {
+        "uuid": item.uuid,
+        "shelf_type": mark.shelf_type,
+        "label": mark.status_label,
+        "grade": mark.rating_grade,
+        "oob": True,
+    }
     return (
         render(request, "action_mark_item.html", context).content
         + render(request, "_list_item_mark.html", context).content
+        + render(request, "_cover_mark.html", badge).content
     )
+
+
+@login_required
+@require_http_methods(["POST"])
+def cover_marks(request: AuthedHttpRequest) -> HttpResponse:
+    """
+    The viewer's mark badges for the covers of a page that every visitor
+    shares, as out-of-band swaps. A cover the viewer has not shelved keeps
+    the add-mark badge it was rendered with, so it is left out.
+    """
+    sent: dict[uuid.UUID, str] = {}
+    for s in request.POST.get("items", "").split(",")[:COVER_MARKS_LIMIT]:
+        try:
+            sent[uuid.UUID(int=b62_decode(s))] = s
+        except ValueError, IndexError:
+            continue
+    owner_id = request.user.identity.pk
+    rows = list(
+        ShelfMember._base_manager.filter(
+            owner_id=owner_id, item__uid__in=sent
+        ).values_list(
+            "item_id", "item__uid", "item__polymorphic_ctype_id", "parent__shelf_type"
+        )
+    )
+    grades = dict(
+        Rating.objects.filter(
+            owner_id=owner_id,
+            item_id__in=[r[0] for r in rows],
+            grade__isnull=False,
+        ).values_list("item_id", "grade")
+    )
+    categories = {ct: cls.category for cls, ct in item_content_types().items()}
+    badges = [
+        {
+            "uuid": sent[uid],
+            "shelf_type": shelf_type,
+            "label": ShelfManager.get_status_label(shelf_type, categories[ctype_id]),
+            "grade": grades.get(item_id),
+        }
+        for item_id, uid, ctype_id, shelf_type in rows
+    ]
+    return render(request, "_cover_marks.html", {"badges": badges})
 
 
 def _mark_error_response(

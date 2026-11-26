@@ -243,12 +243,20 @@
   }
 
   .dc-spot {
+    position: relative;
     margin: 0;
     padding: 0;
     list-style: none;
     scroll-snap-align: start;
 
-    a {
+    // over the cover, inside the card's border and padding
+    .dc-mark-box {
+      top: calc(0.9rem + 1px);
+      left: calc(0.9rem + 1px);
+      width: 7.4rem;
+    }
+
+    > a {
       display: grid;
       grid-template-columns: 7.4rem 1fr;
       gap: var(--dc-gap);
@@ -465,12 +473,18 @@
       }
     }
 
-    .dc-spot a {
+    .dc-spot > a {
       grid-template-columns: 6rem 1fr;
       padding: 0.75rem;
     }
 
     .dc-spot .dc-cover {
+      width: 6rem;
+    }
+
+    .dc-spot .dc-mark-box {
+      top: calc(0.75rem + 1px);
+      left: calc(0.75rem + 1px);
       width: 6rem;
     }
   }
