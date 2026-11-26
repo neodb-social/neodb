@@ -215,7 +215,9 @@ def mark(request: AuthedHttpRequest, item_uuid):
         popular_tags = tag_manager.get_cached_popular_titles()
         shelf_actions = ShelfManager.get_actions_for_category(item.category)
         shelf_statuses = ShelfManager.get_statuses_for_category(item.category)
-        shelf_type = request.GET.get("shelf_type", mark.shelf_type)
+        # a status asked for is only a default: a card rendered before the
+        # item was shelved must not move it back to that status
+        shelf_type = mark.shelf_type or request.GET.get("shelf_type")
         return render(
             request,
             "mark.html",

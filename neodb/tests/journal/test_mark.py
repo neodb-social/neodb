@@ -318,8 +318,29 @@ def test_mark_save_inline_swaps_cover_badge(client):
     badge = _cover_badge(response.content, book)
     assert badge.get("class") == "dc-mark"
     assert badge.get("title") == "Add mark"
-    # the stored shelf, not a fixed one, picks the dialog's status
-    assert badge.get("hx-get") == f"{url}?inline=1"
+    assert badge.get("hx-get") == f"{url}?shelf_type=wishlist&inline=1"
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_dialog_keeps_stored_shelf_over_asked_status(client):
+    user = User.register(email="mark-stale@example.com", username="markstale")
+    book = Edition.objects.create(title="Stale Card Book")
+    Mark(user.identity, book).update(ShelfType.COMPLETE, rating_grade=8)
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:mark", args=[book.uuid])
+
+    # a card rendered before the item was shelved still asks for wishlist
+    page = lxml_html.fromstring(
+        client.get(f"{url}?shelf_type=wishlist&inline=1").content.decode()
+    )
+    assert page.xpath('//input[@name="status"]/@value') == ["complete"]
+
+    other = Edition.objects.create(title="Unshelved Book")
+    other_url = reverse("journal:mark", args=[other.uuid])
+    page = lxml_html.fromstring(
+        client.get(f"{other_url}?shelf_type=progress&inline=1").content.decode()
+    )
+    assert page.xpath('//input[@name="status"]/@value') == ["progress"]
 
 
 @pytest.mark.django_db(databases="__all__")
