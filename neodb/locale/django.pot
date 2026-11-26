@@ -10039,3 +10039,10 @@ msgstr ""
 msgctxt "a post in a group"
 msgid "posted in"
 msgstr ""
+
+#: catalog/templates/item_base.html:183
+#, python-format
+msgid "%(counter)s from people you follow"
+msgid_plural "%(counter)s from people you follow"
+msgstr[0] ""
+msgstr[1] ""

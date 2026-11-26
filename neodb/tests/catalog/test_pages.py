@@ -21,6 +21,8 @@ from catalog.models import (
     TVShow,
     Work,
 )
+from journal.models import Mark, ShelfType
+from takahe.utils import Takahe
 from users.models import User
 
 DETAIL_PAGE_MODELS: list[type[Item]] = [
@@ -204,3 +206,89 @@ def test_item_page_shows_other_titles_and_language(
 
     assert other_title in text
     assert "French" in text
+
+
+def _rate(user: User, item: Item, grade: int, visibility: int = 0) -> None:
+    Mark(user.identity, item).update(
+        ShelfType.COMPLETE, rating_grade=grade, visibility=visibility
+    )
+
+
+def _users(prefix: str, *names: str) -> dict[str, User]:
+    return {
+        n: User.register(email=f"{prefix}-{n}@example.com", username=f"{prefix}{n}")
+        for n in names
+    }
+
+
+def _following_raters(page: html.HtmlElement, item: Item) -> list[str]:
+    url = reverse("catalog:mark_list", args=[item.url_path, item.uuid, "following"])
+    return [
+        a.text_content().strip()
+        for a in page.xpath(f'//div[contains(@class, "rating")]//a[@href="{url}"]')
+    ]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_item_page_counts_raters_among_people_you_follow(client: Client) -> None:
+    u = _users("fr", "viewer", "pub", "fol", "priv", "stranger", "extra")
+    book = Edition.objects.create(title="Followed Book")
+    for n in ("pub", "fol", "priv"):
+        Takahe.follow(u["viewer"].identity.pk, u[n].identity.pk, force_accept=True)
+    _rate(u["pub"], book, 8)
+    _rate(u["fol"], book, 6, visibility=1)
+    _rate(u["priv"], book, 4, visibility=2)
+    _rate(u["stranger"], book, 10)
+    _rate(u["extra"], book, 7)
+    _rate(u["viewer"], book, 9)
+
+    assert _following_raters(_item_page(client, book), book) == []
+
+    client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
+    page = _item_page(client, book)
+    assert page.xpath('//div[contains(@class, "rating")]//h3')
+    assert _following_raters(page, book) == ["2 from people you follow"]
+    assert not page.xpath('//div[contains(@class, "undisplay")]//a')
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_item_page_shows_followed_raters_without_an_average(client: Client) -> None:
+    u = _users("fu", "viewer", "friend")
+    book = Edition.objects.create(title="Rarely Rated")
+    Takahe.follow(u["viewer"].identity.pk, u["friend"].identity.pk, force_accept=True)
+    _rate(u["friend"], book, 8)
+
+    client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
+    page = _item_page(client, book)
+    assert page.xpath(
+        '//div[contains(@class, "rating") and contains(@class, "unavailable")]'
+    )
+    links = page.xpath('//div[contains(@class, "undisplay")]//a')
+    assert [a.text_content().strip() for a in links] == ["1 from people you follow"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_item_page_counts_a_follow_once_across_seasons(client: Client) -> None:
+    u = _users("fs", "viewer", "friend")
+    show = TVShow.objects.create(title="Long Show")
+    seasons = [
+        TVSeason.objects.create(title=f"S{n}", show=show, season_number=n)
+        for n in (1, 2)
+    ]
+    Takahe.follow(u["viewer"].identity.pk, u["friend"].identity.pk, force_accept=True)
+    for s in seasons:
+        _rate(u["friend"], s, 8)
+
+    client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
+    assert _following_raters(_item_page(client, show), show) == [
+        "1 from people you follow"
+    ]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_item_page_has_no_followed_raters_line_without_follows(client: Client) -> None:
+    u = _users("fn", "viewer", "stranger")
+    book = Edition.objects.create(title="Lonely Book")
+    _rate(u["stranger"], book, 8)
+    client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
+    assert _following_raters(_item_page(client, book), book) == []

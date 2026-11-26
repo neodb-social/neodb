@@ -163,6 +163,31 @@ class Rating(Content):
             }
 
     @classmethod
+    def count_followed_raters(cls, item: Item, viewer: APIdentity) -> int:
+        """
+        How many people ``viewer`` follows rated ``item``, counting only the
+        ratings a follower may see, over the items the public rating covers.
+        """
+        following = viewer.following
+        if not following:
+            return 0
+        if item.__class__ in RATING_INCLUDES_CHILD_ITEMS:
+            item_ids = item.child_item_ids + [item.pk]
+        else:
+            item_ids = [item.pk]
+        return (
+            cls.objects.filter(
+                item_id__in=item_ids,
+                owner_id__in=following,
+                grade__gte=1,
+                visibility__lt=2,
+            )
+            .values("owner_id")
+            .distinct()
+            .count()
+        )
+
+    @classmethod
     def get_info_for_items(cls, items: Iterable[Item]) -> dict[int, dict]:
         # Extract IDs and build mapping for parent items
         item_ids = [item.pk for item in items]

@@ -58,6 +58,7 @@
 .rating .undisplay {
   position: absolute;
   display: none;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   inset: 0;

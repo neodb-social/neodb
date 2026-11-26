@@ -178,6 +178,14 @@
             </div>
           {% endif %}
           {% block rating_and_tags %}
+            {% if following_rater_count %}
+              {% url 'catalog:mark_list' item.url_path item.uuid 'following' as following_marks_url %}
+              {% blocktrans count counter=following_rater_count asvar following_raters trimmed %}
+                {{ counter }} from people you follow
+              {% plural %}
+                {{ counter }} from people you follow
+              {% endblocktrans %}
+            {% endif %}
             <div class="rating solo-hidden {% if not item.rating %}unavailable{% endif %}">
               <div class="display">
                 <div>
@@ -185,7 +193,13 @@
                     <h3>
                       {{ item.rating | floatformat:1 }} <small>/ 10</small>
                     </h3>
-                    <p>{{ item.rating_count }} {% trans "ratings" %}</p>
+                    <p>
+                      {{ item.rating_count }} {% trans "ratings" %}
+                      {% if item.rating and following_rater_count %}
+                        <br>
+                        <a href="{{ following_marks_url }}">{{ following_raters }}</a>
+                      {% endif %}
+                    </p>
                   </hgroup>
                 </div>
                 <div data-placement="top">
@@ -215,6 +229,9 @@
               </div>
               <div class="undisplay">
                 <span>{% trans "Not enough ratings" %}</span>
+                {% if not item.rating and following_rater_count %}
+                  <a href="{{ following_marks_url }}">{{ following_raters }}</a>
+                {% endif %}
               </div>
             </div>
             <div class="tag-list solo-hidden">
