@@ -61,7 +61,7 @@ dependencies = [
     # takahe (Fediverse / Mastodon API) dependencies, sharing this venv
     # cryptography upper bound is dictated by atproto (currently <51); takahe only
     # uses long-stable hazmat APIs, so the atproto-compatible range is fine.
-    "cryptography>=46",
+    "cryptography>=50.0.0",
     "dj-database-url>=2.1.0",
     "django-cache-url>=3.4.5",
     "django-debug-toolbar>=4.3.0",
