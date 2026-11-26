@@ -6341,6 +6341,10 @@ msgstr "停止追踪这个目标吗？"
 msgid "Set as target"
 msgstr "设置为目标"
 
+#: journal/templates/_feature_stats.html:16
+msgid "Set this collection as target? Its progress will show up in your sidebar."
+msgstr "将这个收藏单设为目标吗？进度会显示在侧边栏中。"
+
 #: journal/templates/_list_item.html:14
 msgid "Move to top"
 msgstr "移动到顶部"

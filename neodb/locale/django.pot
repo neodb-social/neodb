@@ -6333,6 +6333,10 @@ msgstr ""
 msgid "Set as target"
 msgstr ""
 
+#: journal/templates/_feature_stats.html:16
+msgid "Set this collection as target? Its progress will show up in your sidebar."
+msgstr ""
+
 #: journal/templates/_list_item.html:14
 msgid "Move to top"
 msgstr ""
