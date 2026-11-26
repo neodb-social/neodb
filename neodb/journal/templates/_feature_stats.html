@@ -13,7 +13,7 @@
   </a>
 {% else %}
   <a title="{% trans "Set as target" %}"
-     onclick="$('#feature-form').submit()">
+     onclick="if (confirm('{% trans "Set this collection as target? Its progress will show up in your sidebar." %}')) $('#feature-form').submit();">
     <i class="fa-regular fa-circle-dot"></i>
   </a>
 {% endif %}
