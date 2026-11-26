@@ -2247,14 +2247,6 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
-#: catalog/templates/movie.html:26
-msgid "Number of seasons"
-msgstr ""
-
-#: catalog/templates/movie.html:31
-msgid "Number of episodes"
-msgstr ""
-
 #: catalog/templates/people.html:13 common/templates/_sidebar.html:74
 #: common/templates/_sidebar.html:81 journal/models/shelf.py:329
 msgid "following"

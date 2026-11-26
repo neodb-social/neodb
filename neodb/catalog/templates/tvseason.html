@@ -25,17 +25,17 @@
   <div>{% include "_credits.html" with credits=item.role_credits.director role_label="director" max=5 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.playwright role_label="playwright" max=5 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.actor role_label="actor" max=5 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.producer role_label="producer" max=5 %}</div>
+  <div>
+    {% include "_credits.html" with credits=item.role_credits.production_company role_label="production company" max=5 %}
+  </div>
+  <div>{% include "_credits.html" with credits=item.role_credits.distributor role_label="distributor" max=5 %}</div>
   <div>{% include "_genre_list.html" with list=item.genre max=10 %}</div>
   <div>{% include "_country_list.html" with list=item.origin_country max=10 %}</div>
   <div>{% include "_language_list.html" with list=item.language max=5 %}</div>
   <div>
     {% if item.season_number %}
       {% trans "season number" %}: {{ item.season_number }}
-    {% endif %}
-  </div>
-  <div>
-    {% if item.season_count %}
-      {% trans "number of seasons" %}: {{ item.season_count }}
     {% endif %}
   </div>
   <div>
@@ -68,7 +68,4 @@
          rel="noopener">{{ item.official_site|strip_scheme }}</a>
     {% endif %}
   </div>
-  {% if item.other_info %}
-    {% for k, v in item.other_info.items %}<div>{{ k }}: {{ v|urlizetrunc:24 }}</div>{% endfor %}
-  {% endif %}
 {% endblock %}

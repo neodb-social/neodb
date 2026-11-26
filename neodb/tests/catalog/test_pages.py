@@ -3,11 +3,14 @@ from datetime import datetime, timezone
 import pytest
 from django.test import Client
 from django.urls import reverse
+from lxml import html
 
 from catalog.models import (
     Album,
     Edition,
     Game,
+    Item,
+    ItemCredit,
     Movie,
     Performance,
     PerformanceProduction,
@@ -16,8 +19,39 @@ from catalog.models import (
     TVEpisode,
     TVSeason,
     TVShow,
+    Work,
 )
 from users.models import User
+
+DETAIL_PAGE_MODELS: list[type[Item]] = [
+    Album,
+    Edition,
+    Game,
+    Movie,
+    Performance,
+    PerformanceProduction,
+    Podcast,
+    TVSeason,
+    TVShow,
+    Work,
+]
+
+# Edition lists publisher credits under the "publishing house" label already.
+ROLES_NOT_ON_PAGE = {(Edition, "publishing_house")}
+
+
+def _create_item(model: type[Item], **kwargs) -> Item:
+    if model is TVSeason:
+        kwargs["show"] = TVShow.objects.create(title="Parent Show")
+    elif model is PerformanceProduction:
+        kwargs["show"] = Performance.objects.create(title="Parent Performance")
+    return model.objects.create(**kwargs)
+
+
+def _item_page(client: Client, item: Item) -> html.HtmlElement:
+    response = client.get(item.url, follow=True)
+    assert response.status_code == 200
+    return html.fromstring(response.content.decode())
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -127,3 +161,46 @@ def test_item_piece_lists_ignore_malformed_cursor(
     response = client.get(url, {"last": last})
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db(databases="__all__")
+@pytest.mark.parametrize("model", DETAIL_PAGE_MODELS, ids=lambda m: m.__name__)
+def test_item_page_shows_every_credit_role(client: Client, model: type[Item]) -> None:
+    item = _create_item(model, title=f"Credits {model.__name__}")
+    roles = [
+        role
+        for role, _ in model.credit_role_choices()
+        if (model, role) not in ROLES_NOT_ON_PAGE
+    ]
+    for order, role in enumerate(roles):
+        ItemCredit.objects.create(
+            item=item, role=role, name=f"Name of {role}", order=order
+        )
+
+    text = _item_page(client, item).get_element_by_id("item-metadata").text_content()
+
+    assert [role for role in roles if f"Name of {role}" not in text] == []
+
+
+@pytest.mark.django_db(databases="__all__")
+@pytest.mark.parametrize("model", DETAIL_PAGE_MODELS, ids=lambda m: m.__name__)
+def test_item_page_shows_other_titles_and_language(
+    client: Client, model: type[Item]
+) -> None:
+    titles = {"Main Title", "Titre Autre"}
+    item = _create_item(
+        model,
+        localized_title=[
+            {"lang": "en", "text": "Main Title"},
+            {"lang": "fr", "text": "Titre Autre"},
+        ],
+        language=["fr"],
+    )
+
+    page = _item_page(client, item)
+    heading = page.get_element_by_id("item-title").xpath(".//h1")[0].text_content()
+    (other_title,) = [t for t in titles if t not in heading]
+    text = page.get_element_by_id("item-metadata").text_content()
+
+    assert other_title in text
+    assert "French" in text

@@ -11,6 +11,7 @@ from catalog.common import ParseError
 from catalog.common.downloaders import (
     BasicDownloader,
     DownloadError,
+    set_mock_mode,
     use_local_response,
 )
 from catalog.models import (
@@ -452,6 +453,15 @@ def test_sparql_string_escaping():
     assert WikiData._escape_sparql_string('\\"') == '\\\\\\"'
 
 
+@pytest.fixture
+def mock_mode():
+    # use_local_response cannot wrap a module-level test function
+    set_mock_mode(True)
+    yield
+    set_mock_mode(False)
+
+
+@pytest.mark.usefixtures("mock_mode")
 def test_preferred_model_in_metadata():
     """Test preferred model is included in metadata"""
     wiki_site = WikiData(url="https://www.wikidata.org/wiki/Q184843")

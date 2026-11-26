@@ -11,6 +11,9 @@
 {% block details %}
   <div>{% include "_people.html" with people=item.additional_title role="" max=99 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.artist role_label="artist" max=5 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.performer role_label="performer" max=5 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.composer role_label="composer" max=5 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.producer role_label="producer" max=5 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.record_label role_label="publisher" max=5 %}</div>
   <div>
     {% if item.release_date %}
