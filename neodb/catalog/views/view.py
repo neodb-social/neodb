@@ -189,8 +189,8 @@ def retrieve(request, item_path, item_uuid):
         visible = q_piece_visible_to_user(request.user)
         mark = Mark(request.user.identity, item)
         if item.rating_count:
-            following_rater_count = Rating.count_followed_raters(
-                item, request.user.identity
+            following_rater_count = Rating.count_raters_among(
+                item, request.user.identity.following, visible
             )
         child_item_comments = Comment.objects.filter(
             owner=request.user.identity, item__in=item.child_items.all()

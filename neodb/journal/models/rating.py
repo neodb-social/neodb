@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Any, Iterable, Sequence
+from typing import Any, Collection, Iterable, Sequence
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
 
 from catalog.models import Item, Performance, TVShow
 from catalog.models.performance import PerformanceProduction
@@ -163,27 +163,19 @@ class Rating(Content):
             }
 
     @classmethod
-    def count_followed_raters(cls, item: Item, viewer: APIdentity) -> int:
+    def count_raters_among(
+        cls, item: Item, owner_ids: Collection[int], visible: Q
+    ) -> int:
         """
-        How many people ``viewer`` follows rated ``item``, counting only the
-        ratings a follower may see, over the items the public rating covers.
+        How many of ``owner_ids`` rated ``item`` itself where ``visible`` lets
+        the viewer see it. Ratings of a show's seasons stay out, so the count
+        matches the item's own marks list.
         """
-        following = viewer.following
-        if not following:
+        if not owner_ids:
             return 0
-        if item.__class__ in RATING_INCLUDES_CHILD_ITEMS:
-            item_ids = item.child_item_ids + [item.pk]
-        else:
-            item_ids = [item.pk]
         return (
-            cls.objects.filter(
-                item_id__in=item_ids,
-                owner_id__in=following,
-                grade__gte=1,
-                visibility__lt=2,
-            )
-            .values("owner_id")
-            .distinct()
+            cls.objects.filter(item=item, owner_id__in=owner_ids, grade__gte=1)
+            .filter(visible)
             .count()
         )
 

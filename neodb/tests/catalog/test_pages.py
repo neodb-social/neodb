@@ -221,11 +221,18 @@ def _users(prefix: str, *names: str) -> dict[str, User]:
     }
 
 
+def _follow(viewer: User, *targets: User) -> None:
+    for t in targets:
+        Takahe.follow(viewer.identity.pk, t.identity.pk, force_accept=True)
+
+
 def _following_raters(page: html.HtmlElement, item: Item) -> list[str]:
     url = reverse("catalog:mark_list", args=[item.url_path, item.uuid, "following"])
     return [
-        a.text_content().strip()
-        for a in page.xpath(f'//div[contains(@class, "rating")]//a[@href="{url}"]')
+        " ".join(a.text_content().split())
+        for a in page.xpath(
+            f'//p[@class="rating-following solo-hidden"]/a[@href="{url}"]'
+        )
     ]
 
 
@@ -233,8 +240,7 @@ def _following_raters(page: html.HtmlElement, item: Item) -> list[str]:
 def test_item_page_counts_raters_among_people_you_follow(client: Client) -> None:
     u = _users("fr", "viewer", "pub", "fol", "priv", "stranger", "extra")
     book = Edition.objects.create(title="Followed Book")
-    for n in ("pub", "fol", "priv"):
-        Takahe.follow(u["viewer"].identity.pk, u[n].identity.pk, force_accept=True)
+    _follow(u["viewer"], u["pub"], u["fol"], u["priv"])
     _rate(u["pub"], book, 8)
     _rate(u["fol"], book, 6, visibility=1)
     _rate(u["priv"], book, 4, visibility=2)
@@ -247,15 +253,14 @@ def test_item_page_counts_raters_among_people_you_follow(client: Client) -> None
     client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
     page = _item_page(client, book)
     assert page.xpath('//div[contains(@class, "rating")]//h3')
-    assert _following_raters(page, book) == ["2 from people you follow"]
-    assert not page.xpath('//div[contains(@class, "undisplay")]//a')
+    assert _following_raters(page, book) == ["Rated by 2 people you follow"]
 
 
 @pytest.mark.django_db(databases="__all__")
 def test_item_page_shows_followed_raters_without_an_average(client: Client) -> None:
     u = _users("fu", "viewer", "friend")
     book = Edition.objects.create(title="Rarely Rated")
-    Takahe.follow(u["viewer"].identity.pk, u["friend"].identity.pk, force_accept=True)
+    _follow(u["viewer"], u["friend"])
     _rate(u["friend"], book, 8)
 
     client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
@@ -263,32 +268,42 @@ def test_item_page_shows_followed_raters_without_an_average(client: Client) -> N
     assert page.xpath(
         '//div[contains(@class, "rating") and contains(@class, "unavailable")]'
     )
-    links = page.xpath('//div[contains(@class, "undisplay")]//a')
-    assert [a.text_content().strip() for a in links] == ["1 from people you follow"]
+    assert _following_raters(page, book) == ["Rated by 1 person you follow"]
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_item_page_counts_a_follow_once_across_seasons(client: Client) -> None:
-    u = _users("fs", "viewer", "friend")
+def test_item_page_count_matches_the_marks_it_links_to(client: Client) -> None:
+    u = _users("fs", "viewer", "seasons", "show")
     show = TVShow.objects.create(title="Long Show")
     seasons = [
         TVSeason.objects.create(title=f"S{n}", show=show, season_number=n)
         for n in (1, 2)
     ]
-    Takahe.follow(u["viewer"].identity.pk, u["friend"].identity.pk, force_accept=True)
+    _follow(u["viewer"], u["seasons"], u["show"])
     for s in seasons:
-        _rate(u["friend"], s, 8)
+        _rate(u["seasons"], s, 8)
 
     client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
+    assert _following_raters(_item_page(client, show), show) == []
+
+    _rate(u["show"], show, 7)
     assert _following_raters(_item_page(client, show), show) == [
-        "1 from people you follow"
+        "Rated by 1 person you follow"
     ]
+    url = reverse("catalog:mark_list", args=[show.url_path, show.uuid, "following"])
+    marks = client.get(url).content.decode()
+    assert u["show"].username in marks
+    assert u["seasons"].username not in marks
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_item_page_has_no_followed_raters_line_without_follows(client: Client) -> None:
-    u = _users("fn", "viewer", "stranger")
-    book = Edition.objects.create(title="Lonely Book")
+def test_item_page_leaves_out_muted_and_unfollowed_raters(client: Client) -> None:
+    u = _users("fn", "viewer", "muted", "stranger")
+    book = Edition.objects.create(title="Quiet Book")
+    _follow(u["viewer"], u["muted"])
+    Takahe.mute(u["viewer"].identity.pk, u["muted"].identity.pk)
+    _rate(u["muted"], book, 8)
     _rate(u["stranger"], book, 8)
+
     client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
     assert _following_raters(_item_page(client, book), book) == []
