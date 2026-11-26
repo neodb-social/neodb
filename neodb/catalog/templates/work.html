@@ -10,6 +10,8 @@
 {% block details %}
   <div>{% include "_people.html" with people=item.additional_title role="" max=99 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.author role_label="author" max=5 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.translator role_label="translator" max=5 %}</div>
+  <div>{% include "_language_list.html" with list=item.language max=10 %}</div>
 {% endblock %}
 {% block left_sidebar %}
   <div>

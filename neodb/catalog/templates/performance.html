@@ -30,6 +30,7 @@
   <div>{% include "_credits.html" with credits=item.role_credits.actor role_label="actor" max=10 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.performer role_label="performer" max=10 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.crew role_label="crew" max=10 %}</div>
+  <div>{% include "_credits.html" with credits=item.role_credits.producer role_label="producer" max=5 %}</div>
   <div>
     {% if item.official_site %}
       {% trans "website" %}: <span>{{ item.official_site|urlizetrunc:24 }}</span>
