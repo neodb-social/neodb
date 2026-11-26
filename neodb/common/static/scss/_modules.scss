@@ -468,11 +468,10 @@ a:hover .dc-cover img {
   }
 }
 
-// the viewer's own mark on a shared cover, in the corner the public rating
-// leaves free. It sits outside the cover link, so the box mirrors the cover
-// and passes clicks through to it. A shelved cover shows its status icon and
-// the viewer's stars on hover; an unshelved one shows the add-mark icon on
-// hover only.
+// the viewer's own mark on a shared cover, in its top right corner. It sits
+// outside the cover link, so the box mirrors the cover and passes clicks
+// through to it. A shelved cover shows its status icon and the viewer's stars
+// on hover; an unshelved one shows the add-mark icon on hover only.
 .dc-mark-box {
   position: absolute;
   top: 0;
@@ -488,8 +487,8 @@ a:hover .dc-cover img {
 
 .dc-mark {
   position: absolute;
+  top: 0.5rem;
   right: 0.5rem;
-  bottom: 0.5rem;
   display: none;
   align-items: center;
   gap: 0.3rem;
@@ -506,6 +505,12 @@ a:hover .dc-cover img {
   &:focus-visible {
     color: var(--pico-contrast-inverse);
     background: var(--pico-primary-background);
+  }
+
+  // icons set line-height 1; the text line height makes the pill as tall
+  // as the rating badge
+  > i {
+    line-height: inherit;
   }
 
   .dc-mark-grade {
@@ -530,11 +535,6 @@ a:hover .dc-cover img {
     .dc-spot:hover .dc-mark {
       display: inline-flex;
     }
-  }
-
-  // the stars grow over the public rating
-  .dc-card:has(.dc-mark:hover) .dc-badge {
-    visibility: hidden;
   }
 }
 
