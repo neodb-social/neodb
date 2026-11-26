@@ -159,7 +159,16 @@ class IMDB(AbstractSite):
         return pd
 
     @staticmethod
-    def get_episode_list(show_id, season_id):
+    def parse_episode_label(label: str) -> tuple[int, str] | None:
+        """Parse an episode list label such as "S1.E1 ∙ Title" or "S1. E1 ∙ Title"."""
+        code, sep, title = label.partition("∙")
+        m = re.search(r"E\s*(\d+)\s*$", code)
+        if not sep or not m:
+            return None
+        return int(m.group(1)), title.strip()
+
+    @staticmethod
+    def get_episode_list(show_id: str, season_id: int) -> list[dict]:
         url = f"https://m.imdb.com/title/{show_id}/"
         h = IMDBDownloader(url).download().html()
         u: str = h.xpath('//a[@data-testid="hero-title-block__series-link"]/@href')
@@ -167,15 +176,21 @@ class IMDB(AbstractSite):
         if not show_url:
             show_url = f"/title/{show_id}/"
         url = f"https://m.imdb.com{show_url}episodes/?season={season_id}"
-        h = IMDBDownloader(url).download().html()
+        dl = IMDBDownloader(url)
+        h = dl.download().html()
         episodes = []
         for e in h.xpath("//article//a[contains(@class,'ipc-title-link-wrapper')]"):
-            title = e.xpath("div[contains(@class,'ipc-title__text')]/text()")[0].split(
-                "∙", 1
+            label = "".join(
+                e.xpath("div[contains(@class,'ipc-title__text')]/text()")[:1]
             )
-            episode_id = title[0].strip()
-            episode_number = int(episode_id.split(".")[1][1:])
-            episode_title = title[1].strip()
+            parsed = IMDB.parse_episode_label(label)
+            if parsed is None:
+                # a partial list would set a wrong episode_count, and an empty
+                # one would make the caller create placeholder episodes
+                raise ParseError(
+                    dl, f"episode label {label!r}, expected like 'S1.E1 ∙ Title'"
+                )
+            episode_number, episode_title = parsed
             episode_url = e.xpath("./@href")[0]
             episode_url = "https://www.imdb.com" + episode_url
             episodes.append(
