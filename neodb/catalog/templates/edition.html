@@ -55,9 +55,6 @@
       {% trans "number of pages" %}: {{ item.pages }}
     {% endif %}
   </div>
-  {% if item.other_info %}
-    {% for k, v in item.other_info.items %}<div>{{ k }}: {{ v|urlizetrunc:24 }}</div>{% endfor %}
-  {% endif %}
 {% endblock %}
 {% block content %}
   {% if item.contents %}
