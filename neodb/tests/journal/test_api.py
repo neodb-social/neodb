@@ -4,6 +4,7 @@ from io import BytesIO
 from unittest.mock import patch
 
 import pytest
+from django.conf import settings
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, override_settings
@@ -12,6 +13,7 @@ from django.utils import timezone
 from PIL import Image
 
 from catalog.models import Edition, Game, Movie
+from common.models import SiteConfig
 from common.models.misc import MISSING_COVER
 from journal.models import (
     Article,
@@ -27,7 +29,7 @@ from journal.models import (
     TagMember,
 )
 from journal.models.shelf import ShelfType
-from takahe.models import Post
+from takahe.models import Domain, Identity, Post
 from takahe.utils import Takahe
 from users.models import User
 
@@ -229,6 +231,59 @@ def test_item_collections_visibility():
     assert payload["pages"] == 1
     uuids = {c["uuid"] for c in payload["data"]}
     assert uuids == {public.uuid, follower_only.uuid}
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_item_collections_owner_without_takahe_row():
+    """takahe drops a remote actor's row before neodb clears its APIdentity;
+    the owner must still serialize in between."""
+    domain, _ = Domain.objects.get_or_create(
+        domain="gone.example", defaults={"local": False}
+    )
+    remote = Identity.objects.create(
+        actor_uri="https://gone.example/users/gone",
+        local=False,
+        username="gone",
+        domain=domain,
+        name="Gone Person",
+        icon_uri="https://gone.example/avatar.png",
+    )
+    owner = Takahe.get_or_create_remote_apidentity(remote)
+    assert owner is not None
+    viewer = User.register(email="orphanviewer@example.com", username="orphanviewer")
+    with (
+        patch("catalog.models.item.Item.update_index"),
+        patch("journal.models.collection.Collection.sync_to_timeline"),
+        patch("journal.models.collection.Collection.update_index"),
+    ):
+        item = Edition.objects.create(title="Orphan Owner Item")
+        collection = Collection.objects.create(
+            owner=owner, title="Orphaned", brief="", visibility=0, local=False
+        )
+        collection.append_item(item)
+    Identity.objects.filter(pk=owner.pk).delete()
+
+    app = Takahe.get_or_create_app(
+        "Orphan Owner API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=viewer.identity.pk,
+    )
+    token = Takahe.refresh_token(app, viewer.identity.pk, viewer.pk)
+    response = Client().get(
+        f"/api/item/{item.uuid}/collection/",
+        HTTP_AUTHORIZATION=f"Bearer {token}",
+    )
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert [c["uuid"] for c in data] == [collection.uuid]
+    icon = SiteConfig.system.user_icon
+    if icon.startswith("/"):
+        icon = settings.SITE_INFO["site_url"] + icon
+    assert data[0]["owner"]["username"] == "gone@gone.example"
+    assert data[0]["owner"]["display_name"] == "gone"
+    assert data[0]["owner"]["avatar"] == icon
 
 
 @pytest.mark.django_db(databases="__all__")

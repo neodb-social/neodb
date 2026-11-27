@@ -162,7 +162,12 @@ class APIdentity(models.Model):
 
     @cached_property
     def display_name(self):
-        return self.takahe_identity.name or self.username
+        # a row-less identity is on its way out (see is_active), but lists
+        # still serialize it until neodb clears it
+        try:
+            return self.takahe_identity.name or self.username
+        except TakaheIdentity.DoesNotExist:
+            return self.username
 
     @cached_property
     def summary(self):
@@ -178,13 +183,17 @@ class APIdentity(models.Model):
 
     @property
     def avatar(self):
+        try:
+            identity = self.takahe_identity
+        except TakaheIdentity.DoesNotExist:
+            return SiteConfig.system.user_icon
         if self.local:
             return (
-                self.takahe_identity.icon.url
-                if self.takahe_identity.icon
-                else self.takahe_identity.icon_uri or SiteConfig.system.user_icon
+                identity.icon.url
+                if identity.icon
+                else identity.icon_uri or SiteConfig.system.user_icon
             )
-        elif self.takahe_identity.icon_uri:
+        elif identity.icon_uri:
             return f"/proxy/identity_icon/{self.pk}/"
         else:
             # Remote identity without an avatar: the icon proxy would 404, so
