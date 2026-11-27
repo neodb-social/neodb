@@ -208,6 +208,13 @@ TEXT = [
     gettext_noop(
         "@{handle} shares {n} of your titles this year, more than anyone you follow"
     ),
+    gettext_noop("Kindred member"),
+    gettext_noop("no one you do not follow shares five of your titles this year"),
+    gettext_noop("only you see it, unless you show it to this audience"),
+    gettext_noop(
+        "@{handle} is not someone you follow, yet shares {n} of your titles this year"
+    ),
+    gettext_noop("View profile"),
     gettext_noop("Who got there first"),
     gettext_noop("too few shared titles with dates"),
     gettext_noop("times someone you follow finished a title after you did"),

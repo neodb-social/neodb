@@ -17,6 +17,7 @@ from django.db import connection, connections
 from django.test import Client
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import override
 
 from catalog.models import Edition, Movie
@@ -38,14 +39,18 @@ from journal.wrapped import (
     _percentile,
     build_payload,
     compute_instance_stats,
+    compute_kindred,
     friends_allowed,
+    kindred_allowed,
     instance_stats,
     plain_excerpt,
 )
 from journal.wrapped_music import track as music_track
 from journal.wrapped_text import PLURALS, TEXT, card_text
+from takahe.models import Domain
+from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
-from users.models import User
+from users.models import APIdentity, User
 
 TZ = ZoneInfo("Asia/Shanghai")
 QUIET = {"post_when_save": False, "index_when_save": False}
@@ -55,7 +60,12 @@ YEAR = 2025
 def clear_wrapped_cache() -> None:
     # tests share redis with the dev cluster, so only this feature's keys are cleared
     cache.delete_many(
-        [f"wrapped:instance:{y}{s}" for y in range(2020, 2031) for s in ("", ":lock")]
+        [
+            f"wrapped:{kind}:{y}{s}"
+            for kind in ("instance", "kindred")
+            for y in range(2020, 2031)
+            for s in ("", ":lock")
+        ]
     )
 
 
@@ -279,6 +289,133 @@ class TestFriends:
         assert (
             build_payload(self.me, YEAR, 0, TZ, include_friends=False)["friends"] == []
         )
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestKindred:
+    """A member the owner does not follow whose public year overlaps the owner's the most."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        clear_wrapped_cache()
+        self.me = self.member("kme")
+        self.rare = self.member("krare")
+        self.heavy = self.member("kheavy")
+        self.fill = [self.member(f"kfill{k}") for k in range(4)]
+        self.rare_titles = [Edition.objects.create(title=f"Rare {k}") for k in range(5)]
+        self.popular = [Edition.objects.create(title=f"Popular {k}") for k in range(8)]
+        # five titles only one other member finished, and eight that six members finished
+        for k, it in enumerate(self.rare_titles):
+            complete(self.me, it, at(3, 1 + k))
+            complete(self.rare, it, at(4, 1 + k))
+        for k, it in enumerate(self.popular):
+            for who in [self.me, self.heavy, *self.fill]:
+                complete(who, it, at(5, 1 + k))
+        for k in range(20):
+            complete(
+                self.heavy, Edition.objects.create(title=f"Heavy {k}"), at(6, 1 + k)
+            )
+        yield
+        # the matches hold this test's member ids, and redis is shared with the dev cluster
+        clear_wrapped_cache()
+
+    def member(self, name):
+        return User.register(email=f"{name}@kindred.test", username=name).identity
+
+    def kindred(self):
+        return build_payload(self.me, YEAR, 2, TZ, include_kindred=True)["kindred"]
+
+    def test_a_shared_rare_title_counts_for_more(self):
+        best = compute_kindred(YEAR)[self.me.pk]
+        assert best[0][0] == self.rare.pk and best[0][2] == 5
+        # eight popular titles in common still rank below five rare ones
+        assert self.heavy.pk in [b for b, _, _ in best]
+
+    def test_hidden_deleted_private_and_bulk_day_members_are_left_out(self):
+        TakaheIdentity.objects.filter(pk=self.rare.pk).update(discoverable=False)
+        APIdentity.objects.filter(pk=self.heavy.pk).update(deleted=timezone.now())
+        shy, bulk = self.member("kshy"), self.member("kbulk")
+        for it in self.rare_titles:
+            complete(shy, it, at(7, 1), vis=1)
+        # thirty-one titles on one day is an import, so none of them count
+        for it in self.rare_titles + [
+            Edition.objects.create(title=f"B{k}") for k in range(26)
+        ]:
+            complete(bulk, it, at(8, 2))
+        ids = {b for b, _, _ in compute_kindred(YEAR).get(self.me.pk, [])}
+        assert not ids & {self.rare.pk, self.heavy.pk, shy.pk, bulk.pk}
+        assert {f.pk for f in self.fill} <= ids
+
+    def test_a_remote_member_can_match_but_gets_no_card(self):
+        domain, _ = Domain.objects.get_or_create(
+            domain="kindred.example", defaults={"local": False}
+        )
+        far = Takahe.get_or_create_remote_apidentity(
+            TakaheIdentity.objects.create(
+                actor_uri="https://kindred.example/users/far/",
+                local=False,
+                username="far",
+                domain=domain,
+            )
+        )
+        for k, it in enumerate(self.rare_titles):
+            complete(far, it, at(9, 1 + k))
+        matches = compute_kindred(YEAR)
+        assert far.pk in [b for b, _, _ in matches[self.me.pk]]
+        assert far.pk not in matches
+
+    def test_the_page_skips_followed_blocked_and_muted_members(self):
+        compute_kindred(YEAR)
+        k = self.kindred()
+        assert k["handle"].split("@")[0] == "krare" and k["url"] == self.rare.url
+        assert k["n"] == 5 and len(k["items"]) == 5
+        by_name = {i.username: i for i in [self.heavy, *self.fill]}
+        Takahe.follow(self.me.pk, self.rare.pk, force_accept=True)
+        second = self.kindred()["handle"].split("@")[0]
+        assert second in by_name
+        # a block in either direction and the owner's mute each move on to the next match
+        Takahe.block_or_mute(by_name[second].pk, self.me.pk, False)
+        third = self.kindred()["handle"].split("@")[0]
+        assert third in by_name and third != second
+        Takahe.block_or_mute(self.me.pk, by_name[third].pk, True)
+        fourth = self.kindred()["handle"].split("@")[0]
+        assert fourth not in (second, third, "krare")
+        assert build_payload(self.me, YEAR, 2, TZ)["kindred"] is None
+
+    def test_only_the_owner_gets_the_data_until_an_audience_is_shown_it(self):
+        deck = WrappedDeck.objects.create(owner=self.me, year=YEAR)
+        assert kindred_allowed(deck, 0, True)
+        assert not kindred_allowed(deck, 0, False) and not kindred_allowed(
+            deck, 1, False
+        )
+        deck.hidden = {"0": {"kindred": False}}
+        assert kindred_allowed(deck, 0, False) and not kindred_allowed(deck, 1, False)
+        deck.shown = {"1": ["intro", "kindred"]}
+        assert kindred_allowed(deck, 1, False)
+        assert not kindred_allowed(None, 0, False)
+        # a signed-out visitor's page carries no match even when the matches are ready
+        compute_kindred(YEAR)
+        deck.hidden, deck.shown = {}, {}
+        deck.save()
+        r = Client().get(reverse("journal:wrapped_page", args=["kme", YEAR]))
+        assert r.status_code == 200 and b"krare" not in r.content
+
+    def test_turning_the_card_on_for_everyone_reaches_signed_out_visitors(self):
+        compute_kindred(YEAR)
+        owner = Client()
+        owner.force_login(self.me.user)
+        r = owner.post(
+            reverse("journal:wrapped_save", args=[YEAR]),
+            json.dumps({"aud": 0, "hidden": {"kindred": False}}),
+            content_type="application/json",
+        )
+        assert r.status_code == 200
+        deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
+        assert deck.card_hidden(0, "kindred") is False
+        page = Client().get(reverse("journal:wrapped_page", args=["kme", YEAR]))
+        assert b"krare" in page.content
+        # followers were not shown it, so their page still carries no match
+        assert not kindred_allowed(deck, 1, False)
 
 
 @pytest.mark.django_db(databases="__all__")

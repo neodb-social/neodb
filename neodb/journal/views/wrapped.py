@@ -47,6 +47,7 @@ from journal.wrapped import (
     build_payload,
     deck_for,
     friends_allowed,
+    kindred_allowed,
     resolve_words,
     words_menu,
 )
@@ -93,6 +94,7 @@ def _context(
         level,
         deck.tzinfo,
         include_friends=friends_allowed(deck, level, is_owner),
+        include_kindred=kindred_allowed(deck, level, is_owner),
     )
     state = deck.state(level)
     # a "your words" card carries one text, and only an audience allowed to see that text gets it

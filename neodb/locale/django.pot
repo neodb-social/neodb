@@ -11867,3 +11867,24 @@ msgstr ""
 #: journal/wrapped_text.py:345
 msgid "average rating, of 10"
 msgstr ""
+
+#: journal/wrapped_text.py:211
+msgid "Kindred member"
+msgstr ""
+
+#: journal/wrapped_text.py:212
+msgid "no one you do not follow shares five of your titles this year"
+msgstr ""
+
+#: journal/wrapped_text.py:213
+msgid "only you see it, unless you show it to this audience"
+msgstr ""
+
+#: journal/wrapped_text.py:215
+#, python-brace-format
+msgid "@{handle} is not someone you follow, yet shares {n} of your titles this year"
+msgstr ""
+
+#: journal/wrapped_text.py:217
+msgid "View profile"
+msgstr ""

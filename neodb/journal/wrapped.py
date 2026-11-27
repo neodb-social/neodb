@@ -9,6 +9,7 @@ Every query is batched: the number of queries does not grow with the number of t
 import datetime
 import hashlib
 import logging
+import math
 import re
 import statistics
 import uuid
@@ -21,7 +22,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db import connection
 from django.db.models import Count, F, Min, QuerySet, Window
-from django.db.models.functions import RowNumber
+from django.db.models.functions import RowNumber, TruncDate
 from django.urls import reverse
 
 from catalog.models import (
@@ -31,7 +32,9 @@ from catalog.models import (
     TVEpisode,
     item_content_types,
 )
+from common.models import SiteConfig
 from takahe.models import Identity as TakaheIdentity
+from takahe.utils import Takahe
 from users.models import APIdentity
 
 from .models import (
@@ -64,6 +67,14 @@ WORDS_CHARS = 600
 WORDS_KINDS = ("comment", "note", "review")
 INSTANCE_CACHE_SECONDS = 24 * 3600
 SOCIAL_CARDS = {"company", "twin", "first"}
+# the kindred card: a member the owner does not follow whose public year overlaps the owner's the most
+KINDRED_MIN_SHARED = 5
+# titles more members finished than this are left out: they say little about taste and cost the most
+# (2026 on neodb.social: 6 of 105,248 titles, by a read-only count on 2026-11-27)
+KINDRED_ITEM_CAP = 300
+KINDRED_KEEP = 10
+# the job refreshes the matches daily; the cache outlives that, so a page never waits for the batch
+KINDRED_CACHE_SECONDS = 3 * 24 * 3600
 # credit roles the People card understands; other roles map onto them or are left out
 CREDIT_ROLES = {
     "director": "director",
@@ -593,8 +604,185 @@ def _median(counts: list[int]) -> int | None:
     return statistics.median_low(counts)
 
 
+def _kindred_key(year: int) -> str:
+    return f"wrapped:kindred:{year}"
+
+
+def compute_kindred(year: int) -> dict[int, list[list[float]]]:
+    """For each local member, up to KINDRED_KEEP members who could be their kindred member this year,
+    best first, as [member id, score, shared titles].
+
+    A whole-instance batch for the job; the result is cached and a page only reads it. Public completions
+    only, without bulk-import days (more than BULK_DAY in one day). A candidate is any member, local or
+    remote, who is discoverable, not deleted and not on the site's exclude list; whether the member allows
+    signed-out visitors does not matter, as that covers only their own pages. Each title weighs
+    log((members + 1) / finishers), so a shared rare title counts for more, and titles with more than
+    KINDRED_ITEM_CAP finishers are left out; the score is the shared weight divided by the square root of
+    the two members' weights, and at least KINDRED_MIN_SHARED titles must be shared. Who the owner
+    follows, blocks or mutes changes often, so the page checks that when it is built.
+    """
+    from catalog.recommendation import excluded_identity_ids  # catalog imports journal
+
+    tz = ZoneInfo(settings.TIME_ZONE)
+    start, end = year_range(year, tz)
+    qs = _members().filter(
+        parent__shelf_type=ShelfType.COMPLETE,
+        visibility=0,
+        created_time__gte=start,
+        created_time__lt=end,
+        owner__deleted__isnull=True,
+    )
+    bulk = set(
+        qs.annotate(day=TruncDate("created_time", tzinfo=tz))
+        .values("owner_id", "day")
+        .annotate(n=Count("pk"))
+        .filter(n__gt=BULK_DAY)
+        .values_list("owner_id", "day")
+    )
+    titles: dict[int, set[int]] = defaultdict(set)
+    for owner_id, item_id, ts in qs.values_list(
+        "owner_id", "item_id", "created_time"
+    ).iterator(chunk_size=5000):
+        if bulk and (owner_id, ts.astimezone(tz).date()) in bulk:
+            continue
+        titles[owner_id].add(item_id)
+    finishers: dict[int, list[int]] = defaultdict(list)
+    for owner_id, items in titles.items():
+        for item_id in items:
+            finishers[item_id].append(owner_id)
+    members = len(titles)
+    weight = {
+        i: math.log((members + 1) / len(f))
+        for i, f in finishers.items()
+        if 2 <= len(f) <= KINDRED_ITEM_CAP
+    }
+    total = {o: sum(weight.get(i, 0.0) for i in items) for o, items in titles.items()}
+    excluded = excluded_identity_ids()
+    local = set(
+        APIdentity.objects.filter(pk__in=list(titles), local=True).values_list(
+            "pk", flat=True
+        )
+    )
+    result: dict[int, list[list[float]]] = {}
+    for a in local:
+        mine = [i for i in titles[a] if i in weight]
+        if len(mine) < KINDRED_MIN_SHARED:
+            continue
+        acc: dict[int, list[float]] = {}
+        for i in mine:
+            w = weight[i]
+            for b in finishers[i]:
+                if b == a or b in excluded:
+                    continue
+                e = acc.get(b)
+                if e is None:
+                    acc[b] = [w, 1]
+                else:
+                    e[0] += w
+                    e[1] += 1
+        best = sorted(
+            (
+                (sw / math.sqrt(total[a] * total[b]), b, int(n))
+                for b, (sw, n) in acc.items()
+                if n >= KINDRED_MIN_SHARED
+            ),
+            reverse=True,
+        )[:KINDRED_KEEP]
+        if best:
+            result[a] = [[b, round(score, 4), n] for score, b, n in best]
+    cache.set(_kindred_key(year), result, KINDRED_CACHE_SECONDS)
+    return result
+
+
+def kindred_matches(year: int) -> dict[int, list[list[float]]] | None:
+    """Cached kindred matches; on a miss, queue the job and return None so the page stays fast."""
+    matches = cache.get(_kindred_key(year))
+    if matches is None and cache.add(_kindred_key(year) + ":lock", 1, 600):
+        try:
+            django_rq.get_queue("cron").enqueue(compute_kindred, year)
+        except Exception as e:
+            logger.warning(f"unable to queue wrapped kindred matches: {e}")
+    return matches
+
+
+def _kindred(
+    owner: APIdentity, year: int, tz: ZoneInfo, my_items: dict[int, str]
+) -> dict[str, Any] | None:
+    """The kindred member for this deck: the best cached match the owner may be shown now, with the titles
+    both finished this year in public. The batch skipped bulk days and used the site's time zone, so the
+    shared titles are counted again here; a match now under the minimum gives way to the next."""
+    candidates = [int(m[0]) for m in (kindred_matches(year) or {}).get(owner.pk, [])]
+    if not candidates or not my_items:
+        return None
+    # the whole following list, not the capped one the friend cards use
+    skip = (
+        set(Takahe.get_following_ids(owner.pk))
+        | set(Takahe.get_rejecting_ids(owner.pk))
+        | set(Takahe.get_muting_ids(owner.pk))
+    )
+    candidates = [b for b in candidates if b not in skip]
+    if not candidates:
+        return None
+    allowed = set(
+        TakaheIdentity.objects.filter(pk__in=candidates, discoverable=True).values_list(
+            "pk", flat=True
+        )
+    )
+    excluded = SiteConfig.system.discover_exclude_posts_from
+    if excluded and allowed:
+        allowed -= Takahe.get_identity_ids_by_handles(excluded)
+    people = {
+        p.pk: p
+        for p in APIdentity.objects.filter(pk__in=list(allowed), deleted__isnull=True)
+    }
+    start, end = year_range(year, tz)
+    for b in candidates:
+        person = people.get(b)
+        if person is None:
+            continue
+        shared: dict[int, datetime.datetime] = {}
+        for item_id, ts in (
+            _members()
+            .filter(
+                owner_id=b,
+                parent__shelf_type=ShelfType.COMPLETE,
+                visibility=0,
+                created_time__gte=start,
+                created_time__lt=end,
+                item_id__in=list(my_items),
+            )
+            .order_by("created_time")
+            .values_list("item_id", "created_time")
+        ):
+            shared.setdefault(item_id, ts)
+        if len(shared) < KINDRED_MIN_SHARED:
+            continue
+        ident = (
+            TakaheIdentity.objects.filter(pk=b)
+            .values_list("name", "username", "domain_id")
+            .first()
+        )
+        name, username, domain = ident if ident else ("", person.username, None)
+        return {
+            "handle": f"{username}@{domain}" if domain else person.handle,
+            "name": name or username,
+            "url": person.url,
+            "n": len(shared),
+            "items": [
+                {"u": my_items[i], "d": ts.astimezone(tz).date().isoformat()}
+                for i, ts in shared.items()
+            ],
+        }
+    return None
+
+
 def build_payload(
-    owner: APIdentity, year: int, level: int, tz: ZoneInfo, include_friends: bool = True
+    owner: APIdentity,
+    year: int,
+    level: int,
+    tz: ZoneInfo,
+    include_friends: bool = True,
+    include_kindred: bool = False,
 ) -> dict[str, Any]:
     start, end = year_range(year, tz)
     ctypes = _ctype_categories()
@@ -702,6 +890,9 @@ def build_payload(
         "friends": _friends(owner, year, tz, {i: paths[i] for i in ids})
         if include_friends
         else [],
+        "kindred": _kindred(owner, year, tz, {i: paths[i] for i in ids})
+        if include_kindred
+        else None,
         "instance_top": stats["top"] if stats else None,
         "percentile": _percentile(stats["counts"], len(ids)) if stats else None,
         "median": _median(stats["counts"]) if stats else None,
@@ -858,3 +1049,16 @@ def friends_allowed(deck: WrappedDeck | None, level: int, is_owner: bool) -> boo
     if shown is not None:
         return bool(SOCIAL_CARDS.intersection(shown))
     return any(deck.card_hidden(level, c) is not True for c in SOCIAL_CARDS)
+
+
+def kindred_allowed(deck: WrappedDeck | None, level: int, is_owner: bool) -> bool:
+    """The kindred card names a member the owner does not follow, so by default only the owner sees it;
+    another audience gets its data only when the owner turned the card on for that audience."""
+    if is_owner:
+        return True
+    if not deck:
+        return False
+    shown = deck.shown_for(level)
+    if shown is not None:
+        return "kindred" in shown
+    return deck.card_hidden(level, "kindred") is False

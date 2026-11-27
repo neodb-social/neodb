@@ -434,6 +434,13 @@
       const t = cardTop(t2.name, _("@{handle} shares {n} of your titles this year, more than anyone you follow", { handle: t2.handle, n: t2.shared.length }), { eyebrow: _("Taste twin") });
       return t.svg + coverRow(t2.shared.map(u => mine.get(u)), t.y + 60 + Math.round(DY * 0.35), 4, 400).svg;
     }, named: () => t2 ? [fname(t2)] : [] });
+    // a member the owner does not follow, from the site's daily matches: only the owner sees it unless they turn it on for an
+    // audience, and it does not depend on followed members, so the rule above for the friend cards does not apply
+    const kin = D.kindred ? { ...D.kindred, its: (D.kindred.items || []).map(i => mine.get(path(i.u))).filter(Boolean) } : null;
+    cards.push({ id: "kindred", name: _("Kindred member"), kind: "social", interest: !kin || !kin.its.length ? { ok: false, reason: _("no one you do not follow shares five of your titles this year") } : LEVEL < 2 ? { ok: false, reason: _("only you see it, unless you show it to this audience") } : { ok: true }, bg: () => TINT.blue, body: () => {
+      const t = cardTop(kin.name, _("@{handle} is not someone you follow, yet shares {n} of your titles this year", { handle: kin.handle, n: kin.n }), { eyebrow: _("Kindred member") });
+      return t.svg + coverRow(kin.its, t.y + 60 + Math.round(DY * 0.35), 4, 400).svg;
+    }, named: () => kin ? [fname(kin)] : [] });
     const f = social.first;
     cards.push({ id: "first", name: _("Who got there first"), kind: "social", interest: need ? { ok: false, reason: need } : ok(f && (f.count + f.after) >= 3, _("too few shared titles with dates")), bg: () => TINT.blue, body: () => {
       const t = cardTop(String(f.count), _("times someone you follow finished a title after you did"), { eyebrow: _("Who got there first"), count: f.count });
@@ -687,7 +694,7 @@
     const shown = cards.filter(c => !c.hidden), hid = cards.filter(c => c.hidden), mid = shown.filter(c => !FIXED.has(c.id));
     const deck = $("deck"), keepId = state.curId;
     const btn = (attr, icon, label) => `<button class="dc-nav" type="button" title="${label}" aria-label="${label}" ${attr}><i class="fa-solid ${icon}"></i></button>`;
-    deck.innerHTML = shown.map((c, i) => `<div class="card" data-id="${c.id}" data-i="${i}" data-bg="${c.bgc || TINT.paper}"><div class="face">${c.svg}</div><div class="cf"><span class="n">${i + 1}/${shown.length}</span><span class="btns">${btn("data-link", "fa-link", _("Copy link to this card"))}${OWNER ? btn("data-share", "fa-share-from-square", _("Post this card")) : ""}${btn("data-dl", "fa-download", _("Download PNG"))}</span></div></div>`).join("");
+    deck.innerHTML = shown.map((c, i) => `<div class="card" data-id="${c.id}" data-i="${i}" data-bg="${c.bgc || TINT.paper}"><div class="face">${c.svg}</div><div class="cf"><span class="n">${i + 1}/${shown.length}</span><span class="btns">${c.id === "kindred" && D.kindred ? `<a class="dc-nav" href="${esc(D.kindred.url)}" target="_blank" rel="noopener" title="${_("View profile")}" aria-label="${_("View profile")}"><i class="fa-solid fa-user"></i></a>` : ""}${btn("data-link", "fa-link", _("Copy link to this card"))}${OWNER ? btn("data-share", "fa-share-from-square", _("Post this card")) : ""}${btn("data-dl", "fa-download", _("Download PNG"))}</span></div></div>`).join("");
     $("dots").innerHTML = shown.map((c, i) => `<button type="button" data-i="${i}" aria-label="${i + 1}/${shown.length} ${esc(c.name)}"><b></b></button>`).join("");
     if (OWNER) {
       const hub = $("hub"); hub.classList.toggle("arranging", arranging);
