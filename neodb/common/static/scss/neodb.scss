@@ -25,6 +25,7 @@
 @import '_pages.scss';
 @import '_messages.scss';
 @import '_articles.scss';
+@import '_wrapped.scss';
 
 // Keep the symbol's colors and use a muted wordmark on dark backgrounds.
 @media (prefers-color-scheme: dark) {

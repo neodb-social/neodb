@@ -76,7 +76,14 @@ from .review import (
 from .search import search
 from .shelf_ap import shelf_ap_items, shelf_ap_retrieve
 from .tag import user_tag_edit, user_tag_list, user_tag_member_list
-from .wrapped import WrappedShareView, WrappedView
+from .wrapped import (
+    wrapped_deck,
+    wrapped_cover,
+    wrapped_lookup,
+    wrapped_page,
+    wrapped_save,
+    wrapped_share,
+)
 
 __all__ = [
     "ArticleFeed",
@@ -150,6 +157,10 @@ __all__ = [
     "user_tag_edit",
     "user_tag_list",
     "user_tag_member_list",
-    "WrappedShareView",
-    "WrappedView",
+    "wrapped_deck",
+    "wrapped_cover",
+    "wrapped_lookup",
+    "wrapped_page",
+    "wrapped_save",
+    "wrapped_share",
 ]

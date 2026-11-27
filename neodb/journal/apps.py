@@ -7,3 +7,4 @@ class JournalConfig(AppConfig):
 
     def ready(self):
         from . import apis  # noqa
+        from .jobs import wrapped  # noqa: F401
