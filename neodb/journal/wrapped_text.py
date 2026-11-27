@@ -396,6 +396,7 @@ TEXT = [
     gettext_noop("Posting failed: {error}"),
     gettext_noop("Link copied"),
     gettext_noop("Export failed: {error}"),
+    gettext_noop("the video encoder stopped working"),
     gettext_noop("GIF preview"),
     gettext_noop("{size} MB, {n} frames at 2.5 s"),
     gettext_noop("{size} MB, {n} files"),

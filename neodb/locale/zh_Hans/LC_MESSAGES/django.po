@@ -11784,10 +11784,6 @@ msgstr "图片，最多四张卡片"
 msgid "Video of all cards"
 msgstr "全部卡片的视频"
 
-#: journal/templates/wrapped.html:221 journal/templates/wrapped.html:275
-msgid "ZIP, GIF and video can take a minute and may need the latest Chrome."
-msgstr "ZIP、GIF 和视频可能需要一分钟左右，并可能需要最新版 Chrome。"
-
 #: journal/templates/wrapped.html:250
 msgid "People who are not signed in cannot open this page, because your profile is hidden from them."
 msgstr "未登录的访客无法打开此页面，因为你的个人资料对他们隐藏。"
@@ -12012,10 +12008,6 @@ msgstr[0] "{n} 条笔记"
 msgid "QR code"
 msgstr "二维码"
 
-#: journal/templates/wrapped.html:316
-msgid "One image with your year in numbers and a code that opens your page. Post it, send it, or print it."
-msgstr "一张图片，有你这一年的数字和一个打开你页面的二维码。可以发帖、发送或打印。"
-
 #: journal/templates/wrapped.html:321
 msgid "Share…"
 msgstr "分享…"
@@ -12079,3 +12071,11 @@ msgstr "{size} MB，{seconds} 秒视频，含音乐"
 #: journal/wrapped_text.py:404
 msgid "The music could not be added, so the video has no sound."
 msgstr "音乐无法加入，所以视频没有声音。"
+
+#: journal/templates/wrapped.html:260 journal/templates/wrapped.html:337
+msgid "ZIP, GIF and video can take a minute and may need the latest Chrome. Keep this page open until it is done."
+msgstr "ZIP、GIF 和视频可能需要一分钟左右，并可能需要最新版 Chrome。完成前请不要离开此页面。"
+
+#: journal/wrapped_text.py:399
+msgid "the video encoder stopped working"
+msgstr "视频编码器停止工作了"

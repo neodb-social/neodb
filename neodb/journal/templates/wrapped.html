@@ -240,9 +240,9 @@
           </header>
           <div class="pub-tabs" id="wr-pub-tabs">
             <button class="on" data-t="post" type="button">{% trans "Post cards" %}</button>
+            <button data-t="qr" type="button">{% trans "QR code" %}</button>
             <button data-t="page" type="button">{% trans "Page link" %}</button>
             <button data-t="dl" type="button">{% trans "Download" %}</button>
-            <button data-t="qr" type="button">{% trans "QR code" %}</button>
           </div>
           <div id="wr-pub-post">
             <fieldset class="wr-mode">
@@ -257,7 +257,7 @@
             </fieldset>
             <p class="dc-fine" id="wr-pub-imgnote">{% trans "Pick up to four cards for one post." %}</p>
             <p class="dc-fine" id="wr-pub-vidnote" hidden>
-              {% trans "ZIP, GIF and video can take a minute and may need the latest Chrome." %}
+              {% trans "ZIP, GIF and video can take a minute and may need the latest Chrome. Keep this page open until it is done." %}
             </p>
             <label class="wr-withmusic" id="wr-pub-musicrow" hidden>
               <input type="checkbox" id="wr-pub-music" checked>
@@ -282,7 +282,7 @@
             <progress id="wr-pub-prog" value="0" max="1" hidden></progress>
             <div class="wr-actions">
               <button class="dc-btn primary" type="button" id="wr-pub-send">
-                <i class="fa-solid fa-paper-plane"></i> {% trans "Post" %}
+                <i class="fa-solid fa-paper-plane"></i> {% trans "Publish" %}
               </button>
             </div>
           </div>
@@ -316,9 +316,6 @@
             <div class="qr-tab">
               <div class="qr-prev" id="wr-qr-prev"></div>
               <div class="qr-side">
-                <p>
-                  {% trans "One image with your year in numbers and a code that opens your page. Post it, send it, or print it." %}
-                </p>
                 <p class="wr-warn" id="wr-qr-warn" hidden></p>
                 <div class="qr-btns">
                   <button class="dc-btn outline" type="button" id="wr-qr-share" hidden>
@@ -337,7 +334,7 @@
           </div>
           <div id="wr-pub-dl" hidden>
             <p>{% trans "Every card on the page as PNG files in one ZIP, or as a slideshow in a GIF or an MP4 video." %}</p>
-            <p class="dc-fine">{% trans "ZIP, GIF and video can take a minute and may need the latest Chrome." %}</p>
+            <p class="dc-fine">{% trans "ZIP, GIF and video can take a minute and may need the latest Chrome. Keep this page open until it is done." %}</p>
             <div class="wr-actions">
               <button class="dc-btn primary" type="button" id="wr-dl-zip">
                 <i class="fa-solid fa-file-zipper"></i> {% trans "All cards as ZIP" %}

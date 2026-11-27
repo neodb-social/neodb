@@ -1285,7 +1285,7 @@
   const ask = (msg, onProgress) => new Promise((res, rej) => {
     const w = worker();
     const off = () => { w.removeEventListener("message", on); w.removeEventListener("error", fail); };
-    const on = e => { const d = e.data; if (d.type === "progress") { if (onProgress) onProgress(d.done, d.total); return; } off(); if (d.type === "error") rej(new Error(d.message)); else res(d); };
+    const on = e => { const d = e.data; if (d.type === "progress") { if (onProgress) onProgress(d.done, d.total); return; } off(); if (d.type === "error") rej(new Error(d.message === "stalled" ? _("the video encoder stopped working") : d.message)); else res(d); };
     const fail = e => { off(); exporter = null; rej(new Error(e.message || "the export worker stopped")); };
     w.addEventListener("message", on); w.addEventListener("error", fail);
     w.postMessage(msg, msg.audio ? [msg.audio.left.buffer, ...(msg.audio.right.buffer !== msg.audio.left.buffer ? [msg.audio.right.buffer] : [])] : []);
@@ -1303,7 +1303,12 @@
       return { rate: 48000, left: new Float32Array(left), right: new Float32Array(right) };
     } catch (e) { return null; }
   }
+  const stay = e => { e.preventDefault(); e.returnValue = ""; };
   async function buildFile(kind, onProgress, withMusic) {
+    addEventListener("beforeunload", stay);
+    try { return await buildFileNow(kind, onProgress, withMusic); } finally { removeEventListener("beforeunload", stay); }
+  }
+  async function buildFileNow(kind, onProgress, withMusic) {
     const cards = state.exportable, total = cards.length * 2;
     if (!cards.length) throw new Error(_("This audience sees no cards. Show some in Edit."));
     worker();

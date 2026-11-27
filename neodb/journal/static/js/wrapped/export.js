@@ -78,6 +78,24 @@ async function mp4Config() {
   }
   return null;
 }
+// an encoder that gives no output for this long has stopped (the iOS simulator does this with H.264 High), so the page shows an
+// error and does not wait forever; the page turns the message "stalled" into its own words
+const STALL = 15000;
+const close = c => { try { if (c.state !== "closed") c.close(); } catch (e) { /* closed already */ } };
+// wait while the encoder's queue is full; a short queue keeps memory low, and the encoder is far faster than the drawing anyway
+async function room(enc, st) {
+  while (enc.encodeQueueSize > 8) {
+    if (st.failure) throw st.failure;
+    if (performance.now() - st.last > STALL) throw new Error("stalled");
+    await new Promise(r => setTimeout(r, 1));
+  }
+  if (st.failure) throw st.failure;
+}
+async function flushed(enc, st) {
+  let timer;
+  try { await Promise.race([enc.flush(), new Promise((r, fail) => { timer = setTimeout(() => fail(new Error("stalled")), STALL); })]); } finally { clearTimeout(timer); }
+  if (st.failure) throw st.failure;
+}
 // the chosen music as AAC beside the video: 48 kHz stereo at 128 kbps, if this browser can encode it
 const AAC = { codec: "mp4a.40.2", sampleRate: 48000, numberOfChannels: 2, bitrate: 128000 };
 async function aacOk() {
@@ -85,24 +103,23 @@ async function aacOk() {
 }
 // the track repeats to fill the video; a short fade at each repeat avoids a click, and the last two seconds fade out
 async function encodeMusic(pcm, total, muxer) {
-  let failure = null;
-  const enc = new AudioEncoder({ output: (chunk, meta) => muxer.addAudioChunk(chunk, meta), error: e => { failure = e; } });
-  enc.configure(AAC);
-  const rate = AAC.sampleRate, len = pcm.left.length, all = Math.round(total / 1e6 * rate), seam = Math.round(rate * 0.02), tail = rate * 2, step = rate;
-  for (let at = 0; at < all; at += step) {
-    const n = Math.min(step, all - at), data = new Float32Array(n * 2);
-    for (let i = 0; i < n; i++) {
-      const k = at + i, s = k % len, g = Math.min(1, s / seam, (len - s) / seam, (all - k) / tail, k / seam);
-      data[i] = pcm.left[s] * g; data[n + i] = pcm.right[s] * g;
+  const st = { failure: null, last: performance.now() };
+  const enc = new AudioEncoder({ output: (chunk, meta) => { st.last = performance.now(); muxer.addAudioChunk(chunk, meta); }, error: e => { st.failure = e; } });
+  try {
+    enc.configure(AAC);
+    const rate = AAC.sampleRate, len = pcm.left.length, all = Math.round(total / 1e6 * rate), seam = Math.round(rate * 0.02), tail = rate * 2, step = rate;
+    for (let at = 0; at < all; at += step) {
+      const n = Math.min(step, all - at), data = new Float32Array(n * 2);
+      for (let i = 0; i < n; i++) {
+        const k = at + i, s = k % len, g = Math.min(1, s / seam, (len - s) / seam, (all - k) / tail, k / seam);
+        data[i] = pcm.left[s] * g; data[n + i] = pcm.right[s] * g;
+      }
+      await room(enc, st);
+      const frame = new AudioData({ format: "f32-planar", sampleRate: rate, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round(at / rate * 1e6), data });
+      enc.encode(frame); frame.close();
     }
-    while (enc.encodeQueueSize > 8) await new Promise(r => setTimeout(r, 1));
-    if (failure) throw failure;
-    const frame = new AudioData({ format: "f32-planar", sampleRate: rate, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round(at / rate * 1e6), data });
-    enc.encode(frame); frame.close();
-  }
-  await enc.flush();
-  if (failure) throw failure;
-  enc.close();
+    await flushed(enc, st);
+  } finally { close(enc); }
 }
 async function mp4(m, progress) {
   const config = await mp4Config();
@@ -110,40 +127,39 @@ async function mp4(m, progress) {
   const { Muxer, ArrayBufferTarget } = await import(m.lib.mp4);
   const music = !!(m.audio && m.audio.left && m.audio.left.length) && await aacOk();
   const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: W, height: H }, ...(music ? { audio: { codec: "aac", sampleRate: AAC.sampleRate, numberOfChannels: 2 } } : {}), fastStart: "in-memory" });
-  let failure = null;
-  const encoder = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { failure = e; } });
-  encoder.configure(config);
+  const st = { failure: null, last: performance.now() };
+  const encoder = new VideoEncoder({ output: (chunk, meta) => { st.last = performance.now(); muxer.addVideoChunk(chunk, meta); }, error: e => { st.failure = e; } });
   const c = new OffscreenCanvas(W, H), cx = c.getContext("2d");
-  // a short queue keeps memory low; the encoder is far faster than the drawing anyway
   const push = async (timestamp, duration, keyFrame) => {
-    while (encoder.encodeQueueSize > 8) await new Promise(r => setTimeout(r, 1));
-    if (failure) throw failure;
+    await room(encoder, st);
     const frame = new VideoFrame(c, { timestamp: Math.round(timestamp), duration: Math.round(duration) });
     encoder.encode(frame, { keyFrame });
     frame.close();
   };
   const n = m.items.length;
-  let next = await createImageBitmap(await pngOf(m.items[0].key));
-  for (let i = 0; i < n; i++) {
-    const cur = next, t0 = i * PERIOD, last = i === n - 1;
-    next = last ? null : await createImageBitmap(await pngOf(m.items[i + 1].key));
-    cx.globalAlpha = 1; cx.drawImage(cur, 0, 0);
-    // the muxer gives the last frame of the file one step, so the last card ends with a copy of itself and holds its full time
-    await push(t0, last ? PERIOD - STEP : HOLD, true);
-    if (last) await push(t0 + PERIOD - STEP, STEP, false);
-    else {
-      for (let j = 0; j < FADE; j++) {
-        cx.globalAlpha = 1; cx.drawImage(cur, 0, 0);
-        cx.globalAlpha = (j + 1) / (FADE + 1); cx.drawImage(next, 0, 0);
-        await push(t0 + HOLD + j * STEP, STEP, false);
+  let cur = null, next = null;
+  try {
+    encoder.configure(config);
+    next = await createImageBitmap(await pngOf(m.items[0].key));
+    for (let i = 0; i < n; i++) {
+      const t0 = i * PERIOD, last = i === n - 1;
+      cur = next; next = last ? null : await createImageBitmap(await pngOf(m.items[i + 1].key));
+      cx.globalAlpha = 1; cx.drawImage(cur, 0, 0);
+      // the muxer gives the last frame of the file one step, so the last card ends with a copy of itself and holds its full time
+      await push(t0, last ? PERIOD - STEP : HOLD, true);
+      if (last) await push(t0 + PERIOD - STEP, STEP, false);
+      else {
+        for (let j = 0; j < FADE; j++) {
+          cx.globalAlpha = 1; cx.drawImage(cur, 0, 0);
+          cx.globalAlpha = (j + 1) / (FADE + 1); cx.drawImage(next, 0, 0);
+          await push(t0 + HOLD + j * STEP, STEP, false);
+        }
       }
+      cur.close(); cur = null;
+      progress(i + 1);
     }
-    cur.close();
-    progress(i + 1);
-  }
-  await encoder.flush();
-  if (failure) throw failure;
-  encoder.close();
+    await flushed(encoder, st);
+  } finally { close(encoder); if (cur) cur.close(); if (next) next.close(); }
   if (music) await encodeMusic(m.audio, n * PERIOD, muxer);
   muxer.finalize();
   return { blob: new Blob([muxer.target.buffer], { type: "video/mp4" }), seconds: Math.round(n * PERIOD / 1e5) / 10, music };

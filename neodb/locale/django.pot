@@ -11705,10 +11705,6 @@ msgstr ""
 msgid "Video of all cards"
 msgstr ""
 
-#: journal/templates/wrapped.html:221 journal/templates/wrapped.html:275
-msgid "ZIP, GIF and video can take a minute and may need the latest Chrome."
-msgstr ""
-
 #: journal/templates/wrapped.html:250
 msgid "People who are not signed in cannot open this page, because your profile is hidden from them."
 msgstr ""
@@ -11936,10 +11932,6 @@ msgstr[1] ""
 msgid "QR code"
 msgstr ""
 
-#: journal/templates/wrapped.html:316
-msgid "One image with your year in numbers and a code that opens your page. Post it, send it, or print it."
-msgstr ""
-
 #: journal/templates/wrapped.html:321
 msgid "Share…"
 msgstr ""
@@ -12004,4 +11996,12 @@ msgstr ""
 
 #: journal/wrapped_text.py:404
 msgid "The music could not be added, so the video has no sound."
+msgstr ""
+
+#: journal/templates/wrapped.html:260 journal/templates/wrapped.html:337
+msgid "ZIP, GIF and video can take a minute and may need the latest Chrome. Keep this page open until it is done."
+msgstr ""
+
+#: journal/wrapped_text.py:399
+msgid "the video encoder stopped working"
 msgstr ""
