@@ -90,6 +90,14 @@ def test_notifications_unread_count_with_limit(api_client, identity, other_ident
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize(
+    "path", ["/api/v1/notifications/unread_count", "/api/v1/conversations"]
+)
+def test_malformed_limit_is_a_bad_request(api_client, identity, path):
+    assert api_client.get(f"{path}?limit=abc").status_code == 400
+
+
+@pytest.mark.django_db
 def test_account_note_set(api_client, identity, other_identity):
     response = api_client.post(
         f"/api/v1/accounts/{other_identity.pk}/note",

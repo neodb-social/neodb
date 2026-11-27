@@ -109,12 +109,12 @@
               </div>
               <label>
                 {% trans "Playing threshold" %}
-                <input type="number" name="playing_thresh" value="12">
+                <input type="number" name="playing_thresh" value="12" min="0">
                 <small>{% trans "In days, launched in recent X days to be considered playing" %}</small>
               </label>
               <label>
                 {% trans "Finished threshold" %}
-                <input type="number" name="finish_thresh" value="2">
+                <input type="number" name="finish_thresh" value="2" min="0">
                 <small>{% trans "In hours, played for more than these hours to be considered finished" %}</small>
               </label>
             </fieldset>

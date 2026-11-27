@@ -12,6 +12,7 @@ from users.models import APIdentity
 from ..forms import *
 from ..models import *
 from .common import render_list, target_identity_required
+from common.utils import int_param
 from common.validators import get_safe_referer_url
 
 PAGE_SIZE = 10
@@ -77,7 +78,7 @@ def user_tag_edit(request):
             return HttpResponseRedirect(referer)
         tag.update(
             tag_title,
-            int(request.POST.get("visibility", 0)),
+            int_param(request.POST, "visibility", 0),
             bool(request.POST.get("pinned", 0)),
         )
         msg.info(request.user, _("Tag updated."))
