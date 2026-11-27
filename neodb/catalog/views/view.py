@@ -182,15 +182,20 @@ def retrieve(request, item_path, item_uuid):
     my_collections = []
     collection_list = []
     child_item_comments = []
-    following_rater_count = 0
+    following_mark_count = 0
     shelf_actions = ShelfManager.get_actions_for_category(item.category)
     shelf_statuses = ShelfManager.get_statuses_for_category(item.category)
     if request.user.is_authenticated:
         visible = q_piece_visible_to_user(request.user)
         mark = Mark(request.user.identity, item)
-        if item.rating_count:
-            following_rater_count = Rating.count_raters_among(
-                item, request.user.identity.following, visible
+        following = request.user.identity.following
+        if following:
+            # the marks the "marks from people you follow" link lists, less
+            # the viewer's own and the accounts the viewer muted
+            following_mark_count = (
+                ShelfMember._base_manager.filter(item=item, owner_id__in=following)
+                .filter(visible)
+                .count()
             )
         child_item_comments = Comment.objects.filter(
             owner=request.user.identity, item__in=item.child_items.all()
@@ -221,7 +226,7 @@ def retrieve(request, item_path, item_uuid):
             "mark": mark,
             "review": review,
             "child_item_comments": child_item_comments,
-            "following_rater_count": following_rater_count,
+            "following_mark_count": following_mark_count,
             "my_collections": my_collections,
             "collection_list": collection_list,
             "shelf_actions": shelf_actions,

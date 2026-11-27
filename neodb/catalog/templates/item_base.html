@@ -217,17 +217,6 @@
                 <span>{% trans "Not enough ratings" %}</span>
               </div>
             </div>
-            {% if following_rater_count %}
-              <p class="rating-following solo-hidden">
-                <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">
-                  {% blocktrans count counter=following_rater_count trimmed %}
-                    Rated by {{ counter }} person you follow
-                  {% plural %}
-                    Rated by {{ counter }} people you follow
-                  {% endblocktrans %}
-                </a>
-              </p>
-            {% endif %}
             <div class="tag-list solo-hidden">
               {% for tag in item.tags %}
                 <span>
@@ -300,7 +289,7 @@
                 <small>
                   {% if request.user.is_authenticated %}
                     | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans "Marks" %}</a>
-                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans "Marks from people you follow" %}</a>
+                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans "Marks from people you follow" %}{% if following_mark_count %} ({{ following_mark_count }}){% endif %}</a>
                   {% endif %}
                 </small>
               </h5>

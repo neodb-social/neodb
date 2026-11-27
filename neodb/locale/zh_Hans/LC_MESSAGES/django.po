@@ -10144,9 +10144,3 @@ msgstr "群组"
 msgctxt "a post in a group"
 msgid "posted in"
 msgstr "发布于"
-
-#: catalog/templates/item_base.html:223
-#, python-format
-msgid "Rated by %(counter)s person you follow"
-msgid_plural "Rated by %(counter)s people you follow"
-msgstr[0] "%(counter)s 位好友评分"

@@ -208,10 +208,13 @@ def test_item_page_shows_other_titles_and_language(
     assert "French" in text
 
 
-def _rate(user: User, item: Item, grade: int, visibility: int = 0) -> None:
-    Mark(user.identity, item).update(
-        ShelfType.COMPLETE, rating_grade=grade, visibility=visibility
-    )
+def _mark(
+    user: User,
+    item: Item,
+    shelf_type: ShelfType = ShelfType.COMPLETE,
+    visibility: int = 0,
+) -> None:
+    Mark(user.identity, item).update(shelf_type, visibility=visibility)
 
 
 def _users(prefix: str, *names: str) -> dict[str, User]:
@@ -226,49 +229,30 @@ def _follow(viewer: User, *targets: User) -> None:
         Takahe.follow(viewer.identity.pk, t.identity.pk, force_accept=True)
 
 
-def _following_raters(page: html.HtmlElement, item: Item) -> list[str]:
+def _following_marks_link(page: html.HtmlElement, item: Item) -> list[str]:
     url = reverse("catalog:mark_list", args=[item.url_path, item.uuid, "following"])
     return [
         " ".join(a.text_content().split())
-        for a in page.xpath(
-            f'//p[@class="rating-following solo-hidden"]/a[@href="{url}"]'
-        )
+        for a in page.xpath(f'//section//h5//a[@href="{url}"]')
     ]
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_item_page_counts_raters_among_people_you_follow(client: Client) -> None:
-    u = _users("fr", "viewer", "pub", "fol", "priv", "stranger", "extra")
+def test_item_page_counts_marks_from_people_you_follow(client: Client) -> None:
+    u = _users("fm", "viewer", "done", "fol", "wish", "priv", "stranger")
     book = Edition.objects.create(title="Followed Book")
-    _follow(u["viewer"], u["pub"], u["fol"], u["priv"])
-    _rate(u["pub"], book, 8)
-    _rate(u["fol"], book, 6, visibility=1)
-    _rate(u["priv"], book, 4, visibility=2)
-    _rate(u["stranger"], book, 10)
-    _rate(u["extra"], book, 7)
-    _rate(u["viewer"], book, 9)
-
-    assert _following_raters(_item_page(client, book), book) == []
+    _follow(u["viewer"], u["done"], u["fol"], u["wish"], u["priv"])
+    _mark(u["done"], book)
+    _mark(u["fol"], book, ShelfType.PROGRESS, visibility=1)
+    _mark(u["wish"], book, ShelfType.WISHLIST)
+    _mark(u["priv"], book, visibility=2)
+    _mark(u["stranger"], book)
+    _mark(u["viewer"], book)
 
     client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
-    page = _item_page(client, book)
-    assert page.xpath('//div[contains(@class, "rating")]//h3')
-    assert _following_raters(page, book) == ["Rated by 2 people you follow"]
-
-
-@pytest.mark.django_db(databases="__all__")
-def test_item_page_shows_followed_raters_without_an_average(client: Client) -> None:
-    u = _users("fu", "viewer", "friend")
-    book = Edition.objects.create(title="Rarely Rated")
-    _follow(u["viewer"], u["friend"])
-    _rate(u["friend"], book, 8)
-
-    client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
-    page = _item_page(client, book)
-    assert page.xpath(
-        '//div[contains(@class, "rating") and contains(@class, "unavailable")]'
-    )
-    assert _following_raters(page, book) == ["Rated by 1 person you follow"]
+    assert _following_marks_link(_item_page(client, book), book) == [
+        "Marks from people you follow (3)"
+    ]
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -281,14 +265,16 @@ def test_item_page_count_matches_the_marks_it_links_to(client: Client) -> None:
     ]
     _follow(u["viewer"], u["seasons"], u["show"])
     for s in seasons:
-        _rate(u["seasons"], s, 8)
+        _mark(u["seasons"], s)
 
     client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
-    assert _following_raters(_item_page(client, show), show) == []
+    assert _following_marks_link(_item_page(client, show), show) == [
+        "Marks from people you follow"
+    ]
 
-    _rate(u["show"], show, 7)
-    assert _following_raters(_item_page(client, show), show) == [
-        "Rated by 1 person you follow"
+    _mark(u["show"], show)
+    assert _following_marks_link(_item_page(client, show), show) == [
+        "Marks from people you follow (1)"
     ]
     url = reverse("catalog:mark_list", args=[show.url_path, show.uuid, "following"])
     marks = client.get(url).content.decode()
@@ -297,13 +283,15 @@ def test_item_page_count_matches_the_marks_it_links_to(client: Client) -> None:
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_item_page_leaves_out_muted_and_unfollowed_raters(client: Client) -> None:
+def test_item_page_leaves_out_muted_and_unfollowed_marks(client: Client) -> None:
     u = _users("fn", "viewer", "muted", "stranger")
     book = Edition.objects.create(title="Quiet Book")
     _follow(u["viewer"], u["muted"])
     Takahe.mute(u["viewer"].identity.pk, u["muted"].identity.pk)
-    _rate(u["muted"], book, 8)
-    _rate(u["stranger"], book, 8)
+    _mark(u["muted"], book)
+    _mark(u["stranger"], book)
 
     client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
-    assert _following_raters(_item_page(client, book), book) == []
+    assert _following_marks_link(_item_page(client, book), book) == [
+        "Marks from people you follow"
+    ]

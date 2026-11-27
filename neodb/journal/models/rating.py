@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Any, Collection, Iterable, Sequence
+from typing import Any, Iterable, Sequence
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count
 
 from catalog.models import Item, Performance, TVShow
 from catalog.models.performance import PerformanceProduction
@@ -161,23 +161,6 @@ class Rating(Content):
                 "count": votes,
                 "distribution": _calculate_distribution(grades, votes),
             }
-
-    @classmethod
-    def count_raters_among(
-        cls, item: Item, owner_ids: Collection[int], visible: Q
-    ) -> int:
-        """
-        How many of ``owner_ids`` rated ``item`` itself where ``visible`` lets
-        the viewer see it. Ratings of a show's seasons stay out, so the count
-        matches the item's own marks list.
-        """
-        if not owner_ids:
-            return 0
-        return (
-            cls.objects.filter(item=item, owner_id__in=owner_ids, grade__gte=1)
-            .filter(visible)
-            .count()
-        )
 
     @classmethod
     def get_info_for_items(cls, items: Iterable[Item]) -> dict[int, dict]:

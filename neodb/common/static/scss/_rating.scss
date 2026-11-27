@@ -4,11 +4,6 @@
   position: relative;
 }
 
-// right under the rating count, outside the box so its overlay cannot cover it
-.rating + .rating-following {
-  margin-top: -2vh;
-}
-
 .rating * {
   margin: 0;
   padding: 0;
@@ -63,7 +58,6 @@
 .rating .undisplay {
   position: absolute;
   display: none;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   inset: 0;
