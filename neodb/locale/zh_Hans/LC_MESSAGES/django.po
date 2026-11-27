@@ -11694,6 +11694,10 @@ msgstr "全部卡片（ZIP）"
 msgid "MP4 video"
 msgstr "MP4 视频"
 
+#: journal/templates/wrapped.html:258
+msgid "This browser cannot make an MP4 video, so it can post images only."
+msgstr "这个浏览器无法生成 MP4 视频，只能发布图片。"
+
 #: journal/templates/wrapped.html:268
 msgid "This browser cannot make an MP4 video. The GIF works everywhere."
 msgstr "这个浏览器无法生成 MP4 视频。GIF 在所有浏览器中都能用。"

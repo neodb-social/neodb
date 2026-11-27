@@ -11613,6 +11613,10 @@ msgstr ""
 msgid "MP4 video"
 msgstr ""
 
+#: journal/templates/wrapped.html:258
+msgid "This browser cannot make an MP4 video, so it can post images only."
+msgstr ""
+
 #: journal/templates/wrapped.html:268
 msgid "This browser cannot make an MP4 video. The GIF works everywhere."
 msgstr ""

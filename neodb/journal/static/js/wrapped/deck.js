@@ -1329,7 +1329,7 @@
     w.postMessage(msg, msg.audio ? [msg.audio.left.buffer, ...(msg.audio.right.buffer !== msg.audio.left.buffer ? [msg.audio.right.buffer] : [])] : []);
   });
   // the MP4 button is there only when this browser can encode H.264
-  function mp4Gate() { if (!OWNER) return; $("dl-musicrow").hidden = !music; probe = probe || ask({ type: "probe" }).catch(() => ({ mp4: false })); probe.then(r => { $("dl-mp4").disabled = !r.mp4; $("mp4-note").hidden = !!r.mp4; const v = document.querySelector('input[name="wr-mode"][value="video"]'); v.disabled = !r.mp4; if (!r.mp4 && v.checked) postMode("images"); }); }
+  function mp4Gate() { if (!OWNER) return; $("dl-musicrow").hidden = !music; probe = probe || ask({ type: "probe" }).catch(() => ({ mp4: false })); probe.then(r => { $("dl-mp4").disabled = !r.mp4; $("mp4-note").hidden = !!r.mp4; const v = document.querySelector('input[name="wr-mode"][value="video"]'); v.disabled = !r.mp4; $("pub-mp4note").hidden = !!r.mp4; if (!r.mp4 && v.checked) postMode("images"); }); }
   // draw every card the worker does not have yet, then ask it for the file; progress runs from 0 to 1
   // the chosen track for an MP4: fetched from Wikimedia and decoded here at 48 kHz (only the page has Web Audio), then handed to
   // the worker without a copy; null when it fails, so the video is made without sound
