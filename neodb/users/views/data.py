@@ -2,6 +2,7 @@ import copy
 import csv
 import datetime
 import logging
+import math
 import os
 import zipfile
 from dataclasses import dataclass
@@ -38,7 +39,7 @@ from common.storage import (
     save_media_file,
     save_upload,
 )
-from common.utils import PageLinksGenerator
+from common.utils import PageLinksGenerator, int_param
 from journal.exporters import (
     CsvExporter,
     DoufenExporter,
@@ -92,17 +93,17 @@ def preferences(request):
         tidentity.indexable = bool(request.POST.get("anonymous_viewable"))
         tidentity.save(update_fields=["indexable"])
 
-        preference.default_visibility = int(request.POST.get("default_visibility", 0))
+        preference.default_visibility = int_param(request.POST, "default_visibility", 0)
         preference.mastodon_default_repost = (
-            int(request.POST.get("mastodon_default_repost", 0)) == 1
+            int_param(request.POST, "mastodon_default_repost", 0) == 1
         )
         preference.mastodon_boost_enabled = (
-            int(request.POST.get("mastodon_boost_enabled", 0)) == 1
+            int_param(request.POST, "mastodon_boost_enabled", 0) == 1
         )
         preference.bluesky_publish_records = (
-            int(request.POST.get("bluesky_publish_records", 0)) == 1
+            int_param(request.POST, "bluesky_publish_records", 0) == 1
         )
-        preference.classic_homepage = int(request.POST.get("classic_homepage", 0))
+        preference.classic_homepage = int_param(request.POST, "classic_homepage", 0)
         hidden = request.POST.getlist("hidden_categories")
         categories_changed = set(hidden) != set(preference.hidden_categories)
         preference.hidden_categories = hidden
@@ -110,10 +111,10 @@ def preferences(request):
             "disabled_search_sources"
         )
         preference.auto_bookmark_cats = request.POST.getlist("auto_bookmark_cats")
-        preference.post_public_mode = int(request.POST.get("post_public_mode", 0))
+        preference.post_public_mode = int_param(request.POST, "post_public_mode", 0)
         preference.show_last_edit = bool(request.POST.get("show_last_edit"))
-        preference.mastodon_repost_mode = int(
-            request.POST.get("mastodon_repost_mode", 0)
+        preference.mastodon_repost_mode = int_param(
+            request.POST, "mastodon_repost_mode", 0
         )
         preference.mastodon_append_tag = request.POST.get(
             "mastodon_append_tag", ""
@@ -636,7 +637,7 @@ def import_wordpress(request):
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.xml")
     task = WordpressImporter.create(
         request.user,
-        visibility=int(request.POST.get("visibility", 0)),
+        visibility=int_param(request.POST, "visibility", 0),
         file=f,
     )
     task.enqueue()
@@ -656,7 +657,7 @@ def import_twitter(request):
     f = save_upload(upload, settings.SYNC_FILE_PATH_ROOT, "x" + ext)
     task = TwitterImporter.create(
         request.user,
-        visibility=int(request.POST.get("visibility", 0)),
+        visibility=int_param(request.POST, "visibility", 0),
         file=f,
     )
     task.enqueue()
@@ -798,7 +799,7 @@ def import_goodreads(request):
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.csv")
     task = GoodreadsImporter.create(
         request.user,
-        visibility=int(request.POST.get("visibility", 0)),
+        visibility=int_param(request.POST, "visibility", 0),
         file=f,
     )
     task.enqueue()
@@ -999,7 +1000,7 @@ def rym_confirm(request):
     task = _rym_active_task(request.user)
     if not task or task.metadata.get("phase") != "preview":
         return redirect(reverse("users:data"))
-    task.metadata["visibility"] = int(request.POST.get("visibility", 0))
+    task.metadata["visibility"] = int_param(request.POST, "visibility", 0)
     task.metadata["phase"] = "importing"
     task.metadata["processed"] = 0
     task.metadata["imported"] = 0
@@ -1202,7 +1203,7 @@ def storygraph_confirm(request):
     task = _storygraph_active_task(request.user)
     if not task or task.metadata.get("phase") != "preview":
         return redirect(reverse("users:data"))
-    task.metadata["visibility"] = int(request.POST.get("visibility", 0))
+    task.metadata["visibility"] = int_param(request.POST, "visibility", 0)
     task.metadata["phase"] = "importing"
     task.metadata["processed"] = 0
     task.metadata["imported"] = 0
@@ -1436,8 +1437,8 @@ def import_douban(request):
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.zip")
     task = DoubanImporter.create(
         request.user,
-        visibility=int(request.POST.get("visibility", 0)),
-        mode=int(request.POST.get("import_mode", 0)),
+        visibility=int_param(request.POST, "visibility", 0),
+        mode=int_param(request.POST, "import_mode", 0),
         file=f,
     )
     task.enqueue()
@@ -1454,7 +1455,7 @@ def import_letterboxd(request):
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.zip")
     task = LetterboxdImporter.create(
         request.user,
-        visibility=int(request.POST.get("visibility", 0)),
+        visibility=int_param(request.POST, "visibility", 0),
         file=f,
     )
     task.enqueue()
@@ -1471,7 +1472,7 @@ def import_trakt(request):
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.zip")
     task = TraktImporter.create(
         request.user,
-        visibility=int(request.POST.get("visibility", 0)),
+        visibility=int_param(request.POST, "visibility", 0),
         file=f,
     )
     task.enqueue()
@@ -1488,8 +1489,8 @@ def import_opml(request):
     f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.zip")
     task = OPMLImporter.create(
         request.user,
-        visibility=int(request.POST.get("visibility", 0)),
-        mode=int(request.POST.get("import_mode", 0)),
+        visibility=int_param(request.POST, "visibility", 0),
+        mode=int_param(request.POST, "import_mode", 0),
         file=f,
     )
     task.enqueue()
@@ -1550,13 +1551,27 @@ def import_neodb(request):
         f = save_upload(request.FILES["file"], settings.SYNC_FILE_PATH_ROOT, "x.zip")
         task = importer.create(
             request.user,
-            visibility=int(request.POST.get("visibility", 0)),
+            visibility=int_param(request.POST, "visibility", 0),
             file=f,
         )
         task.enqueue()
         record_activity("import", "web")
         return redirect(reverse("users:user_task_status", args=(task.type,)))
     return _import_page(request, "neodb")
+
+
+def _steam_threshold(value: str | None, default: int) -> int:
+    """
+    A number input submits the text as typed, so "24.0" and "1e2" are valid
+    whole numbers. The cap keeps timedelta(days=) in range.
+    """
+    try:
+        n = float(value or "")
+    except ValueError:
+        return default
+    if math.isnan(n) or n < 0:
+        return default
+    return int(min(n, 36500))
 
 
 @login_required
@@ -1566,12 +1581,18 @@ def import_steam(request):
 
     # core metadatas
     metadata = copy.deepcopy(SteamImporter.DefaultMetadata)
+    # before the session pop, so a rejected post keeps the verified steam id
+    try:
+        metadata["visibility"] = VisibilityType(
+            int_param(request.POST, "visibility", 0)
+        )
+    except ValueError:
+        raise BadRequest(_("Invalid parameter"))
     steam_id = (
         request.session.pop("steam_id", "") or request.POST.get("steam_id", "").strip()
     )
     metadata["steam_id"] = steam_id
     metadata["steam_api_key"] = request.POST.get("steam_api_key", "").strip()
-    metadata["visibility"] = VisibilityType(int(request.POST.get("visibility", 0)))
 
     # config source
     source = request.POST.getlist("source[]")
@@ -1585,8 +1606,11 @@ def import_steam(request):
                 "include_free_sub": bool(
                     request.POST.get("free_filter", "played") == "all"
                 ),
-                "playing_thresh": int(request.POST.get("playing_thresh", 2)),
-                "finish_thresh": int(request.POST.get("finish_thresh", 14)),
+                # defaults match the form
+                "playing_thresh": _steam_threshold(
+                    request.POST.get("playing_thresh"), 12
+                ),
+                "finish_thresh": _steam_threshold(request.POST.get("finish_thresh"), 2),
                 "last_play_to_ctime": True,  # option disabled, always true
             }
         )
@@ -1648,10 +1672,11 @@ def authorized_app_create(request):
 @login_required
 @require_http_methods(["POST"])
 def authorized_app_revoke(request):
-    token_pk = request.POST.get("token_id")
-    if token_pk:
+    if "token_id" in request.POST:
         identity = request.user.identity
-        application_id = Takahe.revoke_token(int(token_pk), identity.pk)
+        application_id = Takahe.revoke_token(
+            int_param(request.POST, "token_id", 0), identity.pk
+        )
         if application_id and not has_live_token(identity.pk, application_id):
             remove_webhook(request.user.pk, application_id)
         messages.info(request, _("Application access has been revoked."))

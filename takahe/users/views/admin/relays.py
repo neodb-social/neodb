@@ -1,4 +1,6 @@
-from django.shortcuts import redirect
+from django.core.exceptions import BadRequest
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 
@@ -24,7 +26,14 @@ class RelaysRoot(ListView):
         if "subscribe" in request.GET:
             Relay.subscribe(request.POST.get("inbox_uri"))
         elif "unsubscribe" in request.GET:
-            Relay.objects.get(pk=int(request.POST.get("id"))).unsubscribe()
+            self._posted_relay(request).unsubscribe()
         elif "remove" in request.GET:
-            Relay.objects.get(pk=int(request.POST.get("id"))).force_unsubscribe()
+            self._posted_relay(request).force_unsubscribe()
         return redirect("admin_relays")
+
+    def _posted_relay(self, request: HttpRequest) -> Relay:
+        try:
+            pk = int(request.POST.get("id", ""))
+        except ValueError:
+            raise BadRequest("Invalid relay id")
+        return get_object_or_404(Relay, pk=pk)

@@ -11,7 +11,7 @@ from urllib.parse import urlencode, urljoin
 import django_rq
 from discord import HTTPException, SyncWebhook
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
 from django.core.signals import setting_changed
 from django.core.signing import b62_decode
@@ -410,6 +410,21 @@ def get_uuid_or_404(uuid_b62):
         return uuid.UUID(int=i)
     except ValueError:
         raise Http404("Malformed Base62 UUID")
+
+
+def int_param(params: QueryDict, key: str, default: int) -> int:
+    """
+    Read an integer that the page itself supplies (a select, radio or hidden
+    input). Only a broken or tampered client sends a malformed one, so that is
+    a 400; a value a user types needs a fallback instead.
+    """
+    value = params.get(key)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except ValueError:
+        raise BadRequest(_("Invalid parameter"))
 
 
 def discord_send(channel, content, **args) -> bool:
