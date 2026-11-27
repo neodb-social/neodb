@@ -746,7 +746,9 @@
       if (arranging) wireArrange(hub, mid.map(c => c.id));
     }
     // wire
-    const setHidden = (id, h) => { const c = cards.find(x => x.id === id), rule = c && byDefault(c); if (h === rule) delete deckState.hidden[id]; else deckState.hidden[id] = h; saveDeck(); render(); };
+    // while a job's result is missing the override stays even when it matches the rule: a partial save then shows the
+    // server a hide, which it must not take for a card the page lacks
+    const setHidden = (id, h) => { const c = cards.find(x => x.id === id), rule = c && byDefault(c); if (h === rule && !D.warming) delete deckState.hidden[id]; else deckState.hidden[id] = h; saveDeck(); render(); };
     [...deck.children].forEach(el => { const c = shown[+el.dataset.i]; if (OWNER) el.querySelector("[data-share]").onclick = () => openPublish(c.id); el.querySelector("[data-dl]").onclick = () => downloadPng(c); el.querySelector("[data-link]").onclick = () => copyLink(D.page_url + "#" + c.id); });
     [...$("dots").children].forEach(b => b.onclick = () => { start(); go(+b.dataset.i); });
     // the eye keeps the keyboard where it was after the grid is drawn again
