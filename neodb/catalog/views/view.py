@@ -182,11 +182,20 @@ def retrieve(request, item_path, item_uuid):
     my_collections = []
     collection_list = []
     child_item_comments = []
+    following_mark_count = 0
     shelf_actions = ShelfManager.get_actions_for_category(item.category)
     shelf_statuses = ShelfManager.get_statuses_for_category(item.category)
     if request.user.is_authenticated:
-        visible = q_piece_visible_to_user(request.user)
+        following = request.user.identity.following
+        visible = q_piece_visible_to_user(request.user, following)
         mark = Mark(request.user.identity, item)
+        # people pages have no comments header to show it on
+        if following and not isinstance(item, People):
+            # what the "marks from people you follow" link lists, less the
+            # viewer's own mark, which that list also shows
+            following_mark_count = ShelfMember._base_manager.filter(
+                item=item, owner_id__in=following, visibility__lt=2
+            ).count()
         child_item_comments = Comment.objects.filter(
             owner=request.user.identity, item__in=item.child_items.all()
         )
@@ -216,6 +225,7 @@ def retrieve(request, item_path, item_uuid):
             "mark": mark,
             "review": review,
             "child_item_comments": child_item_comments,
+            "following_mark_count": following_mark_count,
             "my_collections": my_collections,
             "collection_list": collection_list,
             "shelf_actions": shelf_actions,

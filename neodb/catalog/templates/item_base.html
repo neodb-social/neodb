@@ -289,7 +289,7 @@
                 <small>
                   {% if request.user.is_authenticated %}
                     | <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}">{% trans "Marks" %}</a>
-                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans "Marks from people you follow" %}</a>
+                    | <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}">{% trans "Marks from people you follow" %}{% if following_mark_count %} ({{ following_mark_count }}){% endif %}</a>
                   {% endif %}
                 </small>
               </h5>

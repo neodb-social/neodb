@@ -116,7 +116,8 @@ def max_visiblity_to_user(viewing_user: User, owner: APIdentity):
         return 0
 
 
-def q_piece_visible_to_user(viewing_user: User):
+def q_piece_visible_to_user(viewing_user: User, following: list[int] | None = None):
+    """``following``: the viewer's follow ids, when the caller already has them."""
     from takahe.models import Identity as TakaheIdentity
 
     restricted_ids = list(
@@ -129,7 +130,8 @@ def q_piece_visible_to_user(viewing_user: User):
             )
         return Q(visibility=0, owner__anonymous_viewable=True)
     viewer = viewing_user.identity
-    following = viewer.following
+    if following is None:
+        following = viewer.following
     base_q = (
         Q(visibility=0)
         | Q(owner_id__in=following, visibility=1)
