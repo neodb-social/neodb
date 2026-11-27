@@ -6853,7 +6853,7 @@ msgstr "日历"
 #: journal/templates/profile.html:71 journal/templates/wrapped.html:15
 #: journal/templates/wrapped.html:43
 msgid "annual summary"
-msgstr "年度小结"
+msgstr "年度总结"
 
 #: journal/templates/profile.html:142 journal/templates/profile.html:148
 #: journal/templates/user_article_list.html:14
@@ -8840,7 +8840,7 @@ msgstr "导入的帖子只在本站可见，不会推送给其他服务器或关
 
 #: users/templates/users/data.html:640
 msgid "View annual summary"
-msgstr "查看年度小结"
+msgstr "查看年度总结"
 
 #: users/templates/users/fetch_identity_failed.html:4
 msgid "Unable to find the user, please check your spelling; or the server may be busy, please try again later."
@@ -10163,7 +10163,7 @@ msgstr "恢复默认顺序"
 
 #: journal/templates/wrapped.html:97
 msgid "Filter by shelf"
-msgstr "按类型筛选"
+msgstr "按类别筛选"
 
 #: journal/templates/wrapped.html:105
 msgid "Make a card"
@@ -10171,11 +10171,11 @@ msgstr "制作卡片"
 
 #: journal/templates/wrapped.html:115
 msgid "Items from"
-msgstr "条目来源"
+msgstr "作品来源"
 
 #: journal/templates/wrapped.html:121 journal/templates/wrapped.html:122
 msgid "Search your titles, or paste a link"
-msgstr "搜索你标记过的条目，或粘贴链接"
+msgstr "搜索你标记过的作品，或粘贴链接"
 
 #: journal/templates/wrapped.html:127
 msgid "How many"
@@ -10203,11 +10203,11 @@ msgstr "页面链接"
 
 #: journal/templates/wrapped.html:163
 msgid "Pick up to four cards for one post."
-msgstr "每条动态最多选择四张卡片。"
+msgstr "每条帖文最多选四张卡片。"
 
 #: journal/templates/wrapped.html:165
 msgid "Text of the post"
-msgstr "动态正文"
+msgstr "帖文正文"
 
 #: journal/templates/wrapped.html:173
 msgid "Followers only"
@@ -10264,7 +10264,7 @@ msgstr "演出"
 
 #: journal/wrapped_text.py:31
 msgid "Everything that got five stars this year"
-msgstr "今年所有打了五星的作品"
+msgstr "今年打出的全部五星"
 
 #: journal/wrapped_text.py:32
 msgid "Your best-rated titles of the year"
@@ -10272,7 +10272,7 @@ msgstr "你今年评分最高的作品"
 
 #: journal/wrapped_text.py:33
 msgid "Your highest marks, then the titles others rate highest"
-msgstr "先是你评分最高的，再是大家评分最高的作品"
+msgstr "你的高分作品在前，大家的高分作品在后"
 
 #: journal/wrapped_text.py:34
 msgid "No stars given this year, so here are the titles others rate highest"
@@ -10291,7 +10291,7 @@ msgstr "在 NeoDB 的第 {n} 年"
 #: journal/wrapped_text.py:39
 #, python-brace-format
 msgid ", with marks back to {year}"
-msgstr "，标记最早可追溯到 {year} 年"
+msgstr "，最早的标记始于 {year} 年"
 
 #: journal/wrapped_text.py:40
 msgid "no earlier years in the data"
@@ -10299,22 +10299,22 @@ msgstr "数据里没有更早的年份"
 
 #: journal/wrapped_text.py:41
 msgid "Your biggest year ever"
-msgstr "有史以来最多的一年"
+msgstr "有史以来标记最多的一年"
 
 #: journal/wrapped_text.py:42
 #, python-brace-format
 msgid "Your biggest year in {n} years"
-msgstr "{n} 年来最多的一年"
+msgstr "{n} 年来标记最多的一年"
 
 #: journal/wrapped_text.py:43
 #, python-brace-format
 msgid "Your biggest year since {year}"
-msgstr "{year} 年以来最多的一年"
+msgstr "{year} 年以来标记最多的一年"
 
 #: journal/wrapped_text.py:44
 #, python-brace-format
 msgid "More {shelf} than in any year since {year}"
-msgstr "{shelf}比 {year} 年以来任何一年都多"
+msgstr "{shelf}比 {year} 年以来任何一年标记都多"
 
 #: journal/wrapped_text.py:46
 #, no-python-format, python-brace-format
@@ -10324,11 +10324,11 @@ msgstr "比 {year} 年多 {pct}%"
 #: journal/wrapped_text.py:48
 #, no-python-format, python-brace-format
 msgid "{pct}% above your average"
-msgstr "比你的平均水平多 {pct}%"
+msgstr "比你的平均标记数多 {pct}%"
 
 #: journal/wrapped_text.py:49
 msgid "A steady year"
-msgstr "平稳的一年"
+msgstr "细水长流的一年"
 
 #: journal/wrapped_text.py:50
 msgid "Most titles"
@@ -10345,7 +10345,7 @@ msgstr "五星作品最多"
 
 #: journal/wrapped_text.py:53
 msgid "Most days finishing a title"
-msgstr "完成作品的天数最多"
+msgstr "标记完成的天数最多"
 
 #: journal/wrapped_text.py:54
 msgid "Highest average rating"
@@ -10393,7 +10393,7 @@ msgstr "全年"
 
 #: journal/wrapped_text.py:64
 msgid "Personal bests"
-msgstr "个人纪录"
+msgstr "个人最佳"
 
 #: journal/wrapped_text.py:65
 #, python-brace-format
@@ -10429,11 +10429,11 @@ msgstr "同一天批量标记的作品未计入。"
 #: journal/wrapped_text.py:72
 #, python-brace-format
 msgid "previous best {value} in {year}"
-msgstr "此前最高 {value}，在 {year} 年"
+msgstr "此前最高：{year} 年的 {value}"
 
 #: journal/wrapped_text.py:73
 msgid "How your taste moved"
-msgstr "口味的变化"
+msgstr "口味变迁"
 
 #: journal/wrapped_text.py:74
 #, python-brace-format
@@ -10452,12 +10452,12 @@ msgstr "{shelf}从 {a}% 变为 {b}%"
 #: journal/wrapped_text.py:78
 #, python-brace-format
 msgid "of your year so far, against your average since {year}"
-msgstr "占你今年到目前为止的比例，对比 {year} 年以来的平均"
+msgstr "今年至今的占比，对比 {year} 年以来的平均"
 
 #: journal/wrapped_text.py:79
 #, python-brace-format
 msgid "of your year, against your average since {year}"
-msgstr "占你今年的比例，对比 {year} 年以来的平均"
+msgstr "今年的占比，对比 {year} 年以来的平均"
 
 #: journal/wrapped_text.py:80
 #, python-brace-format
@@ -10497,11 +10497,11 @@ msgstr "年度总结"
 #: journal/wrapped_text.py:88
 #, python-brace-format
 msgid "{name}’s year"
-msgstr "{name} 的一年"
+msgstr "{name} 的标记总结"
 
 #: journal/wrapped_text.py:89
 msgid "Your year in covers"
-msgstr "一年的封面"
+msgstr "封面里的一年"
 
 #: journal/wrapped_text.py:90
 #, python-brace-format
@@ -10528,7 +10528,7 @@ msgstr "{n} 部已放弃，未计入"
 
 #: journal/wrapped_text.py:95
 msgid "Busiest month"
-msgstr "最忙的月份"
+msgstr "最勤奋的月份"
 
 #: journal/wrapped_text.py:96
 #, python-brace-format
@@ -10538,7 +10538,7 @@ msgstr "{month}只有月平均的 {x} 倍，低于 1.6"
 #: journal/wrapped_text.py:97
 #, python-brace-format
 msgid "{n} titles in one month; {month} was the quietest with {quiet}"
-msgstr "一个月 {n} 部作品；最少的是{month}，{quiet} 部"
+msgstr "一个月 {n} 部作品；最清闲的是{month}，{quiet} 部"
 
 #: journal/wrapped_text.py:99
 #, no-python-format, python-brace-format
@@ -10572,7 +10572,7 @@ msgstr "今年看了 {n} 场，占全部的 {pct}%"
 
 #: journal/wrapped_text.py:110
 msgid "Biggest shelf"
-msgstr "最多的类别"
+msgstr "头号类别"
 
 #: journal/wrapped_text.py:112
 #, no-python-format, python-brace-format
@@ -10602,12 +10602,12 @@ msgstr "评分的作品少于三部"
 #: journal/wrapped_text.py:118
 #, python-brace-format
 msgid "{n} titles got five stars; here are ten, the ones you wrote about first"
-msgstr "{n} 部作品得到五星；这里是十部，先列出你写过短评的"
+msgstr "{n} 部作品拿到五星；这里选十部，写过短评的优先"
 
 #: journal/wrapped_text.py:119
 #, python-brace-format
 msgid "{n} favourites"
-msgstr "{n} 部最爱"
+msgstr "{n} 部心头好"
 
 #: journal/wrapped_text.py:120
 msgid "The highest marks"
@@ -10615,7 +10615,7 @@ msgstr "评分最高的作品"
 
 #: journal/wrapped_text.py:121
 msgid "Quiet favourite"
-msgstr "小众的最爱"
+msgstr "小众最爱"
 
 #: journal/wrapped_text.py:122
 msgid "your favourites all have 20 or more marks here"
@@ -10627,7 +10627,7 @@ msgstr "没有高分作品可选"
 
 #: journal/wrapped_text.py:124
 msgid "The quiet favourite"
-msgstr "小众的最爱"
+msgstr "小众最爱"
 
 #: journal/wrapped_text.py:125
 #, python-brace-format
@@ -10658,7 +10658,7 @@ msgstr "意外之喜"
 #: journal/wrapped_text.py:133
 #, python-brace-format
 msgid "with something logged; the longest run, outlined, was {n} days, {start} to {end}"
-msgstr "有记录的日子；最长连续 {n} 天（带边框），{start}至{end}"
+msgstr "有记录的日子；最长连续 {n} 天，{start}至{end}"
 
 #: journal/wrapped_text.py:134
 msgid "with something logged; never two days in a row"
@@ -10729,7 +10729,7 @@ msgstr "一周 {n} 部"
 #: journal/wrapped_text.py:149
 #, python-brace-format
 msgid "the busiest seven days began {date}; {n} weeks of the year had a title finished"
-msgstr "最忙的七天从{date}开始；全年有 {n} 周完成了作品"
+msgstr "最勤奋的七天从{date}开始；全年有 {n} 周完成了作品"
 
 #: journal/wrapped_text.py:150
 msgid "titles finished that week"
@@ -10737,7 +10737,7 @@ msgstr "当周完成的作品"
 
 #: journal/wrapped_text.py:151
 msgid "the busiest week"
-msgstr "最忙的一周"
+msgstr "最勤奋的一周"
 
 #: journal/wrapped_text.py:152
 msgid "The era"
@@ -10758,7 +10758,7 @@ msgstr "{pct}% 的作品来自同一个十年"
 
 #: journal/wrapped_text.py:157
 msgid "Mostly new"
-msgstr "大多是新作"
+msgstr "偏爱新作"
 
 #: journal/wrapped_text.py:159
 #, no-python-format, python-brace-format
@@ -10767,7 +10767,7 @@ msgstr "{pct}% 是近三年的作品；最早的一部来自 {year} 年。"
 
 #: journal/wrapped_text.py:160
 msgid "The era you lived in"
-msgstr "你所在的年代"
+msgstr "你流连的年代"
 
 #: journal/wrapped_text.py:161
 msgid "older"
@@ -10780,12 +10780,12 @@ msgstr "近三年"
 #: journal/wrapped_text.py:164
 #, no-python-format, python-brace-format
 msgid "Only {pct}% came out in the last three years. Half your year was made before {year}."
-msgstr "只有 {pct}% 是近三年的作品。你今年的一半作品出自 {year} 年以前。"
+msgstr "只有 {pct}% 是近三年的作品。你这一年的作品，一半诞生于 {year} 年以前。"
 
 #: journal/wrapped_text.py:166
 #, no-python-format, python-brace-format
 msgid "Half your year was made before {year}, and {pct}% came out in the last three years."
-msgstr "你今年的一半作品出自 {year} 年以前，{pct}% 是近三年的作品。"
+msgstr "你这一年的作品，一半诞生于 {year} 年以前，{pct}% 是近三年的作品。"
 
 #: journal/wrapped_text.py:167
 #, python-brace-format
@@ -10799,7 +10799,7 @@ msgstr "{year} 年所在的十年"
 
 #: journal/wrapped_text.py:169
 msgid "titles by decade of release"
-msgstr "按发行年代统计的作品"
+msgstr "各年代的作品数"
 
 #: journal/wrapped_text.py:171
 msgid "nobody appears on two titles"
@@ -10807,11 +10807,11 @@ msgstr "没有人出现在两部作品里"
 
 #: journal/wrapped_text.py:172
 msgid "On repeat"
-msgstr "你一再回到的创作者"
+msgstr "单曲循环"
 
 #: journal/wrapped_text.py:173
 msgid "People you kept returning to"
-msgstr "反复相遇"
+msgstr "反复回味"
 
 #: journal/wrapped_text.py:174
 msgid "fewer than three followed members with visible marks this year"
@@ -10819,7 +10819,7 @@ msgstr "今年有可见标记的关注对象少于三人"
 
 #: journal/wrapped_text.py:175
 msgid "In good company"
-msgstr "同好"
+msgstr "有德不孤"
 
 #: journal/wrapped_text.py:176
 msgid "no title shared with two or more followed members"
@@ -10828,11 +10828,11 @@ msgstr "没有和两位以上关注对象共同完成的作品"
 #: journal/wrapped_text.py:177
 #, python-brace-format
 msgid "You and {n}"
-msgstr "你和 {n} 位"
+msgstr "你和 {n} 位同好"
 
 #: journal/wrapped_text.py:178
 msgid "people you follow finished the same title this year"
-msgstr "你关注的人今年完成了同一部作品"
+msgstr "都是你关注的人，今年完成了同一部作品"
 
 #: journal/wrapped_text.py:179
 msgid "Taste twin"
@@ -10857,7 +10857,7 @@ msgstr "有日期的共同作品太少"
 
 #: journal/wrapped_text.py:184
 msgid "times someone you follow finished a title after you did"
-msgstr "次你关注的人在你之后完成同一部作品"
+msgstr "次，你比关注的人先一步完成同一部作品"
 
 #: journal/wrapped_text.py:185
 msgid "Most followed"
@@ -10870,11 +10870,11 @@ msgstr "其中 {n} 人在你之后"
 
 #: journal/wrapped_text.py:187
 msgid "times you came after someone,"
-msgstr "次你在别人之后，"
+msgstr "次，别人先你一步，"
 
 #: journal/wrapped_text.py:188
 msgid "times you came after someone"
-msgstr "次你在别人之后"
+msgstr "次，别人先你一步"
 
 #: journal/wrapped_text.py:189
 #, python-brace-format
@@ -10897,7 +10897,7 @@ msgstr "只有 {pct}% 的作品标记少于十个"
 #: journal/wrapped_text.py:194
 #, python-brace-format
 msgid "of your year is titles fewer than ten people on {site} have marked"
-msgstr "的作品在 {site} 上标记的人不到十个"
+msgstr "的作品，在 {site} 上不足十人标记"
 
 #: journal/wrapped_text.py:195
 msgid "With the crowd, against it"
@@ -10909,7 +10909,7 @@ msgstr "没有已知评分分布的已评分作品"
 
 #: journal/wrapped_text.py:197
 msgid "Both sides"
-msgstr "两面"
+msgstr "各有所爱"
 
 #: journal/wrapped_text.py:198
 msgid "With the crowd"
@@ -10917,7 +10917,7 @@ msgstr "随大流"
 
 #: journal/wrapped_text.py:199
 msgid "How others rated it"
-msgstr "以人为镜"
+msgstr "以人为鉴"
 
 #: journal/wrapped_text.py:201
 #, no-python-format, python-brace-format
@@ -10940,7 +10940,7 @@ msgstr "的评分者（共 {n} 人）"
 
 #: journal/wrapped_text.py:206
 msgid "Early"
-msgstr "引领潮流"
+msgstr "捷足先登"
 
 #: journal/wrapped_text.py:207
 msgid "no title where you were among the first ten markers, or the data is not public"
@@ -10954,12 +10954,12 @@ msgstr "第 {n} 位"
 #: journal/wrapped_text.py:209
 #, python-brace-format
 msgid "to mark it on {site}"
-msgstr "在 {site} 上标记它"
+msgstr "在 {site} 标记这部作品"
 
 #: journal/wrapped_text.py:210
 #, python-brace-format
 msgid "{n} people have marked it since."
-msgstr "此后有 {n} 人标记了它。"
+msgstr "此后又有 {n} 人标记。"
 
 #: journal/wrapped_text.py:211
 msgid "Part of the year"
@@ -10971,7 +10971,7 @@ msgstr "站点统计还没有准备好"
 
 #: journal/wrapped_text.py:213
 msgid "finished this title, more than any other"
-msgstr "完成了这部作品，比其他任何作品都多"
+msgstr "完成了这部作品，全站之最"
 
 #: journal/wrapped_text.py:214
 #, python-brace-format
@@ -10984,7 +10984,7 @@ msgstr "完成人数最多"
 
 #: journal/wrapped_text.py:216
 msgid "You were one of them."
-msgstr "你也是其中之一。"
+msgstr "你也在其中。"
 
 #: journal/wrapped_text.py:217
 msgid "Maybe next year."
@@ -10992,7 +10992,7 @@ msgstr "也许明年。"
 
 #: journal/wrapped_text.py:218
 msgid "Ahead of the pack"
-msgstr "遥遥领先"
+msgstr "名列前茅"
 
 #: journal/wrapped_text.py:219
 msgid "below the median this year, so this card stays quiet"
@@ -11080,7 +11080,7 @@ msgstr "今年没有从想看中完成的作品"
 #: journal/wrapped_text.py:239
 #, python-brace-format
 msgid "came off your wishlist this year; the longest wait was {wait}"
-msgstr "今年从想看中完成；等得最久的是 {wait}"
+msgstr "今年终于从想看变成完成；最久的等了 {wait}"
 
 #: journal/wrapped_text.py:240
 msgid "Waited longest"
@@ -11110,7 +11110,7 @@ msgstr "想看的历史在这里不公开"
 
 #: journal/wrapped_text.py:246
 msgid "on your wishlist, and counting"
-msgstr "在你的想看里，还在继续"
+msgstr "躺在你的想看里，仍在计数"
 
 #: journal/wrapped_text.py:247
 #, python-brace-format
@@ -11172,7 +11172,7 @@ msgstr "今年没有短评或评论"
 
 #: journal/wrapped_text.py:260
 msgid "In your own words"
-msgstr "你自己的话"
+msgstr "你的文字"
 
 #: journal/wrapped_text.py:261
 #, python-brace-format
@@ -11205,7 +11205,7 @@ msgstr "尾声"
 
 #: journal/wrapped_text.py:267
 msgid "See you in"
-msgstr "我们相约"
+msgstr "未完待续"
 
 #: journal/wrapped_text.py:268
 msgid "Could not save the deck; try again"
@@ -11213,7 +11213,7 @@ msgstr "无法保存卡片组，请重试"
 
 #: journal/wrapped_text.py:269
 msgid "My pick"
-msgstr "我的推荐"
+msgstr "我的精选"
 
 #: journal/wrapped_text.py:270
 msgid "fewer than three items can be shown, so the collection may have changed"
@@ -11221,7 +11221,7 @@ msgstr "可显示的作品少于三部，收藏单可能已经改变"
 
 #: journal/wrapped_text.py:277
 msgid "hidden by you"
-msgstr "已被你隐藏"
+msgstr "你已隐藏"
 
 #: journal/wrapped_text.py:278
 #, python-brace-format
@@ -11338,16 +11338,16 @@ msgstr "从中手动挑选"
 #: journal/wrapped_text.py:318
 #, python-brace-format
 msgid "My {n} picks of {year}"
-msgstr "我的 {year} 年 {n} 部推荐"
+msgstr "我的 {year} 年度 {n} 佳"
 
 #: journal/wrapped_text.py:319
 #, python-brace-format
 msgid "My top picks of {year}"
-msgstr "我的 {year} 年推荐"
+msgstr "我的 {year} 年度之选"
 
 #: journal/wrapped_text.py:320
 msgid "Chosen by hand"
-msgstr "亲手挑选"
+msgstr "手工挑选"
 
 #: journal/wrapped_text.py:321
 #, python-brace-format
@@ -11361,16 +11361,16 @@ msgstr "来自我的收藏单"
 #: journal/wrapped_text.py:323
 #, python-brace-format
 msgid "My top {n} titles of {year}"
-msgstr "我的 {year} 年前 {n} 部作品"
+msgstr "我的 {year} 年度 {n} 佳"
 
 #: journal/wrapped_text.py:324
 #, python-brace-format
 msgid "My top {n} {shelf} of {year}"
-msgstr "我的 {year} 年{shelf}前 {n} 名"
+msgstr "我的 {year} 年度{shelf} {n} 佳"
 
 #: journal/wrapped_text.py:325
 msgid "Highest marks"
-msgstr "最高评分"
+msgstr "评分最高"
 
 #: journal/wrapped_text.py:326
 #, python-brace-format
@@ -11410,7 +11410,7 @@ msgstr "来自链接"
 #: journal/wrapped_text.py:335
 #, python-brace-format
 msgid "{site} is fetching this page; still checking…"
-msgstr "{site} 正在抓取这个页面；还在检查…"
+msgstr "{site} 正在抓取这个页面，请稍候…"
 
 #: journal/wrapped_text.py:336
 #, python-brace-format
@@ -11419,7 +11419,7 @@ msgstr "正在 {site} 上查找…"
 
 #: journal/wrapped_text.py:337
 msgid "Still not ready after a minute. Try the link again later."
-msgstr "一分钟后仍未就绪。请稍后再试这个链接。"
+msgstr "等了一分钟仍未就绪，请稍后再试。"
 
 #: journal/wrapped_text.py:338
 msgid "This site is not one this instance can read. Try a link to the title on a supported site, or to its page here."
@@ -11462,7 +11462,7 @@ msgstr "没有找到"
 
 #: journal/wrapped_text.py:347
 msgid "Paste a link to add a title from anywhere."
-msgstr "粘贴链接，可以添加任何地方的作品。"
+msgstr "粘贴链接，可添加任何网站上的作品。"
 
 #: journal/wrapped_text.py:348
 msgid "A card needs at least three titles"
@@ -11511,7 +11511,7 @@ msgstr[0] "{year} 年以来只有 {n} 年有十部以上作品；趋势卡片需
 #, python-brace-format
 msgid "{n} title so far"
 msgid_plural "{n} titles so far"
-msgstr[0] "到目前为止 {n} 部作品"
+msgstr[0] "至今 {n} 部作品"
 
 #: journal/wrapped_text.py:364
 #, python-brace-format
@@ -11541,7 +11541,7 @@ msgstr[0] "{date}及另外 {days} 个批量标记日的 {n} 部作品未计入"
 #, python-brace-format
 msgid "{titles} across {n} shelf, so far"
 msgid_plural "{titles} across {n} shelves, so far"
-msgstr[0] "{titles}，分布在 {n} 个类别，到目前为止"
+msgstr[0] "{titles}，分布在 {n} 个类别"
 
 #: journal/wrapped_text.py:369
 #, python-brace-format
@@ -11553,7 +11553,7 @@ msgstr[0] "{titles}，分布在 {n} 个类别"
 #, python-brace-format
 msgid "the busiest month has {n} title, under {min}"
 msgid_plural "the busiest month has {n} titles, under {min}"
-msgstr[0] "最忙的月份只有 {n} 部作品，少于 {min} 部"
+msgstr[0] "最勤奋的月份只有 {n} 部作品，少于 {min} 部"
 
 #: journal/wrapped_text.py:371
 #, python-brace-format
@@ -11607,7 +11607,7 @@ msgstr[0] "{n} 个标签"
 #, python-brace-format
 msgid "busiest month, {n} title"
 msgid_plural "busiest month, {n} titles"
-msgstr[0] "最忙的月份，{n} 部作品"
+msgstr[0] "最勤奋的月份，{n} 部作品"
 
 #: journal/wrapped_text.py:383
 #, python-brace-format
@@ -11625,7 +11625,7 @@ msgstr[0] "@{owner} 的收藏单，{n} 部作品。"
 #, python-brace-format
 msgid "Posted {n} card to your timeline"
 msgid_plural "Posted {n} cards to your timeline"
-msgstr[0] "已向你的时间轴发布 {n} 张卡片"
+msgstr[0] "{n} 张卡片已发布到你的时间轴"
 
 #: journal/templates/wrapped.html:37 journal/templates/wrapped.html:39
 msgid "Your own year"
@@ -11641,7 +11641,7 @@ msgstr "全年一览"
 
 #: journal/templates/wrapped.html:104 journal/wrapped_text.py:414
 msgid "Edit the deck"
-msgstr "编辑卡组"
+msgstr "编辑卡片组"
 
 #: journal/wrapped_text.py:406
 msgid "Year"
@@ -11662,7 +11662,7 @@ msgstr "纵览全年"
 #: journal/wrapped_text.py:413
 #, python-brace-format
 msgid "Make your own {year}"
-msgstr "制作你的 {year}"
+msgstr "做一份你的 {year}"
 
 #: journal/wrapped_text.py:416
 #, python-brace-format
@@ -11696,7 +11696,7 @@ msgstr "只有你能看到这组卡片；统计包含私密记录。"
 
 #: journal/templates/wrapped.html:255
 msgid "Every card on the page as PNG files in one ZIP, or as a slideshow in a GIF or an MP4 video."
-msgstr "页面上的全部卡片可打包成一个 PNG 文件的 ZIP，或做成 GIF 或 MP4 幻灯片。"
+msgstr "把页面上的全部卡片打包成 PNG 图片的 ZIP，或做成 GIF、MP4 幻灯片。"
 
 #: journal/templates/wrapped.html:258
 msgid "All cards as ZIP"
@@ -11750,7 +11750,7 @@ msgstr "在编辑中更改"
 
 #: journal/wrapped_text.py:403
 msgid "Every card is hidden from this audience"
-msgstr "已对这组观众隐藏全部卡片"
+msgstr "已在这个可见范围隐藏全部卡片"
 
 #: journal/wrapped_text.py:404
 msgid "Back to the suggested cards"
@@ -11762,7 +11762,7 @@ msgstr "未分享"
 
 #: journal/wrapped_text.py:407
 msgid "Posted the video to your timeline"
-msgstr "已向你的时间轴发布视频"
+msgstr "视频已发布到你的时间轴"
 
 #: journal/wrapped_text.py:424
 #, python-brace-format
@@ -11772,108 +11772,11 @@ msgstr[0] "{n} 张卡片"
 
 #: journal/wrapped_text.py:408
 msgid "This audience sees no cards. Show some in Edit."
-msgstr "这组观众看不到任何卡片。可在编辑中显示一些卡片。"
+msgstr "这个可见范围内没有卡片。可在编辑中显示一些卡片。"
 
 #: journal/templates/wrapped.html:34 journal/templates/wrapped.html:135
 msgid "Background music"
 msgstr "背景音乐"
-
-#: journal/wrapped_music.py:18
-msgid "Piano Sonata No. 16, K. 545, I. Allegro"
-msgstr "第十六号钢琴奏鸣曲，K. 545，第一乐章 快板"
-
-#: journal/wrapped_music.py:19
-msgid "W. A. Mozart"
-msgstr "莫扎特"
-
-#: journal/wrapped_music.py:20 journal/wrapped_music.py:64
-msgid "Performer not named (Musopen)"
-msgstr "演奏者未署名（Musopen）"
-
-#: journal/wrapped_music.py:29
-msgid "Prelude in D major, BWV 850"
-msgstr "D 大调前奏曲，BWV 850"
-
-#: journal/wrapped_music.py:30 journal/wrapped_music.py:41
-#: journal/wrapped_music.py:52
-msgid "J. S. Bach"
-msgstr "巴赫"
-
-#: journal/wrapped_music.py:31 journal/wrapped_music.py:53
-msgid "Kimiko Ishizaka, piano (Open Well-Tempered Clavier, 2015)"
-msgstr "石坂公美子，钢琴（Open Well-Tempered Clavier，2015）"
-
-#: journal/wrapped_music.py:40
-msgid "Goldberg Variations, Variation 1"
-msgstr "哥德堡变奏曲，第一变奏"
-
-#: journal/wrapped_music.py:42
-msgid "Kimiko Ishizaka, piano (Open Goldberg Variations, 2012)"
-msgstr "石坂公美子，钢琴（Open Goldberg Variations，2012）"
-
-#: journal/wrapped_music.py:51
-msgid "Prelude in C major, BWV 846"
-msgstr "C 大调前奏曲，BWV 846"
-
-#: journal/wrapped_music.py:62
-msgid "Symphony No. 6 \"Pastoral\", I. Allegro ma non troppo"
-msgstr "第六号交响曲《田园》，第一乐章 不太快的快板"
-
-#: journal/wrapped_music.py:63
-msgid "L. van Beethoven"
-msgstr "贝多芬"
-
-#: journal/wrapped_music.py:73
-msgid "Waltz Op. 64 No. 1 \"Minute\""
-msgstr "圆舞曲 Op. 64 No. 1《一分钟》"
-
-#: journal/wrapped_music.py:74
-msgid "F. Chopin"
-msgstr "肖邦"
-
-#: journal/wrapped_music.py:75
-msgid "Olga Gurevich, piano (Musopen, Set Chopin Free)"
-msgstr "Olga Gurevich，钢琴（Musopen，Set Chopin Free）"
-
-#: journal/wrapped_music.py:84
-msgid "The Nutcracker, Waltz of the Flowers"
-msgstr "胡桃夹子，花之圆舞曲"
-
-#: journal/wrapped_music.py:85
-msgid "P. I. Tchaikovsky"
-msgstr "柴可夫斯基"
-
-#: journal/wrapped_music.py:86
-msgid "United States Air Force Band, concert band (1996)"
-msgstr "美国空军乐队，管乐团（1996）"
-
-#: journal/wrapped_music.py:95
-msgid "Corta-Jaca (maxixe)"
-msgstr "Corta-Jaca（马克西舍舞曲）"
-
-#: journal/wrapped_music.py:96
-msgid "Chiquinha Gonzaga, Brazil"
-msgstr "希金尼亚·冈萨加，巴西"
-
-#: journal/wrapped_music.py:97
-msgid "Grupo Chiquinha Gonzaga: flute, guitar, cavaquinho (about 1912)"
-msgstr "Grupo Chiquinha Gonzaga：长笛、吉他、卡瓦奇诺（约 1912 年）"
-
-#: journal/wrapped_music.py:106
-msgid "Odeon (Brazilian tango), clean rendering"
-msgstr "Odeon（巴西探戈），清晰版"
-
-#: journal/wrapped_music.py:107
-msgid "E. Nazareth, Brazil"
-msgstr "埃内斯托·纳扎雷特，巴西"
-
-#: journal/wrapped_music.py:108
-msgid "Computer rendering by Eduardo Feld"
-msgstr "Eduardo Feld 的电脑演奏"
-
-#: journal/wrapped_music.py:117
-msgid "Public domain"
-msgstr "公有领域"
 
 #: journal/wrapped_text.py:409
 msgid "Sound on"
@@ -11925,7 +11828,7 @@ msgstr "这段文字仅自己可见。只有你会看到这张卡片。"
 
 #: journal/wrapped_text.py:420
 msgid "This text is public. Every audience gets this card."
-msgstr "这段文字是公开的。所有观众都会看到这张卡片。"
+msgstr "这段文字是公开的，所有人都会看到这张卡片。"
 
 #: journal/wrapped_text.py:421
 #, python-brace-format
@@ -11942,7 +11845,7 @@ msgstr "已标记为敏感"
 
 #: journal/wrapped_text.py:425
 msgid "the text is gone, or this audience cannot see it"
-msgstr "这段文字已不存在，或这组观众看不到它"
+msgstr "这段文字已不存在，或在这个可见范围不可见"
 
 #: journal/wrapped_text.py:442
 #, python-brace-format
@@ -11992,12 +11895,12 @@ msgstr "只有关注你的人登录后才能打开这个页面。"
 
 #: journal/wrapped_text.py:436
 msgid "Show the cards the code opens"
-msgstr "显示二维码打开的卡片"
+msgstr "查看扫码后显示的卡片"
 
 #: journal/wrapped_text.py:437
 #, python-brace-format
 msgid "The code opens {link}."
-msgstr "二维码打开 {link}。"
+msgstr "扫码打开 {link}。"
 
 #: journal/wrapped_text.py:454
 #, python-brace-format
@@ -12022,7 +11925,7 @@ msgstr "{size} MB，{seconds} 秒视频，含音乐"
 
 #: journal/wrapped_text.py:404
 msgid "The music could not be added, so the video has no sound."
-msgstr "音乐无法加入，所以视频没有声音。"
+msgstr "音乐未能加入，视频没有声音。"
 
 #: journal/templates/wrapped.html:260 journal/templates/wrapped.html:337
 msgid "ZIP, GIF and video can take a minute and may need the latest Chrome. Keep this page open until it is done."
@@ -12030,7 +11933,7 @@ msgstr "ZIP、GIF 和视频可能需要一分钟左右，并可能需要最新�
 
 #: journal/wrapped_text.py:399
 msgid "the video encoder stopped working"
-msgstr "视频编码器停止工作了"
+msgstr "视频编码器没有响应"
 
 #: journal/wrapped_text.py:143
 #, python-brace-format

@@ -1109,13 +1109,14 @@
   // The file comes straight from Wikimedia Commons; if it fails to load, the toggle turns off and the page stays silent.
   // soundOff: the viewer turned the sound off in this view, so the show no longer starts it (not saved)
   let music = D.music || null, audio = null, soundOff = false;
-  const credit = t => `${esc(t.title)} · ${esc(t.composer)} · ${esc(t.performer)} · ${esc(t.licence)} · <a href="${esc(t.page)}" target="_blank" rel="noopener">Wikimedia Commons</a>`;
+  // the credit is only where the file is and its licence; the Commons page names the composer and the performer
+  const credit = t => `<a href="${esc(t.page)}" target="_blank" rel="noopener">Wikimedia</a> · ${esc(t.licence)}`;
   function soundShow(on) {
     const b = $("sound"), np = $("nowplaying");
     b.hidden = !music; b.setAttribute("aria-pressed", on ? "true" : "false");
     b.querySelector("i").className = `fa-solid ${on ? "fa-volume-high" : "fa-volume-xmark"}`;
     $("soundtext").textContent = on ? _("Sound on") : _("Sound off");
-    np.hidden = !on; np.innerHTML = on && music ? `<i class="fa-solid fa-music"></i> ${credit(music)}` : "";
+    np.hidden = !on; np.innerHTML = on && music ? `<i class="fa-solid fa-music"></i> ${esc(music.title)} · ${credit(music)}` : "";
   }
   function soundFailed() { if (audio) audio.pause(); audio = null; soundShow(false); toast(_("The music could not be loaded")); }
   function sound(on) {
@@ -1132,7 +1133,7 @@
   if (OWNER) {
     // the menu in the Edit sheet: no music first, then the tracks; the play button tries the chosen one
     const sel = $("music"), tracks = D.music_menu || [], tryBtn = $("music-try");
-    sel.innerHTML = `<option value="">${_("No music")}</option>` + tracks.map(t => `<option value="${esc(t.id)}">${esc(t.title)} · ${esc(t.composer)}</option>`).join("");
+    sel.innerHTML = `<option value="">${_("No music")}</option>` + tracks.map(t => `<option value="${esc(t.id)}">${esc(t.title)}</option>`).join("");
     sel.value = music ? music.id : "";
     let preview = null;
     const tryShow = on => { tryBtn.innerHTML = `<i class="fa-solid ${on ? "fa-stop" : "fa-play"}"></i>`; tryBtn.setAttribute("aria-label", on ? _("Pause") : _("Play")); };

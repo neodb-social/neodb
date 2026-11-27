@@ -42,6 +42,7 @@ from journal.wrapped import (
     instance_stats,
     plain_excerpt,
 )
+from journal.wrapped_music import track as music_track
 from journal.wrapped_text import PLURALS, TEXT, card_text
 from takahe.utils import Takahe
 from users.models import User
@@ -370,6 +371,16 @@ class TestCardText:
             table_plural = {(f(1), f(2)) for f in PLURALS}
         assert set(TEXT) == single
         assert table_plural == plural
+
+    def test_music_track_is_the_same_in_every_language(self):
+        with override("zh-hans"):
+            t = music_track("bach-bwv846")
+        assert t is not None
+        # one short title for every language, and only the file's place and licence for the credit
+        assert (
+            t["title"] == "Bach: Prelude in C major, BWV 846" and t["licence"] == "CC0"
+        )
+        assert set(t) == {"id", "title", "licence", "page", "mp3"}
 
     def test_table_only_for_other_languages(self):
         with override("en"):
