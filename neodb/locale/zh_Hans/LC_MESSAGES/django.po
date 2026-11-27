@@ -7117,10 +7117,6 @@ msgstr "重复标签"
 msgid "Tag updated."
 msgstr "标签已更新。"
 
-#: journal/views/wrapped.py:161
-msgid "Summary posted to timeline."
-msgstr "总结已发布到时间轴。"
-
 #: mastodon/models/common.py:31
 msgid "Mastodon"
 msgstr "Mastodon"
@@ -10278,10 +10274,6 @@ msgstr "你的高分作品在前，大家的高分作品在后"
 msgid "No stars given this year, so here are the titles others rate highest"
 msgstr "今年没有打分，这里是大家评分最高的作品"
 
-#: journal/wrapped_text.py:35
-msgid "no stars"
-msgstr "未评分"
-
 #. Translators: {nth} is an English ordinal such as tenth; use {n}, the number, instead
 #: journal/wrapped_text.py:38
 #, no-python-brace-format
@@ -11138,10 +11130,6 @@ msgstr "还有 {n} 部"
 #: journal/wrapped_text.py:252
 msgid "Your tags"
 msgstr "你的标签"
-
-#: journal/wrapped_text.py:253
-msgid "tags are not in this data"
-msgstr "数据里没有标签"
 
 #: journal/wrapped_text.py:254
 msgid "no tags on this year's titles"

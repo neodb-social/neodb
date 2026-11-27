@@ -37,14 +37,15 @@ async function zip(m, progress) {
   const enc = new TextEncoder(), parts = [], central = [];
   let offset = 0;
   for (let i = 0; i < m.items.length; i++) {
-    const data = new Uint8Array(await (await pngOf(m.items[i].key)).arrayBuffer()), name = enc.encode(m.items[i].name), crc = crc32(data);
+    // the bytes only for the checksum; the archive holds the PNG blob itself, so no second copy stays in memory
+    const png = await pngOf(m.items[i].key), size = png.size, name = enc.encode(m.items[i].name), crc = crc32(new Uint8Array(await png.arrayBuffer()));
     const local = new DataView(new ArrayBuffer(30));
-    [[0, 0x04034b50, 4], [4, 20, 2], [6, 0x0800, 2], [8, 0, 2], [10, time, 2], [12, date, 2], [14, crc, 4], [18, data.length, 4], [22, data.length, 4], [26, name.length, 2], [28, 0, 2]].forEach(([at, v, n]) => n === 4 ? local.setUint32(at, v, true) : local.setUint16(at, v, true));
+    [[0, 0x04034b50, 4], [4, 20, 2], [6, 0x0800, 2], [8, 0, 2], [10, time, 2], [12, date, 2], [14, crc, 4], [18, size, 4], [22, size, 4], [26, name.length, 2], [28, 0, 2]].forEach(([at, v, n]) => n === 4 ? local.setUint32(at, v, true) : local.setUint16(at, v, true));
     const head = new DataView(new ArrayBuffer(46));
-    [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [8, 0x0800, 2], [10, 0, 2], [12, time, 2], [14, date, 2], [16, crc, 4], [20, data.length, 4], [24, data.length, 4], [28, name.length, 2], [30, 0, 2], [32, 0, 2], [34, 0, 2], [36, 0, 2], [38, 0, 4], [42, offset, 4]].forEach(([at, v, n]) => n === 4 ? head.setUint32(at, v, true) : head.setUint16(at, v, true));
-    parts.push(local, name, data);
+    [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [8, 0x0800, 2], [10, 0, 2], [12, time, 2], [14, date, 2], [16, crc, 4], [20, size, 4], [24, size, 4], [28, name.length, 2], [30, 0, 2], [32, 0, 2], [34, 0, 2], [36, 0, 2], [38, 0, 4], [42, offset, 4]].forEach(([at, v, n]) => n === 4 ? head.setUint32(at, v, true) : head.setUint16(at, v, true));
+    parts.push(local, name, png);
     central.push(head, name);
-    offset += 30 + name.length + data.length;
+    offset += 30 + name.length + size;
     progress(i + 1);
   }
   const size = central.reduce((s, p) => s + p.byteLength, 0), end = new DataView(new ArrayBuffer(22));

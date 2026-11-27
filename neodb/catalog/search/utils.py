@@ -190,10 +190,9 @@ def enqueue_fetch(url, is_refetch, user=None):
         logger.warning(f"enqueue_fetch: refusing unsafe URL {url!r}")
         return None
     job_id = fetch_job_id(url)
-    in_progress = False
+    job = fetch_job(url)
     try:
-        job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
-        in_progress = job.get_status() in ["queued", "started"]
+        in_progress = bool(job) and job.get_status() in ["queued", "started"]
     except Exception:
         in_progress = False
     if not in_progress:

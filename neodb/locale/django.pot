@@ -7065,10 +7065,6 @@ msgstr ""
 msgid "Tag updated."
 msgstr ""
 
-#: journal/views/wrapped.py:161
-msgid "Summary posted to timeline."
-msgstr ""
-
 #: mastodon/models/common.py:31
 msgid "Mastodon"
 msgstr ""
@@ -10175,10 +10171,6 @@ msgstr ""
 msgid "No stars given this year, so here are the titles others rate highest"
 msgstr ""
 
-#: journal/wrapped_text.py:35
-msgid "no stars"
-msgstr ""
-
 #. Translators: {nth} is an English ordinal such as tenth; use {n}, the number, instead
 #: journal/wrapped_text.py:38
 #, no-python-brace-format
@@ -11034,10 +11026,6 @@ msgstr ""
 
 #: journal/wrapped_text.py:252
 msgid "Your tags"
-msgstr ""
-
-#: journal/wrapped_text.py:253
-msgid "tags are not in this data"
 msgstr ""
 
 #: journal/wrapped_text.py:254

@@ -151,7 +151,7 @@ class TestPayload:
     def test_item_fields(self):
         it = build_payload(self.me, YEAR, 0, TZ)["items"][0]
         assert it["rating"] == 10 and it["comment"] == "a public note"
-        assert it["tags"] == [["comfort", 0]]
+        assert it["tags"] == ["comfort"]
         assert it["date"] == "2025-03-01" and it["category"] == "book"
         assert it["first_rank"] == 1 and it["marks"] == 1
 

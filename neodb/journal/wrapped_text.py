@@ -40,7 +40,6 @@ TEXT = [
     gettext_noop(
         "No stars given this year, so here are the titles others rate highest"
     ),
-    gettext_noop("no stars"),
     # Translators: {nth} is an English ordinal such as tenth; use {n}, the number, instead
     # xgettext:no-python-brace-format
     gettext_noop("your {nth} year on NeoDB"),
@@ -290,7 +289,6 @@ TEXT = [
     gettext_noop("{n} titles marked in one day"),
     gettext_noop("and {n} more"),
     gettext_noop("Your tags"),
-    gettext_noop("tags are not in this data"),
     gettext_noop("no tags on this year's titles"),
     gettext_noop("on {n} titles; you used “{tag}” most"),
     gettext_noop("tagged “{tag}”"),

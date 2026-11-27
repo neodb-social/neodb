@@ -8,7 +8,6 @@ from typing import Any
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import (
     FileResponse,
@@ -50,6 +49,7 @@ from journal.wrapped import (
     build_payload,
     deck_for,
     friends_allowed,
+    item_ref,
     kindred_allowed,
     resolve_words,
     words_menu,
@@ -91,14 +91,7 @@ def _most_public(owner: APIdentity, year: int, tz: ZoneInfo) -> int | None:
 
 def _made_for(deck: WrappedDeck, level: int) -> list[dict[str, Any]]:
     """The made cards a visitor at this level can see; the others never leave the server."""
-    shown = deck.shown_for(level)
-    if shown is not None:
-        return [m for m in deck.made if f"made-{m.get('id')}" in shown]
-    return [
-        m
-        for m in deck.made
-        if deck.card_hidden(level, f"made-{m.get('id')}") is not True
-    ]
+    return [m for m in deck.made if deck.may_show(level, f"made-{m.get('id')}", True)]
 
 
 def _context(
@@ -108,6 +101,7 @@ def _context(
     level: int,
     is_owner: bool,
     viewer: Any = None,
+    most_public: int | None = None,
 ) -> dict[str, Any]:
     # a visitor gets only the made cards their audience may see; the others, and their texts, stay here
     made = deck.made if is_owner else _made_for(deck, level)
@@ -119,6 +113,7 @@ def _context(
         include_friends=friends_allowed(deck, level, is_owner),
         include_kindred=kindred_allowed(deck, level, is_owner),
         viewer=viewer,
+        picker=is_owner,
         collection_refs=[
             str((m.get("source") or {}).get("uuid") or "")
             for m in made
@@ -164,7 +159,6 @@ def _context(
         payload["made_max"] = MADE_CARDS_MAX
         if not payload["items"]:
             # an audience with no titles: the empty page offers the audiences that have some
-            most_public = _most_public(owner, year, deck.tzinfo)
             payload["levels_with_titles"] = [
                 lv for lv in AUDIENCES if most_public is not None and lv >= most_public
             ]
@@ -205,17 +199,19 @@ def wrapped_deck(request: AuthedHttpRequest, year: int | None = None):
         level = int(request.GET.get("as", ""))
     except ValueError:
         level = -1
+    most_public = _most_public(owner, y, deck.tzinfo)
     if level not in AUDIENCES:
         # the widest audience that is on and has titles at its level, so the owner never opens on an empty
         # preview while their titles sit in a narrower one
-        most_public = _most_public(owner, y, deck.tzinfo)
         on = [lv for lv in AUDIENCES if not deck.is_off(lv)]
         level = next(
             (lv for lv in on if most_public is not None and lv >= most_public),
             on[0] if on else 2,
         )
     resp = render(
-        request, "wrapped.html", _context(owner, deck, y, level, True, request.user)
+        request,
+        "wrapped.html",
+        _context(owner, deck, y, level, True, request.user, most_public),
     )
     patch_cache_control(resp, private=True)
     return resp
@@ -276,7 +272,6 @@ def _clean_made(made: Any) -> list[dict[str, Any]]:
                 continue
             source = {
                 "type": "words",
-                "url": _clean_url(src.get("url")),
                 "kind": src["kind"],
                 "ref": _clean_str(src.get("ref"), 40),
             }
@@ -296,7 +291,6 @@ def _clean_made(made: Any) -> list[dict[str, Any]]:
                             "category": it.get("category")
                             if it.get("category") in CATEGORIES
                             else "book",
-                            "note": _clean_str(it.get("note"), 300) or None,
                         }
                     )
             source = {"type": "hand", "items": items}
@@ -485,19 +479,7 @@ def wrapped_share(request: AuthedHttpRequest, year: int):
         except Exception as e:
             logger.warning(f"wrapped post to {user.bluesky} failed: {e}")
             sentry_count("crosspost.failure", attributes=attrs)
-    if request.headers.get("Accept") == "application/json":
-        return JsonResponse({"ok": True, "url": post.url if post else None})
-    messages.add_message(request, messages.INFO, _("Summary posted to timeline."))
-    return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
-
-
-def _ref(item: Item) -> dict[str, Any]:
-    return {
-        "u": item.url,
-        "t": item.display_title,
-        "cov": item.display_cover_image_url,
-        "c": str(item.category),
-    }
+    return JsonResponse({"ok": True, "url": post.url if post else None})
 
 
 @login_required
@@ -519,13 +501,13 @@ def wrapped_lookup(request: AuthedHttpRequest):
         item = Item.get_by_url(urlparse(url).path, resolve_merge=True)
         if not item or item.is_deleted:
             return JsonResponse({"status": "missing"})
-        return JsonResponse({"status": "found", "item": _ref(item)})
+        return JsonResponse({"status": "found", "item": item_ref(item)})
     site = SiteManager.get_site_by_url(
         url, detect_redirection=False, detect_fallback=False
     )
     item = site.get_item() if site else None
     if item and not item.is_deleted:
-        return JsonResponse({"status": "found", "item": _ref(item)})
+        return JsonResponse({"status": "found", "item": item_ref(item)})
     job = fetch_job(url)
     state = job.get_status() if job else None
     if state in ("queued", "started", "deferred", "scheduled"):
@@ -537,7 +519,7 @@ def wrapped_lookup(request: AuthedHttpRequest):
             return JsonResponse({"status": "unsupported"})
         item = Item.get_by_url(result, resolve_merge=True) if result else None
         if item and not item.is_deleted:
-            return JsonResponse({"status": "found", "item": _ref(item)})
+            return JsonResponse({"status": "found", "item": item_ref(item)})
         return JsonResponse({"status": "missing"})
     if state == "failed":
         return JsonResponse({"status": "missing" if site else "unsupported"})

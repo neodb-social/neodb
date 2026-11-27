@@ -76,6 +76,15 @@ class WrappedDeck(models.Model):
             return bool(o[card_id])
         return True if o.get(ALL_HIDDEN) is True else None
 
+    def may_show(self, level: int, card_id: str, default: bool) -> bool:
+        """Whether this audience may be shown a card: the list the owner last saw for it when there is one,
+        else the owner's override, else ``default`` (the server cannot apply the browser's rules)."""
+        shown = self.shown_for(level)
+        if shown is not None:
+            return card_id in shown
+        hidden = self.card_hidden(level, card_id)
+        return default if hidden is None else not hidden
+
     def is_off(self, level: int) -> bool:
         """The audience sees no card: everything hidden by the member, or nothing shown at the owner's last view."""
         o = self.overrides(level)

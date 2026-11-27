@@ -53,7 +53,6 @@ from .models import (
     ShelfType,
     TagMember,
     WrappedDeck,
-    q_piece_visible_to_user,
 )
 from .models.wrapped import ALL_HIDDEN, AUDIENCES
 
@@ -131,14 +130,6 @@ def _release_year(item: Item) -> int | None:
     return None
 
 
-def _int_attr(item: Item, attr: str) -> int | None:
-    try:
-        v = getattr(item, attr, None)
-        return int(v) if v else None
-    except TypeError, ValueError:
-        return None
-
-
 def plain_excerpt(md: str, size: int = EXCERPT_CHARS) -> str:
     """A short plain-text start of a review: no spoilers, images or markdown marks."""
     s = re.sub(r">!.*?!<", " ", md or "", flags=re.S).split(">!")[0]
@@ -155,7 +146,6 @@ def _member(identity: APIdentity) -> dict[str, Any]:
     return {
         "name": identity.display_name,
         "handle": "@" + identity.full_handle,
-        "avatar": identity.avatar,
         "url": settings.SITE_INFO["site_url"].rstrip("/") + identity.url,
         # the profile picture from this site's origin, for the corner of every card; None when the member has not set one.
         # The file name changes with each new picture, so it versions the link.
@@ -208,6 +198,16 @@ def _first_ranks(owner: APIdentity, ids: list[int]) -> dict[int, int]:
     return {i: earlier.get(i, 0) + 1 for i in ids}
 
 
+def _grades(
+    owner: APIdentity, ids: list[int], level: int | None = None
+) -> dict[int, int]:
+    """The owner's grade of each title, from ratings visible at this level (all of them when None)."""
+    qs = Rating.objects.filter(owner=owner, item_id__in=ids, grade__isnull=False)
+    if level is not None:
+        qs = qs.filter(visibility__lte=level)
+    return dict(qs.values_list("item_id", "grade"))
+
+
 def _mark_vis(owner: APIdentity, item_ids: set[int]) -> dict[int, int]:
     """Visibility of the member's current mark of each title; the shelf log has none of its own."""
     return dict(
@@ -224,7 +224,7 @@ def _activity(
     end: datetime.datetime,
     tz: ZoneInfo,
 ) -> list[dict[str, Any]]:
-    """Days with progress, completions, drops, notes, episode comments and reviews.
+    """Days with progress, completions, drops, notes, episode comments and reviews, at this level.
 
     A shelf log entry takes the visibility of the member's current mark of that title; an entry
     whose title is no longer on a shelf counts as private.
@@ -240,44 +240,23 @@ def _activity(
     vis = _mark_vis(owner, {i for i, _, _ in log})
     out = []
     for item_id, st, ts in log:
-        v = vis.get(item_id, 2)
-        if v <= level:
-            out.append(
-                {
-                    "date": ts.astimezone(tz).date().isoformat(),
-                    "kind": str(st),
-                    "vis": v,
-                }
-            )
-    for ts, v in Note.objects.filter(
-        owner=owner,
-        created_time__gte=start,
-        created_time__lt=end,
-        visibility__lte=level,
-    ).values_list("created_time", "visibility"):
-        out.append(
-            {"date": ts.astimezone(tz).date().isoformat(), "kind": "note", "vis": v}
-        )
+        if vis.get(item_id, 2) <= level:
+            out.append({"date": ts.astimezone(tz).date().isoformat(), "kind": str(st)})
+    # notes, comments on episodes (a comment on a whole title is part of its mark) and reviews
     ep_types = [item_content_types()[TVEpisode], item_content_types()[PodcastEpisode]]
-    for ts, v in Comment.objects.filter(
-        owner=owner,
-        created_time__gte=start,
-        created_time__lt=end,
-        visibility__lte=level,
-        item__polymorphic_ctype_id__in=ep_types,
-    ).values_list("created_time", "visibility"):
-        out.append(
-            {"date": ts.astimezone(tz).date().isoformat(), "kind": "comment", "vis": v}
-        )
-    for ts, v in Review.objects.filter(
-        owner=owner,
-        created_time__gte=start,
-        created_time__lt=end,
-        visibility__lte=level,
-    ).values_list("created_time", "visibility"):
-        out.append(
-            {"date": ts.astimezone(tz).date().isoformat(), "kind": "review", "vis": v}
-        )
+    for model, kind, extra in (
+        (Note, "note", {}),
+        (Comment, "comment", {"item__polymorphic_ctype_id__in": ep_types}),
+        (Review, "review", {}),
+    ):
+        for ts in model.objects.filter(
+            owner=owner,
+            created_time__gte=start,
+            created_time__lt=end,
+            visibility__lte=level,
+            **extra,
+        ).values_list("created_time", flat=True):
+            out.append({"date": ts.astimezone(tz).date().isoformat(), "kind": kind})
     out.sort(key=lambda a: a["date"])
     return out
 
@@ -297,14 +276,7 @@ def _history(
         )
         .values_list("item_id", "created_time", "item__polymorphic_ctype_id")
     )
-    grades = dict(
-        Rating.objects.filter(
-            owner=owner,
-            visibility__lte=level,
-            grade__isnull=False,
-            item_id__in=[r[0] for r in rows],
-        ).values_list("item_id", "grade")
-    )
+    grades = _grades(owner, [r[0] for r in rows], level)
     per_day: dict[datetime.date, int] = defaultdict(int)
     local = []
     for item_id, ts, ct in rows:
@@ -349,7 +321,6 @@ def _history(
         return None, dict(last_year)
     return (
         {
-            "handle": owner.full_handle,
             "joined": (joined or first).isoformat(),
             "first": first.isoformat(),
             "years": {str(k): v for k, v in sorted(years.items())},
@@ -369,11 +340,7 @@ def _hidden_people(viewer: Any) -> set[int]:
     if not viewer or not viewer.is_authenticated:
         return restricted
     me = viewer.identity
-    return (
-        (restricted - set(me.following) - {me.pk})
-        | set(Takahe.get_rejecting_ids(me.pk))
-        | set(Takahe.get_muting_ids(me.pk))
-    )
+    return (restricted - set(me.following) - {me.pk}) | set(me.ignoring)
 
 
 def _friends(
@@ -436,27 +403,45 @@ def _friends(
     ]
 
 
+def item_ref(item: Item) -> dict[str, Any]:
+    """A title in short form, for collection cards and the Make a card picker."""
+    return {
+        "u": item.url,
+        "t": item.display_title,
+        "cov": item.display_cover_image_url,
+        "c": str(item.category),
+    }
+
+
 def _collections(
-    owner: APIdentity, level: int, viewer: Any = None, refs: list[str] | None = None
+    owner: APIdentity,
+    level: int,
+    viewer: Any,
+    hidden: AbstractSet[int],
+    refs: list[str] | None,
+    picker: bool,
 ) -> list[dict[str, Any]]:
-    """The owner's latest collections at this level and the latest they liked, for the picker, plus any
-    collection a saved card uses, however old. Another member's collection is that member's own content,
-    so it must pass the journal's rule for this visitor, as its own page would."""
-    own = list(
-        Collection.objects.filter(owner=owner, visibility__lte=level)
-        .order_by("-edited_time")
-        .values_list("pk", flat=True)[:COLLECTIONS_MAX]
-    )
-    others = (
-        Collection.objects.filter(visibility=0)
-        .exclude(owner=owner)
-        .filter(q_piece_visible_to_user(viewer))  # pyrefly: ignore[bad-argument-type]
-    )
-    liked = list(
-        Like.objects.filter(owner=owner, target__in=others)
-        .order_by("-created_time")
-        .values_list("target_id", flat=True)[:COLLECTIONS_MAX]
-    )
+    """Collections a saved card uses, however old, and for the owner's picker their latest own collections at
+    this level and the latest they liked. Another member's collection is that member's own content, so it
+    must pass the journal's rule for this visitor, as its own page would: public, its author not hidden
+    from the visitor (``hidden``), and for a signed-out visitor an author who allows them."""
+    others = Collection.objects.filter(visibility=0).exclude(owner=owner)
+    if hidden:
+        others = others.exclude(owner_id__in=hidden)
+    if not viewer or not viewer.is_authenticated:
+        others = others.filter(owner__anonymous_viewable=True)
+    own, liked = [], []
+    if picker:
+        own = list(
+            Collection.objects.filter(owner=owner, visibility__lte=level)
+            .order_by("-edited_time")
+            .values_list("pk", flat=True)[:COLLECTIONS_MAX]
+        )
+        liked = list(
+            Like.objects.filter(owner=owner, target__in=others)
+            .order_by("-created_time")
+            .values_list("target_id", flat=True)[:COLLECTIONS_MAX]
+        )
     uids = []
     for r in refs or []:
         try:
@@ -495,24 +480,16 @@ def _collections(
             )
         )
         .filter(rn__lte=COLLECTION_ITEMS_MAX)
-        .values_list("parent_id", "item_id", "metadata")
+        .values_list("parent_id", "item_id")
     )
     rows = list(members)
     items = _items_by_id(list({r[1] for r in rows}))
     by_col: dict[int, list[dict[str, Any]]] = defaultdict(list)
-    for parent_id, item_id, meta in rows:
+    for parent_id, item_id in rows:
         it = items.get(item_id)
         if it is None or it.is_deleted:
             continue
-        by_col[parent_id].append(
-            {
-                "u": it.url,
-                "t": it.display_title,
-                "cov": it.display_cover_image_url,
-                "c": str(it.category),
-                "n": (meta or {}).get("note") or None,
-            }
-        )
+        by_col[parent_id].append(item_ref(it))
     out = []
     for pk in ids:
         c = cols.get(pk)
@@ -545,10 +522,10 @@ def _reviews(
             created_time__gte=start,
             created_time__lt=end,
             visibility__lte=level,
-        ).values_list("item_id", "title", "body", "created_time", "visibility")
+        ).values_list("item_id", "title", "body", "created_time")
     )
     items = _items_by_id(list({r[0] for r in rows}))
-    for item_id, title, body, ts, vis in rows:
+    for item_id, title, body, ts in rows:
         it = items.get(item_id)
         out.append(
             {
@@ -558,40 +535,42 @@ def _reviews(
                 "words": len((body or "").split()),
                 "chars": len(body or ""),
                 "excerpt": plain_excerpt(body),
-                "vis": vis,
             }
         )
     return out
 
 
+def _card_item(it: Item) -> dict[str, Any]:
+    """A title as the cards draw it: name, link, cover and shelf."""
+    return {
+        "title": it.display_title,
+        "url": it.absolute_url,
+        "cover": it.display_cover_image_url,
+        "category": str(it.category),
+    }
+
+
 def _waiting(
     owner: APIdentity, level: int, end: datetime.datetime, tz: ZoneInfo
-) -> tuple[dict[str, Any] | None, int]:
-    """The title that has waited longest on the wishlist, and how many wait there."""
-    qs = _members().filter(
-        owner=owner,
-        parent__shelf_type=ShelfType.WISHLIST,
-        visibility__lte=level,
-        created_time__lt=end,
+) -> dict[str, Any] | None:
+    """The title that has waited longest on the wishlist."""
+    first = (
+        _members()
+        .filter(
+            owner=owner,
+            parent__shelf_type=ShelfType.WISHLIST,
+            visibility__lte=level,
+            created_time__lt=end,
+        )
+        .order_by("created_time")
+        .values_list("item_id", "created_time")
+        .first()
     )
-    pending = qs.count()
-    first = qs.order_by("created_time").values_list("item_id", "created_time").first()
-    if not first:
-        return None, pending
-    it = Item.objects.filter(pk=first[0]).first()
-    if it is None:
-        return None, pending
+    it = Item.objects.filter(pk=first[0]).first() if first else None
+    if it is None or first is None:
+        return None
     upto = min(end, datetime.datetime.now(tz=tz))
-    return (
-        {
-            "title": it.display_title,
-            "url": it.absolute_url,
-            "cover": it.display_cover_image_url,
-            "days": (upto - first[1]).days,
-            "category": str(it.category),
-        },
-        pending,
-    )
+    return {**_card_item(it), "days": (upto - first[1]).days}
 
 
 def _instance_key(year: int) -> str:
@@ -620,27 +599,26 @@ def compute_instance_stats(year: int) -> dict[str, Any]:
     if top:
         it = Item.objects.filter(pk=top["item_id"]).first()
         if it:
-            top_item = {
-                "title": it.display_title,
-                "url": it.absolute_url,
-                "cover": it.display_cover_image_url,
-                "category": str(it.category),
-                "count": top["n"],
-            }
+            top_item = {**_card_item(it), "count": top["n"]}
     stats = {"top": top_item, "counts": counts}
     cache.set(_instance_key(year), stats, INSTANCE_CACHE_SECONDS)
     return stats
 
 
+def _cached_or_queue(key: str, compute: Any, year: int) -> Any:
+    """A job's cached result; on a miss, queue the job once and return None so the page stays fast."""
+    value = cache.get(key)
+    if value is None and cache.add(key + ":lock", 1, 600):
+        try:
+            django_rq.get_queue("cron").enqueue(compute, year)
+        except Exception as e:
+            logger.warning(f"unable to queue {key}: {e}")
+    return value
+
+
 def instance_stats(year: int) -> dict[str, Any] | None:
     """Cached instance stats; on a miss, queue the job and return None so the page stays fast."""
-    stats = cache.get(_instance_key(year))
-    if stats is None and cache.add(_instance_key(year) + ":lock", 1, 600):
-        try:
-            django_rq.get_queue("cron").enqueue(compute_instance_stats, year)
-        except Exception as e:
-            logger.warning(f"unable to queue wrapped instance stats: {e}")
-    return stats
+    return _cached_or_queue(_instance_key(year), compute_instance_stats, year)
 
 
 def _percentile(counts: list[int], mine: int) -> int | None:
@@ -751,13 +729,7 @@ def compute_kindred(year: int) -> dict[int, list[list[float]]]:
 
 def kindred_matches(year: int) -> dict[int, list[list[float]]] | None:
     """Cached kindred matches; on a miss, queue the job and return None so the page stays fast."""
-    matches = cache.get(_kindred_key(year))
-    if matches is None and cache.add(_kindred_key(year) + ":lock", 1, 600):
-        try:
-            django_rq.get_queue("cron").enqueue(compute_kindred, year)
-        except Exception as e:
-            logger.warning(f"unable to queue wrapped kindred matches: {e}")
-    return matches
+    return _cached_or_queue(_kindred_key(year), compute_kindred, year)
 
 
 def _kindred(
@@ -774,12 +746,7 @@ def _kindred(
     if not candidates or not my_items:
         return None
     # the whole following list, not the capped one the friend cards use
-    skip = (
-        set(Takahe.get_following_ids(owner.pk))
-        | set(Takahe.get_rejecting_ids(owner.pk))
-        | set(Takahe.get_muting_ids(owner.pk))
-        | hidden
-    )
+    skip = set(owner.following) | set(owner.ignoring) | set(hidden)
     candidates = [b for b in candidates if b not in skip]
     if not candidates:
         return None
@@ -817,15 +784,9 @@ def _kindred(
             shared.setdefault(item_id, ts)
         if len(shared) < KINDRED_MIN_SHARED:
             continue
-        ident = (
-            TakaheIdentity.objects.filter(pk=b)
-            .values_list("name", "username", "domain_id")
-            .first()
-        )
-        name, username, domain = ident if ident else ("", person.username, None)
         return {
-            "handle": f"{username}@{domain}" if domain else person.handle,
-            "name": name or username,
+            "handle": person.full_handle,
+            "name": person.display_name,
             "url": person.url,
             "n": len(shared),
             "items": [
@@ -845,6 +806,7 @@ def build_payload(
     include_kindred: bool = False,
     viewer: Any = None,
     collection_refs: list[str] | None = None,
+    picker: bool = True,
 ) -> dict[str, Any]:
     start, end = year_range(year, tz)
     ctypes = _ctype_categories()
@@ -869,11 +831,7 @@ def build_payload(
         and not items[i].is_deleted
         and str(items[i].category) in CATEGORIES
     ]
-    rating = dict(
-        Rating.objects.filter(
-            owner=owner, item_id__in=ids, visibility__lte=level, grade__isnull=False
-        ).values_list("item_id", "grade")
-    )
+    rating = _grades(owner, ids, level)
     # plain text with spoilers taken out, as the cards draw comments verbatim
     comment = {
         item_id: plain_excerpt(text, 2000)
@@ -881,14 +839,14 @@ def build_payload(
             owner=owner, item_id__in=ids, visibility__lte=level
         ).values_list("item_id", "text")
     }
-    tags: dict[int, list[list[Any]]] = defaultdict(list)
-    for item_id, title, vis, tvis in TagMember.objects.filter(
+    tags: dict[int, list[str]] = defaultdict(list)
+    for item_id, title in TagMember.objects.filter(
         owner=owner,
         item_id__in=ids,
         visibility__lte=level,
         parent__visibility__lte=level,
-    ).values_list("item_id", "parent__title", "visibility", "parent__visibility"):
-        tags[item_id].append([title, max(vis, tvis)])
+    ).values_list("item_id", "parent__title"):
+        tags[item_id].append(title)
     wished = dict(
         ShelfLogEntry.objects.filter(
             owner=owner, item_id__in=ids, shelf_type=ShelfType.WISHLIST
@@ -912,7 +870,6 @@ def build_payload(
         paths[i] = it.url
         out_items.append(
             {
-                "id": n + 1,
                 "uuid": it.uuid,
                 "title": it.display_title,
                 "category": str(it.category),
@@ -920,16 +877,12 @@ def build_payload(
                 "url": it.absolute_url,
                 "rating": rating.get(i),
                 "date": ts.date().isoformat(),
-                "time": ts.strftime("%H:%M"),
                 "comment": comment.get(i),
                 "site_rating": info.get(i, {}).get("average"),
                 "dist": info.get(i, {}).get("distribution"),
                 "raters": info.get(i, {}).get("count") or 0,
                 "marks": counts.get(i, 0),
                 "year": _release_year(it),
-                "pages": _int_attr(it, "pages"),
-                "length": _int_attr(it, "length"),
-                "genre": [str(g) for g in (getattr(it, "genre", None) or [])][:5],
                 "credits": credits.get(i, []),
                 "wishlisted": w.astimezone(tz).date().isoformat()
                 if w and w < when[i]
@@ -939,10 +892,10 @@ def build_payload(
             }
         )
     history, last_year = _history(owner, level, year, tz, ctypes)
-    waiting, pending = _waiting(owner, level, end, tz)
+    waiting = _waiting(owner, level, end, tz)
     stats = instance_stats(year)
     # other members appear on the cards only as this visitor may see them
-    hidden = _hidden_people(viewer) if include_friends or include_kindred else set()
+    hidden = _hidden_people(viewer)
     payload: dict[str, Any] = {
         "year": year,
         "member": _member(owner),
@@ -951,13 +904,12 @@ def build_payload(
         "history": history,
         "last_year": last_year or None,
         "waiting": waiting,
-        "wishlist_pending": pending,
-        "collections": _collections(owner, level, viewer, collection_refs),
+        "collections": _collections(
+            owner, level, viewer, hidden, collection_refs, picker
+        ),
         "reviews": _reviews(owner, level, start, end, tz),
-        "friends": _friends(owner, year, tz, {i: paths[i] for i in ids}, hidden)
-        if include_friends
-        else [],
-        "kindred": _kindred(owner, year, tz, {i: paths[i] for i in ids}, hidden)
+        "friends": _friends(owner, year, tz, paths, hidden) if include_friends else [],
+        "kindred": _kindred(owner, year, tz, paths, hidden)
         if include_kindred
         else None,
         "instance_top": stats["top"] if stats else None,
@@ -992,14 +944,7 @@ def words_text(kind: str, piece: Any) -> dict[str, Any]:
 def _words_item(
     it: Item, rating: int | None, credits: dict[int, list[list[str]]]
 ) -> dict[str, Any]:
-    return {
-        "url": it.absolute_url,
-        "title": it.display_title,
-        "cover": it.display_cover_image_url,
-        "category": str(it.category),
-        "rating": rating,
-        "credits": credits.get(it.pk, []),
-    }
+    return {**_card_item(it), "rating": rating, "credits": credits.get(it.pk, [])}
 
 
 def _is_uuid(v: Any) -> bool:
@@ -1036,14 +981,7 @@ def resolve_words(
             found += [(card_id, kind, piece) for card_id in cards[str(piece.uid)]]
     items = _items_by_id(list({p.item_id for _, _, p in found}))
     credits = _credits(list(items))
-    grades = dict(
-        Rating.objects.filter(
-            owner=owner,
-            item_id__in=list(items),
-            visibility__lte=level,
-            grade__isnull=False,
-        ).values_list("item_id", "grade")
-    )
+    grades = _grades(owner, list(items), level)
     out = {}
     for card_id, kind, piece in found:
         it = items.get(piece.item_id)
@@ -1073,11 +1011,7 @@ def words_menu(
         ]
     rows = sorted(rows, key=lambda r: r[1].created_time, reverse=True)[:limit]
     items = _items_by_id(list({p.item_id for _, p in rows}))
-    grades = dict(
-        Rating.objects.filter(
-            owner=owner, item_id__in=list(items), grade__isnull=False
-        ).values_list("item_id", "grade")
-    )
+    grades = _grades(owner, list(items))
     credits = _credits(list(items))
     works: dict[int, dict[str, Any]] = {}
     for kind, p in rows:
@@ -1120,12 +1054,7 @@ def friends_allowed(deck: WrappedDeck | None, level: int, is_owner: bool) -> boo
     """A visitor gets followed members' data only when a social card can be shown to their audience."""
     if is_owner:
         return True
-    if not deck:
-        return False
-    shown = deck.shown_for(level)
-    if shown is not None:
-        return bool(SOCIAL_CARDS.intersection(shown))
-    return any(deck.card_hidden(level, c) is not True for c in SOCIAL_CARDS)
+    return bool(deck) and any(deck.may_show(level, c, True) for c in SOCIAL_CARDS)
 
 
 def kindred_allowed(deck: WrappedDeck | None, level: int, is_owner: bool) -> bool:
@@ -1133,9 +1062,4 @@ def kindred_allowed(deck: WrappedDeck | None, level: int, is_owner: bool) -> boo
     another audience gets its data only when the owner turned the card on for that audience."""
     if is_owner:
         return True
-    if not deck:
-        return False
-    shown = deck.shown_for(level)
-    if shown is not None:
-        return "kindred" in shown
-    return deck.card_hidden(level, "kindred") is False
+    return bool(deck) and deck.may_show(level, "kindred", False)

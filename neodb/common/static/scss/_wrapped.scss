@@ -10,7 +10,7 @@
   --stage-light: #f1f3f4;
   --stage-dark: #15191c;
   position: relative; display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh;
-  background-color: var(--stage-light); transition: background-color 0.6s ease;
+  background-color: var(--stage-light);
   [hidden] { display: none !important; }
 
   .wr-bar { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1rem; }
@@ -86,10 +86,10 @@
   // the cover piece on the intro and the outro slides 60 units into place as it fades in
   .deck .card.in svg .slot { animation: wr-slot 1.1s cubic-bezier(.2, .8, .2, 1) both; animation-delay: var(--d, 0ms); }
   @media (prefers-reduced-motion: reduce) {
+    transition: none;
     .deck .card svg :is(.rise, .pop, .growx, .growy, .fade, .fanin, .draw, .slot) { opacity: 1 !important; animation: none !important; transform: none !important; }
     .deck .card, .deck .card:not(.cur) { transition: none; transform: none; }
   }
-  @media (prefers-reduced-motion: reduce) { transition: none; }
 
   @media (max-width: 600px) {
     .wr-bar { gap: 0.5rem; padding: 0.6rem 0.75rem; }
@@ -207,20 +207,17 @@
   > article > header strong { font-size: var(--dc-fs-lg); color: var(--dc-strong); }
   [hidden] { display: none !important; }
   .wr-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; margin: 0 0 0.6rem; }
-  .wr-toolbar .wr-sizes { margin: 0; }
   .wr-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
   .wr-actions .dc-btn { padding: 0.5rem 0.9rem; }
   // the page's visibility first, apart from the cards: its label, the switch and what the chosen level means
-  .wr-vis { margin: 0 0 1.2rem; padding: 0 0 1rem; border-bottom: 1px solid var(--dc-border); }
+  .wr-vis, .wr-music { margin: 0 0 1.2rem; padding: 0 0 1rem; border-bottom: 1px solid var(--dc-border); }
   .wr-vis .wr-sizes { margin: 0; }
   // the background music: a menu, a button to try the chosen track, and its credit
-  .wr-music { margin: 0 0 1.2rem; padding: 0 0 1rem; border-bottom: 1px solid var(--dc-border); }
   .wr-musicrow { display: flex; align-items: center; gap: 0.5rem; }
   .wr-musicrow select { flex: 1; max-width: 34rem; margin: 0; }
   .wr-musicrow .dc-btn { flex: 0 0 auto; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; margin: 0; padding: 0; }
-  #wr-music-credit { margin: 0.45rem 0 0; }
+  #wr-music-credit, #wr-visnote { margin: 0.45rem 0 0; }
   #wr-music-credit a { color: inherit; }
-  #wr-visnote { margin: 0.45rem 0 0; }
   #wr-decksub { color: var(--dc-strong); font-size: var(--dc-fs-md); font-weight: 600; }
   #wr-hubsub { margin: 0 0 1rem; }
   // the eye on each tile; the tile stays a light card in both themes, so the button keeps light colours
@@ -243,10 +240,9 @@
   article header strong { font-size: var(--dc-fs-lg); color: var(--dc-strong); padding-left: 0.5rem; }
   .wr-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
   .mk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: calc(var(--dc-gap) * 1.5); }
-  .mk label { font-size: var(--dc-fs-sm); color: var(--dc-muted); font-weight: 600; margin-bottom: 0.3rem; }
+  .mk label { display: block; margin: 0.4rem 0 0.3rem; font-size: var(--dc-fs-sm); color: var(--dc-muted); font-weight: 600; }
   .mk input[type=text], .mk input[type=search], .mk select { margin-bottom: 0.8rem; }
   .mk input[type=search] { border-radius: var(--pico-border-radius); }
-  .mk label { display: block; margin-top: 0.4rem; }
   .mk .seg + .dc-fine, .mk #wr-mk-nhint { margin: 0 0 0.8rem; }
   .seg { display: flex; gap: 0.3rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
   .seg button { margin: 0; width: 2.4rem; height: 2.2rem; padding: 0; border-radius: var(--dc-radius-sm); background: var(--dc-surface); color: var(--dc-strong); border: 1px solid var(--dc-border); font-size: var(--dc-fs-sm); font-weight: 700; }
@@ -287,14 +283,12 @@
   .wr-linkrow { display: flex; gap: 0.5rem; align-items: center; }
   .wr-linkrow input { margin: 0; flex: 1; }
   .wr-linkrow .dc-btn { flex: 0 0 auto; }
-  #wr-pub-summary { margin: 0 0 0.8rem; }
   .pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: 0.5rem; margin-bottom: 0.8rem; }
   .pick-grid label { position: relative; margin: 0; cursor: pointer; }
   .pick-grid label svg { width: 100%; height: auto; border-radius: var(--dc-radius-sm); border: 2px solid var(--dc-border); display: block; }
   .pick-grid input { position: absolute; top: 0.3rem; left: 0.3rem; margin: 0; }
   .pick-grid input:checked + svg { border-color: var(--pico-primary); }
   .pick-grid label.full { opacity: 0.4; }
-  #wr-pub-page .wr-sizes { margin-bottom: 0.6rem; }
   .gif-out { margin-top: 0.8rem; }
   // the QR code tab: the image on the left, the text and the buttons in a column on the right
   .qr-tab { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.2rem; align-items: start; }
@@ -332,7 +326,7 @@
 @keyframes wr-growx { from { opacity: 1; transform: scaleX(0); } to { opacity: 1; transform: none; } }
 @keyframes wr-growy { from { opacity: 1; transform: scaleY(0); } to { opacity: 1; transform: none; } }
 @keyframes wr-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes wr-fanin { from { opacity: 0; transform: translate(var(--fx, 0px), 60px) rotate(0deg); } to { opacity: 1; transform: none; } }
+@keyframes wr-fanin { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: none; } }
 @keyframes wr-slot { from { opacity: 0; transform: translate(var(--sx, 60px), var(--sy, -60px)); } to { opacity: 1; transform: none; } }
 @keyframes wr-seg { from { transform: scaleX(0); } to { transform: none; } }
 @keyframes wr-shine { 0% { opacity: 1; transform: translateX(-100%); } 100% { opacity: 1; transform: translateX(100%); } }

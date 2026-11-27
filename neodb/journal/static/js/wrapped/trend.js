@@ -29,7 +29,7 @@
     for (let yr = ws; yr <= Y; yr++) { const y = at(yr) || {}; win.push({ yr, ...cut(y, upTo), full: cut(y, upTo, true), first: yr === firstYear }); }
     const now = win[win.length - 1], comp = win.filter(w => w.yr < Y && !w.first && w.val > 0);
     const all = Object.keys(years).map(Number).filter(yr => yr < Y && yr !== firstYear).map(yr => ({ yr, ...cut(years[yr], upTo) }));
-    return { firstYear, joinedYear, ws, win, now, comp, all, Y, upTo, inProgress: upTo < 11, yearsOfMarks: Y - firstYear + 1, yearsOnSite: Y - joinedYear + 1, handle: h.handle };
+    return { firstYear, joinedYear, ws, win, now, comp, all, Y, upTo, inProgress: upTo < 11, yearsOfMarks: Y - firstYear + 1, yearsOnSite: Y - joinedYear + 1 };
   }
   // the line for the intro card; imports date marks back to 1978 for some members, so the count is years on the site
   function introLine(t) {
@@ -132,5 +132,5 @@
     } };
     return { yoy, bests, taste };
   }
-  window.TREND = { model, cards, introLine, eligible, headline, records, shift, BULK_DAY };
+  window.TREND = { model, cards, introLine, eligible, BULK_DAY };
 })();

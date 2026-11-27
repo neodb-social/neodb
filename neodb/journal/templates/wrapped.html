@@ -83,7 +83,7 @@
       </button>
     </div>
     <main class="wrapped-page" id="wr-year">
-      <section class="wr-sum">
+      <section>
         <p class="dc-eyebrow">{% blocktranslate %}{{ year }} annual summary{% endblocktranslate %}</p>
         <h2 class="wr-h">{% trans "The whole year" %}</h2>
         <div class="wr-stats" id="wr-stats"></div>
@@ -99,7 +99,7 @@
       </section>
     </main>
     {% if is_owner %}
-      <dialog id="wr-editdlg" class="wr-sheet">
+      <dialog id="wr-editdlg">
         <article>
           <header>
             <strong>{% trans "Edit the deck" %}</strong>
@@ -310,7 +310,7 @@
           <div id="wr-pub-qr" hidden>
             <div class="qr-tab">
               <div class="qr-prev" id="wr-qr-prev"></div>
-              <div class="qr-side">
+              <div>
                 <p class="wr-warn" id="wr-qr-warn" hidden></p>
                 <div class="qr-btns">
                   <button class="dc-btn outline" type="button" id="wr-qr-share" hidden>

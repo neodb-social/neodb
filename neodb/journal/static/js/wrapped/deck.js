@@ -30,7 +30,7 @@
     }
     return;
   }
-  const { src, D, _, _n, CATS, CAT_LABEL, CAT_NOUN, CAT_ICON, CAT_COLOR, MONTHS, MONTHS_LONG, MONTHS_NARROW, ROLE_LABEL, stats: S, esc, cover, stars, fmtDate, who, trunc, SVG } = WR;
+  const { D, _, _n, CATS, CAT_LABEL, CAT_NOUN, CAT_ICON, CAT_COLOR, MONTHS, MONTHS_LONG, MONTHS_NARROW, ROLE_LABEL, stats: S, esc, cover, fmtDate, who, trunc, SVG } = WR;
   // the owner gets the editing controls and saves to the server; a visitor sees the cards the owner left shown
   const OWNER = !!D.owner_view, URLS = D.urls || {}, CDN = document.getElementById("wr-stage").dataset.cdn || "https://cdn.jsdelivr.net";
   const CSRF = (document.querySelector("[name=csrfmiddlewaretoken]") || {}).value || "";
@@ -45,17 +45,17 @@
   const CW = 1080, CH = 1350, DY = CH - CW;
   const LOGO = { green: "#8EAD78", blue: "#4A9FD0", coral: "#E9795D" };
   let TINT = { green: "#eef3ea", blue: "#e8f2f8", coral: "#fbece8", paper: "#fbfcfc", own: "#f1f3f4", own2: "#eef2f5", piece: "#b1c5d1", piece2: "#a3bbc9" };
-  const first = D.member.name.split(" ")[0];
   const path = u => String(u || "").replace(base, "");
-  // sentences joined with a space, except after full-width punctuation as in Chinese
+  // a day with more than 30 completions is an import, not a day of watching or reading: the time cards leave it out
+  const perDay = {}; S.items.forEach(i => { perDay[i.date] = (perDay[i.date] || 0) + 1; });
+  const BULK = new Set(Object.keys(perDay).filter(d => perDay[d] > TREND.BULK_DAY));
   // the deck year as one history row, built from the deck's own items so the trend cards agree with the other cards
   function yearFromItems() {
-    const z = () => Array(12).fill(0), y = { m: z(), b: z(), c: {}, d: z(), r: z(), f: z(), g: z() }, perDay = {}, days = new Set();
-    S.items.forEach(it => { perDay[it.date] = (perDay[it.date] || 0) + 1; });
+    const z = () => Array(12).fill(0), y = { m: z(), b: z(), c: {}, d: z(), r: z(), f: z(), g: z() }, days = new Set();
     S.items.forEach(it => {
       const mo = +it.date.slice(5, 7) - 1;
       // a bulk-import day counts toward nothing the cards compare, its ratings included
-      if (perDay[it.date] > TREND.BULK_DAY) { y.b[mo]++; return; }
+      if (BULK.has(it.date)) { y.b[mo]++; return; }
       if (it.rating) { y.r[mo]++; y.g[mo] += it.rating; if (it.rating === 10) y.f[mo]++; }
       y.m[mo]++; (y.c[it.category] = y.c[it.category] || z())[mo]++;
       if (!days.has(it.date)) { days.add(it.date); y.d[mo]++; }
@@ -63,9 +63,6 @@
     return y;
   }
   const TR = TREND.model(D.history, Y, yearFromItems(), S.lastMonth), trIntro = TREND.introLine(TR);
-  // a day with more than 30 completions is an import, not a day of watching or reading: the time cards leave it out
-  const perDay = {}; S.items.forEach(i => { perDay[i.date] = (perDay[i.date] || 0) + 1; });
-  const BULK = new Set(Object.keys(perDay).filter(d => perDay[d] > TREND.BULK_DAY));
   const bulkN = S.items.filter(i => BULK.has(i.date)).length, bulkDay = [...BULK].sort((a, b) => perDay[b] - perDay[a])[0];
   const bulkNote = !bulkN ? "" : BULK.size > 1 ? _n("{n} titles marked on {date} and {days} other bulk day are left out", "{n} titles marked on {date} and {days} other bulk days are left out", BULK.size - 1, { n: bulkN, date: fmtDate(bulkDay), days: BULK.size - 1 }) : _("{n} titles marked on {date} are left out", { n: bulkN, date: fmtDate(bulkDay) });
   const TM = (() => {
@@ -92,7 +89,6 @@
   }
   const withMarks = S.items.filter(i => i.marks != null);
   social.obscure = withMarks.length ? withMarks.filter(i => i.marks < 10).length / withMarks.length : null;
-  social.obscureN = withMarks.filter(i => i.marks < 10).length;
   const dItems = S.rated.filter(i => i.dist && i.dist.some(x => x > 0) && (i.raters || 0) >= 20);
   social.crowd = dItems.filter(i => i.rating >= 9).map(i => ({ it: i, share: i.dist[4] })).sort((a, b) => b.share - a.share)[0] || null;
   social.grain = dItems.filter(i => i.rating >= 8).map(i => { const star = Math.round(i.rating / 2); const below = i.dist.slice(0, star - 1).reduce((s, x) => s + x, 0); return { it: i, below, star }; }).sort((a, b) => b.below - a.below)[0] || null;
@@ -101,27 +97,23 @@
 
   // ---------- activity: what counts toward the streak ----------
   // progress, complete and dropped shelf changes, notes, episode comments and reviews count; wishlist adds and edits never do.
-  // The page counts only entries at least as visible as the page itself, so a public page never reveals private days.
+  // The server sends only the year's entries at least as visible as the page itself, so a public page never reveals private days.
   // Completions on a bulk day are an import, so they do not make that day active.
-  const STREAK_KINDS = new Set(["progress", "complete", "dropped", "note", "comment", "review"]);
-  const ACT = (D.activity || S.items.map(i => ({ date: i.date, kind: "complete", vis: 0 }))).filter(a => STREAK_KINDS.has(a.kind) && String(a.date).startsWith(String(Y)) && !(a.kind === "complete" && BULK.has(a.date)));
+  const ACT = D.activity.filter(a => !(a.kind === "complete" && BULK.has(a.date)));
   const levelOf = v => v === "followers" ? 1 : v === "me" ? 2 : 0;
   // the audience whose cards this page shows: a visitor's own, or the one the owner views and edits (0 everyone, 1 followers, 2 the owner)
   const LEVEL = [0, 1, 2].includes(D.level) ? D.level : 2, AUD = ["public", "followers", "me"][LEVEL];
   const pad2 = x => String(x).padStart(2, "0");
   const isoDay = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   const addDays = (d, k) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + k, 12);
-  const actCache = {};
-  function activityAt(level) {
-    if (actCache[level]) return actCache[level];
+  // days with something logged, and the longest run of them
+  const ACTIVITY = (() => {
     const byDay = new Map();
-    ACT.forEach(a => { if ((a.vis || 0) > level) return; const e = byDay.get(a.date) || { finish: 0, other: 0 }; if (a.kind === "complete") e.finish++; else e.other++; byDay.set(a.date, e); });
+    ACT.forEach(a => { const e = byDay.get(a.date) || { finish: 0, other: 0 }; if (a.kind === "complete") e.finish++; else e.other++; byDay.set(a.date, e); });
     const days = [...byDay.keys()].sort(); let run = 0, best = 0, bestEnd = null, prev = null;
     days.forEach(ds => { const d = new Date(ds + "T12:00:00"); run = prev && isoDay(addDays(prev, 1)) === ds ? run + 1 : 1; if (run > best) { best = run; bestEnd = d; } prev = d; });
-    const start = bestEnd ? addDays(bestEnd, 1 - best) : null; let fin = 0, oth = 0;
-    for (let k = 0; k < best; k++) { const e = byDay.get(isoDay(addDays(start, k))); if (e.finish) fin++; else oth++; }
-    return (actCache[level] = { byDay, days: days.length, streak: best, start, end: bestEnd, finishDays: fin, otherDays: oth, hasOther: ACT.some(a => a.kind !== "complete" && (a.vis || 0) <= level) });
-  }
+    return { byDay, days: days.length, streak: best, start: bestEnd ? addDays(bestEnd, 1 - best) : null, end: bestEnd, hasOther: ACT.some(a => a.kind !== "complete") };
+  })();
 
   // ---------- svg helpers ----------
   const T = (x, y, t, size, o) => { o = o || {}; return `<text x="${x}" y="${y}" font-size="${size}" fill="${o.fill || INK}"${o.weight ? ` font-weight="${o.weight}"` : ""}${o.anchor ? ` text-anchor="${o.anchor}"` : ""}${o.ls ? ` letter-spacing="${o.ls}"` : ""}${o.cls ? ` class="${o.cls}"` : ""}${o.d != null ? ` style="--d:${o.d}ms"` : ""}${o.count != null ? ` data-count="${o.count}" data-pre="${esc(o.pre || "")}" data-suf="${esc(o.suf || "")}"` : ""}>${esc(t)}</text>`; };
@@ -166,13 +158,11 @@
   }
   // the muted line or two under a headline; returns the svg and the last baseline
   function subAt(t, y, d) { const lines = wrapW(t, 36, 400, 920, 2); return { svg: lines.map((l, i) => T(80, y + i * 44, l, 36, { fill: MUTED, cls: "rise", d: (d || 250) + i * 60 })).join(""), y: y + (lines.length - 1) * 44 }; }
-  const sub = (t, y, d) => subAt(t, y, d).svg;
   // headline plus its line: the usual top of a card
   function cardTop(title, line, o) {
     const h = head(title, o), s = line ? subAt(line, h.y + (h.size === 144 ? 66 : 58)) : null;
     return { svg: eyebrow(o && o.eyebrow || "") + h.svg + (s ? s.svg : ""), y: s ? s.y : h.y };
   }
-  const big = (t, y, size, d) => T(80, y || 330, t, size || 144, { weight: 800, ls: -((size || 144) * 0.03).toFixed(1), cls: "rise", d: d || 100 });
   // a one-line legend of swatches; an item is { fill } or { stroke } and a label
   function legendRows(items) {
     let x = 80, rows = 1;
@@ -202,7 +192,7 @@
   // every cover a card draws, by its item's id, so an export can load it from this site's origin (a cross-origin image would
   // block the PNG); covers from any source count: finished titles, collections, hand-picked titles, the wishlist, words cards
   const coverUuid = new Map(), uuidOf = u => (String(u || "").split("?")[0].replace(/\/$/, "").split("/").pop() || "");
-  function coverSvg(it, x, y, w, h, cls, d, fit) { const id = "cp" + (cid++); if (it.cover && it.url && !coverUuid.has(it.cover)) coverUuid.set(it.cover, uuidOf(it.url)); const sq = (it.category === "music" || it.category === "podcast") && fit !== "fill"; if (sq && h > w) { if (fit === "bottom") y += h - w; h = w; } return `<g class="${cls || "pop"}" style="--d:${d || 0}ms"><clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}"/></clipPath><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}" fill="${CAT_COLOR[it.category] || "#ccc"}"/><image href="${esc(src(it.cover))}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></g>`; }
+  function coverSvg(it, x, y, w, h, cls, d, fit) { const id = "cp" + (cid++); if (it.cover && it.url && !coverUuid.has(it.cover)) coverUuid.set(it.cover, uuidOf(it.url)); const sq = (it.category === "music" || it.category === "podcast") && fit !== "fill"; if (sq && h > w) { if (fit === "bottom") y += h - w; h = w; } return `<g class="${cls || "pop"}" style="--d:${d || 0}ms"><clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}"/></clipPath><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}" fill="${CAT_COLOR[it.category] || "#ccc"}"/><image href="${esc(it.cover)}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></g>`; }
   // a rating as stars drawn as shapes, so a half star is exact: full stars in coral, a half star grey with its left half in coral.
   // y is the baseline of the row, as for text of the same size; returns the svg and the width of the row
   const starPts = (cx, cy, R) => Array.from({ length: 10 }, (z, k) => { const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? R * 0.42 : R; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
@@ -226,8 +216,8 @@
   const AVATAR = D.member.avatar_card || "";
   function cornerMark() { if (!AVATAR) return iconMark(80, 968 + DY, 40, 0.45); const id = "av" + (iconN++); return `<g class="av"><clipPath id="${id}"><circle cx="100" cy="${988 + DY}" r="22"/></clipPath><circle cx="100" cy="${988 + DY}" r="22" fill="${LINE}"/><image href="${esc(AVATAR)}" x="78" y="${966 + DY}" width="44" height="44" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/><circle cx="100" cy="${988 + DY}" r="22" fill="none" stroke="#000" stroke-opacity="0.12" stroke-width="1.5"/></g>`; }
   // ink: the handle in the text colour, for a card whose handle sits on a shape (the outro's cover piece)
-  function card(bg, body, foot, ink) { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CW} ${CH}" font-family="${SVG.font}"><rect class="bg" width="${CW}" height="${CH}" fill="${bg}"/>${body}${cornerMark()}<text x="1000" y="${1006 + DY}" text-anchor="end" font-size="28" fill="${ink ? INK : MUTED}">${esc(foot || D.member.handle)}</text></svg>`; }
-  const UI = { DY, T, G, eyebrow, big, sub, wrapText, head, cardTop, legend, legendRows, hatchRect, wrapW, EST, CAT_COLOR, CAT_LABEL, CAT_NOUN, CATS, INK, MUTED, LINE, get TINT() { return TINT; } };
+  function card(bg, body, ink) { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CW} ${CH}" font-family="${SVG.font}"><rect class="bg" width="${CW}" height="${CH}" fill="${bg}"/>${body}${cornerMark()}<text x="1000" y="${1006 + DY}" text-anchor="end" font-size="28" fill="${ink ? INK : MUTED}">${esc(D.member.handle)}</text></svg>`; }
+  const UI = { DY, T, G, cardTop, legend, legendRows, hatchRect, wrapW, CAT_COLOR, CAT_LABEL, CAT_NOUN, CATS, INK, MUTED, LINE, get TINT() { return TINT; } };
   // the intro and the outro carry one large piece of the default cover, traced in its 1200-unit space and cropped by the card;
   // the asterisk is a second sub-path, so with fill-rule evenodd it is a hole that always shows the card background
   const PIECE = { piece: "M1436 -240.5C1294 -240.7 729.1 -240.8 587 -240.5C444.9 -240.2 584.3 -279 583.7 -238.7C583.1 -198.5 579.7 -65.9 583.5 1C587.2 67.9 601.9 133.7 606.1 162.4C610.2 191.1 607.2 169.9 608.3 173.3C609.4 176.7 610.9 180.3 612.6 182.9C614.3 185.5 616.3 187.5 618.5 189C620.6 190.5 622.9 191.5 625.6 192C628.2 192.5 631.3 192.4 634.4 191.8C637.4 191.2 639.6 190.9 643.9 188.4C648.2 185.8 656.1 180.2 660.3 176.7C664.5 173.3 663.2 174.8 669.2 167.7C675.2 160.5 689.5 141.6 696.3 133.7C703.1 125.8 705.3 124.4 709.8 120.4C714.3 116.4 718.3 113.1 723.3 109.8C728.4 106.5 734.9 102.9 740.1 100.6C745.3 98.3 749.1 97 754.4 95.9C759.7 94.8 766.3 94 771.9 94C777.4 94 782.2 94.7 787.6 96C793 97.4 798.4 99.1 804.3 102.2C810.2 105.3 817.5 110.3 822.9 114.6C828.2 118.9 831.6 121.9 836.6 127.8C841.7 133.8 848.4 142.7 853.2 150.3C858 157.8 861.7 165.2 865.3 173.1C868.9 181 872 189.1 874.8 197.7C877.5 206.3 880.1 216.4 881.8 224.6C883.6 232.9 884.5 238 885.4 247C886.2 256 887 269.2 887 278.9C887 288.5 886.1 297 885.2 304.9C884.3 312.7 883.3 318.5 881.5 326C879.6 333.5 876.9 342.8 874.3 349.9C871.7 356.9 869.4 362.1 865.8 368.3C862.2 374.5 856.9 382.1 852.6 387.2C848.4 392.3 845 395.4 840.4 398.9C835.8 402.4 829.7 406 824.9 408.3C820 410.7 816.3 411.8 811.4 412.9C806.4 413.9 800.1 414.5 795 414.6C789.9 414.7 786 414.4 780.9 413.5C775.7 412.6 768.7 410.7 764.1 409.3C759.5 407.9 758.5 407.6 753.3 405.1C748.1 402.7 741.9 400 733.1 394.4C724.3 388.7 708.1 376.3 700.4 371.1C692.8 365.9 692.6 365.6 687.3 363.1C681.9 360.7 673 357.5 668.3 356.2C663.6 354.9 661.7 355.3 659 355.4C656.3 355.4 654.4 355.6 652 356.5C649.6 357.4 646.3 359.1 644.3 360.8C642.4 362.5 641.3 363.9 640.1 366.7C639 369.6 637.8 373.3 637.5 378C637.3 382.7 632.2 346.9 638.7 394.7C645.3 442.5 669.9 617.4 676.7 664.9C683.4 712.3 678.4 675.3 679.4 679.1C680.3 683 680.9 684.9 682.5 688C684.1 691.1 686.5 695.1 688.8 697.7C691 700.3 692.7 701.7 696 703.5C699.3 705.2 704.4 707.2 708.4 708.1C712.4 708.9 670 715.2 720 708.6C770 702 957.9 675.4 1008.1 668.7C1058.3 661.9 1016.9 667.7 1021.1 668.3C1025.4 668.8 1030.5 670.5 1033.5 672C1036.5 673.5 1037.7 675.3 1039.1 677.4C1040.5 679.5 1041.4 681.7 1042 684.5C1042.5 687.3 1042.7 690.6 1042.4 694C1042.1 697.4 1042.4 699.2 1040.2 704.7C1038.1 710.2 1034.8 718.4 1029.5 727C1024.1 735.6 1013.6 748.3 1008.1 756.6C1002.5 764.9 999.3 770.6 996.1 776.7C993 782.9 990.8 788.8 989.1 793.6C987.3 798.3 986.6 801.1 985.6 805.3C984.7 809.5 983.9 814.5 983.5 819C983.2 823.5 983.2 828.1 983.5 832C983.8 835.9 984.1 838.4 985.1 842.4C986.2 846.3 987.8 851.7 989.7 855.9C991.5 860 993.4 863.4 996.2 867.3C999 871.2 1002.9 875.8 1006.3 879.3C1009.7 882.7 1012.8 885.2 1016.6 887.9C1020.3 890.7 1022.3 892.6 1028.7 895.9C1035.2 899.1 1047.9 904.6 1055.3 907.3C1062.7 910.1 1067.2 911 1073.3 912.4C1079.4 913.7 1082.9 914.8 1092 915.6C1101.1 916.5 1115.9 917.8 1128 917.5C1140.1 917.2 1152.2 916 1164.6 914.1C1176.9 912.1 1156.8 907.1 1202 905.7C1247.2 904.3 1396.5 906 1436 905.7C1475.5 905.3 1438.6 1094.2 1439.2 903.8C1439.8 713.3 1439.6 -46.5 1439.5 -237C1439.4 -427.5 1439.4 -238.8 1438.9 -239.4C1438.3 -239.9 1578 -240.3 1436 -240.5Z", star: "M1052 50.4C1050.4 50.4 1048.4 50.7 1046.8 51.3C1045.2 51.9 1043.5 53 1042.4 53.9C1041.3 54.8 1040.8 55.4 1040.1 56.7C1039.4 58 1038.6 59.9 1038.2 61.6C1037.9 63.2 1037.4 60.2 1038.1 66.4C1038.8 72.7 1042 93.1 1042.6 99C1043.2 104.9 1042.2 101.1 1041.8 101.6C1041.3 102.1 1046.1 102.8 1039.7 101.9C1033.3 101 1010.1 96.9 1003.3 96.1C996.5 95.3 1000.1 96.7 998.8 97.3C997.4 97.9 996.2 98.6 995.1 99.6C994.1 100.5 993.2 101.7 992.5 103C991.8 104.3 991.2 106 990.9 107.3C990.6 108.6 990.5 109.7 990.7 110.9C990.8 112.2 991.1 113.5 991.7 114.9C992.3 116.2 993.2 118 994.3 119.2C995.4 120.4 996.1 121.3 998.3 122.1C1000.6 123 1001.9 123.3 1007.9 124.5C1013.8 125.7 1029.5 128.2 1034.3 129.1C1039.1 130.1 1036.4 129.8 1036.8 130.5C1037.1 131.1 1039.1 127.8 1036.5 133C1033.9 138.2 1024.1 156 1021.3 161.7C1018.5 167.4 1019.9 165.3 1019.7 167.1C1019.5 169 1019.6 171 1020 172.6C1020.3 174.2 1020.9 175.3 1021.9 176.6C1022.8 178 1024.3 179.5 1025.9 180.5C1027.4 181.5 1029.1 182.2 1031.1 182.4C1033.2 182.6 1036.5 182.1 1038.2 181.7C1039.9 181.3 1040.5 180.6 1041.4 179.9C1042.4 179.2 1042.8 178.8 1043.9 177.4C1044.9 175.9 1044.9 176.6 1047.8 171.3C1050.7 166 1058.6 150.2 1061.1 145.7C1063.7 141.2 1062.4 144.3 1063.1 144.2C1063.8 144.1 1061.3 141.4 1065.3 145.3C1069.2 149.2 1082.2 163.2 1086.7 167.7C1091.2 172.2 1090.8 171.2 1092.3 172.1C1093.9 173.1 1094.9 173.1 1096.1 173.3C1097.4 173.5 1098.6 173.5 1099.9 173.4C1101.2 173.2 1102.7 172.9 1103.9 172.4C1105.2 171.8 1106.6 170.9 1107.6 170.1C1108.6 169.2 1109.2 168.8 1109.9 167.4C1110.7 166 1111.6 163.2 1112 161.6C1112.3 159.9 1112.1 158.9 1111.9 157.6C1111.7 156.3 1111.7 155.5 1110.7 153.9C1109.7 152.2 1110.2 152.3 1105.9 147.6C1101.6 142.9 1088.3 129.6 1084.7 125.7C1081.1 121.8 1084 124.7 1084.1 124.1C1084.3 123.5 1080.1 125.1 1085.7 122.1C1091.3 119.2 1111.7 109.5 1117.6 106.1C1123.6 102.8 1120.6 103.4 1121.6 102C1122.5 100.6 1123 99.6 1123.3 97.9C1123.5 96.1 1123.6 93.3 1123.1 91.4C1122.6 89.4 1121.7 87.7 1120.4 86.1C1119.1 84.6 1117 83.1 1115.3 82.3C1113.6 81.5 1112.2 81.2 1110 81.4C1107.8 81.6 1108 80.7 1101.9 83.4C1095.7 86 1078.1 95.1 1073 97.5C1067.9 99.9 1071.8 97.9 1071.3 97.6C1070.8 97.2 1070.9 100.6 1070.1 95.4C1069.2 90.2 1067 72.5 1066.1 66.4C1065.1 60.4 1064.9 60.8 1064.4 59.1C1063.9 57.5 1063.8 57.5 1063 56.5C1062.2 55.4 1060.8 53.7 1059.7 52.9C1058.6 52 1057.7 51.6 1056.4 51.2C1055.1 50.8 1053.6 50.4 1052 50.4Z" };
@@ -273,7 +263,7 @@
       const { cols, rows, w } = best, h = w * 1.5, x0 = 80 + (AW - (cols * w + (cols - 1) * g)) / 2, y0 = top0 + (AH - (rows * h + (rows - 1) * g)) / 2;
       return t.svg + its.map((it, k) => coverSvg(it, x0 + (k % cols) * (w + g), y0 + Math.floor(k / cols) * (h + g), w, h, "pop", 250 + k * Math.min(90, 1400 / N), "bottom")).join("");
     } });
-    const lvNow = () => LEVEL, droppedN = () => ACT.filter(a => a.kind === "dropped" && (a.vis || 0) <= lvNow()).length;
+    const droppedN = () => ACT.filter(a => a.kind === "dropped").length;
     cards.push({ id: "shelves", name: _("Shelves"), kind: "computed", interest: { ok: true }, bg: () => TINT.green, body: () => {
       const t = cardTop(_n("{n} title", "{n} titles", n), "", { eyebrow: _("Completed"), count: n }), bmax = Math.max(...S.cats.map(c => S.byCat[c].length)), pitch = Math.min(S.cats.length > 6 ? 96 : 112, Math.floor((800 + DY - t.y) / S.cats.length));
       let y = t.y + 50, bars = "";
@@ -362,7 +352,7 @@
       return b;
     } });
     // a streak of seven days or more is the headline; a shorter one becomes a line on the active-days card
-    const lv = LEVEL, sAt = activityAt(lv), streakMode = sAt.streak >= RULE.STREAK, nd = k => _n("{n} day", "{n} days", k);
+    const sAt = ACTIVITY, streakMode = sAt.streak >= RULE.STREAK, nd = k => _n("{n} day", "{n} days", k);
     const FIN = LOGO.green, OTH = LOGO.blue, EMPTY = "#dfe5dc";
     function activeDays(a) {
       const step = 27, cell = 21, x0 = 162, span = a.streak >= 2 ? _("with something logged; the longest run, outlined, was {n} days, {start} to {end}", { n: a.streak, start: fmtDate(isoDay(a.start)), end: fmtDate(isoDay(a.end)) }) : _("with something logged; never two days in a row");
@@ -433,7 +423,6 @@
   function socialCards() {
     const cards = []; const ok = (cond, reason) => cond ? { ok: true } : { ok: false, reason };
     const need = social.enough ? null : _("fewer than three followed members with visible marks this year");
-    const fname = f => `@${f.handle}`;
     const initials = (fs, x, y, d) => fs.slice(0, 7).map((f, i) => G("pop", d + i * 80, `<circle cx="${x + i * 76}" cy="${y}" r="32" fill="#dfe5dc" stroke="#fff" stroke-width="4"/>` + T(x + i * 76, y + 11, f.name.trim().slice(0, 1).toUpperCase(), 30, { weight: 800, anchor: "middle" }))).join("");
     const c = social.company;
     cards.push({ id: "company", name: _("In good company"), kind: "social", interest: need ? { ok: false, reason: need } : ok(!!c, _("no title shared with two or more followed members")), bg: () => TINT.green, body: () => {
@@ -441,26 +430,26 @@
       // the initials of up to seven members sit right of the cover, so the cover keeps 360 at most
       const fy0 = t.y + 56, cw = featureW(fy0, 360);
       return t.svg + feature(c.it, fy0, [titleRow(c.it.title), line(who(c.it))], 300, cw) + initials(c.fs, 80 + cw + 72, fy0 + cw * 1.5 - 40, 600);
-    }, named: () => c ? c.fs.map(fname) : [] });
+    } });
     const t2 = social.twin;
     cards.push({ id: "twin", name: _("Taste twin"), kind: "social", interest: need ? { ok: false, reason: need } : ok(!!t2, _("nobody you follow shares two titles with you")), bg: () => TINT.coral, body: () => {
       const t = cardTop(t2.name, _("@{handle} shares {n} of your titles this year, more than anyone you follow", { handle: t2.handle, n: t2.shared.length }), { eyebrow: _("Taste twin") });
       return t.svg + coverRow(t2.shared.map(u => mine.get(u)), t.y + 60 + Math.round(DY * 0.35), 4, 400).svg;
-    }, named: () => t2 ? [fname(t2)] : [] });
+    } });
     // a member the owner does not follow, from the site's daily matches: only the owner sees it unless they turn it on for an
     // audience, and it does not depend on followed members, so the rule above for the friend cards does not apply
     const kin = D.kindred ? { ...D.kindred, its: (D.kindred.items || []).map(i => mine.get(path(i.u))).filter(Boolean) } : null;
     cards.push({ id: "kindred", name: _("Kindred member"), kind: "social", interest: !kin || !kin.its.length ? { ok: false, reason: _("no one you do not follow shares five of your titles this year") } : LEVEL < 2 ? { ok: false, reason: _("only you see it, unless you show it to this audience") } : { ok: true }, bg: () => TINT.blue, body: () => {
       const t = cardTop(kin.name, _("@{handle} is not someone you follow, yet shares {n} of your titles this year", { handle: kin.handle, n: kin.n }), { eyebrow: _("Kindred member") });
       return t.svg + coverRow(kin.its, t.y + 60 + Math.round(DY * 0.35), 4, 400).svg;
-    }, named: () => kin ? [fname(kin)] : [] });
+    } });
     const f = social.first;
     cards.push({ id: "first", name: _("Who got there first"), kind: "social", interest: need ? { ok: false, reason: need } : ok(f && (f.count + f.after) >= 3, _("too few shared titles with dates")), bg: () => TINT.blue, body: () => {
       const t = cardTop(String(f.count), _("times someone you follow finished a title after you did"), { eyebrow: _("Who got there first"), count: f.count });
       let b = t.svg;
       if (f.it) b += feature(f.it, t.y + 50, [label(_("Most followed")), titleRow(f.it.title, 40), line(_("{n} of them came after you", { n: f.itN }))], 400, 220);
       return b + T(80, 836 + DY, f.after, 72, { weight: 800, ls: -2, cls: "rise", d: 700, count: f.after }) + T(80 + EST(f.after, 72, 800) + 20, 836 + DY, f.leader ? _("times you came after someone,") : _("times you came after someone"), 34, { fill: MUTED, cls: "rise", d: 800 }) + (f.leader ? T(80 + EST(f.after, 72, 800) + 20, 878 + DY, _("most often after {name}", { name: trunc(f.leader.name, 30) }), 34, { fill: MUTED, cls: "rise", d: 850 }) : "");
-    }, named: () => f && f.leader ? [fname(f.leader)] : [] });
+    } });
     const o = social.obscure;
     cards.push({ id: "obscure", name: _("Off the beaten path"), kind: "social", interest: ok(o != null && o >= 0.2, o == null ? _("no mark counts") : _("only {pct}% of titles have fewer than ten marks", { pct: Math.round(o * 100) })), bg: () => TINT.paper, body: () => {
       const rare = withMarks.filter(i => i.marks < 10).sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 4);
@@ -528,10 +517,10 @@
       return t.svg + r.svg + (day[1].length > 4 ? T(80, r.bottom + 48, _("and {n} more", { n: day[1].length - 4 }), 34, { fill: MUTED, cls: "fade", d: 800 }) : "");
     } });
     // Your tags: the most used tags of the year, counted at the page's visibility, and the titles under the top tag
-    const lvT = LEVEL, tagData = S.items.some(i => Array.isArray(i.tags)), tagMap = new Map(); let tagged = 0;
-    S.items.forEach(i => { const ts = (i.tags || []).filter(([, v]) => (v || 0) <= lvT); if (ts.length) tagged++; ts.forEach(([t]) => { if (!tagMap.has(t)) tagMap.set(t, []); tagMap.get(t).push(i); }); });
+    const tagMap = new Map(); let tagged = 0;
+    S.items.forEach(i => { const ts = i.tags || []; if (ts.length) tagged++; ts.forEach(t => { if (!tagMap.has(t)) tagMap.set(t, []); tagMap.get(t).push(i); }); });
     const tagList = [...tagMap.entries()].map(([t, its]) => ({ t, its })).sort((a, b) => b.its.length - a.its.length || a.t.localeCompare(b.t));
-    cards.push({ id: "tags", name: _("Your tags"), kind: "computed", interest: ok(tagged >= RULE.TAGGED, !tagData ? _("tags are not in this data") : tagged ? _n("only {n} title tagged, under {min}", "only {n} titles tagged, under {min}", tagged, { min: RULE.TAGGED }) : _("no tags on this year's titles")), bg: () => TINT.coral, body: () => {
+    cards.push({ id: "tags", name: _("Your tags"), kind: "computed", interest: ok(tagged >= RULE.TAGGED, tagged ? _n("only {n} title tagged, under {min}", "only {n} titles tagged, under {min}", tagged, { min: RULE.TAGGED }) : _("no tags on this year's titles")), bg: () => TINT.coral, body: () => {
       const rows = tagList.slice(0, 5), mx = rows[0].its.length;
       const t = cardTop(_n("{n} tag", "{n} tags", tagList.length), _("on {n} titles; you used “{tag}” most", { n: tagged, tag: rows[0].t }), { eyebrow: _("Your tags"), count: tagList.length }), y0 = t.y + 60, pitch = Math.min(120, (880 + DY - y0) / rows.length);
       const grid = rows[0].its.slice(-9), g = 12, gh = Math.min(220, Math.floor((900 + DY - y0 - 14 - 2 * g) / 3)), gw = Math.round(gh / 1.5), gx = 1000 - 3 * gw - 2 * g;
@@ -542,7 +531,7 @@
     } });
     // the essay: the longest review when there is one, else the longest comment
     const es = S.essay;
-    const RV = (D.reviews || []).filter(r => String(r.date).startsWith(String(Y)) && (r.vis || 0) <= lvT).map(r => ({ ...r, it: S.items.find(i => i.url === r.u) || null }));
+    const RV = (D.reviews || []).map(r => ({ ...r, it: S.items.find(i => i.url === r.u) || null }));
     const rv = RV.slice().sort((a, b) => (b.it ? 1 : 0) - (a.it ? 1 : 0) || b.chars - a.chars)[0] || null;
     cards.push({ id: "essay", name: _("The essay"), kind: "computed", interest: ok(rv || (es && es.comment.length >= 140), es ? _("longest comment is {n} characters, under 140, and no review this year", { n: es.comment.length }) : _("no comments or reviews this year")), bg: () => TINT.paper, body: () => {
       const text = rv ? rv.excerpt : es.comment, cjk = CJK(text), t = cardTop(rv ? rv.title : _("In your own words"), "", { eyebrow: _("The essay") });
@@ -576,19 +565,20 @@
   const site = (D.member.url.match(/^https?:\/\/([^/]+)/) || [])[1] || "neodb.social";
   const myUrls = new Map(S.items.map(i => [i.url, i]));
   const COLS = D.collections || [];
-  const refOf = it => ({ url: it.url, title: it.title, cover: it.cover, category: it.category, note: null });
-  const refRaw = x => ({ url: /^https?:/.test(x.u) ? x.u : base + x.u, title: x.t, cover: x.cov, category: x.c, note: x.n || null });
+  const refOf = it => ({ url: it.url, title: it.title, cover: it.cover, category: it.category });
+  const refRaw = x => ({ url: /^https?:/.test(x.u) ? x.u : base + x.u, title: x.t, cover: x.cov, category: x.c });
   function autoPool(cat) { return (cat === "all" ? S.items : S.byCat[cat] || []).slice().sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.site_rating || 0) - (a.site_rating || 0)); }
+  // the server stores every made card with a source
   function resolveMade(m) {
-    const src = m.source || (m.items ? { type: "legacy" } : { type: "auto", cat: "all" });
+    const src = m.source;
     if (src.type === "auto") return autoPool(src.cat).slice(0, m.n || 5).map(refOf);
     if (src.type === "collection") { const c = COLS.find(x => x.uuid === src.uuid); return c ? c.items.slice(0, m.n || 5).map(refRaw) : []; }
     if (src.type === "hand") return src.items.slice(0, 10);
-    return (m.items || []).map(id => S.items.find(i => i.id === id)).filter(Boolean).map(refOf); // cards saved before sources existed
+    return [];
   }
   // the default title and caption of a made card, from its source
   function madeDefault(m) {
-    const src = m.source || { type: "auto", cat: "all" }, n = m.n || 5;
+    const src = m.source, n = m.n || 5;
     if (src.type === "hand") { const k = (src.items || []).length; return { title: k ? _("My {n} picks of {year}", { n: k, year: Y }) : _("My top picks of {year}", { year: Y }), caption: _("Chosen by hand") }; }
     if (src.type === "collection") { const c = COLS.find(x => x.uuid === src.uuid); return { title: c ? trunc(c.title, 52) : "", caption: c && c.rel === "liked" ? _("From @{owner}'s collection", { owner: c.owner }) : _("From my collection") }; }
     const cat = src.cat || "all"; return { title: cat === "all" ? _("My top {n} titles of {year}", { n, year: Y }) : _("My top {n} {shelf} of {year}", { n, shelf: CAT_NOUN[cat], year: Y }), caption: _("Highest marks") };
@@ -672,8 +662,8 @@
   }
   const madeCards = () => made.map((m, i) => {
     // one title, your words: the server sent the text only if this audience may see it
-    if ((m.source || {}).type === "words") { const w = (D.words || {})[String(m.id)]; return { id: "made-" + m.id, name: w ? w.item.title : _("One title, your words"), kind: "made", interest: w ? { ok: true } : { ok: false, reason: _("the text is gone, or this audience cannot see it") }, bg: () => [TINT.paper, TINT.blue, TINT.green, TINT.coral][i % 4], body: () => wordsBody({ it: w.item, words: w, caption: m.caption }), made: m }; }
-    const its = resolveMade(m); return { id: "made-" + m.id, name: m.title || madeDefault(m).title, kind: "made", interest: its.length >= 3 ? { ok: true } : { ok: false, reason: _("fewer than three items can be shown, so the collection may have changed") }, bg: () => [TINT.paper, TINT.blue, TINT.green, TINT.coral][i % 4], body: () => topNBody(m, its), made: m }; });
+    if ((m.source || {}).type === "words") { const w = (D.words || {})[String(m.id)]; return { id: "made-" + m.id, name: w ? w.item.title : _("One title, your words"), kind: "made", interest: w ? { ok: true } : { ok: false, reason: _("the text is gone, or this audience cannot see it") }, bg: () => [TINT.paper, TINT.blue, TINT.green, TINT.coral][i % 4], body: () => wordsBody({ it: w.item, words: w, caption: m.caption }) }; }
+    const its = resolveMade(m); return { id: "made-" + m.id, name: m.title || madeDefault(m).title, kind: "made", interest: its.length >= 3 ? { ok: true } : { ok: false, reason: _("fewer than three items can be shown, so the collection may have changed") }, bg: () => [TINT.paper, TINT.blue, TINT.green, TINT.coral][i % 4], body: () => topNBody(m, its) }; });
 
   // ---------- assemble ----------
   function allCards() {
@@ -709,7 +699,7 @@
     // a visitor sees the list the owner last saw for this audience; without one, the rules and the owner's overrides decide here
     const visible = !OWNER && Array.isArray(D.shown) ? new Set(D.shown) : null;
     cards.forEach(c => { const own = deckState.hidden[c.id]; c.hidden = visible ? !visible.has(c.id) : own != null ? own : byDefault(c); c.why = own || (own == null && deckState.hidden["*"] === true) ? _("hidden by you") : !c.interest.ok ? c.interest.reason : byDefault(c) ? _("not shown in a small year, under {n} titles", { n: RULE.SMALL }) : ""; });
-    cards.forEach(c => { if (!c.hidden) { try { c.bgc = c.bg(); c.svg = card(c.bgc, c.body(), c.foot, c.footInk); } catch (e) { console.warn("card failed", c.id, e); c.hidden = true; c.why = _("could not be drawn from this data"); } } if (c.hidden) c.svg = card(TINT.paper, eyebrow(c.name) + T(80, 330, c.name, 64, { weight: 800, ls: -2 }), c.foot); });
+    cards.forEach(c => { if (!c.hidden) { try { c.bgc = c.bg(); c.svg = card(c.bgc, c.body(), c.footInk); } catch (e) { console.warn("card failed", c.id, e); c.hidden = true; c.why = _("could not be drawn from this data"); } } if (c.hidden) c.svg = card(TINT.paper, eyebrow(c.name) + T(80, 330, c.name, 64, { weight: 800, ls: -2 }), c.foot); });
     const shown = cards.filter(c => !c.hidden), hid = cards.filter(c => c.hidden), mid = shown.filter(c => !FIXED.has(c.id));
     const deck = $("deck"), keepId = state.curId;
     const btn = (attr, icon, label) => `<button class="dc-nav" type="button" title="${label}" aria-label="${label}" ${attr}><i class="fa-solid ${icon}"></i></button>`;
@@ -748,7 +738,7 @@
     [...$("dots").children].forEach(b => b.onclick = () => { start(); go(+b.dataset.i); });
     // the eye keeps the keyboard where it was after the grid is drawn again
     if (OWNER) [...$("hub").querySelectorAll("[data-eye]")].forEach(b => b.onclick = () => { const id = b.dataset.eye, c = cards.find(x => x.id === id); setHidden(id, !c.hidden); const again = $("hub").querySelector(`[data-eye="${id}"]`); if (again) again.focus(); });
-    state.cards = cards; state.shown = shown; state.exportable = shown;
+    state.cards = cards; state.shown = shown;
     if (OWNER && JSON.stringify(shown.map(c => c.id)) !== savedShown) saveDeck();
     // stay on the same card after an edit; on the first render, open the card the link names
     const want = keepId != null ? keepId : decodeURIComponent(location.hash.slice(1));
@@ -891,7 +881,7 @@
 
   // ---------- hero and lists ----------
   function hero() {
-  const act = activityAt(LEVEL);
+  const act = ACTIVITY;
   $("stats").innerHTML = [[n, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[TM.busiest], _n("busiest month, {n} title", "busiest month, {n} titles", TM.counts[TM.busiest])], [S.avg ? S.avg.toFixed(1) : _n("{n} day", "{n} days", act.streak), S.avg ? _("average rating, of 10") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num"${typeof a === "number" ? ` data-to="${a}"` : ""}>${typeof a === "number" ? a.toLocaleString() : a}</span><span class="lbl">${b}</span></div>`).join("");
   }
   hero();
@@ -916,7 +906,7 @@
     piles.innerHTML = lists.map((list, m) => {
       const c = list.length, pm = max > 1 ? (c - 1) / (max - 1) : 0, k = Math.min(c, PILE_MAX);
       const pick = k < 2 ? list.slice(0, k) : Array.from({ length: k }, (z, j) => list[Math.round(j * (c - 1) / (k - 1))]);
-      const imgs = pick.map((it, j) => `<img src="${esc(src(it.cover))}" alt="" loading="lazy" style="--p:${(k > 1 ? j / (k - 1) * pm : 0).toFixed(4)};--r:${((j * 37) % 7 - 3) * 0.6}deg;background:${CAT_COLOR[it.category] || "#ccc"}">`).join("");
+      const imgs = pick.map((it, j) => `<img src="${esc(it.cover)}" alt="" loading="lazy" style="--p:${(k > 1 ? j / (k - 1) * pm : 0).toFixed(4)};--r:${((j * 37) % 7 - 3) * 0.6}deg;background:${CAT_COLOR[it.category] || "#ccc"}">`).join("");
       return `<button type="button" class="pile" data-m="${m}" style="--m:${m};--pm:${pm.toFixed(4)}" aria-expanded="false" aria-label="${esc(_("{month}, {titles}", { month: MONTHS_LONG[m], titles: _n("{n} title", "{n} titles", c) }))}"${c ? "" : " disabled"}><span class="stack">${imgs}${c ? `<span class="cnt">${c}</span>` : ""}</span><span class="mo">${esc(MONTHS[m])}</span></button>`;
     }).join("");
     piles.querySelectorAll(".pile").forEach(b => b.onclick = () => openMonth(openM === +b.dataset.m ? null : +b.dataset.m));
@@ -1082,21 +1072,21 @@
     if (mk.mode === "words") {
       const t = mk.text, w = mk.work; if (!t) { toast(_("Pick a text")); return; }
       const id = Date.now();
-      made.push({ id, title: "", caption: el("mk-cap").value.trim(), n: 3, source: { type: "words", url: w.url, kind: t.kind, ref: t.ref } });
+      made.push({ id, title: "", caption: el("mk-cap").value.trim(), n: 3, source: { type: "words", kind: t.kind, ref: t.ref } });
       // drawn at once where this audience may see the text (stars only on the owner's own view until the page reloads); the server resolves it from then on
       if (t.vis <= LEVEL) (D.words = D.words || {})[String(id)] = { kind: t.kind, text: t.text, more: t.more, title: t.title, progress: t.progress, date: t.date, item: { url: w.url, title: w.title, cover: w.cover, category: w.category, rating: LEVEL === 2 ? w.rating : null, credits: w.credits } };
       mkdlg.close(); render(); saveDeck(); toast(_("Card added to the deck")); return;
     }
     const its = mkItems(); if (its.length < 3) { toast(_("A card needs at least three titles")); return; }
     const n = mk.src === "hand" ? its.length : mk.n;
-    const source = mk.src === "hand" ? { type: "hand", items: its.map(({ url, title, cover, category, note }) => ({ url, title, cover, category, note })) } : mk.src.startsWith("col:") ? { type: "collection", uuid: mk.src.slice(4) } : { type: "auto", cat: mk.src.split(":")[1] };
+    const source = mk.src === "hand" ? { type: "hand", items: its.map(({ url, title, cover, category }) => ({ url, title, cover, category })) } : mk.src.startsWith("col:") ? { type: "collection", uuid: mk.src.slice(4) } : { type: "auto", cat: mk.src.split(":")[1] };
     made.push({ id: Date.now(), title: el("mk-title").value.trim(), caption: el("mk-cap").value.trim(), n, source });
     mkdlg.close(); render(); saveDeck(); toast(_("Card added to the deck"));
   };  }
 
 
   // ---------- publish ----------
-  function openPublish(preselect) { const tabs = $("pub-tabs"); const show = t => { tabs.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.t === t)); ["post", "page", "dl", "qr"].forEach(k => $("pub-" + k).hidden = k !== t); if (t === "qr") qrTab(); }; tabs.querySelectorAll("button").forEach(b => b.onclick = () => show(b.dataset.t)); show("post"); const grid = $("pub-grid"); grid.innerHTML = state.exportable.map(c => `<label><input type="checkbox" value="${c.id}" ${c.id === preselect ? "checked" : ""}>${c.svg}</label>`).join(""); const limit = () => { const on = [...grid.querySelectorAll("input:checked")].length; grid.querySelectorAll("label").forEach(l => l.classList.toggle("full", on >= 4 && !l.querySelector("input").checked)); grid.querySelectorAll("input").forEach(i => i.disabled = on >= 4 && !i.checked); }; grid.querySelectorAll("input").forEach(i => i.onchange = limit); limit(); $("pub-note").value = `${D.page_url}\n#NeoDB #Wrapped${Y}`; $("pub-link").value = D.page_url; $("gif-out").innerHTML = ""; audList(); postMode("images");
+  function openPublish(preselect) { const tabs = $("pub-tabs"); const show = t => { tabs.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.t === t)); ["post", "page", "dl", "qr"].forEach(k => $("pub-" + k).hidden = k !== t); if (t === "qr") qrTab(); }; tabs.querySelectorAll("button").forEach(b => b.onclick = () => show(b.dataset.t)); show("post"); const grid = $("pub-grid"); grid.innerHTML = state.shown.map(c => `<label><input type="checkbox" value="${c.id}" ${c.id === preselect ? "checked" : ""}>${c.svg}</label>`).join(""); const limit = () => { const on = [...grid.querySelectorAll("input:checked")].length; grid.querySelectorAll("label").forEach(l => l.classList.toggle("full", on >= 4 && !l.querySelector("input").checked)); grid.querySelectorAll("input").forEach(i => i.disabled = on >= 4 && !i.checked); }; grid.querySelectorAll("input").forEach(i => i.onchange = limit); limit(); $("pub-note").value = `${D.page_url}\n#NeoDB #Wrapped${Y}`; $("pub-link").value = D.page_url; $("gif-out").innerHTML = ""; audList(); postMode("images");
     // a post never reaches a wider audience than the cards it carries (the server checks this too)
     document.querySelectorAll('#wr-pub-post input[name="wr-vis"]').forEach(r => { r.disabled = +r.value < LEVEL; r.checked = +r.value === LEVEL; }); pubdlg.showModal(); mp4Gate(); }
   // images: up to four picked cards; video: every card, made here like the MP4 download
@@ -1109,7 +1099,7 @@
   if (OWNER) $("pub-send").onclick = async () => {
     const video = (document.querySelector('input[name="wr-mode"]:checked') || {}).value === "video";
     const ids = video ? [] : [...document.querySelectorAll("#wr-pub-grid input:checked")].map(i => i.value);
-    if (!state.exportable.length) { toast(_("This audience sees no cards. Show some in Edit.")); return; }
+    if (!state.shown.length) { toast(_("This audience sees no cards. Show some in Edit.")); return; }
     if (!video && !ids.length) { toast(_("Pick at least one card")); return; }
     const btn = $("pub-send"), prog = $("pub-prog"); btn.disabled = true; btn.setAttribute("aria-busy", "true");
     try {
@@ -1118,7 +1108,7 @@
         prog.hidden = false; prog.value = 0;
         const { r } = await buildFile("mp4", v => { prog.value = v; }, $("pub-music").checked);
         // the intro card is the video's still on the timeline
-        const cv = await toCanvas(state.exportable[0], 1080), still = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("no PNG")), "image/png"));
+        const cv = await toCanvas(state.shown[0], 1080), still = await pngBlob(cv);
         fd.append("kind", "video"); fd.append("video", r.blob, `${Y}-wrapped.mp4`); fd.append("poster", still, `${Y}-intro.png`);
       } else {
         for (const id of ids) { const c = state.shown.find(x => x.id === id); fd.append("img", (await toCanvas(c, 1080)).toDataURL("image/png")); }
@@ -1268,7 +1258,7 @@
     const svg = qrCard(); prev.innerHTML = svg + (locked ? '<i class="fa-solid fa-lock"></i>' : "");
     if (locked) return;
     // the PNG is made now and kept, so Copy and Share run inside the click (Safari drops the gesture across a wait)
-    try { const cv = await toCanvas({ svg }, CW); qrBlob = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("no PNG")), "image/png")); }
+    try { const cv = await toCanvas({ svg }, CW); qrBlob = await pngBlob(cv); }
     catch (e) { toast(_("Export failed: {error}", { error: e.message })); return; }
     const file = new File([qrBlob], qrName(), { type: "image/png" });
     const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] })), canCopy = !!(navigator.clipboard && window.ClipboardItem);
@@ -1295,12 +1285,13 @@
     return u && D.cover_url ? D.cover_url.replace("UUID", u) : h;
   }
   async function inlineImages(svg) { const hrefs = [...new Set([...svg.matchAll(/<image href="([^"]+)"/g)].map(m => m[1]))]; for (const h of hrefs) { if (!dataCache.has(h)) { try { const r = await fetch(exportHref(h.replace(/&amp;/g, "&"))); const b = await r.blob(); dataCache.set(h, await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); })); } catch (e) { dataCache.set(h, ""); } } svg = svg.split(`<image href="${h}"`).join(`<image href="${dataCache.get(h)}"`); } return svg; }
+  const pngBlob = cv => new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("no PNG")), "image/png"));
   // a card as a canvas `size` wide, in the card's 4:5 shape
   async function toCanvas(c, size) { const hgt = Math.round(size * CH / CW), svg = await inlineImages(c.svg.replace("<svg ", `<svg width="${size}" height="${hgt}" `)); const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); const im = new Image(); await new Promise((res, rej) => { im.onload = res; im.onerror = rej; im.src = url; }); const cv = document.createElement("canvas"); cv.width = size; cv.height = hgt; cv.getContext("2d").drawImage(im, 0, 0, size, hgt); URL.revokeObjectURL(url); return cv; }
   // one card as a PNG; toBlob encodes off the main thread
   let lastUrl = null;
   const saveBlob = (blob, name) => { const url = URL.createObjectURL(blob), a = document.createElement("a"); a.download = name; a.href = url; a.click(); return url; };
-  async function downloadPng(c) { try { const cv = await toCanvas(c, 1080); const blob = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("no PNG")), "image/png")); setTimeout(URL.revokeObjectURL, 60000, saveBlob(blob, `${Y}-${c.id}.png`)); } catch (e) { toast(_("Export failed: {error}", { error: e.message })); } }
+  async function downloadPng(c) { try { const cv = await toCanvas(c, 1080); const blob = await pngBlob(cv); setTimeout(URL.revokeObjectURL, 60000, saveBlob(blob, `${Y}-${c.id}.png`)); } catch (e) { toast(_("Export failed: {error}", { error: e.message })); } }
   // every card at once, as a ZIP of PNGs, a GIF or an MP4: the page draws each card into a bitmap once (only the page can draw an SVG),
   // and the export worker (export.js) makes the files, so the page stays responsive and the server does no work
   const LIB = { gif: `${CDN}/npm/gifenc@1.0.3/dist/gifenc.esm.js`, mp4: `${CDN}/npm/mp4-muxer@5.2.1/build/mp4-muxer.mjs` };
@@ -1348,7 +1339,7 @@
     return run;
   }
   async function buildFileNow(kind, onProgress, withMusic) {
-    const cards = state.exportable, total = cards.length * 2;
+    const cards = state.shown, total = cards.length * 2;
     if (!cards.length) throw new Error(_("This audience sees no cards. Show some in Edit."));
     worker();
     const keep = new Set(cards.map(keyOf)); [...sent].forEach(k => { if (!keep.has(k)) sent.delete(k); });
