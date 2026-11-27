@@ -162,8 +162,11 @@ def _member(identity: APIdentity) -> dict[str, Any]:
 
 
 def _items_by_id(ids: list[int]) -> dict[int, Item]:
-    # the polymorphic manager returns subclasses in one query per subclass, so jsondata fields resolve
-    return {i.pk: i for i in Item.objects.filter(pk__in=ids)}
+    # the polymorphic manager returns subclasses in one query per subclass, so jsondata fields resolve;
+    # a season's or an episode's title reads its parent, so the parents are loaded in one go
+    items = list(Item.objects.filter(pk__in=ids))
+    Item.prefetch_parent_items(items)
+    return {i.pk: i for i in items}
 
 
 def _credits(ids: list[int]) -> dict[int, list[list[str]]]:
@@ -472,11 +475,13 @@ def _collections(
     ids = own + [i for i in liked if i not in own]
     if not ids:
         return []
+    # the rows are read again under the same rules, so a collection made private meanwhile is left out
+    own_rows = Collection.objects.filter(owner=owner, visibility__lte=level, pk__in=own)
+    liked_rows = others.filter(pk__in=[i for i in liked if i not in own])
     cols = {
         c.pk: c
-        for c in Collection.objects.filter(pk__in=ids)
-        .select_related("owner")
-        .annotate(total=Count("members"))
+        for rows in (own_rows, liked_rows)
+        for c in rows.select_related("owner").annotate(total=Count("members"))
     }
     members = (
         CollectionMember.objects.filter(parent_id__in=ids)
@@ -586,7 +591,8 @@ def _instance_key(year: int) -> str:
 
 
 def compute_instance_stats(year: int) -> dict[str, Any]:
-    """The instance's most finished title of the year, and every local member's completion count.
+    """The instance's most finished title of the year (public completions), and every local member's
+    completion count.
 
     ``counts[level]`` holds the counts of completions visible at that level, so a page compares the
     member's count for its audience with counts of the same kind. A whole-instance aggregate; it runs
@@ -601,7 +607,14 @@ def compute_instance_stats(year: int) -> dict[str, Any]:
         owner__local=True,
         owner__deleted__isnull=True,
     )
-    top = qs.values("item_id").annotate(n=Count("pk")).order_by("-n", "item_id").first()
+    # the top title is shown to anyone, so only public completions count for it
+    top = (
+        qs.filter(visibility=0)
+        .values("item_id")
+        .annotate(n=Count("pk"))
+        .order_by("-n", "item_id")
+        .first()
+    )
     per_member = list(
         qs.values("owner_id")
         .annotate(
@@ -932,6 +945,10 @@ def build_payload(
         "instance_top": stats["top"] if stats else None,
         "percentile": _percentile(stats["counts"][level], len(ids)) if stats else None,
         "median": _median(stats["counts"][level]) if stats else None,
+        # a job's result is not cached yet: the cards that need it are missing for now, so the owner's
+        # page must not save that list as the one visitors see
+        "warming": stats is None
+        or (include_kindred and cache.get(_kindred_key(year)) is None),
     }
     return payload
 

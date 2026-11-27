@@ -4,7 +4,7 @@ import io
 import json
 import re
 from pathlib import Path
-from unittest.mock import PropertyMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -20,7 +20,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import override
 
-from catalog.models import Edition, Movie
+from catalog.models import Edition, Movie, TVSeason, TVShow
 from journal.jobs.wrapped import WrappedInstanceStats
 from journal.models import (
     Collection,
@@ -58,19 +58,28 @@ from users.models import APIdentity, User
 
 TZ = ZoneInfo("Asia/Shanghai")
 QUIET = {"post_when_save": False, "index_when_save": False}
+# a 1 x 1 PNG that decodes, for the stills and images the share view checks
+PNG = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+)
 YEAR = 2025
 
 
+@pytest.fixture(autouse=True)
+def wrapped_cache(settings):
+    """A cache of this module's own: the tests would otherwise share redis with the dev cluster, and
+    clear or fill the cached instance totals and kindred matches its pages read."""
+    settings.CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "wrapped-tests",
+        }
+    }
+    cache.clear()
+
+
 def clear_wrapped_cache() -> None:
-    # tests share redis with the dev cluster, so only this feature's keys are cleared
-    cache.delete_many(
-        [
-            f"wrapped:{kind}:{y}{s}"
-            for kind in ("instance", "kindred")
-            for y in range(2020, 2031)
-            for s in ("", ":lock")
-        ]
-    )
+    cache.clear()
 
 
 def at(month: int, day: int, hour: int = 12, year: int = YEAR) -> datetime.datetime:
@@ -624,7 +633,7 @@ class TestReviewFixes:
 
     def test_a_non_public_video_post_reaches_mastodon_as_a_copy_with_its_still(self):
         mp4 = b"\x00\x00\x00\x18ftypmp42" + b"0" * 100
-        png = b"\x89PNG\r\n\x1a\n" + b"0" * 20
+        png = PNG
         with (
             patch("journal.views.wrapped.Takahe.upload_attachment"),
             patch("journal.views.wrapped.Takahe.post") as post,
@@ -677,19 +686,31 @@ class TestQueryCount:
                 build_payload(me, YEAR, 2, TZ)
             return len(a.captured_queries) + len(b.captured_queries)
 
-        # one title of each type first: the item query costs one query per type, not per title
+        def season(title):
+            show = TVShow.objects.create(title=f"Show of {title}")
+            return TVSeason.objects.create(title=title, show=show)
+
+        # one title of each type first: the item query costs one query per type, not per title,
+        # and a season's title reads its show, loaded with the other shows in one query
         for k, item in enumerate(
-            [Edition.objects.create(title="A0"), Movie.objects.create(title="A1")]
+            [
+                Edition.objects.create(title="A0"),
+                Movie.objects.create(title="A1"),
+                season("A2"),
+            ]
         ):
             complete(me, item, at(2, k + 1), grade=8, comment="c", tags=["t"])
             complete(pal, item, at(3, k + 1))
         run()  # warm up: content types and site config load once per process
         small = run()
-        for k in range(20):
+        for k in range(21):
+            kind = k % 3
             item = (
-                Movie.objects.create(title=f"B{k}")
-                if k % 2
-                else Edition.objects.create(title=f"B{k}")
+                Edition.objects.create(title=f"B{k}")
+                if kind == 0
+                else Movie.objects.create(title=f"B{k}")
+                if kind == 1
+                else season(f"B{k}")
             )
             complete(me, item, at(4, k + 1), grade=6, comment="c", tags=["t", "u"])
             complete(pal, item, at(5, k + 1))
@@ -721,6 +742,28 @@ class TestInstanceStats:
         ) as compute:
             WrappedInstanceStats().run()
         assert [c.args[0] for c in compute.call_args_list] == [this - 1, this]
+
+    def test_the_top_title_counts_only_public_completions(self):
+        clear_wrapped_cache()
+        me = User.register(email="i4@test.com", username="itop").identity
+        complete(me, Edition.objects.create(title="Secret"), at(2, 2), vis=2)
+        # the top title reaches every visitor, so a private completion never names it
+        assert compute_instance_stats(YEAR)["top"] is None
+        complete(me, Edition.objects.create(title="Open"), at(2, 3))
+        assert compute_instance_stats(YEAR)["top"]["title"] == "Open"
+
+    def test_a_cold_cache_marks_the_payload_as_warming(self):
+        clear_wrapped_cache()
+        me = User.register(email="i5@test.com", username="iwarm").identity
+        complete(me, Edition.objects.create(title="Open"), at(2, 3))
+        # the owner's page does not save its card list while a job's result is missing
+        with patch("journal.wrapped.instance_stats", return_value=None):
+            assert build_payload(me, YEAR, 0, TZ)["warming"] is True
+        with patch(
+            "journal.wrapped.instance_stats",
+            return_value={"top": None, "counts": [[]] * 3},
+        ):
+            assert build_payload(me, YEAR, 0, TZ)["warming"] is False
 
     def test_counts_follow_the_audience(self):
         clear_wrapped_cache()
@@ -987,8 +1030,9 @@ class TestViews:
         r = self.page(Client())
         assert r.status_code == 200
         assert b"Shown Book" in r.content and b'id="wr-publish"' not in r.content
-        # one link serves different cards to different viewers, so no shared cache may keep it
-        assert "private" in r["Cache-Control"]
+        # one link serves different cards to different viewers, so no shared cache may keep it,
+        # and the browser keeps no copy to show after the viewer loses access
+        assert "private" in r["Cache-Control"] and "no-store" in r["Cache-Control"]
         WrappedDeck.objects.filter(owner=self.me).update(hidden={"0": {"*": True}})
         assert self.page(Client()).status_code == 404
         # a list the owner saw empty is not shared either
@@ -1106,7 +1150,7 @@ class TestViews:
 
     def test_share_posts_a_video_with_its_still(self):
         mp4 = b"\x00\x00\x00\x18ftypmp42" + b"0" * 100
-        png = b"\x89PNG\r\n\x1a\n" + b"0" * 20
+        png = PNG
         url = reverse("journal:wrapped_share", args=[YEAR])
         form = {"kind": "video", "comment": "my year", "visibility": 0, "aud": 0}
         with (
@@ -1138,6 +1182,16 @@ class TestViews:
                 },
             )
             assert r.status_code == 400
+            # a still that does not decode is refused before any attachment is made
+            r = self.owner_client.post(
+                url,
+                {
+                    **form,
+                    "video": SimpleUploadedFile("v.mp4", mp4, "video/mp4"),
+                    "poster": SimpleUploadedFile("p.png", png[:30], "image/png"),
+                },
+            )
+            assert r.status_code == 400 and up.call_count == 1
 
     def test_video_attachment_keeps_its_still(self):
         still = base64.b64decode(
@@ -1207,6 +1261,25 @@ class TestViews:
                 assert (
                     self.owner_client.get(url, {"url": link}).json()["status"] == status
                 )
+        # a site this instance knows that could not be read just now: a GET says the lookup failed,
+        # and a POST tries again under the fetch limits
+        site = MagicMock()
+        site.get_item.return_value = None
+        with (
+            patch(
+                "journal.views.wrapped.SiteManager.get_site_by_url", return_value=site
+            ),
+            patch("journal.views.wrapped.fetch_job", return_value=Job("finished", "-")),
+            patch("journal.views.wrapped.enqueue_fetch", return_value="id") as enqueue,
+            patch("journal.views.wrapped.get_fetch_lock", return_value=True),
+        ):
+            assert self.owner_client.get(url, {"url": link}).json()["status"] == "error"
+            assert not enqueue.called
+            r = self.owner_client.post(url, {"url": link})
+            assert r.json()["status"] == "fetching" and enqueue.called
+        # a link urlparse cannot read
+        r = self.owner_client.get(url, {"url": "http://[::1/x"})
+        assert r.json()["status"] == "invalid"
 
     def test_avatar_route_and_payload(self):
         # no picture of its own: no link in the payload, a 404 from the route, and the cards keep the site icon

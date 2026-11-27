@@ -1,6 +1,7 @@
 import base64
 import binascii
 import datetime
+import io
 import json
 import logging
 import re
@@ -26,6 +27,7 @@ from django.utils.translation import gettext as _
 from django.db import transaction
 from django.db.models import Min
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
+from PIL import Image
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from catalog.common import SiteManager
@@ -213,7 +215,8 @@ def wrapped_deck(request: AuthedHttpRequest, year: int | None = None):
         "wrapped.html",
         _context(owner, deck, y, level, True, request.user, most_public),
     )
-    patch_cache_control(resp, private=True)
+    # no_store: the browser keeps no copy to show again after sign-out
+    patch_cache_control(resp, private=True, no_store=True)
     return resp
 
 
@@ -235,8 +238,9 @@ def wrapped_page(request: AuthedHttpRequest, user_name: str, year: int):
         "wrapped.html",
         _context(target, deck, year, level, False, request.user),
     )
-    # one link serves different cards to different viewers, so no shared cache may keep it
-    patch_cache_control(resp, private=True)
+    # one link serves different cards to different viewers, so no shared cache may keep it, and the
+    # browser keeps no copy to show again after the viewer loses access
+    patch_cache_control(resp, private=True, no_store=True)
     return resp
 
 
@@ -408,6 +412,12 @@ def wrapped_share(request: AuthedHttpRequest, year: int):
         poster = poster_file.read(IMAGE_BYTES_MAX + 1) if poster_file else b""
         if not poster.startswith(b"\x89PNG") or len(poster) > IMAGE_BYTES_MAX:
             return HttpResponseBadRequest("invalid image")
+        # decoded here, before the attachment row exists: a broken still must not leave one behind
+        try:
+            with Image.open(io.BytesIO(poster)) as img:
+                img.load()
+        except Exception:
+            return HttpResponseBadRequest("invalid image")
     else:
         for s in request.POST.getlist("img")[:IMAGES_MAX]:
             try:
@@ -496,7 +506,10 @@ def wrapped_lookup(request: AuthedHttpRequest):
     """
     url = (request.POST if request.method == "POST" else request.GET).get("url", "")
     url = url.strip()
-    parsed = urlparse(url)
+    try:
+        parsed = urlparse(url)
+    except ValueError:  # an unmatched bracket in the host, for one
+        return JsonResponse({"status": "invalid"})
     if parsed.scheme not in ("http", "https") or not parsed.netloc or " " in url:
         return JsonResponse({"status": "invalid"})
     if FediverseInstance.is_local_item_url(url):
@@ -514,19 +527,25 @@ def wrapped_lookup(request: AuthedHttpRequest):
     state = job.get_status() if job else None
     if state in ("queued", "started", "deferred", "scheduled"):
         return JsonResponse({"status": "fetching"})
+    # a site this instance knows could not be read just now (a timeout, say): a POST may try again
+    failed = False
     if state == "finished" and job:
-        # the job returns the item's path, "-" when no site can read the link, or nothing when it failed
+        # the job returns the item's path, or "-" when no site can read the link or the fetch failed
         result = job.result if isinstance(job.result, str) else None
-        if result == "-":
+        if result and result != "-":
+            item = Item.get_by_url(result, resolve_merge=True)
+            if item and not item.is_deleted:
+                return JsonResponse({"status": "found", "item": item_ref(item)})
+            return JsonResponse({"status": "missing"})
+        if not site:
             return JsonResponse({"status": "unsupported"})
-        item = Item.get_by_url(result, resolve_merge=True) if result else None
-        if item and not item.is_deleted:
-            return JsonResponse({"status": "found", "item": item_ref(item)})
-        return JsonResponse({"status": "missing"})
-    if state == "failed":
-        return JsonResponse({"status": "missing" if site else "unsupported"})
+        failed = True
+    elif state == "failed":
+        if not site:
+            return JsonResponse({"status": "unsupported"})
+        failed = True
     if request.method != "POST":
-        return JsonResponse({"status": "unknown"})
+        return JsonResponse({"status": "error" if failed else "unknown"})
     if get_fetch_lock(request.user, url):
         # the fetch refuses unsafe links (private or loopback hosts), which no site can read
         queued = enqueue_fetch(url, False, request.user)
