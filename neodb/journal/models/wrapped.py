@@ -6,30 +6,40 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from users.models import APIdentity
 
-from .common import VisibilityType
 
 MADE_CARDS_MAX = 20
 MADE_CARD_ITEMS_MAX = 10
 
 
-class WrappedDeck(models.Model):
-    """A member's annual summary for one year: who may see the page and how the cards are arranged.
+# the three audiences of a page: everyone (including people who are not signed in), followers, and the owner alone
+AUDIENCES = (0, 1, 2)
+# in an audience's overrides: True hides every card that has no override of its own, so a card that qualifies later stays out
+ALL_HIDDEN = "*"
 
-    The cards are computed from the journal each time the page renders; this row keeps only the
-    member's choices. ``hidden`` holds a card id only when the member overrode the default (True to
-    hide a card the rules show, False to show a card the rules hide). ``shown`` is the list of card
-    ids the page showed at the owner's last visit; a visitor sees those cards and nothing else.
+
+class WrappedDeck(models.Model):
+    """A member's annual summary for one year: which cards each audience sees and how the cards are arranged.
+
+    The cards are computed from the journal each time the page renders; this row keeps only the member's
+    choices. One link serves everybody: a visitor sees the cards of their own audience (0 everyone, 1
+    followers, 2 the owner), with counts from entries at that level. The order and the made cards are
+    the same for all three audiences.
+
+    ``hidden[str(level)]`` holds a card id only when the member overrode the rules for that audience
+    (True hides a card the rules show, False shows a card the rules hide); ALL_HIDDEN set to True hides
+    every card without an override. ``shown[str(level)]`` is the list the page showed when the owner last
+    viewed that audience, and its visitors see those cards and nothing else. For an audience the owner
+    has not opened there is no list, and the visitor's browser applies the rules and overrides itself.
     """
 
     owner = models.ForeignKey(APIdentity, on_delete=models.CASCADE, related_name="+")
     year = models.PositiveSmallIntegerField()
-    visibility = models.PositiveSmallIntegerField(
-        choices=VisibilityType.choices, default=VisibilityType.Private
-    )
     order = models.JSONField(default=list)
     hidden = models.JSONField(default=dict)
     made = models.JSONField(default=list)
-    shown = models.JSONField(default=None, null=True)
+    shown = models.JSONField(default=dict)
+    # the background music the owner chose (an id in journal/wrapped_music.py); empty is no music, the default
+    music = models.CharField(max_length=40, blank=True, default="")
     timezone = models.CharField(max_length=64, blank=True, default="")
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
@@ -45,20 +55,39 @@ class WrappedDeck(models.Model):
         return f"WrappedDeck:{self.owner_id}:{self.year}"
 
     @property
-    def level(self) -> int:
-        return int(self.visibility)
-
-    @property
     def tzinfo(self) -> ZoneInfo:
         try:
             return ZoneInfo(self.timezone or settings.TIME_ZONE)
         except ZoneInfoNotFoundError, ValueError:
             return ZoneInfo(settings.TIME_ZONE)
 
-    def state(self) -> dict[str, Any]:
+    def overrides(self, level: int) -> dict[str, bool]:
+        o = (self.hidden or {}).get(str(level))
+        return dict(o) if isinstance(o, dict) else {}
+
+    def shown_for(self, level: int) -> list[str] | None:
+        v = (self.shown or {}).get(str(level))
+        return list(v) if isinstance(v, list) else None
+
+    def card_hidden(self, level: int, card_id: str) -> bool | None:
+        """True or False when the member decided for this card and audience, else None (the rules decide)."""
+        o = self.overrides(level)
+        if card_id in o:
+            return bool(o[card_id])
+        return True if o.get(ALL_HIDDEN) is True else None
+
+    def is_off(self, level: int) -> bool:
+        """The audience sees no card: everything hidden by the member, or nothing shown at the owner's last view."""
+        o = self.overrides(level)
+        if o.get(ALL_HIDDEN) is True and not any(
+            v is False for k, v in o.items() if k != ALL_HIDDEN
+        ):
+            return True
+        return self.shown_for(level) == []
+
+    def state(self, level: int) -> dict[str, Any]:
         return {
-            "vis": ["public", "followers", "me"][self.level],
             "order": self.order,
-            "hidden": self.hidden,
+            "hidden": self.overrides(level),
             "made": self.made,
         }

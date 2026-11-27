@@ -1,5 +1,6 @@
 import base64
 import datetime
+import io
 import json
 import re
 from pathlib import Path
@@ -9,6 +10,9 @@ from zoneinfo import ZoneInfo
 import pytest
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files.base import ContentFile
+from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection, connections
 from django.test import Client
 from django.test.utils import CaptureQueriesContext
@@ -247,14 +251,23 @@ class TestFriends:
         assert friends[0]["n"] == 2
         assert [i["u"] for i in friends[0]["items"]] == [self.shared.url]
 
-    def test_visitors_get_friends_only_after_a_social_card_was_shown(self):
-        deck = WrappedDeck.objects.create(owner=self.me, year=YEAR, visibility=0)
-        assert friends_allowed(deck, True)
-        assert not friends_allowed(deck, False)
-        deck.shown = ["intro", "shelves"]
-        assert not friends_allowed(deck, False)
-        deck.shown = ["intro", "twin"]
-        assert friends_allowed(deck, False)
+    def test_visitors_get_friends_only_when_a_social_card_can_show(self):
+        deck = WrappedDeck.objects.create(owner=self.me, year=YEAR)
+        assert friends_allowed(deck, 0, True)
+        # an audience the owner has not opened: the rules may show a social card, unless the member hid them
+        assert friends_allowed(deck, 0, False)
+        deck.hidden = {"0": {"*": True}}
+        assert not friends_allowed(deck, 0, False)
+        deck.hidden = {"0": {"*": True, "twin": False}}
+        assert friends_allowed(deck, 0, False)
+        # an audience the owner opened: only when its list has a social card
+        deck.hidden = {}
+        deck.shown = {"0": ["intro", "shelves"]}
+        assert not friends_allowed(deck, 0, False)
+        deck.shown = {"0": ["intro", "twin"]}
+        assert friends_allowed(deck, 0, False)
+        # the followers' audience is not opened yet, so its rules decide
+        assert friends_allowed(deck, 1, False)
         assert (
             build_payload(self.me, YEAR, 0, TZ, include_friends=False)["friends"] == []
         )
@@ -379,17 +392,27 @@ class TestViews:
         assert b'"lang": "en' in r.content and b'"text": {}' in r.content
         assert WrappedDeck.objects.filter(owner=self.me, year=YEAR).exists()
 
+    def test_share_warns_when_signed_out_visitors_cannot_open_the_page(self):
+        url = reverse("journal:wrapped", args=[YEAR])
+        assert b'class="wr-warn"' not in self.owner_client.get(url).content
+        self.me.anonymous_viewable = False
+        self.me.save()
+        r = self.owner_client.get(url)
+        assert b'class="wr-warn"' in r.content
+        assert reverse("users:preferences").encode() in r.content
+        assert self.page(Client()).status_code in (302, 403)
+
     def test_owner_without_year_goes_to_this_year(self):
         r = self.owner_client.get(reverse("journal:wrapped_current_year"))
         assert r.status_code == 302 and str(datetime.date.today().year) in r["Location"]
 
-    def test_save_cleans_input_and_asks_reload_on_visibility(self):
+    def test_save_cleans_input_for_one_audience(self):
         url = reverse("journal:wrapped_save", args=[YEAR])
         self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
         body = {
-            "vis": "followers",
+            "aud": 1,
             "order": ["shelves", "intro", "BAD ID", 3],
-            "hidden": {"quiet": True, "x y": True},
+            "hidden": {"quiet": True, "x y": True, "*": True},
             "shown": ["intro", "shelves"],
             "made": [
                 {
@@ -414,14 +437,12 @@ class TestViews:
         r = self.owner_client.post(
             url, json.dumps(body), content_type="application/json"
         )
-        assert r.json() == {"ok": True, "reload": True}
+        assert r.json() == {"ok": True}
         deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
-        assert (
-            deck.level == 1
-            and deck.order == ["shelves", "intro"]
-            and deck.hidden == {"quiet": True}
-        )
-        assert deck.shown == ["intro", "shelves"]
+        assert deck.order == ["shelves", "intro"]
+        # only the followers' choices change; everyone and the owner keep theirs
+        assert deck.hidden == {"0": {}, "1": {"quiet": True, "*": True}, "2": {}}
+        assert deck.shown["1"] == ["intro", "shelves"]
         assert (
             len(deck.made) == 2
             and deck.made[0]["n"] == 10
@@ -429,37 +450,103 @@ class TestViews:
         )
         assert deck.made[0]["source"] == {"type": "auto", "cat": "all"}
         assert [i["url"] for i in deck.made[1]["source"]["items"]] == ["/book/x"]
-        r = self.owner_client.post(
-            url, json.dumps({"vis": "followers"}), content_type="application/json"
-        )
-        assert r.json()["reload"] is False
+        for bad in ({}, {"aud": 7}, {"aud": "x"}):
+            r = self.owner_client.post(
+                url, json.dumps(bad), content_type="application/json"
+            )
+            assert r.status_code == 400
 
-    def test_visitor_needs_a_shared_deck(self):
-        assert self.page(Client()).status_code == 404
-        WrappedDeck.objects.create(owner=self.me, year=YEAR, visibility=0)
+    def test_music_is_saved_and_reaches_visitors(self):
+        save = reverse("journal:wrapped_save", args=[YEAR])
+        r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+        assert b'"music": null' in r.content and b"bach-bwv846" in r.content
+        assert b'"music": null' in self.page(Client()).content  # no music by default
+        r = self.owner_client.post(
+            save,
+            json.dumps({"aud": 0, "music": "nope"}),
+            content_type="application/json",
+        )
+        assert r.status_code == 400
+        r = self.owner_client.post(
+            save,
+            json.dumps({"aud": 0, "music": "bach-bwv846"}),
+            content_type="application/json",
+        )
+        assert r.status_code == 200
+        assert WrappedDeck.objects.get(owner=self.me, year=YEAR).music == "bach-bwv846"
+        r = self.page(Client())
+        assert b"upload.wikimedia.org" in r.content and b"music_menu" not in r.content
+        self.owner_client.post(
+            save, json.dumps({"aud": 0, "music": ""}), content_type="application/json"
+        )
+        assert WrappedDeck.objects.get(owner=self.me, year=YEAR).music == ""
+
+    def test_new_deck_starts_with_suggested_cards_up_to_the_default_visibility(self):
+        self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+        deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
+        assert deck.hidden == {"0": {}, "1": {}, "2": {}}
+        assert not any(deck.is_off(lv) for lv in (0, 1, 2))
+        # a member who posts to followers by default does not get a public page
+        deck.delete()
+        pref = self.user.preference
+        pref.default_visibility = 1
+        pref.save()
+        self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+        deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
+        assert deck.is_off(0) and not deck.is_off(1) and not deck.is_off(2)
+
+    def test_visitor_needs_a_deck_and_an_open_audience(self):
         assert self.page(Client()).status_code == 404  # never opened by the owner
-        WrappedDeck.objects.filter(owner=self.me).update(shown=["intro", "shelves"])
+        WrappedDeck.objects.create(owner=self.me, year=YEAR)
         r = self.page(Client())
         assert r.status_code == 200
         assert b"Shown Book" in r.content and b'id="wr-publish"' not in r.content
+        # one link serves different cards to different viewers, so no shared cache may keep it
+        assert "private" in r["Cache-Control"]
+        WrappedDeck.objects.filter(owner=self.me).update(hidden={"0": {"*": True}})
+        assert self.page(Client()).status_code == 404
+        # a list the owner saw empty is not shared either
+        WrappedDeck.objects.filter(owner=self.me).update(hidden={}, shown={"0": []})
+        assert self.page(Client()).status_code == 404
 
-    def test_followers_only_and_private_pages(self):
-        WrappedDeck.objects.create(
-            owner=self.me, year=YEAR, visibility=1, shown=["intro"]
+    def test_each_audience_gets_its_own_cards(self):
+        complete(
+            self.me, Edition.objects.create(title="Fans Only Book"), at(2, 3), vis=1
         )
+        WrappedDeck.objects.create(owner=self.me, year=YEAR)
         fan, stranger = Client(), Client()
         fan.force_login(self.fan)
         stranger.force_login(self.stranger)
-        assert self.page(fan).status_code == 200
-        assert self.page(stranger).status_code == 404
-        assert self.page(Client()).status_code == 404
-        WrappedDeck.objects.filter(owner=self.me).update(visibility=2)
+        anon = self.page(Client()).content
+        assert b"Shown Book" in anon and b"Fans Only Book" not in anon
+        assert b"Fans Only Book" not in self.page(stranger).content
+        assert b"Fans Only Book" in self.page(fan).content
+        # followers see nothing of their own: a follower gets everyone's cards
+        WrappedDeck.objects.filter(owner=self.me).update(hidden={"1": {"*": True}})
+        r = self.page(fan)
+        assert r.status_code == 200 and b"Fans Only Book" not in r.content
+        WrappedDeck.objects.filter(owner=self.me).update(
+            hidden={"0": {"*": True}, "1": {"*": True}}
+        )
         assert self.page(fan).status_code == 404
+        assert self.page(Client()).status_code == 404
+
+    def test_owner_views_one_audience_at_a_time(self):
+        complete(
+            self.me, Edition.objects.create(title="Private Note Book"), at(2, 3), vis=2
+        )
+        url = reverse("journal:wrapped", args=[YEAR])
+        r = self.owner_client.get(url)
+        assert b'"level": 0' in r.content and b"Private Note Book" not in r.content
+        assert b"Private Note Book" not in self.owner_client.get(url, {"as": 1}).content
+        r = self.owner_client.get(url, {"as": 2})
+        assert b'"level": 2' in r.content and b"Private Note Book" in r.content
+        # by default the widest audience that sees something
+        WrappedDeck.objects.filter(owner=self.me).update(hidden={"0": {"*": True}})
+        assert b'"level": 1' in self.owner_client.get(url).content
 
     def test_owner_visiting_own_page_goes_to_the_editor(self):
-        WrappedDeck.objects.create(
-            owner=self.me, year=YEAR, visibility=0, shown=["intro"]
-        )
+        WrappedDeck.objects.create(owner=self.me, year=YEAR)
         r = self.page(self.owner_client)
         assert r.status_code == 302 and r["Location"] == reverse(
             "journal:wrapped", args=[YEAR]
@@ -469,9 +556,7 @@ class TestViews:
         complete(
             self.me, Edition.objects.create(title="Private Note Book"), at(2, 3), vis=2
         )
-        WrappedDeck.objects.create(
-            owner=self.me, year=YEAR, visibility=1, shown=["intro"]
-        )
+        WrappedDeck.objects.create(owner=self.me, year=YEAR)
         fan = Client()
         fan.force_login(self.fan)
         assert b"Private Note Book" not in self.page(fan).content
@@ -479,10 +564,15 @@ class TestViews:
     def test_share_rejects_non_png(self):
         url = reverse("journal:wrapped_share", args=[YEAR])
         r = self.owner_client.post(
-            url, {"img": base64.b64encode(b"GIF89a....").decode(), "visibility": 0}
+            url,
+            {
+                "img": base64.b64encode(b"GIF89a....").decode(),
+                "visibility": 0,
+                "aud": 0,
+            },
         )
         assert r.status_code == 400
-        r = self.owner_client.post(url, {"visibility": 0})
+        r = self.owner_client.post(url, {"visibility": 0, "aud": 0})
         assert r.status_code == 400
 
     def test_share_posts_all_images(self):
@@ -498,7 +588,7 @@ class TestViews:
             post.return_value.url = "https://example.org/p/1"
             r = self.owner_client.post(
                 url,
-                {"img": [png, png], "comment": "my year", "visibility": 0},
+                {"img": [png, png], "comment": "my year", "visibility": 0, "aud": 0},
                 HTTP_ACCEPT="application/json",
             )
         assert r.status_code == 200 and up.call_count == 2
@@ -506,6 +596,82 @@ class TestViews:
             up.return_value,
             up.return_value,
         ]
+
+    def test_share_never_reaches_wider_than_the_cards(self):
+        png = (
+            "data:image/png;base64,"
+            + base64.b64encode(b"\x89PNG\r\n\x1a\n" + b"0" * 20).decode()
+        )
+        url = reverse("journal:wrapped_share", args=[YEAR])
+        with (
+            patch("journal.views.wrapped.Takahe.upload_image"),
+            patch("journal.views.wrapped.Takahe.post") as post,
+        ):
+            post.return_value.url = "https://example.org/p/1"
+            # followers' cards carry followers-only counts: never in a public post
+            r = self.owner_client.post(url, {"img": [png], "visibility": 0, "aud": 1})
+            assert r.status_code == 400 and not post.called
+            r = self.owner_client.post(
+                url,
+                {"img": [png], "visibility": 1, "aud": 1},
+                HTTP_ACCEPT="application/json",
+            )
+            assert r.status_code == 200 and post.called
+
+    def test_share_posts_a_video_with_its_still(self):
+        mp4 = b"\x00\x00\x00\x18ftypmp42" + b"0" * 100
+        png = b"\x89PNG\r\n\x1a\n" + b"0" * 20
+        url = reverse("journal:wrapped_share", args=[YEAR])
+        form = {"kind": "video", "comment": "my year", "visibility": 0, "aud": 0}
+        with (
+            patch("journal.views.wrapped.Takahe.upload_attachment") as up,
+            patch("journal.views.wrapped.Takahe.post") as post,
+        ):
+            post.return_value.url = "https://example.org/p/1"
+            r = self.owner_client.post(
+                url,
+                {
+                    **form,
+                    "video": SimpleUploadedFile("v.mp4", mp4, "video/mp4"),
+                    "poster": SimpleUploadedFile("p.png", png, "image/png"),
+                },
+                HTTP_ACCEPT="application/json",
+            )
+            assert r.status_code == 200
+            assert (
+                up.call_args.args[3] == "video/mp4"
+                and up.call_args.kwargs["poster"] == png
+            )
+            assert post.call_args.kwargs["attachments"] == [up.return_value]
+            r = self.owner_client.post(
+                url,
+                {
+                    **form,
+                    "video": SimpleUploadedFile("v.mp4", b"not a video", "video/mp4"),
+                    "poster": SimpleUploadedFile("p.png", png, "image/png"),
+                },
+            )
+            assert r.status_code == 400
+
+    def test_video_attachment_keeps_its_still(self):
+        still = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+        )
+        a = Takahe.upload_attachment(
+            self.me.pk,
+            "wrapped-test.mp4",
+            File(io.BytesIO(b"\x00\x00\x00\x18ftypmp42")),
+            "video/mp4",
+            "alt",
+            poster=still,
+        )
+        try:
+            assert a.is_video() and (a.width, a.height) == (1, 1)
+            assert a.thumbnail and a.blurhash
+        finally:
+            a.file.delete(save=False)  # pyrefly: ignore[missing-attribute]
+            a.thumbnail.delete(save=False)  # pyrefly: ignore[missing-attribute]
+            a.delete()
 
     def test_lookup(self):
         url = reverse("journal:wrapped_lookup")
@@ -524,6 +690,28 @@ class TestViews:
             ]
             == "unsupported"
         )
+
+    def test_avatar_route_and_payload(self):
+        # no picture of its own: no link in the payload, a 404 from the route, and the cards keep the site icon
+        url = reverse("journal:wrapped_avatar", args=[self.me.pk])
+        assert build_payload(self.me, YEAR, 0, TZ)["member"]["avatar_card"] is None
+        assert Client().get(url).status_code == 404
+        png = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+        )
+        ti = self.me.takahe_identity
+        ti.icon.save("wrapped-test.png", ContentFile(png), save=True)  # pyrefly: ignore[missing-attribute]
+        try:
+            link = build_payload(self.me, YEAR, 0, TZ)["member"]["avatar_card"]
+            assert link.startswith(url + "?v=")
+            r = Client().get(link)
+            assert r.status_code == 200 and r.getvalue() == png
+            assert (
+                Client().get(reverse("journal:wrapped_avatar", args=[0])).status_code
+                == 404
+            )
+        finally:
+            ti.icon.delete(save=True)  # pyrefly: ignore[missing-attribute]
 
     def test_cover_route_404_without_cover(self):
         book = Edition.objects.create(title="No Cover")

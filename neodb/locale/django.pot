@@ -10041,10 +10041,6 @@ msgstr ""
 msgid "Replay"
 msgstr ""
 
-#: journal/templates/wrapped.html:36 journal/templates/wrapped.html:190
-msgid "Who can see this page"
-msgstr ""
-
 #: journal/templates/wrapped.html:44 journal/templates/wrapped.html:198
 msgid "Only me"
 msgstr ""
@@ -10057,20 +10053,8 @@ msgstr ""
 msgid "Next card"
 msgstr ""
 
-#: journal/templates/wrapped.html:70
-msgid "All the cards"
-msgstr ""
-
 #: journal/templates/wrapped.html:75
 msgid "Reset order"
-msgstr ""
-
-#: journal/templates/wrapped.html:91
-msgid "Everything, by month"
-msgstr ""
-
-#: journal/templates/wrapped.html:92
-msgid "The full list behind the cards."
 msgstr ""
 
 #: journal/templates/wrapped.html:97
@@ -10129,20 +10113,8 @@ msgstr ""
 msgid "Mentioned only"
 msgstr ""
 
-#: journal/templates/wrapped.html:188
-msgid "The page stays at its link all year. One setting covers the whole page, and hidden cards stay out of it for everyone."
-msgstr ""
-
 #: journal/templates/wrapped.html:206
 msgid "Link to the page"
-msgstr ""
-
-#: journal/templates/wrapped.html:213
-msgid "Every card on the page as a PNG, or one GIF that shows them in turn."
-msgstr ""
-
-#: journal/templates/wrapped.html:216
-msgid "All cards as PNG"
 msgstr ""
 
 #: journal/templates/wrapped.html:219
@@ -11154,18 +11126,6 @@ msgstr ""
 msgid "fewer than three items can be shown, so the collection may have changed"
 msgstr ""
 
-#: journal/wrapped_text.py:272
-msgid "Anyone with the link sees the page; counts use public entries only."
-msgstr ""
-
-#: journal/wrapped_text.py:274
-msgid "Only your followers see the page; counts include followers-only entries."
-msgstr ""
-
-#: journal/wrapped_text.py:276
-msgid "Only you see the page; counts include private entries."
-msgstr ""
-
 #: journal/wrapped_text.py:277
 msgid "hidden by you"
 msgstr ""
@@ -11177,14 +11137,6 @@ msgstr ""
 
 #: journal/wrapped_text.py:279
 msgid "could not be drawn from this data"
-msgstr ""
-
-#: journal/wrapped_text.py:280
-msgid "made"
-msgstr ""
-
-#: journal/wrapped_text.py:281
-msgid "social"
 msgstr ""
 
 #: journal/wrapped_text.py:282
@@ -11217,16 +11169,8 @@ msgstr ""
 msgid "Move {name} later"
 msgstr ""
 
-#: journal/wrapped_text.py:290
-msgid "Pick a card to jump to it."
-msgstr ""
-
 #: journal/wrapped_text.py:291
 msgid "Drag a card to a new place, or use its arrows. The intro stays first and the outro last."
-msgstr ""
-
-#: journal/wrapped_text.py:292
-msgid "The page stays here all year. Hide a card from its footer, change the order with Arrange, or make your own with the plus."
 msgstr ""
 
 #: journal/wrapped_text.py:293
@@ -11242,21 +11186,8 @@ msgstr ""
 msgid "Arrange"
 msgstr ""
 
-#: journal/wrapped_text.py:296
-#, python-brace-format
-msgid "Hidden ({n})"
-msgstr ""
-
-#: journal/wrapped_text.py:297
-msgid "Show"
-msgstr ""
-
 #: journal/wrapped_text.py:298
 msgid "Back to the default order"
-msgstr ""
-
-#: journal/wrapped_text.py:299
-msgid "Could not change who can see the page"
 msgstr ""
 
 #: journal/wrapped_text.py:300
@@ -11489,11 +11420,6 @@ msgstr ""
 msgid "{size} MB, {n} frames at 2.5 s"
 msgstr ""
 
-#: journal/wrapped_text.py:356
-#, python-brace-format
-msgid "GIF failed: {error}"
-msgstr ""
-
 #: journal/wrapped_text.py:361
 #, python-brace-format
 msgid "marks go back {n} year; the trend cards need five"
@@ -11620,13 +11546,6 @@ msgid_plural "{n} tags"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/wrapped_text.py:379
-#, python-brace-format
-msgid "{n} card"
-msgid_plural "{n} cards"
-msgstr[0] ""
-msgstr[1] ""
-
 #: journal/wrapped_text.py:380
 #, python-brace-format
 msgid "{titles} across {n} shelf."
@@ -11668,3 +11587,280 @@ msgid "Posted {n} card to your timeline"
 msgid_plural "Posted {n} cards to your timeline"
 msgstr[0] ""
 msgstr[1] ""
+
+#: journal/templates/wrapped.html:37 journal/templates/wrapped.html:39
+msgid "Your own year"
+msgstr ""
+
+#: journal/templates/wrapped.html:43
+msgid "Sign in"
+msgstr ""
+
+#: journal/templates/wrapped.html:76
+msgid "The whole year"
+msgstr ""
+
+#: journal/templates/wrapped.html:89
+msgid "The year in covers"
+msgstr ""
+
+#: journal/templates/wrapped.html:104 journal/wrapped_text.py:414
+msgid "Edit the deck"
+msgstr ""
+
+#: journal/wrapped_text.py:406
+msgid "Year"
+msgstr ""
+
+#: journal/wrapped_text.py:407
+msgid "Copy link to this card"
+msgstr ""
+
+#: journal/wrapped_text.py:409
+msgid "Pause"
+msgstr ""
+
+#: journal/wrapped_text.py:412
+msgid "See the whole year"
+msgstr ""
+
+#: journal/wrapped_text.py:413
+#, python-brace-format
+msgid "Make your own {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:415
+msgid "Each pile is a month; pick one to see its titles."
+msgstr ""
+
+#: journal/wrapped_text.py:416
+#, python-brace-format
+msgid "{month}, {titles}"
+msgstr ""
+
+#: journal/wrapped_text.py:337
+msgid "Show this card"
+msgstr ""
+
+#: journal/templates/wrapped.html:107 journal/templates/wrapped.html:108
+#: journal/templates/wrapped.html:226 journal/templates/wrapped.html:227
+msgid "Who can see these cards"
+msgstr ""
+
+#: journal/wrapped_text.py:332
+msgid "Hide or show a card with its eye, change the order with Arrange, or make your own with the plus."
+msgstr ""
+
+#: journal/wrapped_text.py:310
+msgid "Anyone with the link sees the cards; counts use public entries only."
+msgstr ""
+
+#: journal/wrapped_text.py:313
+msgid "Only your followers see the cards; counts include followers-only entries."
+msgstr ""
+
+#: journal/wrapped_text.py:316
+msgid "Only you see the cards; counts include private entries."
+msgstr ""
+
+#: journal/templates/wrapped.html:255
+msgid "Every card on the page as PNG files in one ZIP, or as a slideshow in a GIF or an MP4 video."
+msgstr ""
+
+#: journal/templates/wrapped.html:258
+msgid "All cards as ZIP"
+msgstr ""
+
+#: journal/templates/wrapped.html:264
+msgid "MP4 video"
+msgstr ""
+
+#: journal/templates/wrapped.html:268
+msgid "This browser cannot make an MP4 video. The GIF works everywhere."
+msgstr ""
+
+#: journal/wrapped_text.py:402
+#, python-brace-format
+msgid "{size} MB, {n} files"
+msgstr ""
+
+#: journal/wrapped_text.py:403
+#, python-brace-format
+msgid "{size} MB, {seconds} s video"
+msgstr ""
+
+#: journal/templates/wrapped.html:129 journal/wrapped_text.py:406
+msgid "Suggested cards"
+msgstr ""
+
+#: journal/templates/wrapped.html:132
+msgid "Hide all"
+msgstr ""
+
+#: journal/templates/wrapped.html:212
+msgid "Images, up to four cards"
+msgstr ""
+
+#: journal/templates/wrapped.html:216
+msgid "Video of all cards"
+msgstr ""
+
+#: journal/templates/wrapped.html:221 journal/templates/wrapped.html:275
+msgid "ZIP, GIF and video can take a minute and may need the latest Chrome."
+msgstr ""
+
+#: journal/templates/wrapped.html:250
+msgid "People who are not signed in cannot open this page, because your profile is hidden from them."
+msgstr ""
+
+#: journal/templates/wrapped.html:251
+msgid "Change it in Settings"
+msgstr ""
+
+#: journal/templates/wrapped.html:259
+msgid "Change in Edit"
+msgstr ""
+
+#: journal/wrapped_text.py:403
+msgid "Every card is hidden from this audience"
+msgstr ""
+
+#: journal/wrapped_text.py:404
+msgid "Back to the suggested cards"
+msgstr ""
+
+#: journal/wrapped_text.py:405
+msgid "Not shared"
+msgstr ""
+
+#: journal/wrapped_text.py:407
+msgid "Posted the video to your timeline"
+msgstr ""
+
+#: journal/wrapped_text.py:424
+#, python-brace-format
+msgid "{n} card"
+msgid_plural "{n} cards"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:408
+msgid "This audience sees no cards. Show some in Edit."
+msgstr ""
+
+#: journal/templates/wrapped.html:34 journal/templates/wrapped.html:135
+msgid "Background music"
+msgstr ""
+
+#: journal/wrapped_music.py:18
+msgid "Piano Sonata No. 16, K. 545, I. Allegro"
+msgstr ""
+
+#: journal/wrapped_music.py:19
+msgid "W. A. Mozart"
+msgstr ""
+
+#: journal/wrapped_music.py:20 journal/wrapped_music.py:64
+msgid "Performer not named (Musopen)"
+msgstr ""
+
+#: journal/wrapped_music.py:29
+msgid "Prelude in D major, BWV 850"
+msgstr ""
+
+#: journal/wrapped_music.py:30 journal/wrapped_music.py:41
+#: journal/wrapped_music.py:52
+msgid "J. S. Bach"
+msgstr ""
+
+#: journal/wrapped_music.py:31 journal/wrapped_music.py:53
+msgid "Kimiko Ishizaka, piano (Open Well-Tempered Clavier, 2015)"
+msgstr ""
+
+#: journal/wrapped_music.py:40
+msgid "Goldberg Variations, Variation 1"
+msgstr ""
+
+#: journal/wrapped_music.py:42
+msgid "Kimiko Ishizaka, piano (Open Goldberg Variations, 2012)"
+msgstr ""
+
+#: journal/wrapped_music.py:51
+msgid "Prelude in C major, BWV 846"
+msgstr ""
+
+#: journal/wrapped_music.py:62
+msgid "Symphony No. 6 \"Pastoral\", I. Allegro ma non troppo"
+msgstr ""
+
+#: journal/wrapped_music.py:63
+msgid "L. van Beethoven"
+msgstr ""
+
+#: journal/wrapped_music.py:73
+msgid "Waltz Op. 64 No. 1 \"Minute\""
+msgstr ""
+
+#: journal/wrapped_music.py:74
+msgid "F. Chopin"
+msgstr ""
+
+#: journal/wrapped_music.py:75
+msgid "Olga Gurevich, piano (Musopen, Set Chopin Free)"
+msgstr ""
+
+#: journal/wrapped_music.py:84
+msgid "The Nutcracker, Waltz of the Flowers"
+msgstr ""
+
+#: journal/wrapped_music.py:85
+msgid "P. I. Tchaikovsky"
+msgstr ""
+
+#: journal/wrapped_music.py:86
+msgid "United States Air Force Band, concert band (1996)"
+msgstr ""
+
+#: journal/wrapped_music.py:95
+msgid "Corta-Jaca (maxixe)"
+msgstr ""
+
+#: journal/wrapped_music.py:96
+msgid "Chiquinha Gonzaga, Brazil"
+msgstr ""
+
+#: journal/wrapped_music.py:97
+msgid "Grupo Chiquinha Gonzaga: flute, guitar, cavaquinho (about 1912)"
+msgstr ""
+
+#: journal/wrapped_music.py:106
+msgid "Odeon (Brazilian tango), clean rendering"
+msgstr ""
+
+#: journal/wrapped_music.py:107
+msgid "E. Nazareth, Brazil"
+msgstr ""
+
+#: journal/wrapped_music.py:108
+msgid "Computer rendering by Eduardo Feld"
+msgstr ""
+
+#: journal/wrapped_music.py:117
+msgid "Public domain"
+msgstr ""
+
+#: journal/wrapped_text.py:409
+msgid "Sound on"
+msgstr ""
+
+#: journal/wrapped_text.py:410
+msgid "Sound off"
+msgstr ""
+
+#: journal/wrapped_text.py:411
+msgid "No music"
+msgstr ""
+
+#: journal/wrapped_text.py:412
+msgid "The music could not be loaded"
+msgstr ""

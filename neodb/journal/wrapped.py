@@ -7,6 +7,7 @@ Every query is batched: the number of queries does not grow with the number of t
 """
 
 import datetime
+import hashlib
 import logging
 import re
 from collections import defaultdict
@@ -19,6 +20,7 @@ from django.core.cache import cache
 from django.db import connection
 from django.db.models import Count, F, Min, QuerySet, Window
 from django.db.models.functions import RowNumber
+from django.urls import reverse
 
 from catalog.models import (
     Item,
@@ -45,6 +47,7 @@ from .models import (
     TagMember,
     WrappedDeck,
 )
+from .models.wrapped import ALL_HIDDEN, AUDIENCES
 
 logger = logging.getLogger(__name__)
 
@@ -128,11 +131,22 @@ def plain_excerpt(md: str, size: int = EXCERPT_CHARS) -> str:
 
 
 def _member(identity: APIdentity) -> dict[str, Any]:
+    ti = identity.takahe_identity if identity.local else None
+    icon = ti.icon if ti else None
     return {
         "name": identity.display_name,
         "handle": "@" + identity.full_handle,
         "avatar": identity.avatar,
         "url": settings.SITE_INFO["site_url"].rstrip("/") + identity.url,
+        # the profile picture from this site's origin, for the corner of every card; None when the member has not set one.
+        # The file name changes with each new picture, so it versions the link.
+        "avatar_card": (
+            reverse("journal:wrapped_avatar", args=[identity.pk])
+            + "?v="
+            + hashlib.sha1(icon.name.encode()).hexdigest()[:10]
+            if icon
+            else None
+        ),
     }
 
 
@@ -684,15 +698,23 @@ def build_payload(
 def deck_for(owner: APIdentity, year: int, create: bool = False) -> WrappedDeck | None:
     deck = WrappedDeck.objects.filter(owner=owner, year=year).first()
     if deck is None and create:
-        vis = owner.preference.default_visibility if owner.user else 2
+        # every audience starts with the suggested cards, except those wider than the member's default
+        # post visibility: a member who posts to followers by default does not get a public page
+        pref = int(owner.preference.default_visibility) if owner.user else 2
+        hidden = {str(lv): {ALL_HIDDEN: True} if lv < pref else {} for lv in AUDIENCES}
         deck, _ = WrappedDeck.objects.get_or_create(
-            owner=owner, year=year, defaults={"visibility": vis}
+            owner=owner, year=year, defaults={"hidden": hidden}
         )
     return deck
 
 
-def friends_allowed(deck: WrappedDeck | None, is_owner: bool) -> bool:
-    """A visitor gets followed members' data only when the owner left a social card shown."""
+def friends_allowed(deck: WrappedDeck | None, level: int, is_owner: bool) -> bool:
+    """A visitor gets followed members' data only when a social card can be shown to their audience."""
     if is_owner:
         return True
-    return bool(deck and deck.shown and SOCIAL_CARDS.intersection(deck.shown))
+    if not deck:
+        return False
+    shown = deck.shown_for(level)
+    if shown is not None:
+        return bool(SOCIAL_CARDS.intersection(shown))
+    return any(deck.card_hidden(level, c) is not True for c in SOCIAL_CARDS)

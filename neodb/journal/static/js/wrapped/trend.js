@@ -105,7 +105,8 @@
 
   function cards(t, ui) {
     const base = eligible(t), going = t && !t.none && t.inProgress, M = window.WR.MONTHS, ML = window.WR.MONTHS_LONG;
-    const yoy = { id: "yoy", name: _("Year over year"), kind: "computed", interest: base, bg: () => ui.TINT.blue, body: () => {
+    // record: the stage gives a record card one sweep of light; this one when no compared year was as big
+    const yoy = { id: "yoy", name: _("Year over year"), kind: "computed", interest: base, record: base.ok && t.comp.every(w => w.val < t.now.val), bg: () => ui.TINT.blue, body: () => {
       const h = headline(t, ui), avg = Math.round(t.comp.reduce((a, w) => a + w.val, 0) / t.comp.length), cb = t.now.bulk, v = t.now.val + cb;
       const line = (going ? _n("{n} title so far", "{n} titles so far", v) : _n("{n} title", "{n} titles", v)) + (cb ? _(", {n} of them on one bulk day", { n: cb }) : "") + _("; {n} a year on average since {year}", { n: avg, year: t.ws });
       const top = ui.cardTop(h.text, line, { eyebrow: _("Year over year") });
@@ -114,7 +115,7 @@
       return top.svg + columns(t, ui, { top: top.y + 90, bottom: 830 - up, mark: h.mark }) + ui.legend(items, 912 - up);
     } };
     const recs = base.ok ? records(t, ui) : [];
-    const bests = { id: "bests", name: _("Personal bests"), kind: "computed", interest: base.ok ? (recs.length >= 3 ? { ok: true } : { ok: false, reason: recs.length ? _n("only {n} record broken, under three", "only {n} records broken, under three", recs.length) : _("no record broken against the years since {year}", { year: t.ws }) }) : base, bg: () => ui.TINT.green, body: () => {
+    const bests = { id: "bests", name: _("Personal bests"), kind: "computed", record: true, interest: base.ok ? (recs.length >= 3 ? { ok: true } : { ok: false, reason: recs.length ? _n("only {n} record broken, under three", "only {n} records broken, under three", recs.length) : _("no record broken against the years since {year}", { year: t.ws }) }) : base, bg: () => ui.TINT.green, body: () => {
       const n = recs.length, title = { 3: _("Three records"), 4: _("Four records"), 5: _("Five records") }[n];
       const top = ui.cardTop(title, going ? _("set this year, against {start} to {end} of every year since {year}", { start: ML[0], end: ML[t.upTo], year: t.ws }) : _("set this year, against every year since {year}", { year: t.ws }), { eyebrow: _("Personal bests"), size: n > 4 ? 96 : undefined });
       // three to five records in rows of two: the new figure, what it counts, the old best; the note on bulk days takes the empty cell, else goes under the rows

@@ -307,18 +307,18 @@ TEXT = [
         "fewer than three items can be shown, so the collection may have changed"
     ),
     gettext_noop("Public"),
-    gettext_noop("Anyone with the link sees the page; counts use public entries only."),
+    gettext_noop(
+        "Anyone with the link sees the cards; counts use public entries only."
+    ),
     gettext_noop("Followers only"),
     gettext_noop(
-        "Only your followers see the page; counts include followers-only entries."
+        "Only your followers see the cards; counts include followers-only entries."
     ),
     gettext_noop("Only me"),
-    gettext_noop("Only you see the page; counts include private entries."),
+    gettext_noop("Only you see the cards; counts include private entries."),
     gettext_noop("hidden by you"),
     gettext_noop("not shown in a small year, under {n} titles"),
     gettext_noop("could not be drawn from this data"),
-    gettext_noop("made"),
-    gettext_noop("social"),
     gettext_noop("Post this card"),
     gettext_noop("Download PNG"),
     gettext_noop("Hide this card"),
@@ -327,20 +327,17 @@ TEXT = [
     gettext_noop("Move {name} earlier"),
     gettext_noop("Move {name} later"),
     gettext_noop("Make a card"),
-    gettext_noop("Pick a card to jump to it."),
     gettext_noop(
         "Drag a card to a new place, or use its arrows. The intro stays first and the outro last."
     ),
     gettext_noop(
-        "The page stays here all year. Hide a card from its footer, change the order with Arrange, or make your own with the plus."
+        "Hide or show a card with its eye, change the order with Arrange, or make your own with the plus."
     ),
     gettext_noop("{shown} cards shown, {hidden} hidden."),
     gettext_noop("Done"),
     gettext_noop("Arrange"),
-    gettext_noop("Hidden ({n})"),
-    gettext_noop("Show"),
+    gettext_noop("Show this card"),
     gettext_noop("Back to the default order"),
-    gettext_noop("Could not change who can see the page"),
     gettext_noop("{month} was the busiest month with {n}; the quietest was {quiet}."),
     gettext_noop("The longest run of days with something logged was {days}."),
     gettext_noop("The year is still running."),
@@ -401,11 +398,35 @@ TEXT = [
     gettext_noop("Export failed: {error}"),
     gettext_noop("GIF preview"),
     gettext_noop("{size} MB, {n} frames at 2.5 s"),
-    gettext_noop("GIF failed: {error}"),
+    gettext_noop("{size} MB, {n} files"),
+    gettext_noop("{size} MB, {seconds} s video"),
+    gettext_noop("Every card is hidden from this audience"),
+    gettext_noop("Back to the suggested cards"),
+    gettext_noop("Not shared"),
+    gettext_noop("Suggested cards"),
+    gettext_noop("Posted the video to your timeline"),
+    gettext_noop("This audience sees no cards. Show some in Edit."),
+    gettext_noop("Sound on"),
+    gettext_noop("Sound off"),
+    gettext_noop("No music"),
+    gettext_noop("The music could not be loaded"),
+    # the stage, the piles of covers and the end of the page
+    gettext_noop("Year"),
+    gettext_noop("Copy link to this card"),
+    gettext_noop("Play"),
+    gettext_noop("Pause"),
+    gettext_noop("Replay"),
+    gettext_noop("Share"),
+    gettext_noop("See the whole year"),
+    gettext_noop("Make your own {year}"),
+    gettext_noop("Edit the deck"),
+    gettext_noop("Each pile is a month; pick one to see its titles."),
+    gettext_noop("{month}, {titles}"),
 ]
 
 # each pair as a function of n, so gettext sees the literal forms; the key is the singular
 PLURALS = [
+    lambda n: ngettext("{n} card", "{n} cards", n),
     lambda n: ngettext(
         "marks go back {n} year; the trend cards need five",
         "marks go back {n} years; the trend cards need five",
@@ -452,7 +473,6 @@ PLURALS = [
         "only {n} title tagged, under {min}", "only {n} titles tagged, under {min}", n
     ),
     lambda n: ngettext("{n} tag", "{n} tags", n),
-    lambda n: ngettext("{n} card", "{n} cards", n),
     lambda n: ngettext("{titles} across {n} shelf.", "{titles} across {n} shelves.", n),
     lambda n: ngettext(
         "The longest run of days with something logged was {days}, and {n} title got five stars.",

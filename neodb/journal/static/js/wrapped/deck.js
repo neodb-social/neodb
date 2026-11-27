@@ -1,15 +1,29 @@
 (function () {
-  // a year with no finished title: say so instead of drawing empty cards
+  // the owner can go to another year from the top bar: every year from the first finished title to this one
+  (function years() {
+    const D = WR.D, el = document.getElementById("wr-yr");
+    if (!D.owner_view || !el || !D.make_url) return;
+    const now = new Date().getFullYear(), first = D.history && D.history.first ? +D.history.first.slice(0, 4) : D.year, ys = [];
+    for (let y = now; y >= Math.min(first, D.year); y--) ys.push(y);
+    if (ys.length < 2) return;
+    const sel = document.createElement("select");
+    sel.id = "wr-yr"; sel.className = "wr-yr"; sel.setAttribute("aria-label", WR._("Year"));
+    sel.innerHTML = ys.map(y => `<option${y === D.year ? " selected" : ""}>${y}</option>`).join("");
+    sel.onchange = () => { location.href = D.make_url.replace(`/${D.year}/`, `/${sel.value}/`); };
+    el.replaceWith(sel);
+  })();
+  // a year with no finished title: say so on the stage instead of drawing empty cards
   if (WR.empty) {
-    const lede = document.getElementById("wr-lede");
+    const msg = document.getElementById("wr-empty");
     const past = WR.D.year < new Date().getFullYear();
-    if (lede) lede.textContent = past ? WR._("Nothing was finished in {year}.", { year: WR.D.year }) : WR.D.owner_view ? WR._("Nothing finished this year yet. Mark a title as complete and the cards fill in.") : WR._("Nothing finished this year yet.");
-    document.querySelectorAll(".wrapped-page > section:not(:first-of-type), .wr-toolbar, .deck-nav, #wr-deck, #wr-dots, #wr-stats").forEach(e => { e.hidden = true; });
+    msg.textContent = past ? WR._("Nothing was finished in {year}.", { year: WR.D.year }) : WR.D.owner_view ? WR._("Nothing finished this year yet. Mark a title as complete and the cards fill in.") : WR._("Nothing finished this year yet.");
+    msg.hidden = false;
+    document.querySelectorAll(".wrapped-page, #wr-dots, #wr-deck, .wr-ctl, #wr-cue, #wr-edit, #wr-publish").forEach(e => { e.hidden = true; });
     return;
   }
   const { src, D, _, _n, CATS, CAT_LABEL, CAT_NOUN, CAT_ICON, CAT_COLOR, MONTHS, MONTHS_LONG, MONTHS_NARROW, ROLE_LABEL, stats: S, esc, cover, stars, fmtDate, who, trunc, SVG } = WR;
   // the owner gets the editing controls and saves to the server; a visitor sees the cards the owner left shown
-  const OWNER = !!D.owner_view, URLS = D.urls || {}, CDN = document.querySelector(".wrapped-page").dataset.cdn || "https://cdn.jsdelivr.net";
+  const OWNER = !!D.owner_view, URLS = D.urls || {}, CDN = document.getElementById("wr-stage").dataset.cdn || "https://cdn.jsdelivr.net";
   const CSRF = (document.querySelector("[name=csrfmiddlewaretoken]") || {}).value || "";
   const $ = id => document.getElementById("wr-" + id);
   const n = S.items.length, Y = D.year, base = D.member.url.split("/users/")[0];
@@ -19,7 +33,7 @@
   const SMALL = n < RULE.SMALL, COMPACT = new Set(["intro", "covers", "top", "outro"]);
   const INK = SVG.ink, MUTED = SVG.muted, PRIMARY = SVG.primary, LINE = SVG.line;
   const LOGO = { green: "#8EAD78", blue: "#4A9FD0", coral: "#E9795D" };
-  let TINT = { green: "#eef3ea", blue: "#e8f2f8", coral: "#fbece8", paper: "#fbfcfc", own: "#f1f3f4", own2: "#eef2f5" };
+  let TINT = { green: "#eef3ea", blue: "#e8f2f8", coral: "#fbece8", paper: "#fbfcfc", own: "#f1f3f4", own2: "#eef2f5", piece: "#b1c5d1", piece2: "#a3bbc9" };
   const first = D.member.name.split(" ")[0];
   const path = u => String(u || "").replace(base, "");
   // sentences joined with a space, except after full-width punctuation as in Chinese
@@ -81,6 +95,8 @@
   const STREAK_KINDS = new Set(["progress", "complete", "dropped", "note", "comment", "review"]);
   const ACT = (D.activity || S.items.map(i => ({ date: i.date, kind: "complete", vis: 0 }))).filter(a => STREAK_KINDS.has(a.kind) && String(a.date).startsWith(String(Y)) && !(a.kind === "complete" && BULK.has(a.date)));
   const levelOf = v => v === "followers" ? 1 : v === "me" ? 2 : 0;
+  // the audience whose cards this page shows: a visitor's own, or the one the owner views and edits (0 everyone, 1 followers, 2 the owner)
+  const LEVEL = [0, 1, 2].includes(D.level) ? D.level : 2, AUD = ["public", "followers", "me"][LEVEL];
   const pad2 = x => String(x).padStart(2, "0");
   const isoDay = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   const addDays = (d, k) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + k, 12);
@@ -176,9 +192,16 @@
   const ICON = { g: "M 22 16 L 74 16 A 6 6 0 0 1 80 22 L 80 38 A 6 6 0 0 1 74 44 L 71.3246 44 A 4.2 4.2 0 0 0 68.4495 51.2617 A 6.5 6.5 0 1 1 59.5505 51.2617 A 4.2 4.2 0 0 0 56.6754 44 L 37.3246 44 A 0.2 0.2 0 0 1 37.1877 43.6542 A 10.5 10.5 0 1 0 22.8123 43.6542 A 0.2 0.2 0 0 1 22.6754 44 L 22 44 A 6 6 0 0 1 16 38 L 16 22 A 6 6 0 0 1 22 16 Z", b: "M 22 48 L 22.6754 48 A 4.2 4.2 0 0 0 25.5505 40.7383 A 6.5 6.5 0 1 1 34.4495 40.7383 A 4.2 4.2 0 0 0 37.3246 48 L 38 48 A 6 6 0 0 1 44 54 L 44 56.6754 A 0.2 0.2 0 0 1 43.6542 56.8123 A 10.5 10.5 0 1 0 43.6542 71.1877 A 0.2 0.2 0 0 1 44 71.3246 L 44 74 A 6 6 0 0 1 38 80 L 22 80 A 6 6 0 0 1 16 74 L 16 54 A 6 6 0 0 1 22 48 Z", c: "M 54 48 L 56.6754 48 A 0.2 0.2 0 0 1 56.8123 48.3458 A 10.5 10.5 0 1 0 71.1877 48.3458 A 0.2 0.2 0 0 1 71.3246 48 L 74 48 A 6 6 0 0 1 80 54 L 80 74 A 6 6 0 0 1 74 80 L 54 80 A 6 6 0 0 1 48 74 L 48 71.3246 A 4.2 4.2 0 0 0 40.7383 68.4495 A 6.5 6.5 0 1 1 40.7383 59.5505 A 4.2 4.2 0 0 0 48 56.6754 L 48 54 A 6 6 0 0 1 54 48 Z", a: "M57 30.5V22 M57 30.5L65.085 27.873 M57 30.5L61.996 37.377 M57 30.5L52.004 37.377 M57 30.5L48.915 27.873" };
   let iconN = 0;
   function iconMark(x, y, size, opacity) { const id = "ik" + (iconN++); const k = size / 64; return `<g transform="translate(${x - 16 * k},${y - 16 * k}) scale(${k})" opacity="${opacity}"><defs><mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="96" height="96"><rect width="96" height="96" fill="#fff"/><path d="${ICON.a}" fill="none" stroke="#000" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/></mask></defs><g mask="url(#${id})"><path fill="#8EAD78" d="${ICON.g}"/><path fill="#4A9FD0" d="${ICON.b}"/><path fill="#E9795D" d="${ICON.c}"/></g></g>`; }
-  function card(bg, body, foot) { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" font-family="${SVG.font}"><rect class="bg" width="1080" height="1080" fill="${bg}"/>${body}${iconMark(80, 968, 40, 0.45)}<text x="1000" y="1006" text-anchor="end" font-size="28" fill="${MUTED}">${esc(foot || D.member.handle)}</text></svg>`; }
+  // the member's own picture in a 44-unit circle in the corner, where the faded site icon is when the member has not set one
+  const AVATAR = D.member.avatar_card || "";
+  function cornerMark() { if (!AVATAR) return iconMark(80, 968, 40, 0.45); const id = "av" + (iconN++); return `<g class="av"><clipPath id="${id}"><circle cx="100" cy="988" r="22"/></clipPath><circle cx="100" cy="988" r="22" fill="${LINE}"/><image href="${esc(AVATAR)}" x="78" y="966" width="44" height="44" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/><circle cx="100" cy="988" r="22" fill="none" stroke="#000" stroke-opacity="0.12" stroke-width="1.5"/></g>`; }
+  // ink: the handle in the text colour, for a card whose handle sits on a shape (the outro's cover piece)
+  function card(bg, body, foot, ink) { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" font-family="${SVG.font}"><rect class="bg" width="1080" height="1080" fill="${bg}"/>${body}${cornerMark()}<text x="1000" y="1006" text-anchor="end" font-size="28" fill="${ink ? INK : MUTED}">${esc(foot || D.member.handle)}</text></svg>`; }
   const UI = { T, G, eyebrow, big, sub, wrapText, head, cardTop, legend, legendRows, hatchRect, wrapW, EST, CAT_COLOR, CAT_LABEL, CAT_NOUN, CATS, INK, MUTED, LINE, get TINT() { return TINT; } };
-  const blobs = (a, b, c) => `<g class="drift"><circle cx="900" cy="180" r="150" fill="${a}" opacity="0.55"/></g><g class="drift2"><circle cx="1010" cy="320" r="100" fill="${b}" opacity="0.55"/></g><g class="drift"><circle cx="960" cy="450" r="70" fill="${c}" opacity="0.55"/></g>`;
+  // the intro and the outro carry one large piece of the default cover, traced in its 1200-unit space and cropped by the card;
+  // the asterisk is a second sub-path, so with fill-rule evenodd it is a hole that always shows the card background
+  const PIECE = { piece: "M1436 -240.5C1294 -240.7 729.1 -240.8 587 -240.5C444.9 -240.2 584.3 -279 583.7 -238.7C583.1 -198.5 579.7 -65.9 583.5 1C587.2 67.9 601.9 133.7 606.1 162.4C610.2 191.1 607.2 169.9 608.3 173.3C609.4 176.7 610.9 180.3 612.6 182.9C614.3 185.5 616.3 187.5 618.5 189C620.6 190.5 622.9 191.5 625.6 192C628.2 192.5 631.3 192.4 634.4 191.8C637.4 191.2 639.6 190.9 643.9 188.4C648.2 185.8 656.1 180.2 660.3 176.7C664.5 173.3 663.2 174.8 669.2 167.7C675.2 160.5 689.5 141.6 696.3 133.7C703.1 125.8 705.3 124.4 709.8 120.4C714.3 116.4 718.3 113.1 723.3 109.8C728.4 106.5 734.9 102.9 740.1 100.6C745.3 98.3 749.1 97 754.4 95.9C759.7 94.8 766.3 94 771.9 94C777.4 94 782.2 94.7 787.6 96C793 97.4 798.4 99.1 804.3 102.2C810.2 105.3 817.5 110.3 822.9 114.6C828.2 118.9 831.6 121.9 836.6 127.8C841.7 133.8 848.4 142.7 853.2 150.3C858 157.8 861.7 165.2 865.3 173.1C868.9 181 872 189.1 874.8 197.7C877.5 206.3 880.1 216.4 881.8 224.6C883.6 232.9 884.5 238 885.4 247C886.2 256 887 269.2 887 278.9C887 288.5 886.1 297 885.2 304.9C884.3 312.7 883.3 318.5 881.5 326C879.6 333.5 876.9 342.8 874.3 349.9C871.7 356.9 869.4 362.1 865.8 368.3C862.2 374.5 856.9 382.1 852.6 387.2C848.4 392.3 845 395.4 840.4 398.9C835.8 402.4 829.7 406 824.9 408.3C820 410.7 816.3 411.8 811.4 412.9C806.4 413.9 800.1 414.5 795 414.6C789.9 414.7 786 414.4 780.9 413.5C775.7 412.6 768.7 410.7 764.1 409.3C759.5 407.9 758.5 407.6 753.3 405.1C748.1 402.7 741.9 400 733.1 394.4C724.3 388.7 708.1 376.3 700.4 371.1C692.8 365.9 692.6 365.6 687.3 363.1C681.9 360.7 673 357.5 668.3 356.2C663.6 354.9 661.7 355.3 659 355.4C656.3 355.4 654.4 355.6 652 356.5C649.6 357.4 646.3 359.1 644.3 360.8C642.4 362.5 641.3 363.9 640.1 366.7C639 369.6 637.8 373.3 637.5 378C637.3 382.7 632.2 346.9 638.7 394.7C645.3 442.5 669.9 617.4 676.7 664.9C683.4 712.3 678.4 675.3 679.4 679.1C680.3 683 680.9 684.9 682.5 688C684.1 691.1 686.5 695.1 688.8 697.7C691 700.3 692.7 701.7 696 703.5C699.3 705.2 704.4 707.2 708.4 708.1C712.4 708.9 670 715.2 720 708.6C770 702 957.9 675.4 1008.1 668.7C1058.3 661.9 1016.9 667.7 1021.1 668.3C1025.4 668.8 1030.5 670.5 1033.5 672C1036.5 673.5 1037.7 675.3 1039.1 677.4C1040.5 679.5 1041.4 681.7 1042 684.5C1042.5 687.3 1042.7 690.6 1042.4 694C1042.1 697.4 1042.4 699.2 1040.2 704.7C1038.1 710.2 1034.8 718.4 1029.5 727C1024.1 735.6 1013.6 748.3 1008.1 756.6C1002.5 764.9 999.3 770.6 996.1 776.7C993 782.9 990.8 788.8 989.1 793.6C987.3 798.3 986.6 801.1 985.6 805.3C984.7 809.5 983.9 814.5 983.5 819C983.2 823.5 983.2 828.1 983.5 832C983.8 835.9 984.1 838.4 985.1 842.4C986.2 846.3 987.8 851.7 989.7 855.9C991.5 860 993.4 863.4 996.2 867.3C999 871.2 1002.9 875.8 1006.3 879.3C1009.7 882.7 1012.8 885.2 1016.6 887.9C1020.3 890.7 1022.3 892.6 1028.7 895.9C1035.2 899.1 1047.9 904.6 1055.3 907.3C1062.7 910.1 1067.2 911 1073.3 912.4C1079.4 913.7 1082.9 914.8 1092 915.6C1101.1 916.5 1115.9 917.8 1128 917.5C1140.1 917.2 1152.2 916 1164.6 914.1C1176.9 912.1 1156.8 907.1 1202 905.7C1247.2 904.3 1396.5 906 1436 905.7C1475.5 905.3 1438.6 1094.2 1439.2 903.8C1439.8 713.3 1439.6 -46.5 1439.5 -237C1439.4 -427.5 1439.4 -238.8 1438.9 -239.4C1438.3 -239.9 1578 -240.3 1436 -240.5Z", star: "M1052 50.4C1050.4 50.4 1048.4 50.7 1046.8 51.3C1045.2 51.9 1043.5 53 1042.4 53.9C1041.3 54.8 1040.8 55.4 1040.1 56.7C1039.4 58 1038.6 59.9 1038.2 61.6C1037.9 63.2 1037.4 60.2 1038.1 66.4C1038.8 72.7 1042 93.1 1042.6 99C1043.2 104.9 1042.2 101.1 1041.8 101.6C1041.3 102.1 1046.1 102.8 1039.7 101.9C1033.3 101 1010.1 96.9 1003.3 96.1C996.5 95.3 1000.1 96.7 998.8 97.3C997.4 97.9 996.2 98.6 995.1 99.6C994.1 100.5 993.2 101.7 992.5 103C991.8 104.3 991.2 106 990.9 107.3C990.6 108.6 990.5 109.7 990.7 110.9C990.8 112.2 991.1 113.5 991.7 114.9C992.3 116.2 993.2 118 994.3 119.2C995.4 120.4 996.1 121.3 998.3 122.1C1000.6 123 1001.9 123.3 1007.9 124.5C1013.8 125.7 1029.5 128.2 1034.3 129.1C1039.1 130.1 1036.4 129.8 1036.8 130.5C1037.1 131.1 1039.1 127.8 1036.5 133C1033.9 138.2 1024.1 156 1021.3 161.7C1018.5 167.4 1019.9 165.3 1019.7 167.1C1019.5 169 1019.6 171 1020 172.6C1020.3 174.2 1020.9 175.3 1021.9 176.6C1022.8 178 1024.3 179.5 1025.9 180.5C1027.4 181.5 1029.1 182.2 1031.1 182.4C1033.2 182.6 1036.5 182.1 1038.2 181.7C1039.9 181.3 1040.5 180.6 1041.4 179.9C1042.4 179.2 1042.8 178.8 1043.9 177.4C1044.9 175.9 1044.9 176.6 1047.8 171.3C1050.7 166 1058.6 150.2 1061.1 145.7C1063.7 141.2 1062.4 144.3 1063.1 144.2C1063.8 144.1 1061.3 141.4 1065.3 145.3C1069.2 149.2 1082.2 163.2 1086.7 167.7C1091.2 172.2 1090.8 171.2 1092.3 172.1C1093.9 173.1 1094.9 173.1 1096.1 173.3C1097.4 173.5 1098.6 173.5 1099.9 173.4C1101.2 173.2 1102.7 172.9 1103.9 172.4C1105.2 171.8 1106.6 170.9 1107.6 170.1C1108.6 169.2 1109.2 168.8 1109.9 167.4C1110.7 166 1111.6 163.2 1112 161.6C1112.3 159.9 1112.1 158.9 1111.9 157.6C1111.7 156.3 1111.7 155.5 1110.7 153.9C1109.7 152.2 1110.2 152.3 1105.9 147.6C1101.6 142.9 1088.3 129.6 1084.7 125.7C1081.1 121.8 1084 124.7 1084.1 124.1C1084.3 123.5 1080.1 125.1 1085.7 122.1C1091.3 119.2 1111.7 109.5 1117.6 106.1C1123.6 102.8 1120.6 103.4 1121.6 102C1122.5 100.6 1123 99.6 1123.3 97.9C1123.5 96.1 1123.6 93.3 1123.1 91.4C1122.6 89.4 1121.7 87.7 1120.4 86.1C1119.1 84.6 1117 83.1 1115.3 82.3C1113.6 81.5 1112.2 81.2 1110 81.4C1107.8 81.6 1108 80.7 1101.9 83.4C1095.7 86 1078.1 95.1 1073 97.5C1067.9 99.9 1071.8 97.9 1071.3 97.6C1070.8 97.2 1070.9 100.6 1070.1 95.4C1069.2 90.2 1067 72.5 1066.1 66.4C1065.1 60.4 1064.9 60.8 1064.4 59.1C1063.9 57.5 1063.8 57.5 1063 56.5C1062.2 55.4 1060.8 53.7 1059.7 52.9C1058.6 52 1057.7 51.6 1056.4 51.2C1055.1 50.8 1053.6 50.4 1052 50.4Z" };
+  const piece = (place, fill, d, sx, sy) => `<g class="slot" style="--sx:${sx}px;--sy:${sy}px;--d:0ms"><path class="piece" transform="${place}" fill="${fill}" fill-rule="evenodd" d="${d}"/></g>`;
 
   // ---------- the cards ----------
   // the cover-and-column layout of the single-title cards: a 2:3 cover up to `w` wide, a column of lines to its right
@@ -210,7 +233,7 @@
     const cards = [];
     const ok = (cond, reason) => cond ? { ok: true } : { ok: false, reason };
     const introLine = (S.lastMonth < 11 ? _n("{titles} across {n} shelf, so far", "{titles} across {n} shelves, so far", S.cats.length, { titles: _n("{n} title", "{n} titles", n) }) : _n("{titles} across {n} shelf", "{titles} across {n} shelves", S.cats.length, { titles: _n("{n} title", "{n} titles", n) }));
-    cards.push({ id: "intro", name: _("Intro"), kind: "computed", interest: { ok: true }, bg: () => TINT.own, body: () => `${blobs(LOGO.blue, LOGO.green, LOGO.coral)}${eyebrow(_("Annual summary"))}${String(Y).split("").map((ch, i) => T(80 + i * 180, 560, ch, 300, { weight: 800, cls: "rise", d: 100 + i * 120 })).join("")}${T(80, 680, _("{name}’s year", { name: D.member.name }), 48, { weight: 700, ls: -1, cls: "rise", d: 600 })}${T(80, 740, introLine, 34, { fill: MUTED, cls: "rise", d: 700 })}${trIntro ? T(80, 790, trIntro[0].toUpperCase() + trIntro.slice(1), 34, { fill: MUTED, cls: "rise", d: 800 }) : ""}` });
+    cards.push({ id: "intro", name: _("Intro"), kind: "computed", interest: { ok: true }, bg: () => TINT.own, body: () => `${piece("translate(35 -35) scale(0.9)", TINT.piece, PIECE.piece + PIECE.star, 60, -60)}${eyebrow(_("Annual summary"))}${String(Y).split("").map((ch, i) => T(80 + i * 180, 560, ch, 300, { weight: 800, cls: "rise", d: 100 + i * 120 })).join("")}${T(80, 680, _("{name}’s year", { name: D.member.name }), 48, { weight: 700, ls: -1, cls: "rise", d: 600 })}${T(80, 740, introLine, 34, { fill: MUTED, cls: "rise", d: 700 })}${trIntro ? T(80, 790, trIntro[0].toUpperCase() + trIntro.slice(1), 34, { fill: MUTED, cls: "rise", d: 800 }) : ""}` });
     // a small year: every cover on one card, in the order finished, as large as the space allows
     cards.push({ id: "covers", name: _("Your year in covers"), kind: "computed", interest: ok(SMALL, _("only in a small year, under {n} titles", { n: RULE.SMALL })), bg: () => TINT.paper, body: () => {
       const its = S.items, N = its.length, t = cardTop(_n("{n} title", "{n} titles", N), "", { eyebrow: _("Your year in covers"), count: N });
@@ -219,7 +242,7 @@
       const { cols, rows, w } = best, h = w * 1.5, x0 = 80 + (AW - (cols * w + (cols - 1) * g)) / 2, y0 = top0 + (AH - (rows * h + (rows - 1) * g)) / 2;
       return t.svg + its.map((it, k) => coverSvg(it, x0 + (k % cols) * (w + g), y0 + Math.floor(k / cols) * (h + g), w, h, "pop", 250 + k * Math.min(90, 1400 / N), "bottom")).join("");
     } });
-    const lvNow = () => levelOf(deckState.vis), droppedN = () => ACT.filter(a => a.kind === "dropped" && (a.vis || 0) <= lvNow()).length;
+    const lvNow = () => LEVEL, droppedN = () => ACT.filter(a => a.kind === "dropped" && (a.vis || 0) <= lvNow()).length;
     cards.push({ id: "shelves", name: _("Shelves"), kind: "computed", interest: { ok: true }, bg: () => TINT.green, body: () => {
       const t = cardTop(_n("{n} title", "{n} titles", n), "", { eyebrow: _("Completed"), count: n }), bmax = Math.max(...S.cats.map(c => S.byCat[c].length)), pitch = S.cats.length > 6 ? 64 : 72;
       let y = t.y + 50, bars = "";
@@ -298,7 +321,7 @@
       return b;
     } });
     // a streak of seven days or more is the headline; a shorter one becomes a line on the active-days card
-    const lv = levelOf(deckState.vis), sAt = activityAt(lv), streakMode = sAt.streak >= RULE.STREAK, nd = k => _n("{n} day", "{n} days", k);
+    const lv = LEVEL, sAt = activityAt(lv), streakMode = sAt.streak >= RULE.STREAK, nd = k => _n("{n} day", "{n} days", k);
     const FIN = LOGO.green, OTH = LOGO.blue, EMPTY = "#dfe5dc";
     function activeDays(a) {
       const step = 27, cell = 21, x0 = 162, span = a.streak >= 2 ? _("with something logged; the longest run, outlined, was {n} days, {start} to {end}", { n: a.streak, start: fmtDate(isoDay(a.start)), end: fmtDate(isoDay(a.end)) }) : _("with something logged; never two days in a row");
@@ -456,7 +479,7 @@
       return t.svg + r.svg + (day[1].length > 4 ? T(80, r.bottom + 48, _("and {n} more", { n: day[1].length - 4 }), 34, { fill: MUTED, cls: "fade", d: 800 }) : "");
     } });
     // Your tags: the most used tags of the year, counted at the page's visibility, and the titles under the top tag
-    const lvT = levelOf(deckState.vis), tagData = S.items.some(i => Array.isArray(i.tags)), tagMap = new Map(); let tagged = 0;
+    const lvT = LEVEL, tagData = S.items.some(i => Array.isArray(i.tags)), tagMap = new Map(); let tagged = 0;
     S.items.forEach(i => { const ts = (i.tags || []).filter(([, v]) => (v || 0) <= lvT); if (ts.length) tagged++; ts.forEach(([t]) => { if (!tagMap.has(t)) tagMap.set(t, []); tagMap.get(t).push(i); }); });
     const tagList = [...tagMap.entries()].map(([t, its]) => ({ t, its })).sort((a, b) => b.its.length - a.its.length || a.t.localeCompare(b.t));
     cards.push({ id: "tags", name: _("Your tags"), kind: "computed", interest: ok(tagged >= RULE.TAGGED, !tagData ? _("tags are not in this data") : tagged ? _n("only {n} title tagged, under {min}", "only {n} titles tagged, under {min}", tagged, { min: RULE.TAGGED }) : _("no tags on this year's titles")), bg: () => TINT.coral, body: () => {
@@ -481,17 +504,17 @@
     } });
     return cards;
   }
-  function outro() { return { id: "outro", name: _("Outro"), kind: "computed", interest: { ok: true }, bg: () => TINT.own2, body: () => `${blobs(LOGO.coral, LOGO.blue, LOGO.green)}${T(80, 520, _("See you in"), 120, { weight: 800, ls: -3.6, cls: "rise", d: 100 })}${T(80, 660, Y + 1, 120, { fill: PRIMARY, weight: 800, ls: -3.6, cls: "rise", d: 250 })}${T(80, 750, D.member.url, 34, { fill: MUTED, cls: "fade", d: 400 })}` }; }
+  function outro() { return { id: "outro", name: _("Outro"), kind: "computed", interest: { ok: true }, footInk: true, bg: () => TINT.own2, body: () => `${piece("translate(35 1115) scale(0.9 -0.9)", TINT.piece2, PIECE.piece, 60, 60)}${T(80, 520, _("See you in"), 120, { weight: 800, ls: -3.6, cls: "rise", d: 100 })}${T(80, 660, Y + 1, 120, { fill: PRIMARY, weight: 800, ls: -3.6, cls: "rise", d: 250 })}${T(80, 750, D.member.url, 34, { fill: MUTED, cls: "fade", d: 400 })}` }; }
 
   // ---------- made cards: top N as a collection ----------
   // the deck starts from the member's default post visibility; the server keeps the member's choices
-  let deckState = Object.assign({ vis: "me", order: [], hidden: {} }, D.deck || {}), made = deckState.made || [], arranging = false, saveTimer = null, savedShown = JSON.stringify(D.shown || null);
+  let deckState = Object.assign({ order: [], hidden: {} }, D.deck || {}), made = deckState.made || [], arranging = false, saveTimer = null, savedShown = JSON.stringify(D.shown || null);
   delete deckState.made;
   function persist(extra) {
     if (!OWNER) return Promise.resolve({});
     const shown = (state.shown || []).map(c => c.id);
     savedShown = JSON.stringify(shown);
-    return fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify(Object.assign({ order: deckState.order, hidden: deckState.hidden, made, shown }, extra || {})) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    return fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify(Object.assign({ aud: LEVEL, order: deckState.order, hidden: deckState.hidden, made, shown }, extra || {})) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
   }
   const saveDeck = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => persist().catch(() => toast(_("Could not save the deck; try again"))), 300); };
   // ---------- made cards: items from highest marks, a collection, or picked by hand ----------
@@ -557,11 +580,13 @@
     return ordered([by("intro"), by("covers"), by("shelves"), tc.yoy, by("busiest"), by("biggest"), by("top"), by("quiet"), by("disagree"), by("streak"), by("weeks"), xb("marathonday"), by("era"), tc.taste, by("people"), xb("tags"), ...s, ...madeCards(), xb("versus"), xb("finally"), xb("waiting"), xb("essay"), tc.bests, outro()].filter(Boolean));
   }
   // one visibility for the whole page; a card is only shown or hidden, and a card the rules reject starts hidden with its reason
-  const PAGEVIS = { public: { label: _("Public"), note: _("Anyone with the link sees the page; counts use public entries only.") }, followers: { label: _("Followers only"), note: _("Only your followers see the page; counts include followers-only entries.") }, me: { label: _("Only me"), note: _("Only you see the page; counts include private entries.") } };
+  const REOPEN = "wr-reopen";
+  const PAGEVIS = { public: { label: _("Public"), note: _("Anyone with the link sees the cards; counts use public entries only.") }, followers: { label: _("Followers only"), note: _("Only your followers see the cards; counts include followers-only entries.") }, me: { label: _("Only me"), note: _("Only you see the cards; counts include private entries.") } };
   // the member's order, if any; intro and outro stay put, and a card new since the last arrange goes just before the outro
   const FIXED = new Set(["intro", "outro"]);
   // hidden unless the member says otherwise: a card the rules reject, and in a small year every card outside the compact set
-  const byDefault = c => !c.interest.ok || (SMALL && !COMPACT.has(c.id) && c.kind !== "made");
+  // "*": the member hid every card of this audience, so a card without an override of its own stays hidden
+  const byDefault = c => deckState.hidden["*"] === true || !c.interest.ok || (SMALL && !COMPACT.has(c.id) && c.kind !== "made");
   function ordered(cards) {
     const pos = new Map(deckState.order.map((id, i) => [id, i]));
     if (!pos.size) return cards;
@@ -577,42 +602,58 @@
   function render() {
     cid = 0;
     const cards = allCards();
-    const visible = OWNER ? null : new Set(D.shown || []);
-    cards.forEach(c => { const own = deckState.hidden[c.id]; c.hidden = visible ? !visible.has(c.id) : own != null ? own : byDefault(c); c.why = own ? _("hidden by you") : !c.interest.ok ? c.interest.reason : byDefault(c) ? _("not shown in a small year, under {n} titles", { n: RULE.SMALL }) : ""; });
-    cards.forEach(c => { if (!c.hidden) { try { c.svg = card(c.bg(), c.body(), c.foot); } catch (e) { console.warn("card failed", c.id, e); c.hidden = true; c.why = _("could not be drawn from this data"); } } if (c.hidden) c.svg = card(TINT.paper, eyebrow(c.name) + T(80, 330, c.name, 64, { weight: 800, ls: -2 }), c.foot); });
+    // a visitor sees the list the owner last saw for this audience; without one, the rules and the owner's overrides decide here
+    const visible = !OWNER && Array.isArray(D.shown) ? new Set(D.shown) : null;
+    cards.forEach(c => { const own = deckState.hidden[c.id]; c.hidden = visible ? !visible.has(c.id) : own != null ? own : byDefault(c); c.why = own || (own == null && deckState.hidden["*"] === true) ? _("hidden by you") : !c.interest.ok ? c.interest.reason : byDefault(c) ? _("not shown in a small year, under {n} titles", { n: RULE.SMALL }) : ""; });
+    cards.forEach(c => { if (!c.hidden) { try { c.bgc = c.bg(); c.svg = card(c.bgc, c.body(), c.foot, c.footInk); } catch (e) { console.warn("card failed", c.id, e); c.hidden = true; c.why = _("could not be drawn from this data"); } } if (c.hidden) c.svg = card(TINT.paper, eyebrow(c.name) + T(80, 330, c.name, 64, { weight: 800, ls: -2 }), c.foot); });
     const shown = cards.filter(c => !c.hidden), hid = cards.filter(c => c.hidden), mid = shown.filter(c => !FIXED.has(c.id));
-    const deck = $("deck");
-    io.disconnect(); inView.clear();
-    deck.innerHTML = shown.map((c, i) => `<div class="card" data-id="${c.id}" data-i="${i}">${c.svg}<div class="cf"><span><span class="n">${i + 1}/${shown.length}</span> · ${esc(c.name)} ${c.kind !== "computed" ? `<span class="kind">${c.kind === "made" ? _("made") : _("social")}</span>` : ""}</span><span class="btns">${OWNER ? `<button class="dc-nav" title="${_("Post this card")}" aria-label="${_("Post this card")}" data-share><i class="fa-solid fa-share-from-square"></i></button>` : ""}<button class="dc-nav" title="${_("Download PNG")}" aria-label="${_("Download PNG")}" data-dl><i class="fa-solid fa-download"></i></button>${OWNER ? `<button class="dc-nav" title="${_("Hide this card")}" aria-label="${_("Hide this card")}" data-hide><i class="fa-solid fa-eye-slash"></i></button>` : ""}</span></div></div>`).join("");
-    $("dots").innerHTML = shown.map((z, i) => `<i class="${i === 0 ? "on" : ""}"></i>`).join("");
-    const hub = $("hub"); hub.classList.toggle("arranging", arranging);
-    const mv = (c, k) => FIXED.has(c.id) ? `<span class="pin"><i class="fa-solid fa-thumbtack"></i> ${c.id === "intro" ? _("always first") : _("always last")}</span>` : `<button type="button" class="outline" data-mv="-1" aria-label="${esc(_("Move {name} earlier", { name: c.name }))}"${k === 0 ? " disabled" : ""}><i class="fa-solid fa-arrow-left"></i></button><button type="button" class="outline" data-mv="1" aria-label="${esc(_("Move {name} later", { name: c.name }))}"${k === mid.length - 1 ? " disabled" : ""}><i class="fa-solid fa-arrow-right"></i></button>`;
-    hub.innerHTML = shown.map((c, i) => arranging
-      ? `<div class="ht" data-id="${c.id}"${FIXED.has(c.id) ? "" : ` draggable="true"`}><div class="go">${c.svg}<span>${esc(c.name)}</span></div><div class="mv">${mv(c, mid.indexOf(c))}</div></div>`
-      : `<div class="ht" data-id="${c.id}"><a href="#" class="go" data-i="${i}">${c.svg}<span>${esc(c.name)}</span></a></div>`).join("")
-      + (arranging || !OWNER ? "" : `<button class="make" type="button" id="wr-make"><div class="tile"><i class="fa-solid fa-plus"></i></div><span>${_("Make a card")}</span></button>`);
-    $("hubsub").textContent = !OWNER ? _("Pick a card to jump to it.") : arranging ? _("Drag a card to a new place, or use its arrows. The intro stays first and the outro last.") : _("The page stays here all year. Hide a card from its footer, change the order with Arrange, or make your own with the plus.");
-    $("decksub").textContent = OWNER ? join([_("{shown} cards shown, {hidden} hidden.", { shown: shown.length, hidden: hid.length }), PAGEVIS[deckState.vis].note]) : _n("{n} card", "{n} cards", shown.length);
+    const deck = $("deck"), keepId = state.curId;
+    const btn = (attr, icon, label) => `<button class="dc-nav" type="button" title="${label}" aria-label="${label}" ${attr}><i class="fa-solid ${icon}"></i></button>`;
+    deck.innerHTML = shown.map((c, i) => `<div class="card" data-id="${c.id}" data-i="${i}" data-bg="${c.bgc || TINT.paper}"><div class="face">${c.svg}</div><div class="cf"><span class="n">${i + 1}/${shown.length}</span><span class="btns">${btn("data-link", "fa-link", _("Copy link to this card"))}${OWNER ? btn("data-share", "fa-share-from-square", _("Post this card")) : ""}${btn("data-dl", "fa-download", _("Download PNG"))}</span></div></div>`).join("");
+    $("dots").innerHTML = shown.map((c, i) => `<button type="button" data-i="${i}" aria-label="${i + 1}/${shown.length} ${esc(c.name)}"><b></b></button>`).join("");
     if (OWNER) {
-    const ar = $("arrange");
-    ar.innerHTML = arranging ? `<i class="fa-solid fa-check"></i> ${_("Done")}` : `<i class="fa-solid fa-arrows-up-down-left-right"></i> ${_("Arrange")}`;
-    ar.classList.toggle("primary", arranging); ar.classList.toggle("outline", !arranging);
-    $("resetorder").hidden = !deckState.order.length;
-    $("hiddensum").textContent = _("Hidden ({n})", { n: hid.length });
-    $("hiddenrow").hidden = !hid.length;
-    $("hiddenlist").innerHTML = hid.map(c => `<div>${c.svg}<div><b>${esc(c.name)}</b><small>${esc(c.why)}</small></div><span class="set"><button type="button" class="outline" data-show="${c.id}"><i class="fa-solid fa-eye"></i> ${_("Show")}</button></span></div>`).join("");
-    document.querySelectorAll(".pagevis button").forEach(b => b.classList.toggle("on", b.dataset.pv === deckState.vis));
+      const hub = $("hub"); hub.classList.toggle("arranging", arranging);
+      const mv = (c, k) => FIXED.has(c.id) ? `<span class="pin"><i class="fa-solid fa-thumbtack"></i> ${c.id === "intro" ? _("always first") : _("always last")}</span>` : `<button type="button" class="outline" data-mv="-1" aria-label="${esc(_("Move {name} earlier", { name: c.name }))}"${k === 0 ? " disabled" : ""}><i class="fa-solid fa-arrow-left"></i></button><button type="button" class="outline" data-mv="1" aria-label="${esc(_("Move {name} later", { name: c.name }))}"${k === mid.length - 1 ? " disabled" : ""}><i class="fa-solid fa-arrow-right"></i></button>`;
+      // every card in deck order: a hidden one is dimmed with its reason, and the eye on a tile hides or shows that card; Arrange moves only the shown ones
+      const eye = c => { const label = c.hidden ? _("Show this card") : _("Hide this card"); return `<button type="button" class="eye" data-eye="${c.id}" title="${esc(label)}" aria-label="${esc(label)}: ${esc(c.name)}"><i class="fa-solid ${c.hidden ? "fa-eye-slash" : "fa-eye"}"></i></button>`; };
+      hub.innerHTML = (arranging ? shown : cards).map(c => arranging
+        ? `<div class="ht" data-id="${c.id}"${FIXED.has(c.id) ? "" : ` draggable="true"`}><div class="go">${c.svg}<span>${esc(c.name)}</span></div><div class="mv">${mv(c, mid.indexOf(c))}</div></div>`
+        : c.hidden
+          ? `<div class="ht off" data-id="${c.id}"><div class="go">${c.svg}<span>${esc(c.name)}</span><small>${esc(c.why)}</small></div>${eye(c)}</div>`
+          : `<div class="ht" data-id="${c.id}"><a href="#${c.id}" class="go" data-i="${shown.indexOf(c)}">${c.svg}<span>${esc(c.name)}</span></a>${eye(c)}</div>`).join("")
+        + (arranging ? "" : `<button class="make" type="button" id="wr-make"><div class="tile"><i class="fa-solid fa-plus"></i></div><span>${_("Make a card")}</span></button>`);
+      $("hubsub").textContent = arranging ? _("Drag a card to a new place, or use its arrows. The intro stays first and the outro last.") : _("Hide or show a card with its eye, change the order with Arrange, or make your own with the plus.");
+      // the switch at the top says who sees the page; the count belongs to the grid below it
+      $("visnote").textContent = PAGEVIS[AUD].note;
+      $("decksub").textContent = _("{shown} cards shown, {hidden} hidden.", { shown: shown.length, hidden: hid.length });
+      const ar = $("arrange");
+      ar.innerHTML = arranging ? `<i class="fa-solid fa-check"></i> ${_("Done")}` : `<i class="fa-solid fa-arrows-up-down-left-right"></i> ${_("Arrange")}`;
+      ar.classList.toggle("primary", arranging); ar.classList.toggle("outline", !arranging);
+      $("resetorder").hidden = !deckState.order.length;
+      document.querySelectorAll(".pagevis button").forEach(b => b.classList.toggle("on", b.dataset.pv === AUD));
+      $("hideall").disabled = deckState.hidden["*"] === true && Object.keys(deckState.hidden).length === 1;
+      $("suggest").disabled = !Object.keys(deckState.hidden).length;
+      // a tile in the Edit sheet closes the sheet and shows that card on the stage
+      [...hub.querySelectorAll("a.go")].forEach(a => a.onclick = e => { e.preventDefault(); $("editdlg").close(); window.scrollTo({ top: 0, behavior: "instant" }); go(+a.dataset.i, "instant"); });
+      const mk = $("make"); if (mk) mk.onclick = openMake;
+      if (arranging) wireArrange(hub, mid.map(c => c.id));
     }
     // wire
     const setHidden = (id, h) => { const c = cards.find(x => x.id === id), rule = c && byDefault(c); if (h === rule) delete deckState.hidden[id]; else deckState.hidden[id] = h; saveDeck(); render(); };
-    [...deck.children].forEach(el => { io.observe(el); const c = shown[+el.dataset.i]; if (OWNER) { el.querySelector("[data-share]").onclick = () => openPublish(c.id); el.querySelector("[data-hide]").onclick = () => setHidden(c.id, true); } el.querySelector("[data-dl]").onclick = () => downloadPng(c); });
-    [...hub.querySelectorAll("a.go")].forEach(a => a.onclick = e => { e.preventDefault(); go(+a.dataset.i); window.scrollTo({ top: 0, behavior: "smooth" }); });
-    const mk = $("make"); if (mk) mk.onclick = openMake;
-    [...document.querySelectorAll("[data-show]")].forEach(b => b.onclick = () => setHidden(b.dataset.show, false));
-    if (arranging) wireArrange(hub, mid.map(c => c.id));
+    [...deck.children].forEach(el => { const c = shown[+el.dataset.i]; if (OWNER) el.querySelector("[data-share]").onclick = () => openPublish(c.id); el.querySelector("[data-dl]").onclick = () => downloadPng(c); el.querySelector("[data-link]").onclick = () => copyLink(D.page_url + "#" + c.id); });
+    [...$("dots").children].forEach(b => b.onclick = () => { start(); go(+b.dataset.i); });
+    // the eye keeps the keyboard where it was after the grid is drawn again
+    if (OWNER) [...$("hub").querySelectorAll("[data-eye]")].forEach(b => b.onclick = () => { const id = b.dataset.eye, c = cards.find(x => x.id === id); setHidden(id, !c.hidden); const again = $("hub").querySelector(`[data-eye="${id}"]`); if (again) again.focus(); });
     state.cards = cards; state.shown = shown; state.exportable = shown;
     if (OWNER && JSON.stringify(shown.map(c => c.id)) !== savedShown) saveDeck();
-    setTimeout(() => { const dr = deck.getBoundingClientRect(); [...deck.children].forEach(el => { const r = el.getBoundingClientRect(); const seen = Math.min(r.right, dr.right) - Math.max(r.left, dr.left); if (seen / r.width >= 0.6) reveal(el); }); }, 60);
+    // stay on the same card after an edit; on the first render, open the card the link names
+    const want = keepId != null ? keepId : decodeURIComponent(location.hash.slice(1));
+    let k = shown.findIndex(c => c.id === want);
+    if (k < 0) k = keepId != null ? Math.min(cur, shown.length - 1) : 0;
+    cur = -1; arrive(k, "instant");
+    // the owner may view an audience that sees no card: say so on the stage
+    const none = !shown.length; $("empty").hidden = !none; if (none) $("empty").textContent = _("This audience sees no cards. Show some in Edit.");
+    stage.classList.toggle("none", none);
   }
   // arrange: drag a tile, or use its arrows, which also work on touch screens and from the keyboard
   function wireArrange(hub, ids) {
@@ -629,45 +670,160 @@
     });
   }
   if (OWNER) {
+    $("edit").onclick = () => $("editdlg").showModal();
     $("arrange").onclick = () => { arranging = !arranging; render(); };
     $("resetorder").onclick = () => { deckState.order = []; render(); saveDeck(); toast(_("Back to the default order")); };
     // the counts on every card depend on the page's visibility, so a change reloads the page from the server
-    document.querySelectorAll(".pagevis button").forEach(b => b.onclick = () => { if (b.dataset.pv === deckState.vis) return; persist({ vis: b.dataset.pv }).then(r => { if (r.reload) location.reload(); }).catch(() => toast(_("Could not change who can see the page"))); });
+    // the switch picks the audience to view and edit; the page opens again with that audience's cards and the Edit sheet open
+    document.querySelectorAll(".pagevis button").forEach(b => b.onclick = () => { if (b.dataset.pv === AUD) return; try { sessionStorage.setItem(REOPEN, "wr-editdlg"); } catch (e) { /* without storage the page just opens on the stage */ } const u = new URL(location.href); u.searchParams.set("as", levelOf(b.dataset.pv)); location.href = u.toString(); });
+    // every card of this audience off at once (cards that qualify later stay off too), or back to the suggested cards
+    $("hideall").onclick = () => { deckState.hidden = { "*": true }; saveDeck(); render(); toast(_("Every card is hidden from this audience")); };
+    $("suggest").onclick = () => { deckState.hidden = {}; saveDeck(); render(); toast(_("Back to the suggested cards")); };
   }
-  // count-up and reveal
-  // the current card is the leftmost one in view, so the dots and the arrows agree on first load
-  const inView = new Set();
-  const io = new IntersectionObserver(es => { es.forEach(e => { const i = +e.target.dataset.i; if (e.isIntersecting) { reveal(e.target); inView.add(i); } else inView.delete(i); }); if (inView.size) cur = Math.min(...inView); [...$("dots").children].forEach((d, i) => d.classList.toggle("on", i === cur)); }, { root: $("deck"), threshold: 0.6 });
-  function reveal(el, again) { if (again) { el.classList.remove("in"); void el.offsetWidth; } if (el.classList.contains("in")) return; el.classList.add("in"); el.querySelectorAll("text[data-count]").forEach(t => { const to = +t.dataset.count, pre = t.dataset.pre || "", suf = t.dataset.suf || "", t0 = performance.now(), dur = 900; const step = now => { const k = Math.min(1, (now - t0) / dur), v = Math.round(to * (1 - Math.pow(1 - k, 3))); t.textContent = pre + v.toLocaleString() + suf; if (k < 1) requestAnimationFrame(step); }; if (!matchMedia("(prefers-reduced-motion: reduce)").matches) requestAnimationFrame(step); }); }
-  let cur = 0;
-  const go = i => { const deck = $("deck"); cur = Math.max(0, Math.min(deck.children.length - 1, i)); deck.children[cur].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" }); };
-  $("prev").onclick = () => go(cur - 1);
-  $("next").onclick = () => go(cur + 1);
-  let replaying = null;
-  $("replay").onclick = () => { if (replaying) { clearInterval(replaying); replaying = null; return; } let i = 0; const deck = $("deck"); const tick = () => { if (i >= deck.children.length) { clearInterval(replaying); replaying = null; return; } go(i); reveal(deck.children[i], true); i++; }; tick(); replaying = setInterval(tick, 2600); };
+  // ---------- the stage: one card at a time, like stories ----------
+  const stage = $("stage"), deckEl = $("deck"), RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let cur = 0, auto = false, started = false;
+  const list = () => deckEl.children;
+  function reveal(el, again) { if (again) { el.classList.remove("in"); void el.offsetWidth; } if (el.classList.contains("in")) return; el.classList.add("in"); el.querySelectorAll("text[data-count]").forEach(t => { const to = +t.dataset.count, pre = t.dataset.pre || "", suf = t.dataset.suf || "", t0 = performance.now(), dur = 900; const step = now => { const k = Math.min(1, (now - t0) / dur), v = Math.round(to * (1 - Math.pow(1 - k, 3))); t.textContent = pre + v.toLocaleString() + suf; if (k < 1) requestAnimationFrame(step); }; if (!RM) requestAnimationFrame(step); }); }
+  // the screen takes the card's colour; in dark mode a deep shade of the same hue, and the card itself stays light
+  function deep(hex) {
+    const v = parseInt(String(hex).slice(1), 16), r = (v >> 16 & 255) / 255, g = (v >> 8 & 255) / 255, b = (v & 255) / 255;
+    const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b);
+    const h = !d ? 0 : mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    // the tints are pale, so the saturation is lifted for the hue to read on a dark screen
+    return `hsl(${Math.round(h * 60)} ${Math.round((d ? Math.min(0.42, 0.18 + d * 3) : 0) * 100)}% 13%)`;
+  }
+  function paint() { const el = list()[cur]; if (!el) return; stage.style.setProperty("--stage-light", el.dataset.bg); stage.style.setProperty("--stage-dark", deep(el.dataset.bg)); }
+  // a card with more to read stays up longer: 5 to 10 seconds
+  const durOf = i => { const c = state.shown[i]; return Math.max(5000, Math.min(10000, 3500 + ((c && c.svg.match(/<text/g)) || []).length * 180)); };
+  function segs() {
+    const dots = [...$("dots").children];
+    dots.forEach((x, k) => { x.classList.toggle("done", k < cur); x.classList.remove("cur"); x.removeAttribute("aria-current"); });
+    const x = dots[cur]; if (!x) return;
+    x.style.setProperty("--dur", durOf(cur) + "ms"); void x.offsetWidth; x.classList.add("cur"); x.setAttribute("aria-current", "step");
+  }
+  // a record card (the biggest year, personal bests) gets one sweep of light after its numbers count up
+  function shine(el) {
+    const c = state.shown[+el.dataset.i], f = el.querySelector(".face");
+    clearTimeout(shine.t); if (RM || !c || !c.record || !f) return;
+    f.classList.remove("shine");
+    shine.t = setTimeout(() => { if (el.classList.contains("cur")) { void f.offsetWidth; f.classList.add("shine"); } }, 1000);
+  }
+  function arrive(i, how) {
+    const cs = list(); if (!cs.length) return;
+    i = Math.max(0, Math.min(cs.length - 1, i));
+    if (how !== "none") { const el = cs[i]; deckEl.scrollTo({ left: el.offsetLeft - (deckEl.clientWidth - el.offsetWidth) / 2, behavior: how }); }
+    if (i === cur) return;
+    cur = i; state.curId = state.shown[i].id;
+    [...cs].forEach((el, k) => el.classList.toggle("cur", k === i));
+    reveal(cs[i], true); if (cs[i - 1]) reveal(cs[i - 1]); if (cs[i + 1]) reveal(cs[i + 1]);
+    shine(cs[i]); paint(); segs();
+    const last = i === cs.length - 1; stage.classList.toggle("at-end", last); $("end").hidden = !last;
+    if (last && auto) setAuto(false);
+    // the address names the card, so a copied link opens on it
+    const h = i ? "#" + state.curId : "";
+    if (location.hash !== h) history.replaceState(null, "", location.pathname + location.search + h);
+  }
+  const go = (i, how) => arrive(i, how || (RM ? "instant" : "smooth"));
+  function playBtn() { const b = $("play"), on = auto && !stage.classList.contains("paused"); b.innerHTML = `<i class="fa-solid ${on ? "fa-pause" : "fa-play"}"></i>`; b.setAttribute("aria-label", on ? _("Pause") : _("Play")); b.title = on ? _("Pause") : _("Play"); }
+  // with reduced motion the cards never move on by themselves
+  function setAuto(on) { auto = !!on && !RM; stage.classList.toggle("auto", auto); stage.classList.remove("paused"); playBtn(); segs(); }
+  // the first tap, swipe or key starts the show
+  function start() { if (started) return; started = true; setAuto(true); }
+  function togglePlay() { started = true; if (!auto) { if (cur >= list().length - 1) go(0, "instant"); setAuto(true); return; } stage.classList.toggle("paused"); playBtn(); }
+  $("dots").addEventListener("animationend", e => { if (e.animationName !== "wr-seg" || !auto || !e.target.closest(".cur")) return; go(cur + 1); });
+  $("play").onclick = togglePlay; $("play").hidden = RM;
+  $("prev").onclick = () => { start(); go(cur - 1); };
+  $("next").onclick = () => { start(); go(cur + 1); };
+  // tap the right of the card for the next one, the left third for the one before, or a card at the side to go to it
+  let holdT = null, held = false;
+  deckEl.addEventListener("pointerdown", e => { if (e.button) return; held = false; clearTimeout(holdT); holdT = setTimeout(() => { held = true; stage.classList.add("held"); }, 250); });
+  const release = () => { clearTimeout(holdT); stage.classList.remove("held"); };
+  ["pointerup", "pointercancel", "pointerleave"].forEach(t => deckEl.addEventListener(t, release));
+  deckEl.addEventListener("click", e => {
+    if (held) { held = false; return; }
+    const el = e.target.closest(".card");
+    if (!el || e.target.closest("button, a, .cf")) return;
+    const i = +el.dataset.i; start();
+    if (i !== cur) { go(i); return; }
+    const r = el.getBoundingClientRect(); go(e.clientX - r.left < r.width * 0.3 ? cur - 1 : cur + 1);
+  });
+  // a swipe ends on a card: that card is the current one
+  const settle = () => { const mid = deckEl.scrollLeft + deckEl.clientWidth / 2; let best = 0, bd = Infinity; [...list()].forEach((el, k) => { const dd = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid); if (dd < bd) { bd = dd; best = k; } }); if (best !== cur) { start(); arrive(best, "none"); } };
+  let settleT = null;
+  deckEl.addEventListener("scroll", () => { clearTimeout(settleT); settleT = setTimeout(settle, 150); }, { passive: true });
+  // the arrow keys and Space work while the stage is on the screen and nothing else has the keyboard
+  document.addEventListener("keydown", e => {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || document.querySelector("dialog[open]") || e.target.closest("input, textarea, select, [contenteditable]")) return;
+    if (stage.getBoundingClientRect().bottom < innerHeight * 0.5) return;
+    if (e.key === "ArrowRight") { e.preventDefault(); start(); go(cur + 1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); start(); go(cur - 1); }
+    else if (e.key === " " && !e.target.closest("button, a")) { e.preventDefault(); togglePlay(); }
+  });
+  // a new window size keeps the same card in the middle
+  let sizeT = null;
+  addEventListener("resize", () => { clearTimeout(sizeT); sizeT = setTimeout(() => arrive(cur, "instant"), 100); });
+  // the show waits while the stage is scrolled away, the tab is in the background or a dialog is open (see the stylesheet)
+  new IntersectionObserver(es => stage.classList.toggle("away", !es[0].isIntersecting), { threshold: 0.35 }).observe(stage);
+  document.addEventListener("visibilitychange", () => stage.classList.toggle("bg", document.hidden));
+  const toYear = () => $("year").scrollIntoView({ behavior: RM ? "auto" : "smooth" });
+  $("cuetext").textContent = _("See the whole year"); $("cue").onclick = toYear;
+  // the end of the deck, and the end of the page, offer the next steps
+  const replay = () => { window.scrollTo({ top: 0, behavior: "instant" }); go(0, "instant"); started = true; setAuto(true); };
+  const nextStep = OWNER ? `<button class="wr-pill primary" type="button" data-act="share"><i class="fa-solid fa-share-from-square"></i> ${_("Share")}</button>` : `<a class="wr-pill primary" href="${esc(D.make_url || "")}"><i class="fa-solid fa-wand-magic-sparkles"></i> ${_("Make your own {year}", { year: Y })}</a>`;
+  $("end").innerHTML = `<button class="wr-pill" type="button" data-act="replay"><i class="fa-solid fa-rotate-left"></i> ${_("Replay")}</button><button class="wr-pill" type="button" data-act="year"><i class="fa-solid fa-chevron-down"></i> ${_("See the whole year")}</button>${nextStep}`;
+  $("cta").innerHTML = `<div class="wr-actions"><button class="wr-pill" type="button" data-act="replay"><i class="fa-solid fa-rotate-left"></i> ${_("Replay")}</button>${OWNER ? `<button class="wr-pill" type="button" data-act="edit"><i class="fa-solid fa-pen"></i> ${_("Edit the deck")}</button>` : ""}${nextStep}</div>`;
+  document.querySelectorAll("[data-act]").forEach(b => b.onclick = () => ({ replay, year: toYear, share: () => openPublish(), edit: () => $("editdlg").showModal() })[b.dataset.act]());
+  playBtn();
+  function copyLink(url) { (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast(_("Link copied")), () => window.prompt("", url)); }
 
   // ---------- hero and lists ----------
   function hero() {
-  const act = activityAt(levelOf(deckState.vis));
+  const act = activityAt(LEVEL);
   // the numbers are bold; the sentences come from the text table with the numbers filled in
   const B = x => `<b>${esc(x)}</b>`, five = S.fiveStar.length;
   $("lede").innerHTML = join([_n("{titles} across {n} shelf.", "{titles} across {n} shelves.", S.cats.length, { titles: B(_n("{n} title", "{n} titles", n)) }),
     TM.counts[TM.busiest] >= RULE.BUSY_MIN ? _("{month} was the busiest month with {n}; the quietest was {quiet}.", { month: esc(MONTHS_LONG[TM.busiest]), n: B(TM.counts[TM.busiest]), quiet: esc(MONTHS_LONG[TM.quietest]) }) : "",
     five ? _n("The longest run of days with something logged was {days}, and {n} title got five stars.", "The longest run of days with something logged was {days}, and {n} titles got five stars.", five, { days: B(act.streak), n: B(five) }) : _("The longest run of days with something logged was {days}.", { days: B(act.streak) }),
     S.lastMonth < 11 ? _("The year is still running.") : ""]);
-  $("stats").innerHTML = [[n, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[TM.busiest], _n("busiest month, {n} title", "busiest month, {n} titles", TM.counts[TM.busiest])], [S.avg ? (S.avg / 2).toFixed(1) : _n("{n} day", "{n} days", act.streak), S.avg ? _("average rating, of 5") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num">${a}</span><span class="lbl">${b}</span></div>`).join("");
+  $("stats").innerHTML = [[n, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[TM.busiest], _n("busiest month, {n} title", "busiest month, {n} titles", TM.counts[TM.busiest])], [S.avg ? (S.avg / 2).toFixed(1) : _n("{n} day", "{n} days", act.streak), S.avg ? _("average rating, of 5") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num"${typeof a === "number" ? ` data-to="${a}"` : ""}>${typeof a === "number" ? a.toLocaleString() : a}</span><span class="lbl">${b}</span></div>`).join("");
   }
   hero();
-  // the full list, with one shelf at a time or all of them
-  let bymCat = "all";
+  // the stat tiles count up once, when they come into view
+  new IntersectionObserver((es, ob) => { if (!es[0].isIntersecting) return; ob.disconnect(); if (RM) return; $("stats").querySelectorAll("[data-to]").forEach(el => { const to = +el.dataset.to, t0 = performance.now(); const step = now => { const k = Math.min(1, (now - t0) / 1100); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString(); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }); }, { threshold: 0.5 }).observe($("stats"));
+
+  // ---------- the year in covers: a pile for each month, as long as the month was busy ----------
+  // the piles make a bar chart: the busiest month fills the track, and each pile draws at most 36 covers spread over its length
+  let bymCat = "all", openM = null, lists = [];
+  const PILE_MAX = 36, piles = $("piles");
+  function monthPanel(m) { const list = lists[m]; return `<div class="pile-open" role="region" aria-label="${esc(MONTHS_LONG[m])}"><div class="month-h"><h3>${esc(MONTHS_LONG[m])}</h3><span class="n">${_n("{n} title", "{n} titles", list.length)}</span></div><div class="bym">${list.map(it => `<div>${cover(it)}<p class="t">${esc(it.title)}</p></div>`).join("")}</div></div>`; }
+  function openMonth(m) {
+    openM = m; piles.querySelectorAll(".pile-open").forEach(x => x.remove());
+    piles.classList.toggle("picked", m != null);
+    piles.querySelectorAll(".pile").forEach(b => { const on = +b.dataset.m === m; b.classList.toggle("on", on); b.setAttribute("aria-expanded", on); });
+    if (m != null) piles.querySelector(`.pile[data-m="${m}"]`).insertAdjacentHTML("afterend", monthPanel(m));
+  }
   function byMonth() {
-    $("bym").innerHTML = S.byMonth.map((all, m) => { const list = bymCat === "all" ? all : all.filter(it => it.category === bymCat); return list.length ? `<div class="month-h"><h3>${MONTHS_LONG[m]}</h3><span class="n">${_n("{n} title", "{n} titles", list.length)}</span></div><div class="bym">${list.map(it => `<div>${cover(it)}<p class="t">${esc(it.title)}</p></div>`).join("")}</div>` : ""; }).join("");
+    lists = S.byMonth.map(all => bymCat === "all" ? all : all.filter(it => it.category === bymCat));
+    const max = Math.max(1, ...lists.map(l => l.length));
+    piles.style.setProperty("--gaps", max - 1);
+    piles.innerHTML = lists.map((list, m) => {
+      const c = list.length, pm = max > 1 ? (c - 1) / (max - 1) : 0, k = Math.min(c, PILE_MAX);
+      const pick = k < 2 ? list.slice(0, k) : Array.from({ length: k }, (z, j) => list[Math.round(j * (c - 1) / (k - 1))]);
+      const imgs = pick.map((it, j) => `<img src="${esc(src(it.cover))}" alt="" loading="lazy" style="--p:${(k > 1 ? j / (k - 1) * pm : 0).toFixed(4)};--r:${((j * 37) % 7 - 3) * 0.6}deg;background:${CAT_COLOR[it.category] || "#ccc"}">`).join("");
+      return `<button type="button" class="pile" data-m="${m}" style="--m:${m};--pm:${pm.toFixed(4)}" aria-expanded="false" aria-label="${esc(_("{month}, {titles}", { month: MONTHS_LONG[m], titles: _n("{n} title", "{n} titles", c) }))}"${c ? "" : " disabled"}><span class="stack">${imgs}${c ? `<span class="cnt">${c}</span>` : ""}</span><span class="mo">${esc(MONTHS[m])}</span></button>`;
+    }).join("");
+    piles.querySelectorAll(".pile").forEach(b => b.onclick = () => openMonth(openM === +b.dataset.m ? null : +b.dataset.m));
+    openMonth(openM != null && lists[openM].length ? openM : null);
     document.querySelectorAll("#wr-bymcat button").forEach(b => { b.classList.toggle("on", b.dataset.cat === bymCat); b.setAttribute("aria-pressed", b.dataset.cat === bymCat); });
   }
+  $("pilesub").textContent = _("Each pile is a month; pick one to see its titles.");
   const bymCats = $("bymcat");
   bymCats.innerHTML = `<button type="button" data-cat="all">${_("All")}</button>` + S.cats.map(c => `<button type="button" data-cat="${c}"><i class="dot" style="background:${CAT_COLOR[c]}"></i><i class="fa-solid ${CAT_ICON[c]}"></i> ${CAT_LABEL[c]}</button>`).join("");
   bymCats.querySelectorAll("button").forEach(b => b.onclick = () => { bymCat = b.dataset.cat; byMonth(); });
   byMonth();
+  // the piles grow when their top comes up past the lowest 15% of the screen; a tall list on a phone does not wait for 20% of itself
+  new IntersectionObserver((es, ob) => { if (es[0].isIntersecting) { piles.classList.add("in"); ob.disconnect(); } }, { rootMargin: "0px 0px -15% 0px" }).observe(piles);
 
   // ---------- tint from the member's own covers ----------
   async function tintFromCovers() {
@@ -678,10 +834,22 @@
       let best = null;
       imgs.filter(Boolean).forEach(im => { cx.drawImage(im, 0, 0, 8, 8); const d = cx.getImageData(0, 0, 8, 8).data; let r = 0, g = 0, b = 0; for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; } r /= 64; g /= 64; b /= 64; const mx = Math.max(r, g, b), mn = Math.min(r, g, b); const sat = mx ? (mx - mn) / mx : 0; if (!best || sat > best.sat) best = { r, g, b, sat }; });
       if (!best) return;
-      const mix = (c, p, t) => Math.round(p + (c - p) * t), hex = (r, g, b) => "#" + [r, g, b].map(v => v.toString(16).padStart(2, "0")).join("");
-      TINT.own = hex(mix(best.r, 251, 0.18), mix(best.g, 252, 0.18), mix(best.b, 252, 0.18)); TINT.own2 = hex(mix(best.r, 251, 0.3), mix(best.g, 252, 0.3), mix(best.b, 252, 0.3));
-      const apply = (el, id) => el && el.querySelector("rect.bg").setAttribute("fill", id === "intro" ? TINT.own : TINT.own2);
-      ["intro", "outro"].forEach(id => { apply(document.querySelector(`.deck [data-id="${id}"]`), id); apply(document.querySelector(`.hub .ht[data-id="${id}"]`), id); const c = state.shown.find(x => x.id === id); if (c) c.svg = c.svg.replace(/<rect class="bg" width="1080" height="1080" fill="[^"]*"/, `<rect class="bg" width="1080" height="1080" fill="${id === "intro" ? TINT.own : TINT.own2}"`); });
+      // the hue of that cover, always light: a dark or dull cover still gives a clear pale tint, and grey covers keep the default
+      const r = best.r / 255, g = best.g / 255, b = best.b / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2;
+      const sl = d ? d / (1 - Math.abs(2 * l - 1)) : 0;
+      if (sl < 0.12) return;
+      const h = (mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4) * 60, sat = Math.min(0.55, Math.max(0.3, sl));
+      const hsl = (L) => { const a = sat * Math.min(L, 1 - L), f = k0 => { const k = (k0 + h / 30) % 12; return Math.round(255 * (L - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)))).toString(16).padStart(2, "0"); }; return "#" + f(0) + f(8) + f(4); };
+      // the piece takes the same hue, darker
+      TINT.own = hsl(0.93); TINT.own2 = hsl(0.89); TINT.piece = hsl(0.77); TINT.piece2 = hsl(0.73);
+      ["intro", "outro"].forEach(id => {
+        const fill = id === "intro" ? TINT.own : TINT.own2, pfill = id === "intro" ? TINT.piece : TINT.piece2;
+        document.querySelectorAll(`[data-id="${id}"] rect.bg`).forEach(r => r.setAttribute("fill", fill));
+        document.querySelectorAll(`[data-id="${id}"] path.piece`).forEach(r => r.setAttribute("fill", pfill));
+        const el = document.querySelector(`.deck [data-id="${id}"]`); if (el) el.dataset.bg = fill;
+        const c = state.shown.find(x => x.id === id); if (c) { c.bgc = fill; c.svg = c.svg.replace(/<rect class="bg" width="1080" height="1080" fill="[^"]*"/, `<rect class="bg" width="1080" height="1080" fill="${fill}"`).replace(/(<path class="piece" transform="[^"]*" fill=")[^"]*"/, `$1${pfill}"`); }
+      });
+      paint();
     } catch (e) { /* a tainted canvas just keeps the default tint */ }
   }
 
@@ -777,26 +945,86 @@
 
 
   // ---------- publish ----------
-  function openPublish(preselect) { const tabs = $("pub-tabs"); const show = t => { tabs.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.t === t)); ["post", "page", "dl"].forEach(k => $("pub-" + k).hidden = k !== t); }; tabs.querySelectorAll("button").forEach(b => b.onclick = () => show(b.dataset.t)); show("post"); const grid = $("pub-grid"); grid.innerHTML = state.exportable.map(c => `<label><input type="checkbox" value="${c.id}" ${c.id === preselect ? "checked" : ""}>${c.svg}</label>`).join(""); const limit = () => { const on = [...grid.querySelectorAll("input:checked")].length; grid.querySelectorAll("label").forEach(l => l.classList.toggle("full", on >= 4 && !l.querySelector("input").checked)); grid.querySelectorAll("input").forEach(i => i.disabled = on >= 4 && !i.checked); }; grid.querySelectorAll("input").forEach(i => i.onchange = limit); limit(); $("pub-note").value = `#${Y}_report`; $("pub-link").value = D.page_url; $("gif-out").innerHTML = ""; pubSummary(); const pr = document.querySelector(`#wr-pub-post input[name="wr-vis"][value="${levelOf(deckState.vis)}"]`); if (pr) pr.checked = true; pubdlg.showModal(); }
-  function pubSummary() { $("pub-summary").textContent = join([_("{shown} cards shown, {hidden} hidden.", { shown: state.shown.length, hidden: state.cards.length - state.shown.length }), PAGEVIS[deckState.vis].note]); }
+  function openPublish(preselect) { const tabs = $("pub-tabs"); const show = t => { tabs.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.t === t)); ["post", "page", "dl"].forEach(k => $("pub-" + k).hidden = k !== t); }; tabs.querySelectorAll("button").forEach(b => b.onclick = () => show(b.dataset.t)); show("post"); const grid = $("pub-grid"); grid.innerHTML = state.exportable.map(c => `<label><input type="checkbox" value="${c.id}" ${c.id === preselect ? "checked" : ""}>${c.svg}</label>`).join(""); const limit = () => { const on = [...grid.querySelectorAll("input:checked")].length; grid.querySelectorAll("label").forEach(l => l.classList.toggle("full", on >= 4 && !l.querySelector("input").checked)); grid.querySelectorAll("input").forEach(i => i.disabled = on >= 4 && !i.checked); }; grid.querySelectorAll("input").forEach(i => i.onchange = limit); limit(); $("pub-note").value = `${D.page_url}\n#NeoDB #Wrapped${Y}`; $("pub-link").value = D.page_url; $("gif-out").innerHTML = ""; audList(); postMode("images");
+    // a post never reaches a wider audience than the cards it carries (the server checks this too)
+    document.querySelectorAll('#wr-pub-post input[name="wr-vis"]').forEach(r => { r.disabled = +r.value < LEVEL; r.checked = +r.value === LEVEL; }); pubdlg.showModal(); mp4Gate(); }
+  // images: up to four picked cards; video: every card, made here like the MP4 download
+  function postMode(m) { document.querySelectorAll('input[name="wr-mode"]').forEach(r => { r.checked = r.value === m; }); $("pub-grid").hidden = m !== "images"; $("pub-imgnote").hidden = m !== "images"; $("pub-vidnote").hidden = m !== "video"; }
+  if (OWNER) document.querySelectorAll('input[name="wr-mode"]').forEach(r => { r.onchange = () => postMode(r.value); });
+  if (OWNER) $("pub-edit").onclick = () => { pubdlg.close(); $("editdlg").showModal(); };
+  // what each audience sees at the one link; the audience on screen counts live, another one as the owner last saw it
+  function audList() { $("auds").innerHTML = (D.audiences || []).map(a => { const name = ["public", "followers", "me"][a.level], here = a.level === LEVEL, n = here ? state.shown.length : a.shown, off = here ? !state.shown.length : a.off; return `<li${here ? ' class="on"' : ""}><b>${esc(PAGEVIS[name].label)}</b><span class="st">${off ? _("Not shared") : n == null ? _("Suggested cards") : _n("{n} card", "{n} cards", n)}</span><small>${esc(PAGEVIS[name].note)}</small></li>`; }).join(""); }
   if (OWNER) $("publish").onclick = () => openPublish();
   if (OWNER) $("pub-send").onclick = async () => {
-    const ids = [...document.querySelectorAll("#wr-pub-grid input:checked")].map(i => i.value);
-    if (!ids.length) { toast(_("Pick at least one card")); return; }
-    const btn = $("pub-send"); btn.disabled = true; btn.setAttribute("aria-busy", "true");
+    const video = (document.querySelector('input[name="wr-mode"]:checked') || {}).value === "video";
+    const ids = video ? [] : [...document.querySelectorAll("#wr-pub-grid input:checked")].map(i => i.value);
+    if (!state.exportable.length) { toast(_("This audience sees no cards. Show some in Edit.")); return; }
+    if (!video && !ids.length) { toast(_("Pick at least one card")); return; }
+    const btn = $("pub-send"), prog = $("pub-prog"); btn.disabled = true; btn.setAttribute("aria-busy", "true");
     try {
       const fd = new FormData();
-      for (const id of ids) { const c = state.shown.find(x => x.id === id); fd.append("img", (await toCanvas(c, 1080)).toDataURL("image/png")); }
+      if (video) {
+        prog.hidden = false; prog.value = 0;
+        const { r } = await buildFile("mp4", v => { prog.value = v; });
+        // the intro card is the video's still on the timeline
+        const cv = await toCanvas(state.exportable[0], 1080), still = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("no PNG")), "image/png"));
+        fd.append("kind", "video"); fd.append("video", r.blob, `${Y}-wrapped.mp4`); fd.append("poster", still, `${Y}-intro.png`);
+      } else {
+        for (const id of ids) { const c = state.shown.find(x => x.id === id); fd.append("img", (await toCanvas(c, 1080)).toDataURL("image/png")); }
+      }
       fd.append("comment", $("pub-note").value);
-      fd.append("visibility", (document.querySelector('#wr-pub-post input[name="wr-vis"]:checked') || {}).value || "0");
+      fd.append("visibility", (document.querySelector('#wr-pub-post input[name="wr-vis"]:checked') || {}).value || String(LEVEL));
+      fd.append("aud", LEVEL);
       const r = await fetch(URLS.share, { method: "POST", headers: { "X-CSRFToken": CSRF, Accept: "application/json" }, body: fd });
       if (!r.ok) throw new Error(r.status);
-      pubdlg.close(); toast(_n("Posted {n} card to your timeline", "Posted {n} cards to your timeline", ids.length));
+      pubdlg.close(); toast(video ? _("Posted the video to your timeline") : _n("Posted {n} card to your timeline", "Posted {n} cards to your timeline", ids.length));
     } catch (e) { toast(_("Posting failed: {error}", { error: e.message })); }
-    btn.disabled = false; btn.removeAttribute("aria-busy");
+    prog.hidden = true; btn.disabled = false; btn.removeAttribute("aria-busy");
   };
   if (OWNER) $("pub-copy").onclick = () => { navigator.clipboard && navigator.clipboard.writeText($("pub-link").value); toast(_("Link copied")); };
-  function toast(t) { const el = document.createElement("div"); el.className = "wr-toast"; el.setAttribute("role", "status"); el.textContent = t; document.body.appendChild(el); setTimeout(() => el.remove(), 2200); }
+  // ---------- background music: the owner picks a track in Edit; a viewer hears it only after turning the sound on ----------
+  // The file comes straight from Wikimedia Commons; if it fails to load, the toggle turns off and the page stays silent.
+  let music = D.music || null, audio = null;
+  const credit = t => `${esc(t.title)} · ${esc(t.composer)} · ${esc(t.performer)} · ${esc(t.licence)} · <a href="${esc(t.page)}" target="_blank" rel="noopener">Wikimedia Commons</a>`;
+  function soundShow(on) {
+    const b = $("sound"), np = $("nowplaying");
+    b.hidden = !music; b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.querySelector("i").className = `fa-solid ${on ? "fa-volume-high" : "fa-volume-xmark"}`;
+    $("soundtext").textContent = on ? _("Sound on") : _("Sound off");
+    np.hidden = !on; np.innerHTML = on && music ? `<i class="fa-solid fa-music"></i> ${credit(music)}` : "";
+  }
+  function soundFailed() { if (audio) audio.pause(); audio = null; soundShow(false); toast(_("The music could not be loaded")); }
+  function sound(on) {
+    if (!on || !music) { if (audio) audio.pause(); soundShow(false); return; }
+    // the chosen track repeats for as long as the sound is on
+    if (!audio || audio.dataset.id !== music.id) { if (audio) audio.pause(); audio = new Audio(music.mp3); audio.dataset.id = music.id; audio.loop = true; audio.onerror = soundFailed; }
+    audio.play().then(() => soundShow(true), soundFailed);
+  }
+  $("sound").onclick = () => sound($("sound").getAttribute("aria-pressed") !== "true");
+  soundShow(false);
+  if (OWNER) {
+    // the menu in the Edit sheet: no music first, then the tracks; the play button tries the chosen one
+    const sel = $("music"), tracks = D.music_menu || [], tryBtn = $("music-try");
+    sel.innerHTML = `<option value="">${_("No music")}</option>` + tracks.map(t => `<option value="${esc(t.id)}">${esc(t.title)} · ${esc(t.composer)}</option>`).join("");
+    sel.value = music ? music.id : "";
+    let preview = null;
+    const tryShow = on => { tryBtn.innerHTML = `<i class="fa-solid ${on ? "fa-stop" : "fa-play"}"></i>`; tryBtn.setAttribute("aria-label", on ? _("Pause") : _("Play")); };
+    const stopTry = () => { if (preview) preview.pause(); preview = null; tryShow(false); };
+    const creditShow = () => { const t = tracks.find(x => x.id === sel.value); $("music-credit").innerHTML = t ? credit(t) : ""; tryBtn.disabled = !t; };
+    tryBtn.onclick = () => { if (preview) { stopTry(); return; } const t = tracks.find(x => x.id === sel.value); if (!t) return; if (audio) sound(false); preview = new Audio(t.mp3); preview.loop = true; preview.play().then(() => tryShow(true), () => { stopTry(); toast(_("The music could not be loaded")); }); };
+    sel.onchange = () => {
+      stopTry(); const playing = audio && !audio.paused;
+      music = tracks.find(x => x.id === sel.value) || null;
+      persist({ music: sel.value }).catch(() => toast(_("Could not save the deck; try again")));
+      creditShow(); if (audio) { audio.pause(); audio = null; } soundShow(false);
+      if (playing && music) sound(true);
+    };
+    $("editdlg").addEventListener("close", stopTry);
+    creditShow();
+  }
+
+  // a modal dialog is on top of everything, so a toast goes into the topmost open one
+  function toast(t) { const el = document.createElement("div"); el.className = "wr-toast"; el.setAttribute("role", "status"); el.textContent = t; ([...document.querySelectorAll("dialog[open]")].pop() || document.body).appendChild(el); setTimeout(() => el.remove(), 2200); }
 
   // ---------- png and gif export ----------
   const dataCache = new Map(), coverUuid = new Map();
@@ -810,9 +1038,71 @@
   }
   async function inlineImages(svg) { const hrefs = [...new Set([...svg.matchAll(/<image href="([^"]+)"/g)].map(m => m[1]))]; for (const h of hrefs) { if (!dataCache.has(h)) { try { const r = await fetch(exportHref(h.replace(/&amp;/g, "&"))); const b = await r.blob(); dataCache.set(h, await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); })); } catch (e) { dataCache.set(h, ""); } } svg = svg.split(`<image href="${h}"`).join(`<image href="${dataCache.get(h)}"`); } return svg; }
   async function toCanvas(c, size) { const svg = await inlineImages(c.svg.replace("<svg ", `<svg width="${size}" height="${size}" `)); const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); const im = new Image(); await new Promise((res, rej) => { im.onload = res; im.onerror = rej; im.src = url; }); const cv = document.createElement("canvas"); cv.width = cv.height = size; cv.getContext("2d").drawImage(im, 0, 0, size, size); URL.revokeObjectURL(url); return cv; }
-  async function downloadPng(c) { try { const cv = await toCanvas(c, 1080); const a = document.createElement("a"); a.download = `${Y}-${c.id}.png`; a.href = cv.toDataURL("image/png"); a.click(); } catch (e) { toast(_("Export failed: {error}", { error: e.message })); } }
-  if (OWNER) $("dl-png").onclick = async () => { for (const c of state.exportable) await downloadPng(c); };
-  if (OWNER) $("dl-gif").onclick = async () => { const prog = $("gif-prog"); prog.hidden = false; prog.value = 0; try { const { GIFEncoder, quantize, applyPalette } = await import(`${CDN}/npm/gifenc@1.0.3/dist/gifenc.esm.js`); const gif = GIFEncoder(); const size = 600; for (let i = 0; i < state.exportable.length; i++) { const cv = await toCanvas(state.exportable[i], size); const data = cv.getContext("2d").getImageData(0, 0, size, size).data; const palette = quantize(data, 128); const index = applyPalette(data, palette); gif.writeFrame(index, size, size, { palette, delay: 2500 }); prog.value = (i + 1) / state.exportable.length; } gif.finish(); const blob = new Blob([gif.bytes()], { type: "image/gif" }); const url = URL.createObjectURL(blob); $("gif-out").innerHTML = `<img src="${url}" alt="${_("GIF preview")}"><p class="dc-fine">${_("{size} MB, {n} frames at 2.5 s", { size: (blob.size / 1024 / 1024).toFixed(1), n: state.exportable.length })}</p>`; const a = document.createElement("a"); a.download = `${Y}-wrapped.gif`; a.href = url; a.click(); } catch (e) { toast(_("GIF failed: {error}", { error: e.message })); } prog.hidden = true; };
+  // one card as a PNG; toBlob encodes off the main thread
+  let lastUrl = null;
+  const saveBlob = (blob, name) => { const url = URL.createObjectURL(blob), a = document.createElement("a"); a.download = name; a.href = url; a.click(); return url; };
+  async function downloadPng(c) { try { const cv = await toCanvas(c, 1080); const blob = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("no PNG")), "image/png")); setTimeout(URL.revokeObjectURL, 60000, saveBlob(blob, `${Y}-${c.id}.png`)); } catch (e) { toast(_("Export failed: {error}", { error: e.message })); } }
+  // every card at once, as a ZIP of PNGs, a GIF or an MP4: the page draws each card into a bitmap once (only the page can draw an SVG),
+  // and the export worker (export.js) makes the files, so the page stays responsive and the server does no work
+  const LIB = { gif: `${CDN}/npm/gifenc@1.0.3/dist/gifenc.esm.js`, mp4: `${CDN}/npm/mp4-muxer@5.2.1/build/mp4-muxer.mjs` };
+  const hashOf = str => { let h = 0x811c9dc5; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); } return (h >>> 0).toString(36); };
+  const keyOf = c => c.id + ":" + hashOf(c.svg);
+  let exporter = null, sent = new Set(), probe = null;
+  function worker() {
+    if (!exporter) { exporter = new Worker(document.getElementById("wr-stage").dataset.export, { type: "module" }); sent = new Set(); }
+    return exporter;
+  }
+  // one request to the worker; progress messages come before the answer
+  const ask = (msg, onProgress) => new Promise((res, rej) => {
+    const w = worker();
+    const off = () => { w.removeEventListener("message", on); w.removeEventListener("error", fail); };
+    const on = e => { const d = e.data; if (d.type === "progress") { if (onProgress) onProgress(d.done, d.total); return; } off(); if (d.type === "error") rej(new Error(d.message)); else res(d); };
+    const fail = e => { off(); exporter = null; rej(new Error(e.message || "the export worker stopped")); };
+    w.addEventListener("message", on); w.addEventListener("error", fail); w.postMessage(msg);
+  });
+  // the MP4 button is there only when this browser can encode H.264
+  function mp4Gate() { if (!OWNER) return; probe = probe || ask({ type: "probe" }).catch(() => ({ mp4: false })); probe.then(r => { $("dl-mp4").disabled = !r.mp4; $("mp4-note").hidden = !!r.mp4; }); }
+  // draw every card the worker does not have yet, then ask it for the file; progress runs from 0 to 1
+  async function buildFile(kind, onProgress) {
+    const cards = state.exportable, total = cards.length * 2;
+    if (!cards.length) throw new Error(_("This audience sees no cards. Show some in Edit."));
+    worker();
+    const keep = new Set(cards.map(keyOf)); [...sent].forEach(k => { if (!keep.has(k)) sent.delete(k); });
+    for (let i = 0; i < cards.length; i++) {
+      const c = cards[i], key = keyOf(c);
+      if (!sent.has(key)) {
+        const bitmap = await createImageBitmap(await toCanvas(c, 1080));
+        worker().postMessage({ type: "card", key, bitmap }, [bitmap]); sent.add(key);
+        // let the page paint between two cards
+        await new Promise(r => setTimeout(r, 0));
+      }
+      onProgress((i + 1) / total);
+    }
+    const items = cards.map((c, i) => ({ key: keyOf(c), name: `${String(i + 1).padStart(2, "0")}-${c.id}.png` }));
+    const r = await ask({ type: "export", kind, items, lib: LIB }, done => onProgress((cards.length + done) / total));
+    return { r, items };
+  }
+  async function exportAll(kind, btn) {
+    const prog = $("gif-prog"), out = $("gif-out"), btns = ["dl-zip", "dl-gif", "dl-mp4"].map($);
+    btns.forEach(b => { b.disabled = true; }); btn.setAttribute("aria-busy", "true"); prog.hidden = false; prog.value = 0; out.innerHTML = "";
+    if (lastUrl) { URL.revokeObjectURL(lastUrl); lastUrl = null; }
+    try {
+      const { r, items } = await buildFile(kind, v => { prog.value = v; });
+      const mb = (r.blob.size / 1048576).toFixed(1);
+      if (kind === "zip") { setTimeout(URL.revokeObjectURL, 60000, saveBlob(r.blob, `${Y}-cards.zip`)); out.innerHTML = `<p class="dc-fine">${_("{size} MB, {n} files", { size: mb, n: items.length })}</p>`; }
+      else if (kind === "gif") { lastUrl = saveBlob(r.blob, `${Y}-wrapped.gif`); out.innerHTML = `<img src="${lastUrl}" alt="${_("GIF preview")}"><p class="dc-fine">${_("{size} MB, {n} frames at 2.5 s", { size: mb, n: r.frames })}</p>`; }
+      else { lastUrl = saveBlob(r.blob, `${Y}-wrapped.mp4`); out.innerHTML = `<video src="${lastUrl}" controls muted loop playsinline></video><p class="dc-fine">${_("{size} MB, {seconds} s video", { size: mb, seconds: r.seconds })}</p>`; }
+    } catch (e) { toast(_("Export failed: {error}", { error: e.message })); }
+    prog.hidden = true; btns.forEach(b => { b.disabled = false; }); btn.removeAttribute("aria-busy"); mp4Gate();
+  }
+  if (OWNER) ["zip", "gif", "mp4"].forEach(kind => { $("dl-" + kind).onclick = e => exportAll(kind, e.currentTarget); });
 
   render(); tintFromCovers();
+  // after a change of visibility, open the Edit sheet or the Share dialog's page tab again
+  if (OWNER) {
+    let again = "";
+    try { again = sessionStorage.getItem(REOPEN) || ""; sessionStorage.removeItem(REOPEN); } catch (e) { /* no storage, nothing to reopen */ }
+    if (again === "wr-editdlg") $("editdlg").showModal();
+    else if (again === "wr-pubdlg") { openPublish(); $("pub-tabs").querySelector('[data-t="page"]').click(); }
+  }
 })();

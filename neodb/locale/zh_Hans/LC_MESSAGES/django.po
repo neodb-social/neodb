@@ -10145,10 +10145,6 @@ msgstr "%(name)s 的 %(year)s，一张卡片一个故事"
 msgid "Replay"
 msgstr "重播"
 
-#: journal/templates/wrapped.html:36 journal/templates/wrapped.html:190
-msgid "Who can see this page"
-msgstr "谁可以看到这个页面"
-
 #: journal/templates/wrapped.html:44 journal/templates/wrapped.html:198
 msgid "Only me"
 msgstr "仅自己"
@@ -10161,21 +10157,9 @@ msgstr "上一张卡片"
 msgid "Next card"
 msgstr "下一张卡片"
 
-#: journal/templates/wrapped.html:70
-msgid "All the cards"
-msgstr "全部卡片"
-
 #: journal/templates/wrapped.html:75
 msgid "Reset order"
 msgstr "恢复默认顺序"
-
-#: journal/templates/wrapped.html:91
-msgid "Everything, by month"
-msgstr "按月份列出全部"
-
-#: journal/templates/wrapped.html:92
-msgid "The full list behind the cards."
-msgstr "卡片背后的完整列表。"
 
 #: journal/templates/wrapped.html:97
 msgid "Filter by shelf"
@@ -10233,21 +10217,9 @@ msgstr "仅关注者"
 msgid "Mentioned only"
 msgstr "仅提及的人"
 
-#: journal/templates/wrapped.html:188
-msgid "The page stays at its link all year. One setting covers the whole page, and hidden cards stay out of it for everyone."
-msgstr "这个页面全年都在同一个链接。可见范围对整个页面生效，隐藏的卡片对所有人都不显示。"
-
 #: journal/templates/wrapped.html:206
 msgid "Link to the page"
 msgstr "页面链接"
-
-#: journal/templates/wrapped.html:213
-msgid "Every card on the page as a PNG, or one GIF that shows them in turn."
-msgstr "把页面上的每张卡片下载为 PNG，或者下载一个依次播放的 GIF。"
-
-#: journal/templates/wrapped.html:216
-msgid "All cards as PNG"
-msgstr "全部卡片（PNG）"
 
 #: journal/templates/wrapped.html:219
 msgid "GIF slideshow"
@@ -11257,18 +11229,6 @@ msgstr "我的推荐"
 msgid "fewer than three items can be shown, so the collection may have changed"
 msgstr "可显示的作品少于三部，收藏单可能已经改变"
 
-#: journal/wrapped_text.py:272
-msgid "Anyone with the link sees the page; counts use public entries only."
-msgstr "任何有链接的人都能看到此页面；统计只计入公开的记录。"
-
-#: journal/wrapped_text.py:274
-msgid "Only your followers see the page; counts include followers-only entries."
-msgstr "只有关注你的人能看到此页面；统计包含仅关注者可见的记录。"
-
-#: journal/wrapped_text.py:276
-msgid "Only you see the page; counts include private entries."
-msgstr "只有你能看到此页面；统计包含私密记录。"
-
 #: journal/wrapped_text.py:277
 msgid "hidden by you"
 msgstr "已被你隐藏"
@@ -11281,14 +11241,6 @@ msgstr "作品少于 {n} 部的年份不显示"
 #: journal/wrapped_text.py:279
 msgid "could not be drawn from this data"
 msgstr "无法用这些数据绘制"
-
-#: journal/wrapped_text.py:280
-msgid "made"
-msgstr "自制"
-
-#: journal/wrapped_text.py:281
-msgid "social"
-msgstr "社交"
 
 #: journal/wrapped_text.py:282
 msgid "Post this card"
@@ -11320,17 +11272,9 @@ msgstr "把{name}前移"
 msgid "Move {name} later"
 msgstr "把{name}后移"
 
-#: journal/wrapped_text.py:290
-msgid "Pick a card to jump to it."
-msgstr "选择一张卡片即可跳转。"
-
 #: journal/wrapped_text.py:291
 msgid "Drag a card to a new place, or use its arrows. The intro stays first and the outro last."
 msgstr "把卡片拖到新位置，或使用它的箭头。开篇始终在最前，尾声始终在最后。"
-
-#: journal/wrapped_text.py:292
-msgid "The page stays here all year. Hide a card from its footer, change the order with Arrange, or make your own with the plus."
-msgstr "这个页面全年都在。可以在卡片底部隐藏卡片，用“排列”调整顺序，或用加号制作自己的卡片。"
 
 #: journal/wrapped_text.py:293
 #, python-brace-format
@@ -11345,22 +11289,9 @@ msgstr "完成"
 msgid "Arrange"
 msgstr "排列"
 
-#: journal/wrapped_text.py:296
-#, python-brace-format
-msgid "Hidden ({n})"
-msgstr "已隐藏（{n}）"
-
-#: journal/wrapped_text.py:297
-msgid "Show"
-msgstr "显示"
-
 #: journal/wrapped_text.py:298
 msgid "Back to the default order"
 msgstr "已恢复默认顺序"
-
-#: journal/wrapped_text.py:299
-msgid "Could not change who can see the page"
-msgstr "无法更改谁可以看到此页面"
 
 #: journal/wrapped_text.py:300
 #, python-brace-format
@@ -11592,11 +11523,6 @@ msgstr "GIF 预览"
 msgid "{size} MB, {n} frames at 2.5 s"
 msgstr "{size} MB，{n} 帧，每帧 2.5 秒"
 
-#: journal/wrapped_text.py:356
-#, python-brace-format
-msgid "GIF failed: {error}"
-msgstr "GIF 生成失败：{error}"
-
 #: journal/wrapped_text.py:361
 #, python-brace-format
 msgid "marks go back {n} year; the trend cards need five"
@@ -11705,12 +11631,6 @@ msgid "{n} tag"
 msgid_plural "{n} tags"
 msgstr[0] "{n} 个标签"
 
-#: journal/wrapped_text.py:379
-#, python-brace-format
-msgid "{n} card"
-msgid_plural "{n} cards"
-msgstr[0] "{n} 张卡片"
-
 #: journal/wrapped_text.py:380
 #, python-brace-format
 msgid "{titles} across {n} shelf."
@@ -11746,3 +11666,279 @@ msgstr[0] "@{owner} 的收藏单，{n} 部作品。"
 msgid "Posted {n} card to your timeline"
 msgid_plural "Posted {n} cards to your timeline"
 msgstr[0] "已向你的时间轴发布 {n} 张卡片"
+
+#: journal/templates/wrapped.html:37 journal/templates/wrapped.html:39
+msgid "Your own year"
+msgstr "我的年度总结"
+
+#: journal/templates/wrapped.html:43
+msgid "Sign in"
+msgstr "登录"
+
+#: journal/templates/wrapped.html:76
+msgid "The whole year"
+msgstr "全年一览"
+
+#: journal/templates/wrapped.html:89
+msgid "The year in covers"
+msgstr "封面年轮"
+
+#: journal/templates/wrapped.html:104 journal/wrapped_text.py:414
+msgid "Edit the deck"
+msgstr "编辑卡组"
+
+#: journal/wrapped_text.py:406
+msgid "Year"
+msgstr "年份"
+
+#: journal/wrapped_text.py:407
+msgid "Copy link to this card"
+msgstr "复制这张卡片的链接"
+
+#: journal/wrapped_text.py:409
+msgid "Pause"
+msgstr "暂停"
+
+#: journal/wrapped_text.py:412
+msgid "See the whole year"
+msgstr "纵览全年"
+
+#: journal/wrapped_text.py:413
+#, python-brace-format
+msgid "Make your own {year}"
+msgstr "制作你的 {year}"
+
+#: journal/wrapped_text.py:415
+msgid "Each pile is a month; pick one to see its titles."
+msgstr "每堆是一个月，点开可查看当月作品。"
+
+#: journal/wrapped_text.py:416
+#, python-brace-format
+msgid "{month}, {titles}"
+msgstr "{month}，{titles}"
+
+#: journal/wrapped_text.py:337
+msgid "Show this card"
+msgstr "显示这张卡片"
+
+#: journal/templates/wrapped.html:107 journal/templates/wrapped.html:108
+#: journal/templates/wrapped.html:226 journal/templates/wrapped.html:227
+msgid "Who can see these cards"
+msgstr "谁可以看到这组卡片"
+
+#: journal/wrapped_text.py:332
+msgid "Hide or show a card with its eye, change the order with Arrange, or make your own with the plus."
+msgstr "点卡片上的眼睛可隐藏或显示卡片，用“排列”调整顺序，或用加号制作自己的卡片。"
+
+#: journal/wrapped_text.py:310
+msgid "Anyone with the link sees the cards; counts use public entries only."
+msgstr "任何有链接的人都能看到这组卡片；统计只计入公开的记录。"
+
+#: journal/wrapped_text.py:313
+msgid "Only your followers see the cards; counts include followers-only entries."
+msgstr "只有关注你的人能看到这组卡片；统计包含仅关注者可见的记录。"
+
+#: journal/wrapped_text.py:316
+msgid "Only you see the cards; counts include private entries."
+msgstr "只有你能看到这组卡片；统计包含私密记录。"
+
+#: journal/templates/wrapped.html:255
+msgid "Every card on the page as PNG files in one ZIP, or as a slideshow in a GIF or an MP4 video."
+msgstr "页面上的全部卡片可打包成一个 PNG 文件的 ZIP，或做成 GIF 或 MP4 幻灯片。"
+
+#: journal/templates/wrapped.html:258
+msgid "All cards as ZIP"
+msgstr "全部卡片（ZIP）"
+
+#: journal/templates/wrapped.html:264
+msgid "MP4 video"
+msgstr "MP4 视频"
+
+#: journal/templates/wrapped.html:268
+msgid "This browser cannot make an MP4 video. The GIF works everywhere."
+msgstr "这个浏览器无法生成 MP4 视频。GIF 在所有浏览器中都能用。"
+
+#: journal/wrapped_text.py:402
+#, python-brace-format
+msgid "{size} MB, {n} files"
+msgstr "{size} MB，{n} 个文件"
+
+#: journal/wrapped_text.py:403
+#, python-brace-format
+msgid "{size} MB, {seconds} s video"
+msgstr "{size} MB，{seconds} 秒视频"
+
+#: journal/templates/wrapped.html:129 journal/wrapped_text.py:406
+msgid "Suggested cards"
+msgstr "推荐的卡片"
+
+#: journal/templates/wrapped.html:132
+msgid "Hide all"
+msgstr "全部隐藏"
+
+#: journal/templates/wrapped.html:212
+msgid "Images, up to four cards"
+msgstr "图片，最多四张卡片"
+
+#: journal/templates/wrapped.html:216
+msgid "Video of all cards"
+msgstr "全部卡片的视频"
+
+#: journal/templates/wrapped.html:221 journal/templates/wrapped.html:275
+msgid "ZIP, GIF and video can take a minute and may need the latest Chrome."
+msgstr "ZIP、GIF 和视频可能需要一分钟左右，并可能需要最新版 Chrome。"
+
+#: journal/templates/wrapped.html:250
+msgid "People who are not signed in cannot open this page, because your profile is hidden from them."
+msgstr "未登录的访客无法打开此页面，因为你的个人资料对他们隐藏。"
+
+#: journal/templates/wrapped.html:251
+msgid "Change it in Settings"
+msgstr "在设置中更改"
+
+#: journal/templates/wrapped.html:259
+msgid "Change in Edit"
+msgstr "在编辑中更改"
+
+#: journal/wrapped_text.py:403
+msgid "Every card is hidden from this audience"
+msgstr "已对这组观众隐藏全部卡片"
+
+#: journal/wrapped_text.py:404
+msgid "Back to the suggested cards"
+msgstr "已恢复为推荐的卡片"
+
+#: journal/wrapped_text.py:405
+msgid "Not shared"
+msgstr "未分享"
+
+#: journal/wrapped_text.py:407
+msgid "Posted the video to your timeline"
+msgstr "已向你的时间轴发布视频"
+
+#: journal/wrapped_text.py:424
+#, python-brace-format
+msgid "{n} card"
+msgid_plural "{n} cards"
+msgstr[0] "{n} 张卡片"
+
+#: journal/wrapped_text.py:408
+msgid "This audience sees no cards. Show some in Edit."
+msgstr "这组观众看不到任何卡片。可在编辑中显示一些卡片。"
+
+#: journal/templates/wrapped.html:34 journal/templates/wrapped.html:135
+msgid "Background music"
+msgstr "背景音乐"
+
+#: journal/wrapped_music.py:18
+msgid "Piano Sonata No. 16, K. 545, I. Allegro"
+msgstr "第十六号钢琴奏鸣曲，K. 545，第一乐章 快板"
+
+#: journal/wrapped_music.py:19
+msgid "W. A. Mozart"
+msgstr "莫扎特"
+
+#: journal/wrapped_music.py:20 journal/wrapped_music.py:64
+msgid "Performer not named (Musopen)"
+msgstr "演奏者未署名（Musopen）"
+
+#: journal/wrapped_music.py:29
+msgid "Prelude in D major, BWV 850"
+msgstr "D 大调前奏曲，BWV 850"
+
+#: journal/wrapped_music.py:30 journal/wrapped_music.py:41
+#: journal/wrapped_music.py:52
+msgid "J. S. Bach"
+msgstr "巴赫"
+
+#: journal/wrapped_music.py:31 journal/wrapped_music.py:53
+msgid "Kimiko Ishizaka, piano (Open Well-Tempered Clavier, 2015)"
+msgstr "石坂公美子，钢琴（Open Well-Tempered Clavier，2015）"
+
+#: journal/wrapped_music.py:40
+msgid "Goldberg Variations, Variation 1"
+msgstr "哥德堡变奏曲，第一变奏"
+
+#: journal/wrapped_music.py:42
+msgid "Kimiko Ishizaka, piano (Open Goldberg Variations, 2012)"
+msgstr "石坂公美子，钢琴（Open Goldberg Variations，2012）"
+
+#: journal/wrapped_music.py:51
+msgid "Prelude in C major, BWV 846"
+msgstr "C 大调前奏曲，BWV 846"
+
+#: journal/wrapped_music.py:62
+msgid "Symphony No. 6 \"Pastoral\", I. Allegro ma non troppo"
+msgstr "第六号交响曲《田园》，第一乐章 不太快的快板"
+
+#: journal/wrapped_music.py:63
+msgid "L. van Beethoven"
+msgstr "贝多芬"
+
+#: journal/wrapped_music.py:73
+msgid "Waltz Op. 64 No. 1 \"Minute\""
+msgstr "圆舞曲 Op. 64 No. 1《一分钟》"
+
+#: journal/wrapped_music.py:74
+msgid "F. Chopin"
+msgstr "肖邦"
+
+#: journal/wrapped_music.py:75
+msgid "Olga Gurevich, piano (Musopen, Set Chopin Free)"
+msgstr "Olga Gurevich，钢琴（Musopen，Set Chopin Free）"
+
+#: journal/wrapped_music.py:84
+msgid "The Nutcracker, Waltz of the Flowers"
+msgstr "胡桃夹子，花之圆舞曲"
+
+#: journal/wrapped_music.py:85
+msgid "P. I. Tchaikovsky"
+msgstr "柴可夫斯基"
+
+#: journal/wrapped_music.py:86
+msgid "United States Air Force Band, concert band (1996)"
+msgstr "美国空军乐队，管乐团（1996）"
+
+#: journal/wrapped_music.py:95
+msgid "Corta-Jaca (maxixe)"
+msgstr "Corta-Jaca（马克西舍舞曲）"
+
+#: journal/wrapped_music.py:96
+msgid "Chiquinha Gonzaga, Brazil"
+msgstr "希金尼亚·冈萨加，巴西"
+
+#: journal/wrapped_music.py:97
+msgid "Grupo Chiquinha Gonzaga: flute, guitar, cavaquinho (about 1912)"
+msgstr "Grupo Chiquinha Gonzaga：长笛、吉他、卡瓦奇诺（约 1912 年）"
+
+#: journal/wrapped_music.py:106
+msgid "Odeon (Brazilian tango), clean rendering"
+msgstr "Odeon（巴西探戈），清晰版"
+
+#: journal/wrapped_music.py:107
+msgid "E. Nazareth, Brazil"
+msgstr "埃内斯托·纳扎雷特，巴西"
+
+#: journal/wrapped_music.py:108
+msgid "Computer rendering by Eduardo Feld"
+msgstr "Eduardo Feld 的电脑演奏"
+
+#: journal/wrapped_music.py:117
+msgid "Public domain"
+msgstr "公有领域"
+
+#: journal/wrapped_text.py:409
+msgid "Sound on"
+msgstr "声音已开"
+
+#: journal/wrapped_text.py:410
+msgid "Sound off"
+msgstr "声音已关"
+
+#: journal/wrapped_text.py:411
+msgid "No music"
+msgstr "无音乐"
+
+#: journal/wrapped_text.py:412
+msgid "The music could not be loaded"
+msgstr "音乐无法加载"

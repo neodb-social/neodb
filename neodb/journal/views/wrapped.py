@@ -19,7 +19,9 @@ from django.http import (
     JsonResponse,
 )
 from django.shortcuts import render
+from django.core.files import File
 from django.urls import reverse
+from django.utils.cache import patch_cache_control
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
@@ -32,8 +34,15 @@ from catalog.search.utils import enqueue_fetch, get_fetch_lock
 from common.sentry import count as sentry_count
 from common.utils import AuthedHttpRequest, target_identity_required
 from journal.models.common import VisibilityType
-from journal.models.wrapped import MADE_CARD_ITEMS_MAX, MADE_CARDS_MAX, WrappedDeck
+from journal.models.wrapped import (
+    ALL_HIDDEN,
+    AUDIENCES,
+    MADE_CARD_ITEMS_MAX,
+    MADE_CARDS_MAX,
+    WrappedDeck,
+)
 from journal.wrapped import CATEGORIES, build_payload, deck_for, friends_allowed
+from journal.wrapped_music import BY_ID as MUSIC, menu as music_menu, track
 from journal.wrapped_text import card_text
 from mastodon.models.bluesky import EmbedObj
 from takahe.utils import Takahe
@@ -41,10 +50,11 @@ from users.models import APIdentity
 
 logger = logging.getLogger(__name__)
 
-PAGE_VIS = {"public": 0, "followers": 1, "me": 2}
 CARD_ID = re.compile(r"^[a-z0-9-]{1,40}$")
 IMAGES_MAX = 4
 IMAGE_BYTES_MAX = 4 * 1024 * 1024
+# a video of every card: about 0.3 MB a card, and a deck has at most about 50 cards
+VIDEO_BYTES_MAX = 16 * 1024 * 1024
 
 
 def _year(year: int | None) -> int:
@@ -54,39 +64,63 @@ def _year(year: int | None) -> int:
     return year
 
 
+def _made_for(deck: WrappedDeck, level: int) -> list[dict[str, Any]]:
+    """The made cards a visitor at this level can see; the others never leave the server."""
+    shown = deck.shown_for(level)
+    if shown is not None:
+        return [m for m in deck.made if f"made-{m.get('id')}" in shown]
+    return [
+        m
+        for m in deck.made
+        if deck.card_hidden(level, f"made-{m.get('id')}") is not True
+    ]
+
+
 def _context(
-    owner: APIdentity, deck: WrappedDeck, year: int, is_owner: bool
+    owner: APIdentity, deck: WrappedDeck, year: int, level: int, is_owner: bool
 ) -> dict[str, Any]:
     payload = build_payload(
         owner,
         year,
-        deck.level,
+        level,
         deck.tzinfo,
-        include_friends=friends_allowed(deck, is_owner),
+        include_friends=friends_allowed(deck, level, is_owner),
     )
-    state = deck.state()
+    state = deck.state(level)
     if not is_owner:
-        state["made"] = [
-            m
-            for m in deck.made
-            if not deck.shown or f"made-{m.get('id')}" in deck.shown
-        ]
+        state["made"] = _made_for(deck, level)
     payload["deck"] = state
-    payload["shown"] = None if is_owner else deck.shown
+    payload["level"] = level
+    # a visitor sees the list the owner last saw for this audience; without one the browser applies the rules and overrides
+    payload["shown"] = None if is_owner else deck.shown_for(level)
     payload["owner_view"] = is_owner
     payload["page_url"] = settings.SITE_INFO["site_url"].rstrip("/") + reverse(
         "journal:wrapped_page", args=[owner.handle, year]
     )
     payload["cover_url"] = reverse("journal:wrapped_cover", args=["UUID"])
+    # the owner's own page for this year: the year switch for the owner, "make your own" for a visitor
+    payload["make_url"] = reverse("journal:wrapped", args=[year])
     # the cards are drawn in the browser, in the language of the page
     payload["lang"] = get_language() or "en"
     payload["text"] = card_text()
+    # every viewer gets the owner's choice of music, and hears it only after turning the sound on
+    payload["music"] = track(deck.music)
     if is_owner:
         payload["urls"] = {
             "save": reverse("journal:wrapped_save", args=[year]),
             "share": reverse("journal:wrapped_share", args=[year]),
             "lookup": reverse("journal:wrapped_lookup"),
         }
+        payload["music_menu"] = music_menu()
+        # what each audience sees, for the Share dialog: no count for an audience the owner has not opened
+        payload["audiences"] = [
+            {
+                "level": lv,
+                "off": deck.is_off(lv),
+                "shown": len(sh) if (sh := deck.shown_for(lv)) is not None else None,
+            }
+            for lv in AUDIENCES
+        ]
     return {"identity": owner, "year": year, "payload": payload, "is_owner": is_owner}
 
 
@@ -108,7 +142,16 @@ def wrapped_deck(request: AuthedHttpRequest, year: int | None = None):
                 deck.save(update_fields=["timezone", "edited_time"])
             except ZoneInfoNotFoundError, ValueError:
                 pass
-    return render(request, "wrapped.html", _context(owner, deck, y, True))
+    # the audience the owner views and edits; by default the widest one that sees something
+    try:
+        level = int(request.GET.get("as", ""))
+    except ValueError:
+        level = -1
+    if level not in AUDIENCES:
+        level = next((lv for lv in AUDIENCES if not deck.is_off(lv)), 2)
+    resp = render(request, "wrapped.html", _context(owner, deck, y, level, True))
+    patch_cache_control(resp, private=True)
+    return resp
 
 
 @require_GET
@@ -118,16 +161,16 @@ def wrapped_page(request: AuthedHttpRequest, user_name: str, year: int):
     if request.user.is_authenticated and target.user == request.user:
         return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
     deck = deck_for(target, year)
-    if deck is None or deck.shown is None:
-        raise Http404(_("This summary is not shared."))
     viewer = request.identity
-    if deck.level == VisibilityType.Private:
+    # a follower sees the followers' cards, or everyone's when the member shows followers none; anybody else sees everyone's
+    levels = [1, 0] if viewer and viewer.is_following(target) else [0]
+    level = next((lv for lv in levels if deck and not deck.is_off(lv)), None)
+    if deck is None or level is None:
         raise Http404(_("This summary is not shared."))
-    if deck.level == VisibilityType.Follower_Only and not (
-        viewer and viewer.is_following(target)
-    ):
-        raise Http404(_("This summary is not shared."))
-    return render(request, "wrapped.html", _context(target, deck, year, False))
+    resp = render(request, "wrapped.html", _context(target, deck, year, level, False))
+    # one link serves different cards to different viewers, so no shared cache may keep it
+    patch_cache_control(resp, private=True)
+    return resp
 
 
 def _clean_str(v: Any, size: int) -> str:
@@ -198,73 +241,116 @@ def _clean_made(made: Any) -> list[dict[str, Any]]:
 @login_required
 @require_POST
 def wrapped_save(request: AuthedHttpRequest, year: int):
-    """Save the owner's choices: page visibility, order, shown or hidden cards, made cards."""
+    """Save the owner's choices for one audience (hidden and shown cards) and for all of them (order, made cards)."""
     try:
         data = json.loads(request.body or b"{}")
     except ValueError:
         return HttpResponseBadRequest("invalid json")
     if not isinstance(data, dict):
         return HttpResponseBadRequest("invalid json")
+    try:
+        aud = int(data.get("aud", -1))
+    except TypeError, ValueError:
+        aud = -1
+    if aud not in AUDIENCES:
+        return HttpResponseBadRequest("invalid audience")
     deck = deck_for(request.user.identity, _year(year), create=True)
     assert deck is not None
     fields = []
-    reload = False
-    if data.get("vis") in PAGE_VIS and PAGE_VIS[data["vis"]] != deck.level:
-        deck.visibility = PAGE_VIS[data["vis"]]
-        fields.append("visibility")
-        reload = True
     if isinstance(data.get("order"), list):
         deck.order = [
             c for c in data["order"] if isinstance(c, str) and CARD_ID.match(c)
         ][:100]
         fields.append("order")
     if isinstance(data.get("hidden"), dict):
-        deck.hidden = {
-            k: bool(v)
+        hidden = dict(deck.hidden or {})
+        hidden[str(aud)] = {
+            str(k): bool(v)
             for k, v in list(data["hidden"].items())[:100]
-            if CARD_ID.match(str(k))
+            if k == ALL_HIDDEN or CARD_ID.match(str(k))
         }
+        deck.hidden = hidden
         fields.append("hidden")
     if "made" in data:
         deck.made = _clean_made(data["made"])
         fields.append("made")
+    if "music" in data:
+        music = str(data["music"] or "")
+        if music and music not in MUSIC:
+            return HttpResponseBadRequest("invalid music")
+        deck.music = music
+        fields.append("music")
     if isinstance(data.get("shown"), list):
-        deck.shown = [
+        shown = dict(deck.shown or {})
+        shown[str(aud)] = [
             c for c in data["shown"] if isinstance(c, str) and CARD_ID.match(c)
         ][:100]
+        deck.shown = shown
         fields.append("shown")
     if fields:
         deck.save(update_fields=fields + ["edited_time"])
-    return JsonResponse({"ok": True, "reload": reload})
+    return JsonResponse({"ok": True})
 
 
 @login_required
 @require_POST
 def wrapped_share(request: AuthedHttpRequest, year: int):
-    """Post up to four cards to the timeline as images, with the member's note."""
-    images = []
-    for s in request.POST.getlist("img")[:IMAGES_MAX]:
-        try:
-            raw = base64.b64decode(s.split(",", 1)[-1], validate=True)
-        except binascii.Error, ValueError:
-            return HttpResponseBadRequest("invalid image")
-        if not raw.startswith(b"\x89PNG") or len(raw) > IMAGE_BYTES_MAX:
-            return HttpResponseBadRequest("invalid image")
-        images.append(raw)
-    if not images:
-        return HttpResponseBadRequest("no image")
+    """Post up to four cards as images, or a video of all of them, to the timeline with the member's note."""
     comment = request.POST.get("comment", "")[:1000]
     try:
         visibility = VisibilityType(int(request.POST.get("visibility", 0)))
+        aud = int(request.POST.get("aud", 2))
     except ValueError:
         return HttpResponseBadRequest("invalid visibility")
+    # the cards carry counts from their audience's level, so a post never reaches a wider audience than that
+    if aud not in AUDIENCES or int(visibility) < aud:
+        return HttpResponseBadRequest("invalid visibility")
+    images: list[bytes] = []
+    video = poster = None
+    if request.POST.get("kind") == "video":
+        video, poster_file = request.FILES.get("video"), request.FILES.get("poster")
+        if not video or not video.size or video.size > VIDEO_BYTES_MAX:
+            return HttpResponseBadRequest("invalid video")
+        head = video.read(12)
+        video.seek(0)
+        if head[4:8] != b"ftyp":
+            return HttpResponseBadRequest("invalid video")
+        poster = poster_file.read(IMAGE_BYTES_MAX + 1) if poster_file else b""
+        if not poster.startswith(b"\x89PNG") or len(poster) > IMAGE_BYTES_MAX:
+            return HttpResponseBadRequest("invalid image")
+    else:
+        for s in request.POST.getlist("img")[:IMAGES_MAX]:
+            try:
+                raw = base64.b64decode(s.split(",", 1)[-1], validate=True)
+            except binascii.Error, ValueError:
+                return HttpResponseBadRequest("invalid image")
+            if not raw.startswith(b"\x89PNG") or len(raw) > IMAGE_BYTES_MAX:
+                return HttpResponseBadRequest("invalid image")
+            images.append(raw)
+        if not images:
+            return HttpResponseBadRequest("no image")
     user = request.user
     identity = user.identity
     alt = _("{year} annual summary card").format(year=year)
-    media = [
-        Takahe.upload_image(identity.pk, f"{year}-{k + 1}.png", img, "image/png", alt)
-        for k, img in enumerate(images)
-    ]
+    if video:
+        # the video is already H.264 from the browser: stored as it is, with the intro card as its still
+        media = [
+            Takahe.upload_attachment(
+                identity.pk,
+                f"{year}-wrapped.mp4",
+                File(video),
+                "video/mp4",
+                alt,
+                poster=poster,
+            )
+        ]
+    else:
+        media = [
+            Takahe.upload_image(
+                identity.pk, f"{year}-{k + 1}.png", img, "image/png", alt
+            )
+            for k, img in enumerate(images)
+        ]
     post = Takahe.post(
         identity.pk,
         comment,
@@ -338,6 +424,29 @@ def wrapped_lookup(request: AuthedHttpRequest):
         enqueue_fetch(url, False, request.user)
         return JsonResponse({"status": "fetching"})
     return JsonResponse({"status": "busy"})
+
+
+@require_GET
+def wrapped_avatar(request: HttpRequest, identity_id: int):
+    """A local member's profile picture from this site's origin, for the corner of every card.
+
+    It is served here for the same reason as the covers (see wrapped_cover). A member with no picture of
+    their own gets a 404, and the cards then show the site icon.
+    """
+    identity = APIdentity.objects.filter(
+        pk=identity_id, local=True, deleted__isnull=True
+    ).first()
+    ti = identity.takahe_identity if identity else None
+    if not ti or not ti.icon:
+        raise Http404()
+    try:
+        f = ti.icon.open("rb")
+    except Exception:
+        raise Http404()
+    resp = FileResponse(f)
+    # the link carries a version, so a new picture gets a new link
+    resp["Cache-Control"] = "public, max-age=604800"
+    return resp
 
 
 @require_GET
