@@ -337,9 +337,6 @@ TEXT = [
     gettext_noop("Arrange"),
     gettext_noop("Show this card"),
     gettext_noop("Back to the default order"),
-    gettext_noop("{month} was the busiest month with {n}; the quietest was {quiet}."),
-    gettext_noop("The longest run of days with something logged was {days}."),
-    gettext_noop("The year is still running."),
     gettext_noop("titles completed"),
     gettext_noop("days with something logged"),
     gettext_noop("average rating, of 10"),
@@ -451,7 +448,6 @@ TEXT = [
     gettext_noop("See the whole year"),
     gettext_noop("Make your own {year}"),
     gettext_noop("Edit the deck"),
-    gettext_noop("Each pile is a month; pick one to see its titles."),
     gettext_noop("{month}, {titles}"),
 ]
 
@@ -508,12 +504,6 @@ PLURALS = [
         "only {n} title tagged, under {min}", "only {n} titles tagged, under {min}", n
     ),
     lambda n: ngettext("{n} tag", "{n} tags", n),
-    lambda n: ngettext("{titles} across {n} shelf.", "{titles} across {n} shelves.", n),
-    lambda n: ngettext(
-        "The longest run of days with something logged was {days}, and {n} title got five stars.",
-        "The longest run of days with something logged was {days}, and {n} titles got five stars.",
-        n,
-    ),
     lambda n: ngettext("busiest month, {n} title", "busiest month, {n} titles", n),
     lambda n: ngettext("Your collection, {n} item.", "Your collection, {n} items.", n),
     lambda n: ngettext(

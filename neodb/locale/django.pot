@@ -11180,20 +11180,6 @@ msgstr ""
 msgid "Back to the default order"
 msgstr ""
 
-#: journal/wrapped_text.py:300
-#, python-brace-format
-msgid "{month} was the busiest month with {n}; the quietest was {quiet}."
-msgstr ""
-
-#: journal/wrapped_text.py:301
-#, python-brace-format
-msgid "The longest run of days with something logged was {days}."
-msgstr ""
-
-#: journal/wrapped_text.py:302
-msgid "The year is still running."
-msgstr ""
-
 #: journal/wrapped_text.py:303
 msgid "titles completed"
 msgstr ""
@@ -11532,20 +11518,6 @@ msgid_plural "{n} tags"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/wrapped_text.py:380
-#, python-brace-format
-msgid "{titles} across {n} shelf."
-msgid_plural "{titles} across {n} shelves."
-msgstr[0] ""
-msgstr[1] ""
-
-#: journal/wrapped_text.py:381
-#, python-brace-format
-msgid "The longest run of days with something logged was {days}, and {n} title got five stars."
-msgid_plural "The longest run of days with something logged was {days}, and {n} titles got five stars."
-msgstr[0] ""
-msgstr[1] ""
-
 #: journal/wrapped_text.py:382
 #, python-brace-format
 msgid "busiest month, {n} title"
@@ -11586,10 +11558,6 @@ msgstr ""
 msgid "The whole year"
 msgstr ""
 
-#: journal/templates/wrapped.html:89
-msgid "The year in covers"
-msgstr ""
-
 #: journal/templates/wrapped.html:104 journal/wrapped_text.py:414
 msgid "Edit the deck"
 msgstr ""
@@ -11613,10 +11581,6 @@ msgstr ""
 #: journal/wrapped_text.py:413
 #, python-brace-format
 msgid "Make your own {year}"
-msgstr ""
-
-#: journal/wrapped_text.py:415
-msgid "Each pile is a month; pick one to see its titles."
 msgstr ""
 
 #: journal/wrapped_text.py:416

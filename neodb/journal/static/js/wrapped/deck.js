@@ -39,7 +39,6 @@
   const first = D.member.name.split(" ")[0];
   const path = u => String(u || "").replace(base, "");
   // sentences joined with a space, except after full-width punctuation as in Chinese
-  const join = parts => parts.filter(Boolean).reduce((a, b) => a ? a + (/[。！？；）]$/.test(a) ? "" : " ") + b : b, "");
   // the deck year as one history row, built from the deck's own items so the trend cards agree with the other cards
   function yearFromItems() {
     const z = () => Array(12).fill(0), y = { m: z(), b: z(), c: {}, d: z(), r: z(), f: z(), g: z() }, perDay = {}, days = new Set();
@@ -88,7 +87,7 @@
   social.crowd = dItems.filter(i => i.rating >= 9).map(i => ({ it: i, share: i.dist[4] })).sort((a, b) => b.share - a.share)[0] || null;
   social.grain = dItems.filter(i => i.rating >= 8).map(i => { const star = Math.round(i.rating / 2); const below = i.dist.slice(0, star - 1).reduce((s, x) => s + x, 0); return { it: i, below, star }; }).sort((a, b) => b.below - a.below)[0] || null;
   social.early = S.items.filter(i => i.first_rank && i.first_rank <= 10 && (i.marks || 0) >= 50).sort((a, b) => b.marks - a.marks)[0] || null;
-  social.instanceTop = D.instance_top || null; social.percentile = D.percentile ?? null;
+  social.instanceTop = D.instance_top || null; social.percentile = D.percentile ?? null; social.median = D.median ?? null;
 
   // ---------- activity: what counts toward the streak ----------
   // progress, complete and dropped shelf changes, notes, episode comments and reviews count; wishlist adds and edits never do.
@@ -472,7 +471,7 @@
     const p = social.percentile;
     cards.push({ id: "pack", name: _("Ahead of the pack"), kind: "social", interest: ok(p != null && p > 50, p != null ? _("below the median this year, so this card stays quiet") : _("the instance percentile is not ready yet")), bg: () => TINT.green, body: () => {
       const t = cardTop(`${p}%`, _("of active members on {site} completed fewer titles than you this year", { site: S.site }), { eyebrow: _("Ahead of the pack") }), by = Math.max(t.y + 170, 640 + DY / 2), px = 80 + p * 9.2;
-      return t.svg + G("growx", 400, `<rect x="80" y="${by}" width="${p * 9.2}" height="48" rx="24" fill="${LOGO.green}"/>`) + `<rect x="80" y="${by}" width="920" height="48" rx="24" fill="none" stroke="${LINE}" stroke-width="2"/><line x1="540" y1="${by - 20}" x2="540" y2="${by + 68}" stroke="${INK}" stroke-width="3" stroke-dasharray="6 6"/>` + T(540, by + 112, _("the median member"), 34, { fill: MUTED, anchor: "middle" }) + G("pop", 700, `<circle cx="${px}" cy="${by + 24}" r="18" fill="#fff" stroke="${INK}" stroke-width="5"/>` + T(px, by - 32, _("you"), 34, { weight: 800, anchor: p > 92 ? "end" : "middle" })) + T(80, by + 112, _("fewer titles"), 34, { fill: MUTED }) + T(1000, by + 112, _("more"), 34, { fill: MUTED, anchor: "end" });
+      return t.svg + G("growx", 400, `<rect x="80" y="${by}" width="${p * 9.2}" height="48" rx="24" fill="${LOGO.green}"/>`) + `<rect x="80" y="${by}" width="920" height="48" rx="24" fill="none" stroke="${LINE}" stroke-width="2"/><line x1="540" y1="${by - 20}" x2="540" y2="${by + 68}" stroke="${INK}" stroke-width="3" stroke-dasharray="6 6"/>` + T(540, by + 112, _("the median member"), 34, { fill: MUTED, anchor: "middle" }) + (social.median != null ? T(540, by + 158, _n("{n} title", "{n} titles", social.median), 34, { fill: INK, weight: 700, anchor: "middle" }) : "") + G("pop", 700, `<circle cx="${px}" cy="${by + 24}" r="18" fill="#fff" stroke="${INK}" stroke-width="5"/>` + T(px, by - 32, _("you"), 34, { weight: 800, anchor: p > 92 ? "end" : "middle" })) + T(80, by + 112, _("fewer titles"), 34, { fill: MUTED }) + T(1000, by + 112, _("more"), 34, { fill: MUTED, anchor: "end" });
     } });
     return cards;
   }
@@ -867,12 +866,6 @@
   // ---------- hero and lists ----------
   function hero() {
   const act = activityAt(LEVEL);
-  // the numbers are bold; the sentences come from the text table with the numbers filled in
-  const B = x => `<b>${esc(x)}</b>`, five = S.fiveStar.length;
-  $("lede").innerHTML = join([_n("{titles} across {n} shelf.", "{titles} across {n} shelves.", S.cats.length, { titles: B(_n("{n} title", "{n} titles", n)) }),
-    TM.counts[TM.busiest] >= RULE.BUSY_MIN ? _("{month} was the busiest month with {n}; the quietest was {quiet}.", { month: esc(MONTHS_LONG[TM.busiest]), n: B(TM.counts[TM.busiest]), quiet: esc(MONTHS_LONG[TM.quietest]) }) : "",
-    five ? _n("The longest run of days with something logged was {days}, and {n} title got five stars.", "The longest run of days with something logged was {days}, and {n} titles got five stars.", five, { days: B(act.streak), n: B(five) }) : _("The longest run of days with something logged was {days}.", { days: B(act.streak) }),
-    S.lastMonth < 11 ? _("The year is still running.") : ""]);
   $("stats").innerHTML = [[n, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[TM.busiest], _n("busiest month, {n} title", "busiest month, {n} titles", TM.counts[TM.busiest])], [S.avg ? S.avg.toFixed(1) : _n("{n} day", "{n} days", act.streak), S.avg ? _("average rating, of 10") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num"${typeof a === "number" ? ` data-to="${a}"` : ""}>${typeof a === "number" ? a.toLocaleString() : a}</span><span class="lbl">${b}</span></div>`).join("");
   }
   hero();
@@ -904,9 +897,8 @@
     openMonth(openM != null && lists[openM].length ? openM : null);
     document.querySelectorAll("#wr-bymcat button").forEach(b => { b.classList.toggle("on", b.dataset.cat === bymCat); b.setAttribute("aria-pressed", b.dataset.cat === bymCat); });
   }
-  $("pilesub").textContent = _("Each pile is a month; pick one to see its titles.");
   const bymCats = $("bymcat");
-  bymCats.innerHTML = `<button type="button" data-cat="all">${_("All")}</button>` + S.cats.map(c => `<button type="button" data-cat="${c}"><i class="dot" style="background:${CAT_COLOR[c]}"></i><i class="fa-solid ${CAT_ICON[c]}"></i> ${CAT_LABEL[c]}</button>`).join("");
+  bymCats.innerHTML = `<button type="button" data-cat="all">${_("All")}</button>` + S.cats.map(c => `<button type="button" data-cat="${c}"><i class="fa-solid ${CAT_ICON[c]}"></i> ${CAT_LABEL[c]}</button>`).join("");
   bymCats.querySelectorAll("button").forEach(b => b.onclick = () => { bymCat = b.dataset.cat; byMonth(); });
   byMonth();
   // the piles grow when their top comes up past the lowest 15% of the screen; a tall list on a phone does not wait for 20% of itself

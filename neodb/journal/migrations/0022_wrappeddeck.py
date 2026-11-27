@@ -24,21 +24,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("year", models.PositiveSmallIntegerField()),
-                (
-                    "visibility",
-                    models.PositiveSmallIntegerField(
-                        choices=[
-                            (0, "Public"),
-                            (1, "Followers Only"),
-                            (2, "Mentioned Only"),
-                        ],
-                        default=2,
-                    ),
-                ),
                 ("order", models.JSONField(default=list)),
                 ("hidden", models.JSONField(default=dict)),
                 ("made", models.JSONField(default=list)),
-                ("shown", models.JSONField(default=None, null=True)),
+                ("shown", models.JSONField(default=dict)),
+                ("music", models.CharField(blank=True, default="", max_length=40)),
                 ("timezone", models.CharField(blank=True, default="", max_length=64)),
                 ("created_time", models.DateTimeField(auto_now_add=True)),
                 ("edited_time", models.DateTimeField(auto_now=True)),

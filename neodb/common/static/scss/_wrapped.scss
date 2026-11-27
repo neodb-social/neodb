@@ -120,8 +120,6 @@
   > section + section { margin-top: calc(var(--dc-gap) * 3); }
 
   .wr-h { margin: 0.3rem 0 0.5rem; font-size: clamp(1.7rem, 3.6vw, 2.6rem); letter-spacing: -0.025em; line-height: 1.08; color: var(--dc-strong); }
-  .lede { margin: 0; max-width: 42em; color: var(--dc-muted); font-size: var(--dc-fs-base); line-height: 1.5; }
-  .lede b { color: var(--dc-strong); }
 
   .wr-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--dc-gap); margin-top: calc(var(--dc-gap) * 1.5); }
   .wr-stats .dc-surface { padding: 1rem 1.2rem; }
@@ -132,7 +130,6 @@
   .cat-filter button { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.4rem; width: auto; margin: 0; padding: 0.35rem 0.8rem; border: 1px solid var(--dc-border); border-radius: var(--dc-pill); background: var(--dc-surface); color: var(--dc-strong); font-size: var(--dc-fs-sm); box-shadow: none; }
   .cat-filter button:hover { border-color: var(--pico-primary); }
   .cat-filter button .fa-solid { color: var(--dc-muted); font-size: var(--dc-fs-xs); }
-  .cat-filter .dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; }
   .cat-filter button.on { background: var(--pico-primary-background); border-color: var(--pico-primary-background); color: var(--pico-primary-inverse); }
   .cat-filter button.on .fa-solid { color: inherit; }
 

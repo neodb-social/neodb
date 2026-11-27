@@ -34,6 +34,8 @@ from journal.models import (
 )
 from journal.wrapped import (
     BULK_DAY,
+    _median,
+    _percentile,
     build_payload,
     compute_instance_stats,
     friends_allowed,
@@ -337,6 +339,13 @@ class TestInstanceStats:
         ) as compute:
             WrappedInstanceStats().run()
         assert [c.args[0] for c in compute.call_args_list] == [this - 1, this]
+
+    def test_median_is_one_members_count_and_needs_ten(self):
+        assert _median([3, 1, 2]) is None
+        # the lower of the two middle values, so it is a count some member really has
+        assert _median([1, 2, 3, 4, 5, 6, 7, 8, 9, 40]) == 5
+        assert _median([5] * 9 + [100, 200]) == 5
+        assert _percentile(list(range(1, 11)), 8) == 70
 
 
 class TestCardText:

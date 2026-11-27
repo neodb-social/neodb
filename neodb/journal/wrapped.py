@@ -10,6 +10,7 @@ import datetime
 import hashlib
 import logging
 import re
+import statistics
 import uuid
 from collections import defaultdict
 from typing import Any
@@ -584,6 +585,13 @@ def _percentile(counts: list[int], mine: int) -> int | None:
     return round(below * 100 / len(counts))
 
 
+def _median(counts: list[int]) -> int | None:
+    """The titles one real member finished (the lower middle one), with the same minimum as the percentile."""
+    if len(counts) < 10:
+        return None
+    return statistics.median_low(counts)
+
+
 def build_payload(
     owner: APIdentity, year: int, level: int, tz: ZoneInfo, include_friends: bool = True
 ) -> dict[str, Any]:
@@ -695,6 +703,7 @@ def build_payload(
         else [],
         "instance_top": stats["top"] if stats else None,
         "percentile": _percentile(stats["counts"], len(ids)) if stats else None,
+        "median": _median(stats["counts"]) if stats else None,
     }
     return payload
 
