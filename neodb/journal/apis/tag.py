@@ -1,5 +1,8 @@
+from typing import Literal
+
 from django.core.cache import cache
 from django.db import IntegrityError, transaction
+from django.db.models import F, Max
 from django.http import Http404
 from ninja import Field, Schema, Status
 from ninja.errors import HttpError
@@ -49,15 +52,22 @@ def _tag_visibility(visibility: int) -> int:
     tags=["tag"],
 )
 @paginate(PageNumberPagination)
-def list_tags(request, title: str | None = None):
+def list_tags(request, title: str | None = None, sort: Literal["recent"] | None = None):
     """
     Get tags created by current user
 
     `title` is optional, all tags will be returned if not specified.
+
+    `sort` is optional. `recent` returns the tags most recently added to an
+    item first, and the tags not added to any item last.
     """
     queryset = Tag.objects.filter(owner=request.user.identity)
     if title:
         queryset = queryset.filter(title=Tag.cleanup_title(title))
+    if sort == "recent":
+        queryset = queryset.annotate(last_used=Max("members__created_time")).order_by(
+            F("last_used").desc(nulls_last=True), "-pk"
+        )
     return queryset
 
 

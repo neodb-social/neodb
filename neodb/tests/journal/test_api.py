@@ -24,6 +24,7 @@ from journal.models import (
     Rating,
     Review,
     Tag,
+    TagMember,
 )
 from journal.models.shelf import ShelfType
 from takahe.models import Post
@@ -478,6 +479,64 @@ def test_tag_api_lifecycle():
 
     assert response.status_code == 200
     assert Tag.get_by_url(tag_uuid) is None
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_tag_api_sort_recent():
+    user = User.register(email="recenttags@example.com", username="recenttags")
+    other = User.register(email="othertags@example.com", username="othertags")
+    books = [Edition.objects.create(title=f"Recent Tag Book {i}") for i in range(3)]
+    now = timezone.now()
+
+    def use(owner: User, title: str, item: Edition, days_ago: int) -> None:
+        tag, _ = Tag.objects.get_or_create(
+            owner=owner.identity, title=title, defaults={"visibility": 0}
+        )
+        member, _ = tag.append_item(item)
+        TagMember.objects.filter(pk=member.pk).update(
+            created_time=now - timedelta(days=days_ago)
+        )
+
+    # creation (pk) order differs from both directions of the expected order
+    use(user, "middle", books[0], 5)
+    Tag.objects.create(owner=user.identity, title="unused", visibility=0)
+    use(user, "old", books[0], 30)
+    use(user, "stale", books[2], 20)
+    use(user, "old", books[1], 1)
+    use(other, "stale", books[0], 0)
+
+    app = Takahe.get_or_create_app(
+        "Tag Sort API Tests",
+        "https://example.org",
+        "https://example.org/callback",
+        owner_pk=user.identity.pk,
+    )
+    token = Takahe.refresh_token(app, user.identity.pk, user.pk)
+    client = Client()
+
+    def get(query: str):
+        return client.get(f"/api/me/tag/?{query}", HTTP_AUTHORIZATION=f"Bearer {token}")
+
+    def titles(response) -> list[str]:
+        assert response.status_code == 200
+        return [t["title"] for t in response.json()["data"]]
+
+    response = get("sort=recent")
+    assert titles(response) == ["old", "middle", "stale", "unused"]
+    assert response.json()["count"] == 4
+
+    response = get("")
+    assert sorted(titles(response)) == ["middle", "old", "stale", "unused"]
+    assert response.json()["count"] == 4
+
+    response = get("sort=recent&page_size=1")
+    assert titles(response) == ["old"]
+    assert response.json()["pages"] == 4
+    assert titles(get("sort=recent&page_size=1&page=2")) == ["middle"]
+
+    assert titles(get("sort=recent&title=stale")) == ["stale"]
+
+    assert get("sort=popular").status_code == 422
 
 
 @pytest.mark.django_db(databases="__all__")
