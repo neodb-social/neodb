@@ -757,11 +757,12 @@ class TestQueryCount:
             return len(a.captured_queries) + len(b.captured_queries)
 
         def season(title):
+            # a bare season title of a show with no season_count: its title reads the show and counts its seasons
             show = TVShow.objects.create(title=f"Show of {title}")
-            return TVSeason.objects.create(title=title, show=show)
+            return TVSeason.objects.create(title="Season 1", show=show)
 
         # one title of each type first: the item query costs one query per type, not per title,
-        # and a season's title reads its show, loaded with the other shows in one query
+        # and a season's title reads its show and the show's seasons, loaded for all shows at once
         for k, item in enumerate(
             [
                 Edition.objects.create(title="A0"),

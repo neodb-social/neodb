@@ -23,7 +23,15 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.signing import b62_decode
 from django.db import connection
-from django.db.models import Count, F, Min, Q, QuerySet, Window
+from django.db.models import (
+    Count,
+    F,
+    Min,
+    Q,
+    QuerySet,
+    Window,
+    prefetch_related_objects,
+)
 from django.db.models.functions import RowNumber, TruncDate
 from django.urls import reverse
 
@@ -32,6 +40,7 @@ from catalog.models import (
     ItemCredit,
     PodcastEpisode,
     TVEpisode,
+    TVSeason,
     item_content_types,
 )
 from common.models import SiteConfig
@@ -185,6 +194,14 @@ def _items_by_id(ids: list[int]) -> dict[int, Item]:
     # a season's or an episode's title reads its parent, so the parents are loaded in one go
     items = list(Item.objects.filter(pk__in=ids))
     Item.prefetch_parent_items(items)
+    # a bare "Season 1" counts its show's seasons when the show has no season_count: one query for all of them
+    shows = [
+        i.show
+        for i in items
+        if isinstance(i, TVSeason) and i.show and not i.show.season_count
+    ]
+    if shows:
+        prefetch_related_objects(shows, "seasons")
     return {i.pk: i for i in items}
 
 
