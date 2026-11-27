@@ -10639,19 +10639,9 @@ msgstr "来自你；{site} 上没有其他人标记。"
 msgid "{site} {value}"
 msgstr "{site} {value}"
 
-#: journal/wrapped_text.py:127
-#, python-brace-format
-msgid "you {value}"
-msgstr "你 {value}"
-
 #: journal/wrapped_text.py:128
 msgid "Where you disagreed"
 msgstr "与众不同的评分"
-
-#: journal/wrapped_text.py:129
-#, python-brace-format
-msgid "no rating 1.5 stars from the site average on a title with {n} or more marks"
-msgstr "在有 {n} 个以上标记的作品中，没有与站内平均相差 1.5 星的评分"
 
 #: journal/wrapped_text.py:130
 msgid "Against the grain"
@@ -11314,10 +11304,6 @@ msgstr "完成的作品"
 #: journal/wrapped_text.py:304
 msgid "days with something logged"
 msgstr "有记录的天数"
-
-#: journal/wrapped_text.py:305
-msgid "average rating, of 5"
-msgstr "平均评分（满分 5）"
 
 #: journal/wrapped_text.py:306
 msgid "longest streak"
@@ -12079,3 +12065,12 @@ msgstr "ZIP、GIF 和视频可能需要一分钟左右，并可能需要最新�
 #: journal/wrapped_text.py:399
 msgid "the video encoder stopped working"
 msgstr "视频编码器停止工作了"
+
+#: journal/wrapped_text.py:143
+#, python-brace-format
+msgid "no rating {gap} points (of 10) from the site average on a title with {n} or more marks"
+msgstr "在有 {n} 个以上标记的作品中，没有与站内平均相差 {gap} 分（满分 10）的评分"
+
+#: journal/wrapped_text.py:345
+msgid "average rating, of 10"
+msgstr "平均评分（满分 10）"

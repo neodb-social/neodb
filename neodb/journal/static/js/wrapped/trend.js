@@ -68,7 +68,7 @@
     Object.entries(t.now.cats).forEach(([c, v]) => { if (v >= 10) add(c, _("Most {shelf}", { shelf: ui.CAT_NOUN[c] }), v, best(w => w.cats[c] || 0)); });
     if (t.now.five >= 3) add("five", _("Most five-star titles"), t.now.five, best(w => w.five));
     add("days", _("Most days finishing a title"), t.now.days, best(w => w.days));
-    if (t.now.rated >= 20) add("rating", _("Highest average rating"), t.now.gsum / t.now.rated, best(w => w.rated >= 10 ? w.gsum / w.rated : 0, 0.1), x => `${(x / 2).toFixed(1)}★`);
+    if (t.now.rated >= 20) add("rating", _("Highest average rating"), t.now.gsum / t.now.rated, best(w => w.rated >= 10 ? w.gsum / w.rated : 0, 0.1), x => `★ ${x.toFixed(1)}`);
     return [out[0] && out[0].key === "titles" ? out.shift() : null, ...out.sort((a, b) => b.margin - a.margin)].filter(Boolean).slice(0, 5);
   }
 

@@ -10536,18 +10536,8 @@ msgstr ""
 msgid "{site} {value}"
 msgstr ""
 
-#: journal/wrapped_text.py:127
-#, python-brace-format
-msgid "you {value}"
-msgstr ""
-
 #: journal/wrapped_text.py:128
 msgid "Where you disagreed"
-msgstr ""
-
-#: journal/wrapped_text.py:129
-#, python-brace-format
-msgid "no rating 1.5 stars from the site average on a title with {n} or more marks"
 msgstr ""
 
 #: journal/wrapped_text.py:130
@@ -11210,10 +11200,6 @@ msgstr ""
 
 #: journal/wrapped_text.py:304
 msgid "days with something logged"
-msgstr ""
-
-#: journal/wrapped_text.py:305
-msgid "average rating, of 5"
 msgstr ""
 
 #: journal/wrapped_text.py:306
@@ -12004,4 +11990,13 @@ msgstr ""
 
 #: journal/wrapped_text.py:399
 msgid "the video encoder stopped working"
+msgstr ""
+
+#: journal/wrapped_text.py:143
+#, python-brace-format
+msgid "no rating {gap} points (of 10) from the site average on a title with {n} or more marks"
+msgstr ""
+
+#: journal/wrapped_text.py:345
+msgid "average rating, of 10"
 msgstr ""

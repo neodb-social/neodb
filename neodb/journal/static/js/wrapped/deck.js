@@ -305,22 +305,32 @@
       const t = cardTop(q.title, "", { eyebrow: _("The quiet favourite") });
       return t.svg + feature(q, t.y + 56, [line(who(q)), { stars: q.rating, size: 44 }, { gap: 20 }, line(q.marks ? _n("from you, and only {n} other mark on {site}.", "from you, and only {n} other marks on {site}.", q.marks, { site: S.site }) : _("from you, and no other mark on {site}.", { site: S.site }), 34, INK)], 300, 420);
     } });
-    // stricter than the shared stats: 1.5 stars from the site average, on a title with 20 or more marks
+    // stricter than the shared stats: 3 points (of 10) from the site average, on a title with 20 or more marks
     // (the mock has mark counts, not rating counts; the production check used ratings)
     const gapped = S.rated.filter(i => i.site_rating && (i.marks || 0) >= RULE.GAP_MARKS).map(i => ({ it: i, gap: i.rating - i.site_rating }));
     const dis = gapped.slice().sort((a, b) => a.gap - b.gap)[0] || null, sur = gapped.slice().sort((a, b) => b.gap - a.gap)[0] || null;
-    const stars1 = v => Math.round(v / 2 * 10) / 10;
-    // both marks on one five-star scale
+    // both marks on one scale of 10, as the site shows an average: the site's average as a number, the member's own rating as stars
     function gapScale(x, y, w, you, avg, d) {
-      const px = v => x + (v / 5) * w; let g = `<line x1="${x}" y1="${y}" x2="${x + w}" y2="${y}" stroke="${LINE}" stroke-width="6" stroke-linecap="round"/>`;
-      for (let k = 0; k <= 5; k++) g += `<line x1="${px(k)}" y1="${y - 8}" x2="${px(k)}" y2="${y + 8}" stroke="${LINE}" stroke-width="3"/>` + T(px(k), y + 48, k, 34, { fill: MUTED, anchor: "middle" });
+      const px = v => x + (v / 10) * w; let g = `<line x1="${x}" y1="${y}" x2="${x + w}" y2="${y}" stroke="${LINE}" stroke-width="6" stroke-linecap="round"/>`;
+      for (let k = 0; k <= 10; k++) g += `<line x1="${px(k)}" y1="${y - (k % 2 ? 5 : 8)}" x2="${px(k)}" y2="${y + (k % 2 ? 5 : 8)}" stroke="${LINE}" stroke-width="3"/>` + (k % 2 ? "" : T(px(k), y + 48, k, 34, { fill: MUTED, anchor: "middle" }));
       g += G("growx", d, `<line x1="${px(Math.min(you, avg))}" y1="${y}" x2="${px(Math.max(you, avg))}" y2="${y}" stroke="${you < avg ? LOGO.coral : LOGO.green}" stroke-width="8" stroke-linecap="round"/>`);
-      const side = (v, other) => Math.abs(px(v) - px(other)) < 150 ? (v < other ? "end" : "start") : px(v) > x + w - 60 ? "end" : px(v) < x + 60 ? "start" : "middle";
-      g += G("pop", d + 150, `<circle cx="${px(avg)}" cy="${y}" r="14" fill="#fff" stroke="${MUTED}" stroke-width="4"/>`) + T(px(avg), y - 30, _("{site} {value}", { site: S.site, value: avg }), 34, { fill: MUTED, anchor: side(avg, you), cls: "fade", d: d + 200 });
-      g += G("pop", d + 250, `<circle cx="${px(you)}" cy="${y}" r="16" fill="${INK}"/>`) + T(px(you), y - 30, _("you {value}", { value: you }), 34, { fill: INK, weight: 700, anchor: side(you, avg), cls: "fade", d: d + 300 });
+      // each label sits over its dot; when the two would touch, the left one ends at its dot and the right one starts at its dot
+      const siteText = _("{site} {value}", { site: S.site, value: avg.toFixed(1) }), youText = _("you"), size = 34, gapW = 10;
+      const sw = EST(siteText, size, 400), tw = EST(youText, size, 700), stars = starRow(0, 0, you, size, 0).w, yw = tw + gapW + stars;
+      let sx = px(avg) - sw / 2, yx = px(you) - yw / 2;
+      if (Math.max(sx, yx) < Math.min(sx + sw, yx + yw) + 24) {
+        if (avg < you) { sx = px(avg) - sw; yx = px(you); } else { yx = px(you) - yw; sx = px(avg); }
+      }
+      const fit = (v, wid) => Math.min(Math.max(v, x - 10), x + w + 10 - wid);
+      sx = fit(sx, sw); yx = fit(yx, yw);
+      // a label pushed back from the end of the scale can reach the other one; then the left one moves further left
+      if (avg < you && sx + sw + 16 > yx) sx = fit(yx - 16 - sw, sw);
+      if (you < avg && yx + yw + 16 > sx) yx = fit(sx - 16 - yw, yw);
+      g += G("pop", d + 150, `<circle cx="${px(avg)}" cy="${y}" r="14" fill="#fff" stroke="${MUTED}" stroke-width="4"/>`) + T(sx, y - 30, siteText, size, { fill: MUTED, anchor: "start", cls: "fade", d: d + 200 });
+      g += G("pop", d + 250, `<circle cx="${px(you)}" cy="${y}" r="16" fill="${INK}"/>`) + T(yx, y - 30, youText, size, { fill: INK, weight: 700, anchor: "start", cls: "fade", d: d + 300 }) + starRow(yx + tw + gapW, y - 30, you, size, d + 300).svg;
       return g;
     }
-    cards.push({ id: "disagree", name: _("Where you disagreed"), kind: "computed", interest: ok((dis && dis.gap <= -RULE.GAP) || (sur && sur.gap >= RULE.GAP), _("no rating 1.5 stars from the site average on a title with {n} or more marks", { n: RULE.GAP_MARKS })), bg: () => TINT.blue, body: () => {
+    cards.push({ id: "disagree", name: _("Where you disagreed"), kind: "computed", interest: ok((dis && dis.gap <= -RULE.GAP) || (sur && sur.gap >= RULE.GAP), _("no rating {gap} points (of 10) from the site average on a title with {n} or more marks", { gap: RULE.GAP, n: RULE.GAP_MARKS })), bg: () => TINT.blue, body: () => {
       const t = cardTop(_("Against the grain"), "", { eyebrow: _("Where you disagreed") });
       const rows = [[dis && dis.gap <= -RULE.GAP ? dis : null, _("The disappointment")], [sur && sur.gap >= RULE.GAP ? sur : null, _("The surprise")]].filter(([g]) => g);
       let b = t.svg;
@@ -328,14 +338,14 @@
         // one title: a large cover, and the scale across the card
         const [[g, lbl]] = rows, it = g.it, y = t.y + 60;
         b += feature(it, y, [label(lbl), titleRow(it.title, 48), line(who(it))], 300, 320);
-        b += gapScale(110, y + 480 + 90, 860, it.rating / 2, stars1(it.site_rating), 600);
+        b += gapScale(110, y + 480 + 90, 860, it.rating, it.site_rating, 600);
         return b;
       }
       rows.forEach(([g, lbl], i) => {
         const it = g.it, y = t.y + 70 + i * 410, d = 300 + i * 250;
         b += coverSvg(it, 80, y, 180, 270, "pop", d) + T(300, y + 30, lbl.toUpperCase(), 30, { fill: PRIMARY, weight: 700, ls: 3, cls: "fade", d: d + 50 })
           + wrapText(it.title, CJK(it.title) ? 16 : 28, 2).map((l, k) => T(300, y + 80 + k * 48, l, 40, { weight: 700, cls: "rise", d: d + 100 })).join("")
-          + gapScale(320, y + 210, 650, it.rating / 2, stars1(it.site_rating), d + 200);
+          + gapScale(320, y + 210, 650, it.rating, it.site_rating, d + 200);
       });
       return b;
     } });
@@ -863,7 +873,7 @@
     TM.counts[TM.busiest] >= RULE.BUSY_MIN ? _("{month} was the busiest month with {n}; the quietest was {quiet}.", { month: esc(MONTHS_LONG[TM.busiest]), n: B(TM.counts[TM.busiest]), quiet: esc(MONTHS_LONG[TM.quietest]) }) : "",
     five ? _n("The longest run of days with something logged was {days}, and {n} title got five stars.", "The longest run of days with something logged was {days}, and {n} titles got five stars.", five, { days: B(act.streak), n: B(five) }) : _("The longest run of days with something logged was {days}.", { days: B(act.streak) }),
     S.lastMonth < 11 ? _("The year is still running.") : ""]);
-  $("stats").innerHTML = [[n, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[TM.busiest], _n("busiest month, {n} title", "busiest month, {n} titles", TM.counts[TM.busiest])], [S.avg ? (S.avg / 2).toFixed(1) : _n("{n} day", "{n} days", act.streak), S.avg ? _("average rating, of 5") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num"${typeof a === "number" ? ` data-to="${a}"` : ""}>${typeof a === "number" ? a.toLocaleString() : a}</span><span class="lbl">${b}</span></div>`).join("");
+  $("stats").innerHTML = [[n, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[TM.busiest], _n("busiest month, {n} title", "busiest month, {n} titles", TM.counts[TM.busiest])], [S.avg ? S.avg.toFixed(1) : _n("{n} day", "{n} days", act.streak), S.avg ? _("average rating, of 10") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num"${typeof a === "number" ? ` data-to="${a}"` : ""}>${typeof a === "number" ? a.toLocaleString() : a}</span><span class="lbl">${b}</span></div>`).join("");
   }
   hero();
   // the stat tiles count up once, when they come into view

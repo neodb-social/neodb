@@ -138,10 +138,9 @@ TEXT = [
     gettext_noop("The quiet favourite"),
     gettext_noop("from you, and no other mark on {site}."),
     gettext_noop("{site} {value}"),
-    gettext_noop("you {value}"),
     gettext_noop("Where you disagreed"),
     gettext_noop(
-        "no rating 1.5 stars from the site average on a title with {n} or more marks"
+        "no rating {gap} points (of 10) from the site average on a title with {n} or more marks"
     ),
     gettext_noop("Against the grain"),
     gettext_noop("The disappointment"),
@@ -343,7 +342,7 @@ TEXT = [
     gettext_noop("The year is still running."),
     gettext_noop("titles completed"),
     gettext_noop("days with something logged"),
-    gettext_noop("average rating, of 5"),
+    gettext_noop("average rating, of 10"),
     gettext_noop("longest streak"),
     gettext_noop("All"),
     gettext_noop("Highest marks this year"),
