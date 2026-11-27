@@ -41,7 +41,15 @@ from journal.models.wrapped import (
     MADE_CARDS_MAX,
     WrappedDeck,
 )
-from journal.wrapped import CATEGORIES, build_payload, deck_for, friends_allowed
+from journal.wrapped import (
+    CATEGORIES,
+    WORDS_KINDS,
+    build_payload,
+    deck_for,
+    friends_allowed,
+    resolve_words,
+    words_menu,
+)
 from journal.wrapped_music import BY_ID as MUSIC, menu as music_menu, track
 from journal.wrapped_text import card_text
 from mastodon.models.bluesky import EmbedObj
@@ -87,8 +95,16 @@ def _context(
         include_friends=friends_allowed(deck, level, is_owner),
     )
     state = deck.state(level)
+    # a "your words" card carries one text, and only an audience allowed to see that text gets it
+    words = resolve_words(owner, deck.made, level, deck.tzinfo)
     if not is_owner:
-        state["made"] = _made_for(deck, level)
+        state["made"] = [
+            m
+            for m in _made_for(deck, level)
+            if (m.get("source") or {}).get("type") != "words"
+            or str(m.get("id")) in words
+        ]
+    payload["words"] = words
     payload["deck"] = state
     payload["level"] = level
     # a visitor sees the list the owner last saw for this audience; without one the browser applies the rules and overrides
@@ -110,8 +126,12 @@ def _context(
             "save": reverse("journal:wrapped_save", args=[year]),
             "share": reverse("journal:wrapped_share", args=[year]),
             "lookup": reverse("journal:wrapped_lookup"),
+            "words": reverse("journal:wrapped_words", args=[year]),
+            "preferences": reverse("users:preferences"),
         }
         payload["music_menu"] = music_menu()
+        # whether people who are not signed in can open the page at all (the QR code tab warns when not)
+        payload["anon_ok"] = bool(owner.anonymous_viewable)
         # what each audience sees, for the Share dialog: no count for an audience the owner has not opened
         payload["audiences"] = [
             {
@@ -199,6 +219,16 @@ def _clean_made(made: Any) -> list[dict[str, Any]]:
             }
         elif kind == "collection":
             source = {"type": "collection", "uuid": _clean_str(src.get("uuid"), 40)}
+        elif kind == "words":
+            # one text of the member's on one title: a reference, so the card follows edits of the text
+            if src.get("kind") not in WORDS_KINDS or not src.get("ref"):
+                continue
+            source = {
+                "type": "words",
+                "url": _clean_url(src.get("url")),
+                "kind": src["kind"],
+                "ref": _clean_str(src.get("ref"), 40),
+            }
         elif kind == "hand":
             items = []
             for it in src.get("items") if isinstance(src.get("items"), list) else []:
@@ -424,6 +454,17 @@ def wrapped_lookup(request: AuthedHttpRequest):
         enqueue_fetch(url, False, request.user)
         return JsonResponse({"status": "fetching"})
     return JsonResponse({"status": "busy"})
+
+
+@login_required
+@require_GET
+def wrapped_words(request: AuthedHttpRequest, year: int):
+    """The texts the owner wrote in the deck year, by title, for the picker of the "your words" card."""
+    owner = request.user.identity
+    y = _year(year)
+    deck = deck_for(owner, y)
+    tz = deck.tzinfo if deck else ZoneInfo(settings.TIME_ZONE)
+    return JsonResponse({"works": words_menu(owner, y, tz)})
 
 
 @require_GET

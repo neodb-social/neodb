@@ -11942,3 +11942,140 @@ msgstr "无音乐"
 #: journal/wrapped_text.py:412
 msgid "The music could not be loaded"
 msgstr "音乐无法加载"
+
+#: journal/templates/wrapped.html:182
+msgid "A list of titles"
+msgstr "作品列表"
+
+#: journal/templates/wrapped.html:183 journal/wrapped_text.py:416
+msgid "One title, your words"
+msgstr "一部作品，你的文字"
+
+#: journal/templates/wrapped.html:188 journal/templates/wrapped.html:189
+msgid "Search the titles you wrote about"
+msgstr "搜索你写过文字的作品"
+
+#: journal/wrapped_text.py:413
+msgid "My comment"
+msgstr "我的短评"
+
+#: journal/wrapped_text.py:414
+msgid "My note"
+msgstr "我的笔记"
+
+#: journal/wrapped_text.py:417
+msgid "Pick a text"
+msgstr "请选一段文字"
+
+#: journal/wrapped_text.py:418
+msgid "This text is for followers only. Your followers and you get this card; the public page leaves it out."
+msgstr "这段文字仅关注者可见。关注你的人和你会看到这张卡片，公开页面不显示它。"
+
+#: journal/wrapped_text.py:419
+msgid "This text is only for you. Only you get this card."
+msgstr "这段文字仅自己可见。只有你会看到这张卡片。"
+
+#: journal/wrapped_text.py:420
+msgid "This text is public. Every audience gets this card."
+msgstr "这段文字是公开的。所有观众都会看到这张卡片。"
+
+#: journal/wrapped_text.py:421
+#, python-brace-format
+msgid "You wrote no comment, note or review in {year}."
+msgstr "你在 {year} 年没有写短评、笔记或评论。"
+
+#: journal/wrapped_text.py:422
+msgid "comment"
+msgstr "短评"
+
+#: journal/wrapped_text.py:423
+msgid "marked sensitive"
+msgstr "已标记为敏感"
+
+#: journal/wrapped_text.py:425
+msgid "the text is gone, or this audience cannot see it"
+msgstr "这段文字已不存在，或这组观众看不到它"
+
+#: journal/wrapped_text.py:442
+#, python-brace-format
+msgid "{n} character"
+msgid_plural "{n} characters"
+msgstr[0] "{n} 个字"
+
+#: journal/wrapped_text.py:443
+#, python-brace-format
+msgid "{n} note"
+msgid_plural "{n} notes"
+msgstr[0] "{n} 条笔记"
+
+#: journal/templates/wrapped.html:245
+msgid "QR code"
+msgstr "二维码"
+
+#: journal/templates/wrapped.html:316
+msgid "One image with your year in numbers and a code that opens your page. Post it, send it, or print it."
+msgstr "一张图片，有你这一年的数字和一个打开你页面的二维码。可以发帖、发送或打印。"
+
+#: journal/templates/wrapped.html:321
+msgid "Share…"
+msgstr "分享…"
+
+#: journal/templates/wrapped.html:324
+msgid "Copy image"
+msgstr "复制图片"
+
+#: journal/wrapped_text.py:430
+#, python-brace-format
+msgid "Could not copy: {error}"
+msgstr "无法复制：{error}"
+
+#: journal/wrapped_text.py:431
+#, python-brace-format
+msgid "Could not share: {error}"
+msgstr "无法分享：{error}"
+
+#: journal/wrapped_text.py:432
+msgid "Image copied"
+msgstr "图片已复制"
+
+#: journal/wrapped_text.py:433
+msgid "Only you can see the page now, so the code opens nothing for other people."
+msgstr "现在只有你能看到这个页面，所以别人扫码打不开任何内容。"
+
+#: journal/wrapped_text.py:434
+msgid "Only your followers can open this page, after they sign in."
+msgstr "只有关注你的人登录后才能打开这个页面。"
+
+#: journal/wrapped_text.py:436
+msgid "Show the cards the code opens"
+msgstr "显示二维码打开的卡片"
+
+#: journal/wrapped_text.py:437
+#, python-brace-format
+msgid "The code opens {link}."
+msgstr "二维码打开 {link}。"
+
+#: journal/wrapped_text.py:454
+#, python-brace-format
+msgid "{n} five-star"
+msgid_plural "{n} five-star"
+msgstr[0] "{n} 个五星"
+
+#: journal/wrapped_text.py:455
+#, python-brace-format
+msgid "{n} shelf"
+msgid_plural "{n} shelves"
+msgstr[0] "{n} 个类别"
+
+#: journal/templates/wrapped.html:264 journal/templates/wrapped.html:354
+msgid "Include the background music in the video"
+msgstr "在视频中加入背景音乐"
+
+#: journal/wrapped_text.py:403
+#, python-brace-format
+msgid "{size} MB, {seconds} s video with music"
+msgstr "{size} MB，{seconds} 秒视频，含音乐"
+
+#: journal/wrapped_text.py:404
+msgid "The music could not be added, so the video has no sound."
+msgstr "音乐无法加入，所以视频没有声音。"

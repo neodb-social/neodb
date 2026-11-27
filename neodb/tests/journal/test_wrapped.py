@@ -394,11 +394,13 @@ class TestViews:
 
     def test_share_warns_when_signed_out_visitors_cannot_open_the_page(self):
         url = reverse("journal:wrapped", args=[YEAR])
-        assert b'class="wr-warn"' not in self.owner_client.get(url).content
+        # the QR code tab has an empty warning of its own, so the test looks for the text
+        warning = b"your profile is hidden from them"
+        assert warning not in self.owner_client.get(url).content
         self.me.anonymous_viewable = False
         self.me.save()
         r = self.owner_client.get(url)
-        assert b'class="wr-warn"' in r.content
+        assert warning in r.content
         assert reverse("users:preferences").encode() in r.content
         assert self.page(Client()).status_code in (302, 403)
 
@@ -480,6 +482,73 @@ class TestViews:
             save, json.dumps({"aud": 0, "music": ""}), content_type="application/json"
         )
         assert WrappedDeck.objects.get(owner=self.me, year=YEAR).music == ""
+
+    def words_card(self, text, vis):
+        book = Edition.objects.create(title="Words Book")
+        c = Comment(
+            owner=self.me, item=book, text=text, visibility=vis, created_time=at(3, 3)
+        )
+        c.save(**QUIET)
+        made = [
+            {
+                "id": 7,
+                "title": "",
+                "caption": "",
+                "n": 3,
+                "source": {
+                    "type": "words",
+                    "url": book.url,
+                    "kind": "comment",
+                    "ref": str(c.uid),
+                },
+            }
+        ]
+        return c, made
+
+    def test_a_words_card_reaches_only_audiences_that_may_see_its_text(self):
+        c, made = self.words_card("only my followers may read this line", 1)
+        WrappedDeck.objects.create(owner=self.me, year=YEAR, made=made)
+        fan = Client()
+        fan.force_login(self.fan)
+        anon = self.page(Client()).content
+        assert b"only my followers may read" not in anon and b"Words Book" not in anon
+        assert b"only my followers may read" in self.page(fan).content
+        # a saved list that names the card does not let the text out either
+        WrappedDeck.objects.filter(owner=self.me).update(
+            shown={"0": ["intro", "made-7"]}
+        )
+        assert b"only my followers may read" not in self.page(Client()).content
+        # the card follows edits of its text
+        c.text = "an edited line for followers"
+        c.save(**QUIET)
+        assert b"an edited line for followers" in self.page(fan).content
+        r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]), {"as": 0})
+        assert b"an edited line" not in r.content
+        r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]), {"as": 1})
+        assert b"an edited line" in r.content
+
+    def test_words_cards_are_cleaned_and_the_picker_lists_this_year(self):
+        c, made = self.words_card("x" * 700, 0)
+        bad = [
+            {"id": 8, "source": {"type": "words", "kind": "poem", "ref": str(c.uid)}},
+            {"id": 9, "source": {"type": "words", "kind": "note"}},
+        ]
+        r = self.owner_client.post(
+            reverse("journal:wrapped_save", args=[YEAR]),
+            json.dumps({"aud": 0, "made": made + bad}),
+            content_type="application/json",
+        )
+        assert r.status_code == 200
+        kept = WrappedDeck.objects.get(owner=self.me, year=YEAR).made
+        assert [m["source"]["type"] for m in kept] == ["words"] and kept[0]["source"][
+            "ref"
+        ] == str(c.uid)
+        url = reverse("journal:wrapped_words", args=[YEAR])
+        assert Client().get(url).status_code == 302  # the owner only
+        works = self.owner_client.get(url).json()["works"]
+        text = next(t for w in works for t in w["texts"] if t["ref"] == str(c.uid))
+        assert text["kind"] == "comment" and text["vis"] == 0
+        assert len(text["text"]) == 600 and text["more"] and text["chars"] == 700
 
     def test_new_deck_starts_with_suggested_cards_up_to_the_default_visibility(self):
         self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))

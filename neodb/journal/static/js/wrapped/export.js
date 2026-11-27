@@ -2,13 +2,14 @@
 // sends it here once; this worker keeps it as a PNG and makes the ZIP, the GIF and the MP4, so the page stays responsive.
 // Messages in: {type: "card", key, bitmap}, {type: "probe"}, {type: "export", kind: "zip" | "gif" | "mp4", items, lib}.
 // Messages out: {type: "probe", mp4}, {type: "progress", done, total}, {type: "export", blob, ...}, {type: "error", message}.
-const SIZE = 1080;
+// a card is 4:5
+const W = 1080, H = 1350;
 // each card's PNG, by a key the page builds from the card id and its drawing; a promise, as messages arrive while one is still encoding
 const pngs = new Map();
 
 async function toPng(bitmap) {
-  const c = new OffscreenCanvas(SIZE, SIZE);
-  c.getContext("2d").drawImage(bitmap, 0, 0, SIZE, SIZE);
+  const c = new OffscreenCanvas(W, H);
+  c.getContext("2d").drawImage(bitmap, 0, 0, W, H);
   bitmap.close();
   return c.convertToBlob({ type: "image/png" });
 }
@@ -53,12 +54,12 @@ async function zip(m, progress) {
 // ---------- gif: full size, 256 colours for each frame, 2.5 s a card ----------
 async function gif(m, progress) {
   const { GIFEncoder, quantize, applyPalette } = await import(m.lib.gif);
-  const g = GIFEncoder(), c = new OffscreenCanvas(SIZE, SIZE), cx = c.getContext("2d", { willReadFrequently: true });
+  const g = GIFEncoder(), c = new OffscreenCanvas(W, H), cx = c.getContext("2d", { willReadFrequently: true });
   for (let i = 0; i < m.items.length; i++) {
     const bmp = await createImageBitmap(await pngOf(m.items[i].key));
     cx.drawImage(bmp, 0, 0); bmp.close();
-    const data = cx.getImageData(0, 0, SIZE, SIZE).data, palette = quantize(data, 256), index = applyPalette(data, palette);
-    g.writeFrame(index, SIZE, SIZE, { palette, delay: 2500 });
+    const data = cx.getImageData(0, 0, W, H).data, palette = quantize(data, 256), index = applyPalette(data, palette);
+    g.writeFrame(index, W, H, { palette, delay: 2500 });
     progress(i + 1);
   }
   g.finish();
@@ -70,22 +71,49 @@ async function gif(m, progress) {
 const HOLD = 2.1e6, FADE = 12, STEP = 1e6 / 30, PERIOD = HOLD + FADE * STEP;
 async function mp4Config() {
   if (typeof VideoEncoder === "undefined") return null;
-  // High, Main, then Baseline profile, all at level 4.0, which takes 1080 x 1080 at 30 frames a second
+  // High, Main, then Baseline profile, all at level 4.0, which takes 1080 x 1350 at 30 frames a second
   for (const codec of ["avc1.640028", "avc1.4d0028", "avc1.42e028"]) {
-    const config = { codec, width: SIZE, height: SIZE, bitrate: 6e6, framerate: 30, avc: { format: "avc" } };
+    const config = { codec, width: W, height: H, bitrate: 6e6, framerate: 30, avc: { format: "avc" } };
     try { if ((await VideoEncoder.isConfigSupported(config)).supported) return config; } catch (e) { /* try the next profile */ }
   }
   return null;
+}
+// the chosen music as AAC beside the video: 48 kHz stereo at 128 kbps, if this browser can encode it
+const AAC = { codec: "mp4a.40.2", sampleRate: 48000, numberOfChannels: 2, bitrate: 128000 };
+async function aacOk() {
+  try { return typeof AudioEncoder !== "undefined" && (await AudioEncoder.isConfigSupported(AAC)).supported; } catch (e) { return false; }
+}
+// the track repeats to fill the video; a short fade at each repeat avoids a click, and the last two seconds fade out
+async function encodeMusic(pcm, total, muxer) {
+  let failure = null;
+  const enc = new AudioEncoder({ output: (chunk, meta) => muxer.addAudioChunk(chunk, meta), error: e => { failure = e; } });
+  enc.configure(AAC);
+  const rate = AAC.sampleRate, len = pcm.left.length, all = Math.round(total / 1e6 * rate), seam = Math.round(rate * 0.02), tail = rate * 2, step = rate;
+  for (let at = 0; at < all; at += step) {
+    const n = Math.min(step, all - at), data = new Float32Array(n * 2);
+    for (let i = 0; i < n; i++) {
+      const k = at + i, s = k % len, g = Math.min(1, s / seam, (len - s) / seam, (all - k) / tail, k / seam);
+      data[i] = pcm.left[s] * g; data[n + i] = pcm.right[s] * g;
+    }
+    while (enc.encodeQueueSize > 8) await new Promise(r => setTimeout(r, 1));
+    if (failure) throw failure;
+    const frame = new AudioData({ format: "f32-planar", sampleRate: rate, numberOfFrames: n, numberOfChannels: 2, timestamp: Math.round(at / rate * 1e6), data });
+    enc.encode(frame); frame.close();
+  }
+  await enc.flush();
+  if (failure) throw failure;
+  enc.close();
 }
 async function mp4(m, progress) {
   const config = await mp4Config();
   if (!config) throw new Error("this browser cannot encode H.264");
   const { Muxer, ArrayBufferTarget } = await import(m.lib.mp4);
-  const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: SIZE, height: SIZE }, fastStart: "in-memory" });
+  const music = !!(m.audio && m.audio.left && m.audio.left.length) && await aacOk();
+  const muxer = new Muxer({ target: new ArrayBufferTarget(), video: { codec: "avc", width: W, height: H }, ...(music ? { audio: { codec: "aac", sampleRate: AAC.sampleRate, numberOfChannels: 2 } } : {}), fastStart: "in-memory" });
   let failure = null;
   const encoder = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: e => { failure = e; } });
   encoder.configure(config);
-  const c = new OffscreenCanvas(SIZE, SIZE), cx = c.getContext("2d");
+  const c = new OffscreenCanvas(W, H), cx = c.getContext("2d");
   // a short queue keeps memory low; the encoder is far faster than the drawing anyway
   const push = async (timestamp, duration, keyFrame) => {
     while (encoder.encodeQueueSize > 8) await new Promise(r => setTimeout(r, 1));
@@ -116,8 +144,9 @@ async function mp4(m, progress) {
   await encoder.flush();
   if (failure) throw failure;
   encoder.close();
+  if (music) await encodeMusic(m.audio, n * PERIOD, muxer);
   muxer.finalize();
-  return { blob: new Blob([muxer.target.buffer], { type: "video/mp4" }), seconds: Math.round(n * PERIOD / 1e5) / 10 };
+  return { blob: new Blob([muxer.target.buffer], { type: "video/mp4" }), seconds: Math.round(n * PERIOD / 1e5) / 10, music };
 }
 
 const EXPORT = { zip, gif, mp4 };

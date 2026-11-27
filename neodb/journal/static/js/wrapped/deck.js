@@ -32,6 +32,8 @@
   // a small year keeps to these cards; the others start hidden and can be shown one by one
   const SMALL = n < RULE.SMALL, COMPACT = new Set(["intro", "covers", "top", "outro"]);
   const INK = SVG.ink, MUTED = SVG.muted, PRIMARY = SVG.primary, LINE = SVG.line;
+  // a card is 4:5, 1080 by 1350; the layouts keep their top and use DY, the height added to the old square, below it
+  const CW = 1080, CH = 1350, DY = CH - CW;
   const LOGO = { green: "#8EAD78", blue: "#4A9FD0", coral: "#E9795D" };
   let TINT = { green: "#eef3ea", blue: "#e8f2f8", coral: "#fbece8", paper: "#fbfcfc", own: "#f1f3f4", own2: "#eef2f5", piece: "#b1c5d1", piece2: "#a3bbc9" };
   const first = D.member.name.split(" ")[0];
@@ -120,10 +122,12 @@
   const CJK = s => /[　-鿿]/.test(s || "");
   const MC = (() => { try { return document.createElement("canvas").getContext("2d"); } catch (e) { return null; } })();
   const EST = (s, size, weight) => { s = String(s); if (MC) { MC.font = `${weight || 400} ${size}px ${SVG.font}`; return MC.measureText(s).width; } return [...s].reduce((w, ch) => w + (/[　-鿿＀-￯]/.test(ch) ? 1 : /[A-Z0-9#%+@]/.test(ch) ? 0.64 : 0.54) * size, 0); };
+  const SEG = (() => { try { return typeof Intl !== "undefined" && Intl.Segmenter ? new Intl.Segmenter(undefined, { granularity: "word" }) : null; } catch (e) { return null; } })();
   // lines no wider than maxW; a text that needs two lines is split near its middle, so the second line is not one word
   function wrapW(s, size, weight, maxW, maxLines, ls) {
     s = String(s); const cjk = CJK(s), sep = cjk ? "" : " ", wd = x => EST(x, size, weight) + (ls || 0) * x.length;
-    let units = cjk ? s.match(/[\u3000-\u9fff\uff00-\uffef]|[^\s\u3000-\u9fff\uff00-\uffef]+|\s+/g) || [] : s.split(/\s+/);
+    // Chinese and Japanese break between words where the browser can find them (so 身世 stays whole), else between characters
+    let units = cjk ? (SEG ? [...SEG.segment(s)].map(x => x.segment) : s.match(/[\u3000-\u9fff\uff00-\uffef]|[^\s\u3000-\u9fff\uff00-\uffef]+|\s+/g) || []) : s.split(/\s+/);
     if (cjk) units = units.reduce((a, u) => { if (a.length && /^[，。、；：！？）」』”’…%\s]/.test(u)) a[a.length - 1] += u; else a.push(u); return a; }, []);
     const lines = []; let cur = "";
     units.forEach(u => { const next = cur ? cur + sep + u : u; if (cur && wd(next) > maxW) { lines.push(cur); cur = u; } else cur = next; });
@@ -168,7 +172,7 @@
   }
   function legend(items, y, d) {
     // a legend that wraps moves up, so its last row stays clear of the footer
-    let x = 80, out = ""; y = Math.min(y, 924 - (legendRows(items) - 1) * 50);
+    let x = 80, out = ""; y = Math.min(y, 924 + DY - (legendRows(items) - 1) * 50);
     items.filter(Boolean).forEach(it => {
       const w = 42 + EST(it.label, 34) + 36;
       if (x + w > 1010 && x > 80) { x = 80; y += 50; }
@@ -187,6 +191,20 @@
   }
   // fit "bottom" puts a square cover at the foot of its 2:3 box, so a row keeps one baseline; "fill" crops it to the box
   function coverSvg(it, x, y, w, h, cls, d, fit) { const id = "cp" + (cid++); const sq = (it.category === "music" || it.category === "podcast") && fit !== "fill"; if (sq && h > w) { if (fit === "bottom") y += h - w; h = w; } return `<g class="${cls || "pop"}" style="--d:${d || 0}ms"><clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}"/></clipPath><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}" fill="${CAT_COLOR[it.category] || "#ccc"}"/><image href="${esc(src(it.cover))}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></g>`; }
+  // a rating as stars drawn as shapes, so a half star is exact: full stars in coral, a half star grey with its left half in coral.
+  // y is the baseline of the row, as for text of the same size; returns the svg and the width of the row
+  const starPts = (cx, cy, R) => Array.from({ length: 10 }, (z, k) => { const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? R * 0.42 : R; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
+  const ptsStr = p => p.map(([a, b]) => `${a.toFixed(1)},${b.toFixed(1)}`).join(" ");
+  function starRow(x, y, rating, size, d) {
+    const full = Math.floor(rating / 2), half = rating % 2 === 1, R = size * 0.46, pitch = size * 1.04, cy = y - size * 0.36;
+    let g = "";
+    for (let k = 0; k < full + (half ? 1 : 0); k++) {
+      const p = starPts(x + R + k * pitch, cy, R);
+      // the left half of a star: the bottom inner point, the five points on the left, and the top
+      g += half && k === full ? `<polygon points="${ptsStr(p)}" fill="${LINE}"/><polygon points="${ptsStr([p[5], p[6], p[7], p[8], p[9], p[0]])}" fill="${LOGO.coral}"/>` : `<polygon points="${ptsStr(p)}" fill="${LOGO.coral}"/>`;
+    }
+    return { svg: `<g class="rise" style="--d:${d}ms">${g}</g>`, w: (full + (half ? 1 : 0)) * pitch };
+  }
   function wrapText(s, maxc, maxLines) { const cjk = /[　-鿿]/.test(s); const units = cjk ? s.split("") : s.split(/\s+/); const lines = []; let line = ""; for (const u of units) { const sep = cjk ? "" : " "; if ((line + sep + u).length > maxc && line) { lines.push(line); line = u; if (lines.length >= maxLines) break; } else line = line ? line + sep + u : u; } if (lines.length < maxLines && line) lines.push(line); return lines; }
   // the footer: the site's small square icon, faded, bottom left; the handle bottom right
   const ICON = { g: "M 22 16 L 74 16 A 6 6 0 0 1 80 22 L 80 38 A 6 6 0 0 1 74 44 L 71.3246 44 A 4.2 4.2 0 0 0 68.4495 51.2617 A 6.5 6.5 0 1 1 59.5505 51.2617 A 4.2 4.2 0 0 0 56.6754 44 L 37.3246 44 A 0.2 0.2 0 0 1 37.1877 43.6542 A 10.5 10.5 0 1 0 22.8123 43.6542 A 0.2 0.2 0 0 1 22.6754 44 L 22 44 A 6 6 0 0 1 16 38 L 16 22 A 6 6 0 0 1 22 16 Z", b: "M 22 48 L 22.6754 48 A 4.2 4.2 0 0 0 25.5505 40.7383 A 6.5 6.5 0 1 1 34.4495 40.7383 A 4.2 4.2 0 0 0 37.3246 48 L 38 48 A 6 6 0 0 1 44 54 L 44 56.6754 A 0.2 0.2 0 0 1 43.6542 56.8123 A 10.5 10.5 0 1 0 43.6542 71.1877 A 0.2 0.2 0 0 1 44 71.3246 L 44 74 A 6 6 0 0 1 38 80 L 22 80 A 6 6 0 0 1 16 74 L 16 54 A 6 6 0 0 1 22 48 Z", c: "M 54 48 L 56.6754 48 A 0.2 0.2 0 0 1 56.8123 48.3458 A 10.5 10.5 0 1 0 71.1877 48.3458 A 0.2 0.2 0 0 1 71.3246 48 L 74 48 A 6 6 0 0 1 80 54 L 80 74 A 6 6 0 0 1 74 80 L 54 80 A 6 6 0 0 1 48 74 L 48 71.3246 A 4.2 4.2 0 0 0 40.7383 68.4495 A 6.5 6.5 0 1 1 40.7383 59.5505 A 4.2 4.2 0 0 0 48 56.6754 L 48 54 A 6 6 0 0 1 54 48 Z", a: "M57 30.5V22 M57 30.5L65.085 27.873 M57 30.5L61.996 37.377 M57 30.5L52.004 37.377 M57 30.5L48.915 27.873" };
@@ -194,10 +212,10 @@
   function iconMark(x, y, size, opacity) { const id = "ik" + (iconN++); const k = size / 64; return `<g transform="translate(${x - 16 * k},${y - 16 * k}) scale(${k})" opacity="${opacity}"><defs><mask id="${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="96" height="96"><rect width="96" height="96" fill="#fff"/><path d="${ICON.a}" fill="none" stroke="#000" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/></mask></defs><g mask="url(#${id})"><path fill="#8EAD78" d="${ICON.g}"/><path fill="#4A9FD0" d="${ICON.b}"/><path fill="#E9795D" d="${ICON.c}"/></g></g>`; }
   // the member's own picture in a 44-unit circle in the corner, where the faded site icon is when the member has not set one
   const AVATAR = D.member.avatar_card || "";
-  function cornerMark() { if (!AVATAR) return iconMark(80, 968, 40, 0.45); const id = "av" + (iconN++); return `<g class="av"><clipPath id="${id}"><circle cx="100" cy="988" r="22"/></clipPath><circle cx="100" cy="988" r="22" fill="${LINE}"/><image href="${esc(AVATAR)}" x="78" y="966" width="44" height="44" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/><circle cx="100" cy="988" r="22" fill="none" stroke="#000" stroke-opacity="0.12" stroke-width="1.5"/></g>`; }
+  function cornerMark() { if (!AVATAR) return iconMark(80, 968 + DY, 40, 0.45); const id = "av" + (iconN++); return `<g class="av"><clipPath id="${id}"><circle cx="100" cy="${988 + DY}" r="22"/></clipPath><circle cx="100" cy="${988 + DY}" r="22" fill="${LINE}"/><image href="${esc(AVATAR)}" x="78" y="${966 + DY}" width="44" height="44" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/><circle cx="100" cy="${988 + DY}" r="22" fill="none" stroke="#000" stroke-opacity="0.12" stroke-width="1.5"/></g>`; }
   // ink: the handle in the text colour, for a card whose handle sits on a shape (the outro's cover piece)
-  function card(bg, body, foot, ink) { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" font-family="${SVG.font}"><rect class="bg" width="1080" height="1080" fill="${bg}"/>${body}${cornerMark()}<text x="1000" y="1006" text-anchor="end" font-size="28" fill="${ink ? INK : MUTED}">${esc(foot || D.member.handle)}</text></svg>`; }
-  const UI = { T, G, eyebrow, big, sub, wrapText, head, cardTop, legend, legendRows, hatchRect, wrapW, EST, CAT_COLOR, CAT_LABEL, CAT_NOUN, CATS, INK, MUTED, LINE, get TINT() { return TINT; } };
+  function card(bg, body, foot, ink) { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CW} ${CH}" font-family="${SVG.font}"><rect class="bg" width="${CW}" height="${CH}" fill="${bg}"/>${body}${cornerMark()}<text x="1000" y="${1006 + DY}" text-anchor="end" font-size="28" fill="${ink ? INK : MUTED}">${esc(foot || D.member.handle)}</text></svg>`; }
+  const UI = { DY, T, G, eyebrow, big, sub, wrapText, head, cardTop, legend, legendRows, hatchRect, wrapW, EST, CAT_COLOR, CAT_LABEL, CAT_NOUN, CATS, INK, MUTED, LINE, get TINT() { return TINT; } };
   // the intro and the outro carry one large piece of the default cover, traced in its 1200-unit space and cropped by the card;
   // the asterisk is a second sub-path, so with fill-rule evenodd it is a hole that always shows the card background
   const PIECE = { piece: "M1436 -240.5C1294 -240.7 729.1 -240.8 587 -240.5C444.9 -240.2 584.3 -279 583.7 -238.7C583.1 -198.5 579.7 -65.9 583.5 1C587.2 67.9 601.9 133.7 606.1 162.4C610.2 191.1 607.2 169.9 608.3 173.3C609.4 176.7 610.9 180.3 612.6 182.9C614.3 185.5 616.3 187.5 618.5 189C620.6 190.5 622.9 191.5 625.6 192C628.2 192.5 631.3 192.4 634.4 191.8C637.4 191.2 639.6 190.9 643.9 188.4C648.2 185.8 656.1 180.2 660.3 176.7C664.5 173.3 663.2 174.8 669.2 167.7C675.2 160.5 689.5 141.6 696.3 133.7C703.1 125.8 705.3 124.4 709.8 120.4C714.3 116.4 718.3 113.1 723.3 109.8C728.4 106.5 734.9 102.9 740.1 100.6C745.3 98.3 749.1 97 754.4 95.9C759.7 94.8 766.3 94 771.9 94C777.4 94 782.2 94.7 787.6 96C793 97.4 798.4 99.1 804.3 102.2C810.2 105.3 817.5 110.3 822.9 114.6C828.2 118.9 831.6 121.9 836.6 127.8C841.7 133.8 848.4 142.7 853.2 150.3C858 157.8 861.7 165.2 865.3 173.1C868.9 181 872 189.1 874.8 197.7C877.5 206.3 880.1 216.4 881.8 224.6C883.6 232.9 884.5 238 885.4 247C886.2 256 887 269.2 887 278.9C887 288.5 886.1 297 885.2 304.9C884.3 312.7 883.3 318.5 881.5 326C879.6 333.5 876.9 342.8 874.3 349.9C871.7 356.9 869.4 362.1 865.8 368.3C862.2 374.5 856.9 382.1 852.6 387.2C848.4 392.3 845 395.4 840.4 398.9C835.8 402.4 829.7 406 824.9 408.3C820 410.7 816.3 411.8 811.4 412.9C806.4 413.9 800.1 414.5 795 414.6C789.9 414.7 786 414.4 780.9 413.5C775.7 412.6 768.7 410.7 764.1 409.3C759.5 407.9 758.5 407.6 753.3 405.1C748.1 402.7 741.9 400 733.1 394.4C724.3 388.7 708.1 376.3 700.4 371.1C692.8 365.9 692.6 365.6 687.3 363.1C681.9 360.7 673 357.5 668.3 356.2C663.6 354.9 661.7 355.3 659 355.4C656.3 355.4 654.4 355.6 652 356.5C649.6 357.4 646.3 359.1 644.3 360.8C642.4 362.5 641.3 363.9 640.1 366.7C639 369.6 637.8 373.3 637.5 378C637.3 382.7 632.2 346.9 638.7 394.7C645.3 442.5 669.9 617.4 676.7 664.9C683.4 712.3 678.4 675.3 679.4 679.1C680.3 683 680.9 684.9 682.5 688C684.1 691.1 686.5 695.1 688.8 697.7C691 700.3 692.7 701.7 696 703.5C699.3 705.2 704.4 707.2 708.4 708.1C712.4 708.9 670 715.2 720 708.6C770 702 957.9 675.4 1008.1 668.7C1058.3 661.9 1016.9 667.7 1021.1 668.3C1025.4 668.8 1030.5 670.5 1033.5 672C1036.5 673.5 1037.7 675.3 1039.1 677.4C1040.5 679.5 1041.4 681.7 1042 684.5C1042.5 687.3 1042.7 690.6 1042.4 694C1042.1 697.4 1042.4 699.2 1040.2 704.7C1038.1 710.2 1034.8 718.4 1029.5 727C1024.1 735.6 1013.6 748.3 1008.1 756.6C1002.5 764.9 999.3 770.6 996.1 776.7C993 782.9 990.8 788.8 989.1 793.6C987.3 798.3 986.6 801.1 985.6 805.3C984.7 809.5 983.9 814.5 983.5 819C983.2 823.5 983.2 828.1 983.5 832C983.8 835.9 984.1 838.4 985.1 842.4C986.2 846.3 987.8 851.7 989.7 855.9C991.5 860 993.4 863.4 996.2 867.3C999 871.2 1002.9 875.8 1006.3 879.3C1009.7 882.7 1012.8 885.2 1016.6 887.9C1020.3 890.7 1022.3 892.6 1028.7 895.9C1035.2 899.1 1047.9 904.6 1055.3 907.3C1062.7 910.1 1067.2 911 1073.3 912.4C1079.4 913.7 1082.9 914.8 1092 915.6C1101.1 916.5 1115.9 917.8 1128 917.5C1140.1 917.2 1152.2 916 1164.6 914.1C1176.9 912.1 1156.8 907.1 1202 905.7C1247.2 904.3 1396.5 906 1436 905.7C1475.5 905.3 1438.6 1094.2 1439.2 903.8C1439.8 713.3 1439.6 -46.5 1439.5 -237C1439.4 -427.5 1439.4 -238.8 1438.9 -239.4C1438.3 -239.9 1578 -240.3 1436 -240.5Z", star: "M1052 50.4C1050.4 50.4 1048.4 50.7 1046.8 51.3C1045.2 51.9 1043.5 53 1042.4 53.9C1041.3 54.8 1040.8 55.4 1040.1 56.7C1039.4 58 1038.6 59.9 1038.2 61.6C1037.9 63.2 1037.4 60.2 1038.1 66.4C1038.8 72.7 1042 93.1 1042.6 99C1043.2 104.9 1042.2 101.1 1041.8 101.6C1041.3 102.1 1046.1 102.8 1039.7 101.9C1033.3 101 1010.1 96.9 1003.3 96.1C996.5 95.3 1000.1 96.7 998.8 97.3C997.4 97.9 996.2 98.6 995.1 99.6C994.1 100.5 993.2 101.7 992.5 103C991.8 104.3 991.2 106 990.9 107.3C990.6 108.6 990.5 109.7 990.7 110.9C990.8 112.2 991.1 113.5 991.7 114.9C992.3 116.2 993.2 118 994.3 119.2C995.4 120.4 996.1 121.3 998.3 122.1C1000.6 123 1001.9 123.3 1007.9 124.5C1013.8 125.7 1029.5 128.2 1034.3 129.1C1039.1 130.1 1036.4 129.8 1036.8 130.5C1037.1 131.1 1039.1 127.8 1036.5 133C1033.9 138.2 1024.1 156 1021.3 161.7C1018.5 167.4 1019.9 165.3 1019.7 167.1C1019.5 169 1019.6 171 1020 172.6C1020.3 174.2 1020.9 175.3 1021.9 176.6C1022.8 178 1024.3 179.5 1025.9 180.5C1027.4 181.5 1029.1 182.2 1031.1 182.4C1033.2 182.6 1036.5 182.1 1038.2 181.7C1039.9 181.3 1040.5 180.6 1041.4 179.9C1042.4 179.2 1042.8 178.8 1043.9 177.4C1044.9 175.9 1044.9 176.6 1047.8 171.3C1050.7 166 1058.6 150.2 1061.1 145.7C1063.7 141.2 1062.4 144.3 1063.1 144.2C1063.8 144.1 1061.3 141.4 1065.3 145.3C1069.2 149.2 1082.2 163.2 1086.7 167.7C1091.2 172.2 1090.8 171.2 1092.3 172.1C1093.9 173.1 1094.9 173.1 1096.1 173.3C1097.4 173.5 1098.6 173.5 1099.9 173.4C1101.2 173.2 1102.7 172.9 1103.9 172.4C1105.2 171.8 1106.6 170.9 1107.6 170.1C1108.6 169.2 1109.2 168.8 1109.9 167.4C1110.7 166 1111.6 163.2 1112 161.6C1112.3 159.9 1112.1 158.9 1111.9 157.6C1111.7 156.3 1111.7 155.5 1110.7 153.9C1109.7 152.2 1110.2 152.3 1105.9 147.6C1101.6 142.9 1088.3 129.6 1084.7 125.7C1081.1 121.8 1084 124.7 1084.1 124.1C1084.3 123.5 1080.1 125.1 1085.7 122.1C1091.3 119.2 1111.7 109.5 1117.6 106.1C1123.6 102.8 1120.6 103.4 1121.6 102C1122.5 100.6 1123 99.6 1123.3 97.9C1123.5 96.1 1123.6 93.3 1123.1 91.4C1122.6 89.4 1121.7 87.7 1120.4 86.1C1119.1 84.6 1117 83.1 1115.3 82.3C1113.6 81.5 1112.2 81.2 1110 81.4C1107.8 81.6 1108 80.7 1101.9 83.4C1095.7 86 1078.1 95.1 1073 97.5C1067.9 99.9 1071.8 97.9 1071.3 97.6C1070.8 97.2 1070.9 100.6 1070.1 95.4C1069.2 90.2 1067 72.5 1066.1 66.4C1065.1 60.4 1064.9 60.8 1064.4 59.1C1063.9 57.5 1063.8 57.5 1063 56.5C1062.2 55.4 1060.8 53.7 1059.7 52.9C1058.6 52 1057.7 51.6 1056.4 51.2C1055.1 50.8 1053.6 50.4 1052 50.4Z" };
@@ -208,7 +226,7 @@
   const label = t => ({ t: t.toUpperCase(), size: 30, fill: PRIMARY, weight: 700, ls: 3, lines: 1, after: 6 });
   const titleRow = (t, size) => ({ t, size: size || 44, weight: 700, lines: 2 });
   const line = (t, size, fill) => ({ t, size: size || 34, fill: fill || MUTED, lines: 2 });
-  const featureW = (y, w) => Math.min(w || 360, Math.floor((890 - y) / 1.5));
+  const featureW = (y, w) => Math.min(w || 360, Math.floor((890 + DY - y) / 1.5));
   function feature(it, y, rows, d, w) {
     w = featureW(y, w);
     const x = 80 + w + 40, colW = 1000 - x;
@@ -216,6 +234,7 @@
     rows.filter(Boolean).forEach((r, k) => {
       if (r.gap) { after += r.gap; return; }
       const size = r.size || 34;
+      if (r.stars != null) { ty = ty == null ? y + Math.round(size * 0.74) : ty + after + 16 + Math.round(size * 0.74); out += starRow(x, ty, r.stars, size, (d || 300) + 100 + k * 60).svg; after = Math.round(size * 0.26) + (r.after || 0); return; }
       wrapW(r.t, size, r.weight || 400, colW, r.lines || 2, r.ls).forEach((l, j) => {
         ty = ty == null ? y + Math.round(size * 0.74) : j ? ty + Math.round(size * 1.3) : ty + after + 16 + Math.round(size * 0.74);
         out += T(x, ty, l, size, { fill: r.fill || INK, weight: r.weight, ls: r.ls, cls: "rise", d: (d || 300) + 100 + k * 60 });
@@ -233,18 +252,18 @@
     const cards = [];
     const ok = (cond, reason) => cond ? { ok: true } : { ok: false, reason };
     const introLine = (S.lastMonth < 11 ? _n("{titles} across {n} shelf, so far", "{titles} across {n} shelves, so far", S.cats.length, { titles: _n("{n} title", "{n} titles", n) }) : _n("{titles} across {n} shelf", "{titles} across {n} shelves", S.cats.length, { titles: _n("{n} title", "{n} titles", n) }));
-    cards.push({ id: "intro", name: _("Intro"), kind: "computed", interest: { ok: true }, bg: () => TINT.own, body: () => `${piece("translate(35 -35) scale(0.9)", TINT.piece, PIECE.piece + PIECE.star, 60, -60)}${eyebrow(_("Annual summary"))}${String(Y).split("").map((ch, i) => T(80 + i * 180, 560, ch, 300, { weight: 800, cls: "rise", d: 100 + i * 120 })).join("")}${T(80, 680, _("{name}’s year", { name: D.member.name }), 48, { weight: 700, ls: -1, cls: "rise", d: 600 })}${T(80, 740, introLine, 34, { fill: MUTED, cls: "rise", d: 700 })}${trIntro ? T(80, 790, trIntro[0].toUpperCase() + trIntro.slice(1), 34, { fill: MUTED, cls: "rise", d: 800 }) : ""}` });
+    cards.push({ id: "intro", name: _("Intro"), kind: "computed", interest: { ok: true }, bg: () => TINT.own, body: () => `${piece("translate(35 -35) scale(0.9)", TINT.piece, PIECE.piece + PIECE.star, 60, -60)}${eyebrow(_("Annual summary"))}${String(Y).split("").map((ch, i) => T(80 + i * 180, 560 + DY / 2, ch, 300, { weight: 800, cls: "rise", d: 100 + i * 120 })).join("")}${T(80, 680 + DY / 2, _("{name}’s year", { name: D.member.name }), 48, { weight: 700, ls: -1, cls: "rise", d: 600 })}${T(80, 740 + DY / 2, introLine, 34, { fill: MUTED, cls: "rise", d: 700 })}${trIntro ? T(80, 790 + DY / 2, trIntro[0].toUpperCase() + trIntro.slice(1), 34, { fill: MUTED, cls: "rise", d: 800 }) : ""}` });
     // a small year: every cover on one card, in the order finished, as large as the space allows
     cards.push({ id: "covers", name: _("Your year in covers"), kind: "computed", interest: ok(SMALL, _("only in a small year, under {n} titles", { n: RULE.SMALL })), bg: () => TINT.paper, body: () => {
       const its = S.items, N = its.length, t = cardTop(_n("{n} title", "{n} titles", N), "", { eyebrow: _("Your year in covers"), count: N });
-      const g = N > 12 ? 14 : 24, AW = 920, top0 = t.y + 60, AH = 900 - top0; let best = null;
+      const g = N > 12 ? 14 : 24, AW = 920, top0 = t.y + 60, AH = 900 + DY - top0; let best = null;
       for (let cols = 1; cols <= N; cols++) { const rows = Math.ceil(N / cols), w = Math.min((AW - g * (cols - 1)) / cols, (AH - g * (rows - 1)) / rows / 1.5); if (!best || w > best.w) best = { cols, rows, w }; }
       const { cols, rows, w } = best, h = w * 1.5, x0 = 80 + (AW - (cols * w + (cols - 1) * g)) / 2, y0 = top0 + (AH - (rows * h + (rows - 1) * g)) / 2;
       return t.svg + its.map((it, k) => coverSvg(it, x0 + (k % cols) * (w + g), y0 + Math.floor(k / cols) * (h + g), w, h, "pop", 250 + k * Math.min(90, 1400 / N), "bottom")).join("");
     } });
     const lvNow = () => LEVEL, droppedN = () => ACT.filter(a => a.kind === "dropped" && (a.vis || 0) <= lvNow()).length;
     cards.push({ id: "shelves", name: _("Shelves"), kind: "computed", interest: { ok: true }, bg: () => TINT.green, body: () => {
-      const t = cardTop(_n("{n} title", "{n} titles", n), "", { eyebrow: _("Completed"), count: n }), bmax = Math.max(...S.cats.map(c => S.byCat[c].length)), pitch = S.cats.length > 6 ? 64 : 72;
+      const t = cardTop(_n("{n} title", "{n} titles", n), "", { eyebrow: _("Completed"), count: n }), bmax = Math.max(...S.cats.map(c => S.byCat[c].length)), pitch = Math.min(S.cats.length > 6 ? 96 : 112, Math.floor((800 + DY - t.y) / S.cats.length));
       let y = t.y + 50, bars = "";
       S.cats.forEach((c, i) => {
         const k = S.byCat[c].length, w = 40 + (k / bmax) * 540, bw = S.byCat[c].filter(it => BULK.has(it.date)).length / k * w;
@@ -253,22 +272,22 @@
         y += pitch;
       });
       const notes = [bulkN ? { fill: "#b3bfc6", hatch: "rgba(255,255,255,0.6)", label: _("{n} marked in bulk on {date}", { n: bulkN, date: fmtDate(bulkDay) }) } : null, droppedN() ? { fill: "none", stroke: MUTED, label: _("{n} dropped, not counted", { n: droppedN() }) } : null];
-      return t.svg + bars + (notes.some(Boolean) ? legend(notes, Math.max(y + 34, 860)) : "");
+      return t.svg + bars + (notes.some(Boolean) ? legend(notes, Math.max(y + 34, 860 + DY)) : "");
     } });
     const mean = TM.counts.reduce((a, b) => a + b, 0) / Math.max(1, S.lastMonth + 1);
     cards.push({ id: "busiest", name: _("Busiest month"), kind: "computed", interest: ok(TM.counts[TM.busiest] >= RULE.BUSY_MIN && TM.counts[TM.busiest] >= 1.6 * mean, TM.counts[TM.busiest] < RULE.BUSY_MIN ? _n("the busiest month has {n} title, under {min}", "the busiest month has {n} titles, under {min}", TM.counts[TM.busiest], { min: RULE.BUSY_MIN }) : _("{month} is only {x} times the monthly mean, under 1.6", { month: MONTHS_LONG[TM.busiest], x: Math.floor(TM.counts[TM.busiest] / mean * 100) / 100 })), bg: () => TINT.coral, body: () => {
       const t = cardTop(MONTHS_LONG[TM.busiest], _("{n} titles in one month; {month} was the quietest with {quiet}", { n: TM.counts[TM.busiest], month: MONTHS_LONG[TM.quietest], quiet: TM.counts[TM.quietest] }), { eyebrow: _("Busiest month") });
-      const mmax = Math.max(...TM.counts), bottom = bulkNote ? 812 : 858, room = bottom - Math.max(t.y + 80, 560);
+      const mmax = Math.max(...TM.counts), bottom = (bulkNote ? 812 : 858) + DY, room = bottom - Math.max(t.y + 80, 560);
       let spark = "";
       TM.counts.forEach((v, m) => { const h = 24 + (v / mmax) * room, x = 80 + m * 78; spark += G("growy", 300 + m * 60, `<rect x="${x}" y="${bottom - h}" width="56" height="${h}" rx="12" fill="${m === TM.busiest ? LOGO.coral : "#e6d9d4"}"/>`) + T(x + 28, bottom + 44, MONTHS_NARROW[m], 34, { fill: m === TM.busiest ? INK : MUTED, weight: m === TM.busiest ? 700 : 400, anchor: "middle" }) + (m === TM.busiest ? T(x + 28, bottom - h - 14, v, 34, { weight: 800, anchor: "middle", cls: "fade", d: 900 }) : ""); });
-      return t.svg + spark + (bulkNote ? T(80, 912, bulkNote, 34, { fill: MUTED, cls: "fade", d: 900 }) : "");
+      return t.svg + spark + (bulkNote ? T(80, 912 + DY, bulkNote, 34, { fill: MUTED, cls: "fade", d: 900 }) : "");
     } });
     const tc = S.topCat, share = S.byCat[tc].length / n, bestT = S.bestOf[tc];
     // one sentence per shelf, because the verb differs
     const N_ = x => x, VERB = { book: N_("{n} read this year, {pct}% of everything"), movie: N_("{n} watched this year, {pct}% of everything"), tv: N_("{n} watched this year, {pct}% of everything"), music: N_("{n} listened to this year, {pct}% of everything"), game: N_("{n} played this year, {pct}% of everything"), podcast: N_("{n} followed this year, {pct}% of everything"), performance: N_("{n} attended this year, {pct}% of everything") };
     cards.push({ id: "biggest", name: _("Biggest shelf"), kind: "computed", interest: ok(S.cats.length > 1 && share >= 0.4, S.cats.length > 1 ? _("the biggest shelf holds only {pct}%", { pct: Math.round(share * 100) }) : _("only one shelf this year")), bg: () => TINT.blue, body: () => {
       const t = cardTop(CAT_LABEL[tc], _(VERB[tc], { n: S.byCat[tc].length, pct: Math.round(share * 100) }), { eyebrow: _("Biggest shelf") });
-      return t.svg + feature(bestT, Math.max(t.y + 50, 440), [label(_("Highest mark")), titleRow(bestT.title), bestT.rating ? { t: "★".repeat(Math.round(bestT.rating / 2)), size: 40, fill: LOGO.coral } : line(who(bestT))], 500, 320);
+      return t.svg + feature(bestT, Math.max(t.y + 50, 440), [label(_("Highest mark")), titleRow(bestT.title), bestT.rating ? { stars: bestT.rating, size: 40 } : line(who(bestT))], 500, 380);
     } });
     // five stars: all of them up to ten; past ten, the ten with a comment first, then the less-marked, then the latest
     const FS = S.fiveStar, fsMany = FS.length > RULE.FAN, said = i => i.comment && i.comment.length > 2 ? 1 : 0;
@@ -277,14 +296,14 @@
       const line1 = FS.length >= 3 ? fsMany ? _("{n} titles got five stars; here are ten, the ones you wrote about first", { n: FS.length }) : _("Everything that got five stars this year") : S.topLabel;
       const t = cardTop(FS.length >= 3 ? _("{n} favourites", { n: FS.length }) : _("The highest marks"), line1, { eyebrow: FS.length >= 3 ? _("Five stars") : _("Top shelf") });
       // four or fewer get large covers; up to eight keep the wide fan; nine or ten use smaller covers, so the outer covers stay on the card
-      const N = top.length, wide = N <= 8, W = N <= 4 ? 280 : wide ? 215 : 190, H = W * 1.5, step = N <= 4 ? 150 : wide ? 95 : 76, cx = 540, rot = i => N > 1 ? -14 + 28 * i / (N - 1) : 0, base = 870 - H - (wide ? 49 : 63);
+      const N = top.length, wide = N <= 8, W = N <= 4 ? 280 : wide ? 215 : 190, H = W * 1.5, step = N <= 4 ? 150 : wide ? 95 : 76, cx = 540, rot = i => N > 1 ? -14 + 28 * i / (N - 1) : 0, base = 870 + DY / 2 - H - (wide ? 49 : 63);
       let fan = ""; top.forEach((it, i) => { const k = i - (N - 1) / 2; const x = cx + k * step - W / 2, y = base + Math.abs(k) * 14; fan += `<g transform="translate(${x + W / 2},${y + H}) rotate(${rot(i)}) translate(${-(x + W / 2)},${-(y + H)})">${coverSvg(it, x, y, W, H, "fanin", 300 + i * 90)}</g>`; });
       return t.svg + fan;
     } });
     const q = S.quiet;
     cards.push({ id: "quiet", name: _("Quiet favourite"), kind: "computed", interest: ok(q && q.marks != null && q.marks < 20, q ? _("your favourites all have 20 or more marks here") : _("no top mark to pick from")), bg: () => TINT.coral, body: () => {
       const t = cardTop(q.title, "", { eyebrow: _("The quiet favourite") });
-      return t.svg + feature(q, t.y + 56, [line(who(q)), { t: "★".repeat(Math.round(q.rating / 2)), size: 44, fill: LOGO.coral }, { gap: 20 }, line(q.marks ? _n("from you, and only {n} other mark on {site}.", "from you, and only {n} other marks on {site}.", q.marks, { site: S.site }) : _("from you, and no other mark on {site}.", { site: S.site }), 34, INK)], 300, 360);
+      return t.svg + feature(q, t.y + 56, [line(who(q)), { stars: q.rating, size: 44 }, { gap: 20 }, line(q.marks ? _n("from you, and only {n} other mark on {site}.", "from you, and only {n} other marks on {site}.", q.marks, { site: S.site }) : _("from you, and no other mark on {site}.", { site: S.site }), 34, INK)], 300, 420);
     } });
     // stricter than the shared stats: 1.5 stars from the site average, on a title with 20 or more marks
     // (the mock has mark counts, not rating counts; the production check used ratings)
@@ -308,12 +327,12 @@
       if (rows.length === 1) {
         // one title: a large cover, and the scale across the card
         const [[g, lbl]] = rows, it = g.it, y = t.y + 60;
-        b += feature(it, y, [label(lbl), titleRow(it.title, 48), line(who(it))], 300, 260);
-        b += gapScale(110, y + 390 + 90, 860, it.rating / 2, stars1(it.site_rating), 600);
+        b += feature(it, y, [label(lbl), titleRow(it.title, 48), line(who(it))], 300, 320);
+        b += gapScale(110, y + 480 + 90, 860, it.rating / 2, stars1(it.site_rating), 600);
         return b;
       }
       rows.forEach(([g, lbl], i) => {
-        const it = g.it, y = t.y + 50 + i * 300, d = 300 + i * 250;
+        const it = g.it, y = t.y + 70 + i * 410, d = 300 + i * 250;
         b += coverSvg(it, 80, y, 180, 270, "pop", d) + T(300, y + 30, lbl.toUpperCase(), 30, { fill: PRIMARY, weight: 700, ls: 3, cls: "fade", d: d + 50 })
           + wrapText(it.title, CJK(it.title) ? 16 : 28, 2).map((l, k) => T(300, y + 80 + k * 48, l, 40, { weight: 700, cls: "rise", d: d + 100 })).join("")
           + gapScale(320, y + 210, 650, it.rating / 2, stars1(it.site_rating), d + 200);
@@ -325,7 +344,7 @@
     const FIN = LOGO.green, OTH = LOGO.blue, EMPTY = "#dfe5dc";
     function activeDays(a) {
       const step = 27, cell = 21, x0 = 162, span = a.streak >= 2 ? _("with something logged; the longest run, outlined, was {n} days, {start} to {end}", { n: a.streak, start: fmtDate(isoDay(a.start)), end: fmtDate(isoDay(a.end)) }) : _("with something logged; never two days in a row");
-      const t = cardTop(nd(a.days), span, { eyebrow: _("Active days"), count: a.days }), y0 = t.y + 44, rowH = Math.min(36, (836 - y0) / (S.lastMonth + 1));
+      const t = cardTop(nd(a.days), span, { eyebrow: _("Active days"), count: a.days }), y0 = t.y + 44 + Math.round(DY / 3), rowH = Math.min(36, (836 + DY - y0) / (S.lastMonth + 1));
       let grid = "", fin = 0, oth = 0;
       a.byDay.forEach(e => { if (e.finish) fin++; else oth++; });
       for (let m = 0; m <= S.lastMonth; m++) {
@@ -336,7 +355,7 @@
         }
         grid += G("fade", 250 + m * 50, row);
       }
-      return t.svg + grid + legend([{ fill: FIN, label: _n("{n} day finishing a title", "{n} days finishing a title", fin) }, a.hasOther ? { fill: OTH, label: _n("{n} day of progress and comments", "{n} days of progress and comments", oth) } : null], 900);
+      return t.svg + grid + legend([{ fill: FIN, label: _n("{n} day finishing a title", "{n} days finishing a title", fin) }, a.hasOther ? { fill: OTH, label: _n("{n} day of progress and comments", "{n} days of progress and comments", oth) } : null], 900 + DY);
     }
     cards.push({ id: "streak", name: streakMode ? _("Streak") : _("Active days"), kind: "computed", interest: streakMode || sAt.days >= RULE.ACTIVE ? { ok: true } : { ok: false, reason: _("{days} with something logged, under {min}, and the longest run is {run}", { days: nd(sAt.days), min: RULE.ACTIVE, run: nd(sAt.streak) }) }, bg: () => TINT.green, body: () => {
       if (!streakMode) return activeDays(sAt);
@@ -344,35 +363,35 @@
       const t = cardTop(nd(a.streak), a.hasOther ? _("something logged every day, {start} to {end}", v) : _("a title finished every day, {start} to {end}", v), { eyebrow: _("Longest streak"), count: a.streak });
       // 44 day squares: the run outlined in the middle, a few days either side; a long run shows its last 44 days
       const cells = 44, len = a.streak, first = len <= cells - 4 ? addDays(a.start, -Math.floor((cells - len) / 2)) : addDays(a.end, 1 - cells);
-      const offset = Math.round((a.start - first) / 864e5), gy = t.y + 50;
+      const offset = Math.round((a.start - first) / 864e5), gy = t.y + 50 + Math.round(DY / 3);
       let grid = "";
       for (let k = 0; k < cells; k++) {
         const d = addDays(first, k), e = a.byDay.get(isoDay(d)), inRun = d >= a.start && d <= a.end, x = 80 + (k % 11) * 86, y = gy + Math.floor(k / 11) * 80;
         grid += G("pop", inRun ? 350 + Math.max(0, k - offset) * 35 : 250, `<rect x="${x}" y="${y}" width="66" height="66" rx="16" fill="${e ? (e.finish ? FIN : OTH) : EMPTY}"${inRun ? ` stroke="${INK}" stroke-width="4"` : ""}/>`);
       }
       const last = addDays(first, cells - 1);
-      return t.svg + grid + T(80, gy + 4 * 80 + 24, _("{start} to {end}", { start: fmtDate(isoDay(first)), end: fmtDate(isoDay(last)) }), 34, { fill: MUTED }) + legend([{ fill: FIN, label: _("a title finished") }, a.hasOther ? { fill: OTH, label: _("progress or a comment") } : null, { fill: EMPTY, label: _("nothing logged") }, { stroke: INK, label: _("the run") }], 900);
+      return t.svg + grid + T(80, gy + 4 * 80 + 24, _("{start} to {end}", { start: fmtDate(isoDay(first)), end: fmtDate(isoDay(last)) }), 34, { fill: MUTED }) + legend([{ fill: FIN, label: _("a title finished") }, a.hasOther ? { fill: OTH, label: _("progress or a comment") } : null, { fill: EMPTY, label: _("nothing logged") }, { stroke: INK, label: _("the run") }], 900 + DY);
     } });
     cards.push({ id: "weeks", name: _("Week by week"), kind: "computed", interest: ok(n >= 30, _("{n} titles is too few for a week strip", { n })), bg: () => TINT.paper, body: () => {
       const s0 = TM.marathonStart, t = cardTop(_("{n} in a week", { n: TM.weeks[TM.marathonWeek] }), _("the busiest seven days began {date}; {n} weeks of the year had a title finished", { date: fmtDate(isoDay(s0)), n: TM.weeks.filter(v => v).length }), { eyebrow: _("Week by week") });
-      const wmax = Math.max(...TM.weeks), bottom = 820, room = bottom - (t.y + 90);
+      const wmax = Math.max(...TM.weeks), bottom = 820 + DY, room = bottom - (t.y + 90);
       let strip = "";
       TM.weeks.forEach((v, i) => { const h = v ? 16 + v / wmax * room : 6; strip += `<rect x="${80 + i * 17.4}" y="${bottom - h}" width="13" height="${h}" rx="4" fill="${i === TM.marathonWeek ? LOGO.coral : v ? PRIMARY : LINE}"/>`; });
-      return t.svg + G("draw", 300, strip) + MONTHS.map((m, i) => i % 2 ? "" : T(80 + i * 4.42 * 17.4, bottom + 44, m, 34, { fill: MUTED })).join("") + legend([{ fill: PRIMARY, label: _("titles finished that week") }, { fill: LOGO.coral, label: _("the busiest week") }], 912);
+      return t.svg + G("draw", 300, strip) + MONTHS.map((m, i) => i % 2 ? "" : T(80 + i * 4.42 * 17.4, bottom + 44, m, 34, { fill: MUTED })).join("") + legend([{ fill: PRIMARY, label: _("titles finished that week") }, { fill: LOGO.coral, label: _("the busiest week") }], 912 + DY);
     } });
     const dl = S.decadeList, span = dl.length ? dl[dl.length - 1].decade - dl[0].decade : 0, domShare = dl.length ? Math.max(...dl.map(d => d.n)) / dl.reduce((s, d) => s + d.n, 0) : 1;
     // new or old: the share of titles released in the deck year or the two years before it
     const dated = S.items.filter(i => i.year && i.year > 1800 && i.year <= Y + 1), recent = dated.length ? dated.filter(i => i.year >= Y - 2).length / dated.length : 0, rpct = Math.round(recent * 100);
     const eraMode = recent >= RULE.NEW ? "new" : recent <= RULE.OLD ? "old" : "mid";
     cards.push({ id: "era", name: _("The era"), kind: "computed", interest: ok(dated.length >= 10 && (eraMode === "new" || (span >= 15 && domShare <= 0.8)), dated.length < 10 ? _("fewer than ten titles with a release year") : span < 15 ? _("release years span under 15 years") : _("{pct}% of titles come from one decade", { pct: Math.round(domShare * 100) })), bg: () => TINT.blue, body: () => {
-      const bottom = 812;
+      const bottom = 812 + DY;
       let db = "", t;
       if (eraMode === "new") {
         // the last ten years one by one, everything older in one bar; the last three years in blue
         t = cardTop(_("Mostly new"), _("{pct}% came out in the last three years; the oldest title is from {year}.", { pct: rpct, year: S.oldest.year }), { eyebrow: _("The era you lived in") });
         const yrs = [null, ...Array.from({ length: 10 }, (z, k) => Y - 9 + k)], cnt = yrs.map(y => dated.filter(i => y == null ? i.year < Y - 9 : i.year === y).length), cmax = Math.max(...cnt, 1), w = 920 / yrs.length, room = bottom - (t.y + 60);
         yrs.forEach((y, i) => { const h = cnt[i] ? 16 + cnt[i] / cmax * room : 6; db += G("growy", 300 + i * 50, `<rect x="${80 + i * w}" y="${bottom - h}" width="${w - 10}" height="${h}" rx="10" fill="${y != null && y >= Y - 2 ? LOGO.blue : "#d5e3ec"}"/>`) + T(80 + i * w + (w - 10) / 2, bottom + 44, y == null ? _("older") : `’${String(y).slice(2)}`, 34, { fill: MUTED, anchor: "middle" }); });
-        return t.svg + db + legend([{ fill: LOGO.blue, label: _("the last three years") }, { fill: "#d5e3ec", label: _("earlier years") }], 912);
+        return t.svg + db + legend([{ fill: LOGO.blue, label: _("the last three years") }, { fill: "#d5e3ec", label: _("earlier years") }], 912 + DY);
       }
       const lineEra = eraMode === "old" ? _("Only {pct}% came out in the last three years. Half your year was made before {year}.", { pct: rpct, year: S.medianYear }) : _("Half your year was made before {year}, and {pct}% came out in the last three years.", { pct: rpct, year: S.medianYear });
       t = cardTop(S.medianYear, lineEra, { eyebrow: _("The era you lived in") });
@@ -380,11 +399,11 @@
       // a label wider than its bar (as in some languages) goes on every other decade, the highlighted one always
       const hi = Math.floor(S.medianYear / 10) * 10, labs = dl.map(d => _("{d}s", { d: String(d.decade).slice(2) })), lw = Math.max(...labs.map(l => EST(l, 34))), every = lw > w - 6 ? 2 : 1, hk = dl.findIndex(d => d.decade === hi);
       dl.forEach((d, i) => { const h = 24 + d.n / dmax * room, cx = Math.min(1000 - lw / 2, Math.max(80 + lw / 2, 80 + i * w + (w - 10) / 2)); db += G("growy", 300 + i * 50, `<rect x="${80 + i * w}" y="${bottom - h}" width="${w - 10}" height="${h}" rx="10" fill="${d.decade === hi ? LOGO.blue : "#d5e3ec"}"/>`) + ((i - hk) % every === 0 ? T(cx, bottom + 44, labs[i], 34, { fill: d.decade === hi ? INK : MUTED, anchor: "middle" }) : ""); });
-      return t.svg + db + legend([{ fill: LOGO.blue, label: _("the decade of {year}", { year: S.medianYear }) }, { fill: "#d5e3ec", label: _("titles by decade of release") }], 912);
+      return t.svg + db + legend([{ fill: LOGO.blue, label: _("the decade of {year}", { year: S.medianYear }) }, { fill: "#d5e3ec", label: _("titles by decade of release") }], 912 + DY);
     } });
     const ppl = S.creators.concat(S.actors).slice(0, 5);
     cards.push({ id: "people", name: _("People"), kind: "computed", interest: ok(ppl.length >= 1, _("nobody appears on two titles")), bg: () => TINT.green, body: () => {
-      const t = cardTop(_("On repeat"), "", { eyebrow: _("People you kept returning to") }), pitch = Math.min(112, (880 - t.y - 60) / ppl.length);
+      const t = cardTop(_("On repeat"), "", { eyebrow: _("People you kept returning to") }), pitch = Math.min(150, (880 + DY - t.y - 60) / ppl.length);
       return t.svg + ppl.map((p, i) => { const yy = t.y + 100 + i * pitch; return G("pop", 300 + i * 100, `<circle cx="124" cy="${yy - 14}" r="44" fill="#dfe5dc"/>` + T(124, yy + 2, p.name.trim().slice(0, 1).toUpperCase(), 42, { weight: 800, anchor: "middle" })) + T(196, yy - 10, trunc(p.name, CJK(p.name) ? 16 : 28), 42, { weight: 700, cls: "rise", d: 350 + i * 100 }) + T(196, yy + 32, [ROLE_LABEL[p.roles.filter(r => r !== "person")[0]] || "", _n("{n} title", "{n} titles", p.n)].filter(Boolean).join(" · "), 34, { fill: MUTED, cls: "rise", d: 400 + i * 100 }); }).join("");
     } });
     return cards;
@@ -397,51 +416,52 @@
     const c = social.company;
     cards.push({ id: "company", name: _("In good company"), kind: "social", interest: need ? { ok: false, reason: need } : ok(!!c, _("no title shared with two or more followed members")), bg: () => TINT.green, body: () => {
       const t = cardTop(_("You and {n}", { n: c.fs.length }), _("people you follow finished the same title this year"), { eyebrow: _("In good company") });
+      // the initials of up to seven members sit right of the cover, so the cover keeps 360 at most
       const fy0 = t.y + 56, cw = featureW(fy0, 360);
       return t.svg + feature(c.it, fy0, [titleRow(c.it.title), line(who(c.it))], 300, cw) + initials(c.fs, 80 + cw + 72, fy0 + cw * 1.5 - 40, 600);
     }, named: () => c ? c.fs.map(fname) : [] });
     const t2 = social.twin;
     cards.push({ id: "twin", name: _("Taste twin"), kind: "social", interest: need ? { ok: false, reason: need } : ok(!!t2, _("nobody you follow shares two titles with you")), bg: () => TINT.coral, body: () => {
       const t = cardTop(t2.name, _("@{handle} shares {n} of your titles this year, more than anyone you follow", { handle: t2.handle, n: t2.shared.length }), { eyebrow: _("Taste twin") });
-      return t.svg + coverRow(t2.shared.map(u => mine.get(u)), t.y + 60, 4, 400).svg;
+      return t.svg + coverRow(t2.shared.map(u => mine.get(u)), t.y + 60 + Math.round(DY * 0.35), 4, 400).svg;
     }, named: () => t2 ? [fname(t2)] : [] });
     const f = social.first;
     cards.push({ id: "first", name: _("Who got there first"), kind: "social", interest: need ? { ok: false, reason: need } : ok(f && (f.count + f.after) >= 3, _("too few shared titles with dates")), bg: () => TINT.blue, body: () => {
       const t = cardTop(String(f.count), _("times someone you follow finished a title after you did"), { eyebrow: _("Who got there first"), count: f.count });
       let b = t.svg;
-      if (f.it) b += feature(f.it, t.y + 50, [label(_("Most followed")), titleRow(f.it.title, 40), line(_("{n} of them came after you", { n: f.itN }))], 400, 180);
-      return b + T(80, 836, f.after, 72, { weight: 800, ls: -2, cls: "rise", d: 700, count: f.after }) + T(80 + EST(f.after, 72, 800) + 20, 836, f.leader ? _("times you came after someone,") : _("times you came after someone"), 34, { fill: MUTED, cls: "rise", d: 800 }) + (f.leader ? T(80 + EST(f.after, 72, 800) + 20, 878, _("most often after {name}", { name: trunc(f.leader.name, 30) }), 34, { fill: MUTED, cls: "rise", d: 850 }) : "");
+      if (f.it) b += feature(f.it, t.y + 50, [label(_("Most followed")), titleRow(f.it.title, 40), line(_("{n} of them came after you", { n: f.itN }))], 400, 220);
+      return b + T(80, 836 + DY, f.after, 72, { weight: 800, ls: -2, cls: "rise", d: 700, count: f.after }) + T(80 + EST(f.after, 72, 800) + 20, 836 + DY, f.leader ? _("times you came after someone,") : _("times you came after someone"), 34, { fill: MUTED, cls: "rise", d: 800 }) + (f.leader ? T(80 + EST(f.after, 72, 800) + 20, 878 + DY, _("most often after {name}", { name: trunc(f.leader.name, 30) }), 34, { fill: MUTED, cls: "rise", d: 850 }) : "");
     }, named: () => f && f.leader ? [fname(f.leader)] : [] });
     const o = social.obscure;
     cards.push({ id: "obscure", name: _("Off the beaten path"), kind: "social", interest: ok(o != null && o >= 0.2, o == null ? _("no mark counts") : _("only {pct}% of titles have fewer than ten marks", { pct: Math.round(o * 100) })), bg: () => TINT.paper, body: () => {
       const rare = withMarks.filter(i => i.marks < 10).sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 4);
       const t = cardTop(`${Math.round(o * 100)}%`, _("of your year is titles fewer than ten people on {site} have marked", { site: S.site }), { eyebrow: _("Off the beaten path") });
-      const r = coverRow(rare, t.y + 60, 4, 400);
+      const r = coverRow(rare, t.y + 60 + Math.round(DY * 0.35), 4, 400);
       return t.svg + r.svg + rare.map((it, i) => T(80 + i * (r.w + 20), r.bottom + 44, _n("{n} mark", "{n} marks", it.marks), 34, { fill: MUTED, cls: "fade", d: 500 + i * 90 })).join("");
     } });
     const cr = social.crowd, gr = social.grain;
     cards.push({ id: "crowd", name: _("With the crowd, against it"), kind: "social", interest: ok(cr || (gr && gr.below >= 70), _("no rated title with a known distribution")), bg: () => TINT.green, body: () => {
       const grOk = gr && gr.below >= 70, t = cardTop(cr && grOk ? _("Both sides") : cr ? _("With the crowd") : _("Against the grain"), "", { eyebrow: _("How others rated it") });
-      let y = t.y + 54, b = t.svg;
+      let y = t.y + 84, b = t.svg;
       const row = (it, lbl, l1, l2, pct, color, d) => coverSvg(it, 80, y, 170, 255, "pop", d) + T(290, y + 34, lbl.toUpperCase(), 30, { fill: PRIMARY, weight: 700, ls: 3, cls: "fade", d: d + 100 }) + T(290, y + 84, trunc(it.title, CJK(it.title) ? 16 : 28), 40, { weight: 700, cls: "rise", d: d + 150 }) + T(290, y + 132, l1, 34, { fill: MUTED, cls: "rise", d: d + 200 }) + T(290, y + 174, l2, 34, { fill: MUTED, cls: "rise", d: d + 250 }) + G("growx", d + 300, `<rect x="290" y="${y + 204}" width="${pct * 6.9}" height="20" rx="10" fill="${color}"/>`) + `<rect x="290" y="${y + 204}" width="690" height="20" rx="10" fill="none" stroke="${LINE}" stroke-width="2"/>`;
-      if (cr) { b += row(cr.it, _("With the crowd"), _("your five stars put you with the {pct}%", { pct: cr.share }), _("who gave it five too"), cr.share, LOGO.green, 200); y += 300; }
+      if (cr) { b += row(cr.it, _("With the crowd"), _("your five stars put you with the {pct}%", { pct: cr.share }), _("who gave it five too"), cr.share, LOGO.green, 200); y += 410; }
       if (grOk) b += row(gr.it, _("Against the grain"), _("you rated it higher than {pct}%", { pct: gr.below }), _("of the {n} people who rated it", { n: gr.it.marks }), gr.below, LOGO.coral, 600);
       return b;
     } });
     const e = social.early;
     cards.push({ id: "early", name: _("Early"), kind: "social", interest: ok(!!e, _("no title where you were among the first ten markers, or the data is not public")), bg: () => TINT.coral, body: () => {
       const t = cardTop(_("#{n}", { n: e.first_rank }), _("to mark it on {site}", { site: S.site }), { eyebrow: _("Early") });
-      return t.svg + feature(e, t.y + 56, [titleRow(e.title), line(who(e)), { gap: 20 }, line(_("{n} people have marked it since.", { n: e.marks }), 34, INK)], 300, 360);
+      return t.svg + feature(e, t.y + 56, [titleRow(e.title), line(who(e)), { gap: 20 }, line(_("{n} people have marked it since.", { n: e.marks }), 34, INK)], 300, 420);
     } });
     const it = social.instanceTop, have = it && S.items.find(i => path(i.url) === path(it.url));
     cards.push({ id: "part", name: _("Part of the year"), kind: "social", interest: ok(!!it, _("the instance totals are not ready yet")), bg: () => TINT.blue, body: () => {
       // the number of people is the message; the title sits beside its cover
       const k = it.count, t = cardTop(_n("{n} person", "{n} people", k), _("finished this title, more than any other"), { eyebrow: _("{site} in {year}", { site: S.site, year: Y }), count: k });
-      return t.svg + feature(have || { cover: it.cover, category: it.category || "movie", title: it.title }, t.y + 56, [label(_("The most finished")), titleRow((have || it).title), have ? line(who(have)) : null, { gap: 20 }, line(have ? _("You were one of them.") : _("Maybe next year."), 34, INK)], 300, 380);
+      return t.svg + feature(have || { cover: it.cover, category: it.category || "movie", title: it.title }, t.y + 56, [label(_("The most finished")), titleRow((have || it).title), have ? line(who(have)) : null, { gap: 20 }, line(have ? _("You were one of them.") : _("Maybe next year."), 34, INK)], 300, 420);
     } });
     const p = social.percentile;
     cards.push({ id: "pack", name: _("Ahead of the pack"), kind: "social", interest: ok(p != null && p > 50, p != null ? _("below the median this year, so this card stays quiet") : _("the instance percentile is not ready yet")), bg: () => TINT.green, body: () => {
-      const t = cardTop(`${p}%`, _("of active members on {site} completed fewer titles than you this year", { site: S.site }), { eyebrow: _("Ahead of the pack") }), by = Math.max(t.y + 170, 640), px = 80 + p * 9.2;
+      const t = cardTop(`${p}%`, _("of active members on {site} completed fewer titles than you this year", { site: S.site }), { eyebrow: _("Ahead of the pack") }), by = Math.max(t.y + 170, 640 + DY / 2), px = 80 + p * 9.2;
       return t.svg + G("growx", 400, `<rect x="80" y="${by}" width="${p * 9.2}" height="48" rx="24" fill="${LOGO.green}"/>`) + `<rect x="80" y="${by}" width="920" height="48" rx="24" fill="none" stroke="${LINE}" stroke-width="2"/><line x1="540" y1="${by - 20}" x2="540" y2="${by + 68}" stroke="${INK}" stroke-width="3" stroke-dasharray="6 6"/>` + T(540, by + 112, _("the median member"), 34, { fill: MUTED, anchor: "middle" }) + G("pop", 700, `<circle cx="${px}" cy="${by + 24}" r="18" fill="#fff" stroke="${INK}" stroke-width="5"/>` + T(px, by - 32, _("you"), 34, { weight: 800, anchor: p > 92 ? "end" : "middle" })) + T(80, by + 112, _("fewer titles"), 34, { fill: MUTED }) + T(1000, by + 112, _("more"), 34, { fill: MUTED, anchor: "end" });
     } });
     return cards;
@@ -451,10 +471,10 @@
     const ly = D.last_year;
     cards.push({ id: "versus", name: _("Versus last year"), kind: "computed", interest: TREND.eligible(TR).ok ? { ok: false, reason: _("Year over year takes its place with five or more years of marks") } : ok(!!ly, _("no previous year on record")), bg: () => TINT.paper, body: () => {
       const tot = Object.values(ly).reduce((a, b) => a + b, 0), diff = n - tot, t = cardTop(_n("{n} title", "{n} titles", Math.abs(diff), { n: `${diff >= 0 ? "+" : ""}${diff}` }), _("{last}: {a}. {year}: {b}.", { last: Y - 1, a: tot, year: Y, b: n }), { eyebrow: _("Versus last year") });
-      const pitch = Math.min(66, (840 - t.y - 60) / S.cats.length);
+      const pitch = Math.min(96, (840 + DY - t.y - 60) / S.cats.length);
       let rows = "";
       S.cats.forEach((c, i) => { const a = ly[c] || 0, b = S.byCat[c].length, mx = Math.max(a, b, 1), y = t.y + 60 + i * pitch; rows += T(80, y + 32, CAT_LABEL[c], 34, { fill: INK }) + G("growx", 300 + i * 60, `<rect x="330" y="${y}" width="${a / mx * 500}" height="20" rx="10" fill="${LINE}"/>`) + G("growx", 400 + i * 60, `<rect x="330" y="${y + 24}" width="${b / mx * 500}" height="20" rx="10" fill="${CAT_COLOR[c]}"/>`) + T(1000, y + 34, `${a} → ${b}`, 34, { fill: b >= a ? INK : MUTED, weight: 700, anchor: "end", cls: "fade", d: 500 + i * 60 }); });
-      return t.svg + rows + legend([{ fill: LINE, label: String(Y - 1) }, { stripes: S.cats.slice(0, 4).map(c => CAT_COLOR[c]), label: _("{year}, in each shelf's colour", { year: Y }) }], 900);
+      return t.svg + rows + legend([{ fill: LINE, label: String(Y - 1) }, { stripes: S.cats.slice(0, 4).map(c => CAT_COLOR[c]), label: _("{year}, in each shelf's colour", { year: Y }) }], 900 + DY);
     } });
     // Finally: titles finished this year that were on the wishlist first, with the longest waits
     // (on the site the wishlist date comes from the shelf log, which has no visibility of its own)
@@ -464,18 +484,18 @@
     cards.push({ id: "finally", name: _("Finally"), kind: "computed", interest: ok(finOk, !wishData ? _("wishlist history is not in this data") : fromWish.length ? _("only {n} came off the wishlist, and none waited a year", { n: fromWish.length }) : _("nothing came off the wishlist this year")), bg: () => TINT.green, body: () => {
       const f0 = fromWish[0], rest = fromWish.slice(1, 4), k = fromWish.length;
       const t = cardTop(_n("{n} title", "{n} titles", k), _("came off your wishlist this year; the longest wait was {wait}", { wait: wait(f0.days) }), { eyebrow: _("Finally"), count: k });
-      const y = t.y + 50, listH = rest.length ? 64 + (rest.length - 1) * 44 : 0, w = featureW(y, Math.min(260, Math.floor((880 - y - listH) / 1.5))), ly = y + w * 1.5 + 64;
+      const y = t.y + 50, listH = rest.length ? 64 + (rest.length - 1) * 44 : 0, w = featureW(y, Math.min(320, Math.floor((880 + DY - y - listH) / 1.5))), ly = y + w * 1.5 + 64;
       return t.svg + feature(f0.it, y, [label(_("Waited longest")), titleRow(f0.it.title, 40), line(_("saved {date}", { date: fy(f0.it.wishlisted) })), line(_("finished {date}", { date: fy(f0.it.date) }))], 300, w)
         + rest.map((x, j) => T(80, ly + j * 44, wrapW(x.it.title, 34, 400, 660, 1)[0], 34, { cls: "fade", d: 600 + j * 60 }) + T(1000, ly + j * 44, wait(x.days), 34, { fill: MUTED, anchor: "end", cls: "fade", d: 600 + j * 60 })).join("");
     } });
     const w = D.waiting;
     cards.push({ id: "waiting", name: _("Unfinished business"), kind: "computed", interest: finOk ? { ok: false, reason: _("Finally takes its place; show both if you like") } : ok(!!w, _("wishlist history is not public here")), bg: () => TINT.coral, body: () => {
       const t = cardTop(_n("{n} day", "{n} days", w.days), _("on your wishlist, and counting"), { eyebrow: _("Unfinished business"), count: w.days });
-      return t.svg + feature(w, t.y + 56, [titleRow(w.title), { gap: 20 }, line(_("Maybe {year}.", { year: Y + 1 }), 34, INK)], 300, 360);
+      return t.svg + feature(w, t.y + 56, [titleRow(w.title), { gap: 20 }, line(_("Maybe {year}.", { year: Y + 1 }), 34, INK)], 300, 420);
     } });
     const byDay = {}; S.items.forEach(i => (byDay[i.date] = byDay[i.date] || []).push(i)); const day = Object.entries(byDay).filter(([d]) => !BULK.has(d)).sort((a, b) => b[1].length - a[1].length)[0];
     cards.push({ id: "marathonday", name: _("Marathon day"), kind: "computed", interest: ok(day && day[1].length >= 4, _("no day with four or more marks")), bg: () => TINT.green, body: () => {
-      const t = cardTop(fmtDate(day[0]), _("{n} titles marked in one day", { n: day[1].length }), { eyebrow: _("Marathon day") }), r = coverRow(day[1], t.y + 60, 4, 300);
+      const t = cardTop(fmtDate(day[0]), _("{n} titles marked in one day", { n: day[1].length }), { eyebrow: _("Marathon day") }), r = coverRow(day[1], t.y + 60 + Math.round(DY * 0.35), 4, 300);
       return t.svg + r.svg + (day[1].length > 4 ? T(80, r.bottom + 48, _("and {n} more", { n: day[1].length - 4 }), 34, { fill: MUTED, cls: "fade", d: 800 }) : "");
     } });
     // Your tags: the most used tags of the year, counted at the page's visibility, and the titles under the top tag
@@ -484,8 +504,8 @@
     const tagList = [...tagMap.entries()].map(([t, its]) => ({ t, its })).sort((a, b) => b.its.length - a.its.length || a.t.localeCompare(b.t));
     cards.push({ id: "tags", name: _("Your tags"), kind: "computed", interest: ok(tagged >= RULE.TAGGED, !tagData ? _("tags are not in this data") : tagged ? _n("only {n} title tagged, under {min}", "only {n} titles tagged, under {min}", tagged, { min: RULE.TAGGED }) : _("no tags on this year's titles")), bg: () => TINT.coral, body: () => {
       const rows = tagList.slice(0, 5), mx = rows[0].its.length;
-      const t = cardTop(_n("{n} tag", "{n} tags", tagList.length), _("on {n} titles; you used “{tag}” most", { n: tagged, tag: rows[0].t }), { eyebrow: _("Your tags"), count: tagList.length }), y0 = t.y + 60, pitch = Math.min(96, (880 - y0) / rows.length);
-      const grid = rows[0].its.slice(-9), g = 12, gh = Math.floor((900 - y0 - 14 - 2 * g) / 3), gw = Math.round(gh / 1.5), gx = 1000 - 3 * gw - 2 * g;
+      const t = cardTop(_n("{n} tag", "{n} tags", tagList.length), _("on {n} titles; you used “{tag}” most", { n: tagged, tag: rows[0].t }), { eyebrow: _("Your tags"), count: tagList.length }), y0 = t.y + 60, pitch = Math.min(120, (880 + DY - y0) / rows.length);
+      const grid = rows[0].its.slice(-9), g = 12, gh = Math.min(220, Math.floor((900 + DY - y0 - 14 - 2 * g) / 3)), gw = Math.round(gh / 1.5), gx = 1000 - 3 * gw - 2 * g;
       const cell = j => [gx + (j % 3) * (gw + g), y0 + 14 + Math.floor(j / 3) * (gh + g)];
       return t.svg + rows.map((r, k) => { const y = y0 + k * pitch, bw = 30 + r.its.length / mx * 270; return T(80, y + 36, wrapW(r.t, 36, 700, gx - 120, 1)[0], 36, { weight: 700, cls: "rise", d: 300 + k * 90 }) + G("growx", 350 + k * 90, `<rect x="80" y="${y + 54}" width="${bw}" height="18" rx="9" fill="${k ? MUTED : LOGO.coral}"${k ? ` opacity="0.35"` : ""}/>`) + T(80 + bw + 14, y + 71, r.its.length, 34, { fill: MUTED, weight: 700, cls: "fade", d: 450 + k * 90 }); }).join("")
         + T(gx, y0 - 6, wrapW(_("tagged “{tag}”", { tag: rows[0].t }), 34, 400, 1000 - gx, 1)[0], 34, { fill: MUTED })
@@ -497,14 +517,14 @@
     const rv = RV.slice().sort((a, b) => (b.it ? 1 : 0) - (a.it ? 1 : 0) || b.chars - a.chars)[0] || null;
     cards.push({ id: "essay", name: _("The essay"), kind: "computed", interest: ok(rv || (es && es.comment.length >= 140), es ? _("longest comment is {n} characters, under 140, and no review this year", { n: es.comment.length }) : _("no comments or reviews this year")), bg: () => TINT.paper, body: () => {
       const text = rv ? rv.excerpt : es.comment, cjk = CJK(text), t = cardTop(rv ? rv.title : _("In your own words"), "", { eyebrow: _("The essay") });
-      const qy = t.y + 70, lines = wrapText(text, cjk ? 22 : 44, Math.floor((730 - qy) / 54) + 1);
+      const qy = t.y + 70, lines = wrapText(text, cjk ? 22 : 44, Math.floor((730 + DY - qy) / 54) + 1);
       const it = rv ? rv.it : es, meta = rv ? (RV.length > 1 ? (cjk ? _("{n} characters, your longest review of {count}", { n: rv.chars, count: RV.length }) : _("{n} words, your longest review of {count}", { n: rv.words, count: RV.length })) : (cjk ? _("{n} characters, your longest review", { n: rv.chars }) : _("{n} words, your longest review", { n: rv.words }))) : _("{n} characters, your longest comment", { n: es.comment.length });
       return t.svg + lines.map((l, i) => T(80, qy + i * 54, (i === 0 ? "“" : "") + l + (i === lines.length - 1 ? "…”" : ""), 38, { weight: 500, cls: "rise", d: 150 + i * 80 })).join("")
-        + (() => { const cy = Math.min(760, qy + (lines.length - 1) * 54 + 64), tx = it ? 210 : 80; return (it ? coverSvg(it, 80, cy, 100, 150, "pop", 800, "bottom") : "") + T(tx, cy + 60, wrapW(it ? it.title : rv.title, 34, 700, 1000 - tx, 1)[0], 34, { weight: 700, cls: "rise", d: 850 }) + T(tx, cy + 104, meta, 34, { fill: MUTED, cls: "rise", d: 900 }); })();
+        + (() => { const cy = Math.min(760 + DY, qy + (lines.length - 1) * 54 + 64), tx = it ? 210 : 80; return (it ? coverSvg(it, 80, cy, 100, 150, "pop", 800, "bottom") : "") + T(tx, cy + 60, wrapW(it ? it.title : rv.title, 34, 700, 1000 - tx, 1)[0], 34, { weight: 700, cls: "rise", d: 850 }) + T(tx, cy + 104, meta, 34, { fill: MUTED, cls: "rise", d: 900 }); })();
     } });
     return cards;
   }
-  function outro() { return { id: "outro", name: _("Outro"), kind: "computed", interest: { ok: true }, footInk: true, bg: () => TINT.own2, body: () => `${piece("translate(35 1115) scale(0.9 -0.9)", TINT.piece2, PIECE.piece, 60, 60)}${T(80, 520, _("See you in"), 120, { weight: 800, ls: -3.6, cls: "rise", d: 100 })}${T(80, 660, Y + 1, 120, { fill: PRIMARY, weight: 800, ls: -3.6, cls: "rise", d: 250 })}${T(80, 750, D.member.url, 34, { fill: MUTED, cls: "fade", d: 400 })}` }; }
+  function outro() { return { id: "outro", name: _("Outro"), kind: "computed", interest: { ok: true }, footInk: true, bg: () => TINT.own2, body: () => `${piece(`translate(35 ${1115 + DY}) scale(0.9 -0.9)`, TINT.piece2, PIECE.piece, 60, 60)}${T(80, 520 + DY / 2, _("See you in"), 120, { weight: 800, ls: -3.6, cls: "rise", d: 100 })}${T(80, 660 + DY / 2, Y + 1, 120, { fill: PRIMARY, weight: 800, ls: -3.6, cls: "rise", d: 250 })}${T(80, 750 + DY / 2, D.member.url, 34, { fill: MUTED, cls: "fade", d: 400 })}` }; }
 
   // ---------- made cards: top N as a collection ----------
   // the deck starts from the member's default post visibility; the server keeps the member's choices
@@ -538,6 +558,52 @@
     if (src.type === "collection") { const c = COLS.find(x => x.uuid === src.uuid); return { title: c ? trunc(c.title, 52) : "", caption: c && c.rel === "liked" ? _("From @{owner}'s collection", { owner: c.owner }) : _("From my collection") }; }
     const cat = src.cat || "all"; return { title: cat === "all" ? _("My top {n} titles of {year}", { n, year: Y }) : _("My top {n} {shelf} of {year}", { n, shelf: CAT_NOUN[cat], year: Y }), caption: _("Highest marks") };
   }
+  // ---------- made cards: one title, your words (text first: the member's text is the headline) ----------
+  // m = { it: the title, words: { kind, text, title, progress, date, more }, caption: the member's small heading or "" }
+  const wordsKind = k => ({ comment: _("My comment"), note: _("My note"), review: _("My review") }[k]);
+  // the small heading, cut to one line of the given width
+  const eyebrowW = (t, maxW) => T(80, 150, wrapW(String(t).toUpperCase(), 30, 700, maxW, 1, 5)[0], 30, { fill: PRIMARY, weight: 700, ls: 5, cls: "fade", d: 0 });
+  // the member's text at the largest size at which all of it fits the box; at the last size it is cut and ends with an ellipsis
+  function fitWords(w, maxW, maxH, sizes) {
+    const text = String(w.text).replace(/\s+/g, " ").trim() + (w.more ? "…" : ""), cjk = CJK(text);
+    for (let k = 0; k < sizes.length; k++) {
+      const size = sizes[k], weight = size >= 60 ? 700 : 500, ls = size >= 60 ? -(size * 0.02).toFixed(1) : 0, pitch = Math.round(size * (cjk ? 1.5 : 1.34));
+      const room = Math.max(1, Math.floor((maxH - size) / pitch) + 1), all = wrapW(text, size, weight, maxW, 999, ls);
+      if (all.length <= room || k === sizes.length - 1) {
+        const lines = all.length <= room ? all : wrapW(text, size, weight, maxW, room, ls);
+        return { lines, size, weight, ls, pitch, cut: all.length > room, h: size + (lines.length - 1) * pitch };
+      }
+    }
+  }
+  // the text between quotation marks; the opening mark hangs in the margin so the lines keep one left edge
+  function drawWords(f, x, top, d) {
+    const y0 = top + Math.round(f.size * 0.8), n = f.lines.length;
+    return T(x - Math.round(f.size * 0.05), y0, "“", f.size, { fill: PRIMARY, weight: f.weight, anchor: "end", cls: "fade", d })
+      + f.lines.map((l, i) => T(x, y0 + i * f.pitch, l + (i === n - 1 ? "”" : ""), f.size, { weight: f.weight, ls: f.ls, cls: "rise", d: d + i * 60 })).join("");
+  }
+  // the title of a review or a note, above its text
+  function wordsHead(t, x, top, maxW, d) {
+    if (!t) return { svg: "", h: 0 };
+    const lines = wrapW(t, 44, 800, maxW, 2, -1.3);
+    return { svg: lines.map((l, i) => T(x, top + 36 + i * 52, l, 44, { weight: 800, ls: -1.3, cls: "rise", d: d + i * 60 })).join(""), h: lines.length * 52 + 24 };
+  }
+  // the member's stars (half stars too), then the progress of a note and the date of the text
+  function wordsMeta(m, x, y, d, size) {
+    const sr = m.it.rating ? starRow(x, y, m.it.rating, size + 4, d) : { svg: "", w: 0 }, when = [m.words.progress, fmtDate(m.words.date)].filter(Boolean).join(" · ");
+    return sr.svg + T(x + (sr.w ? sr.w + 14 : 0), y, when, size, { fill: MUTED, cls: "rise", d });
+  }
+  // text first: the text fills the card; a small cover, the title, the stars and the date are at the foot
+  function wordsBody(m) {
+    const it = m.it, w = m.words, top = 206;
+    const title = wrapW(it.title, 44, 700, 770, 2), by = title.length === 1 ? who(it) : "";
+    const hd = wordsHead(w.title, 80, top, 920, 150), f = fitWords(w, 920, 660 + DY - top - hd.h, [96, 80, 64, 52, 44, 38, 34]);
+    const yMeta = 890 + DY, yBy = yMeta - 50, yTitle = (by ? yBy : yMeta) - 54;
+    return eyebrowW(m.caption || wordsKind(w.kind), 920) + hd.svg + drawWords(f, 80, top + hd.h, 200)
+      + coverSvg(it, 80, 720 + DY, 120, 180, "pop", 600, "bottom")
+      + title.map((l, i) => T(230, yTitle - (title.length - 1 - i) * 54, l, 44, { weight: 700, cls: "rise", d: 650 })).join("")
+      + (by ? T(230, yBy, wrapW(by, 34, 400, 770, 1)[0], 34, { fill: MUTED, cls: "rise", d: 700 }) : "")
+      + wordsMeta(m, 230, yMeta, 750, 34);
+  }
   function topNBody(m, its) {
     // the title of a made card names a list: one line at 96 px at most, else 64 px, so the covers keep the room
     const dft = madeDefault(m), N = its.length, t = cardTop(m.title || dft.title, "", { eyebrow: m.caption || dft.caption || _("My pick"), max: 96 });
@@ -545,14 +611,14 @@
     const badge = (x, y, r, d) => G("pop", d, `<circle cx="${x}" cy="${y}" r="28" fill="${INK}"/>` + T(x, y + 11, r, 30, { fill: "#fff", weight: 800, anchor: "middle" }));
     const cell = (it, x, y, w, h, r, d, capW) => coverSvg(it, x, y, w, h, "pop", d, "bottom") + badge(x + 10, y + 10, r, d + 100) + wrapW(it.title, 34, 400, capW || Math.max(w, 120), 2).map((l, j) => T(x, y + h + 40 + j * 40, l, 34, { fill: MUTED, cls: "fade", d: d + 150 })).join("");
     // the covers fill the room between the title and the footer; 96 px under each row for a caption of two lines
-    const top0 = t.y + 56, H = 900 - top0, Wd = 920;
+    const top0 = t.y + 56, H = 900 + DY - top0, Wd = 920;
     if (N === 3) {
-      const h = H - 96, w = Math.min(320, h / 1.5), w2 = Math.round(w * 0.78), h2 = w2 * 1.5;
+      const h = H - 96, w = Math.min(350, h / 1.5), w2 = Math.round(w * 0.78), h2 = w2 * 1.5;
       [[0, 540 - w / 2, top0, w, w * 1.5], [1, 80, top0 + w * 1.5 - h2, w2, h2], [2, 1000 - w2, top0 + w * 1.5 - h2, w2, h2]].forEach(([i, x, y, cw, ch], k) => { if (its[i]) b += cell(its[i], x, y, cw, ch, i + 1, 300 + k * 150); });
       return b;
     }
     if (N === 5) {
-      const h1 = H - 96, w1 = Math.min(330, h1 / 1.5), rx = 80 + w1 + 40, cw = (1000 - rx - 24) / 2, ch = (H - 24 - 192) / 2, w = Math.min(cw, ch / 1.5);
+      const h1 = H - 96, w1 = Math.min(380, h1 / 1.5), rx = 80 + w1 + 40, cw = (1000 - rx - 24) / 2, ch = (H - 24 - 192) / 2, w = Math.min(cw, ch / 1.5);
       b += cell(its[0], 80, top0, w1, w1 * 1.5, 1, 300);
       its.slice(1).forEach((it, k) => { const col = k % 2, row = Math.floor(k / 2); b += cell(it, rx + col * (cw + 24), top0 + row * (ch + 24 + 96), w, w * 1.5, k + 2, 450 + k * 120, cw - 12); });
       return b;
@@ -569,7 +635,10 @@
     its.forEach((it, k) => { const x = 80 + (k % cols) * (cw + gap), y = top0 + Math.floor(k / cols) * (ch + gap); const w = Math.min(cw, cvh / 1.5); b += cell(it, x, y, w, w * 1.5, k + 1, 300 + k * 90, cw - 16); });
     return b;
   }
-  const madeCards = () => made.map((m, i) => { const its = resolveMade(m); return { id: "made-" + m.id, name: m.title || madeDefault(m).title, kind: "made", interest: its.length >= 3 ? { ok: true } : { ok: false, reason: _("fewer than three items can be shown, so the collection may have changed") }, bg: () => [TINT.paper, TINT.blue, TINT.green, TINT.coral][i % 4], body: () => topNBody(m, its), made: m }; });
+  const madeCards = () => made.map((m, i) => {
+    // one title, your words: the server sent the text only if this audience may see it
+    if ((m.source || {}).type === "words") { const w = (D.words || {})[String(m.id)]; return { id: "made-" + m.id, name: w ? w.item.title : _("One title, your words"), kind: "made", interest: w ? { ok: true } : { ok: false, reason: _("the text is gone, or this audience cannot see it") }, bg: () => [TINT.paper, TINT.blue, TINT.green, TINT.coral][i % 4], body: () => wordsBody({ it: w.item, words: w, caption: m.caption }), made: m }; }
+    const its = resolveMade(m); return { id: "made-" + m.id, name: m.title || madeDefault(m).title, kind: "made", interest: its.length >= 3 ? { ok: true } : { ok: false, reason: _("fewer than three items can be shown, so the collection may have changed") }, bg: () => [TINT.paper, TINT.blue, TINT.green, TINT.coral][i % 4], body: () => topNBody(m, its), made: m }; });
 
   // ---------- assemble ----------
   function allCards() {
@@ -727,10 +796,18 @@
   const go = (i, how) => arrive(i, how || (RM ? "instant" : "smooth"));
   function playBtn() { const b = $("play"), on = auto && !stage.classList.contains("paused"); b.innerHTML = `<i class="fa-solid ${on ? "fa-pause" : "fa-play"}"></i>`; b.setAttribute("aria-label", on ? _("Pause") : _("Play")); b.title = on ? _("Pause") : _("Play"); }
   // with reduced motion the cards never move on by themselves
-  function setAuto(on) { auto = !!on && !RM; stage.classList.toggle("auto", auto); stage.classList.remove("paused"); playBtn(); segs(); }
+  function setAuto(on) { auto = !!on && !RM; stage.classList.toggle("auto", auto); stage.classList.remove("paused"); playBtn(); segs(); immerse(auto); if (auto) soundWithShow(); }
+  // while the show plays, the controls fade and only the card and the progress bar stay; a move, a tap or a key brings them back for a while
+  let wakeT = null;
+  function immerse(on) {
+    stage.classList.toggle("immersive", on); clearTimeout(wakeT); stage.classList.remove("awake");
+    if (on && stage.getBoundingClientRect().top < -2) stage.scrollIntoView({ block: "start", behavior: RM ? "auto" : "smooth" });
+  }
+  const wake = () => { if (!stage.classList.contains("immersive")) return; stage.classList.add("awake"); clearTimeout(wakeT); wakeT = setTimeout(() => stage.classList.remove("awake"), 2500); };
+  ["pointermove", "pointerdown", "keydown"].forEach(t => stage.addEventListener(t, wake, { passive: true }));
   // the first tap, swipe or key starts the show
   function start() { if (started) return; started = true; setAuto(true); }
-  function togglePlay() { started = true; if (!auto) { if (cur >= list().length - 1) go(0, "instant"); setAuto(true); return; } stage.classList.toggle("paused"); playBtn(); }
+  function togglePlay() { started = true; if (!auto) { if (cur >= list().length - 1) go(0, "instant"); setAuto(true); return; } stage.classList.toggle("paused"); playBtn(); immerse(!stage.classList.contains("paused")); }
   $("dots").addEventListener("animationend", e => { if (e.animationName !== "wr-seg" || !auto || !e.target.closest(".cur")) return; go(cur + 1); });
   $("play").onclick = togglePlay; $("play").hidden = RM;
   $("prev").onclick = () => { start(); go(cur - 1); };
@@ -847,7 +924,7 @@
         document.querySelectorAll(`[data-id="${id}"] rect.bg`).forEach(r => r.setAttribute("fill", fill));
         document.querySelectorAll(`[data-id="${id}"] path.piece`).forEach(r => r.setAttribute("fill", pfill));
         const el = document.querySelector(`.deck [data-id="${id}"]`); if (el) el.dataset.bg = fill;
-        const c = state.shown.find(x => x.id === id); if (c) { c.bgc = fill; c.svg = c.svg.replace(/<rect class="bg" width="1080" height="1080" fill="[^"]*"/, `<rect class="bg" width="1080" height="1080" fill="${fill}"`).replace(/(<path class="piece" transform="[^"]*" fill=")[^"]*"/, `$1${pfill}"`); }
+        const c = state.shown.find(x => x.id === id); if (c) { c.bgc = fill; c.svg = c.svg.replace(/<rect class="bg" width="1080" height="\d+" fill="[^"]*"/, `<rect class="bg" width="${CW}" height="${CH}" fill="${fill}"`).replace(/(<path class="piece" transform="[^"]*" fill=")[^"]*"/, `$1${pfill}"`); }
       });
       paint();
     } catch (e) { /* a tainted canvas just keeps the default tint */ }
@@ -859,8 +936,8 @@
   let mk = null;
   const el = $;
   function openMake() {
-    mk = { n: 5, src: "auto:all", picked: [], lookupTimer: null };
-    ["mk-title", "mk-cap", "mk-q"].forEach(id => el(id).value = ""); el("mk-res").innerHTML = "";
+    mk = { n: 5, src: "auto:all", picked: [], lookupTimer: null, mode: "list", work: null, text: null };
+    ["mk-title", "mk-cap", "mk-q", "mk-wq"].forEach(id => el(id).value = ""); el("mk-res").innerHTML = ""; el("mk-texts").innerHTML = "";
     const seg = el("mk-n"); seg.innerHTML = [3, 4, 5, 6, 7, 8, 9, 10].map(k => `<button type="button" class="${k === 5 ? "on" : ""}" data-n="${k}">${k}</button>`).join("");
     seg.querySelectorAll("button").forEach(b => b.onclick = () => { mk.n = +b.dataset.n; seg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); mkPreview(); });
     const own = COLS.filter(c => c.rel === "own"), liked = COLS.filter(c => c.rel === "liked");
@@ -870,7 +947,7 @@
       + `<optgroup label="${_("Collections you liked")}">${liked.length ? liked.map(opt).join("") : `<option disabled>${_("No liked collections yet")}</option>`}</optgroup>`
       + `<optgroup label="${_("Your own list")}"><option value="hand">${_("Pick titles or paste links")}</option></optgroup>`;
     el("mk-src").value = "auto:all"; el("mk-src").onchange = () => setSource(el("mk-src").value);
-    setSource("auto:all"); mkdlg.showModal();
+    setSource("auto:all"); setMode("list"); mkdlg.showModal();
   }
   function setSource(v) {
     mk.src = v; el("mk-src").value = v;
@@ -889,7 +966,41 @@
     const source = mk.src === "hand" ? { type: "hand", items: mk.picked } : mk.src.startsWith("col:") ? { type: "collection", uuid: mk.src.slice(4) } : { type: "auto", cat: mk.src.split(":")[1] };
     return madeDefault({ source, n: mk.n });
   }
+  // ---------- the picker of a "your words" card: a title you wrote about, then one of your texts on it ----------
+  let wordsMenu = null;
+  const VIS_LABEL = v => [_("Public"), _("Followers only"), _("Only me")][v] || "";
+  const kindsOf = w => { const c = { comment: 0, note: 0, review: 0 }; w.texts.forEach(t => { c[t.kind]++; }); return [c.comment ? _("comment") : "", c.note ? _n("{n} note", "{n} notes", c.note) : "", c.review ? _("review") : ""].filter(Boolean).join(" · "); };
+  function setMode(m) {
+    mk.mode = m;
+    el("mk-mode").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.mode === m));
+    el("mk-list").hidden = m !== "list"; el("mk-words").hidden = m !== "words";
+    if (m === "words") { el("mk-colnote").hidden = true; showWorks(); } else setSource(mk.src);
+    audLine(); mkPreview();
+  }
+  async function showWorks() {
+    const box = el("mk-works");
+    if (!wordsMenu) {
+      box.setAttribute("aria-busy", "true");
+      try { const r = await fetch(URLS.words, { headers: { Accept: "application/json" } }); if (!r.ok) throw new Error(r.status); wordsMenu = (await r.json()).works || []; }
+      catch (e) { box.removeAttribute("aria-busy"); box.innerHTML = `<div class="rmsg">${_("The lookup failed. Try again.")}</div>`; return; }
+      box.removeAttribute("aria-busy");
+    }
+    const q = el("mk-wq").value.trim().toLowerCase(), list = wordsMenu.filter(w => !q || w.title.toLowerCase().includes(q)).slice(0, 60);
+    box.innerHTML = list.length ? list.map(w => `<button type="button" data-w="${wordsMenu.indexOf(w)}"${mk.work === w ? ' class="on"' : ""}>${cover(w)}<span>${esc(w.title)}</span><small>${esc(kindsOf(w))}</small></button>`).join("")
+      : `<div class="rmsg">${wordsMenu.length ? _("Nothing found") : _("You wrote no comment, note or review in {year}.", { year: Y })}</div>`;
+    box.querySelectorAll("[data-w]").forEach(b => b.onclick = () => { mk.work = wordsMenu[+b.dataset.w]; mk.text = mk.work.texts[0]; showWorks(); showTexts(); mkPreview(); });
+    showTexts();
+  }
+  function showTexts() {
+    const box = el("mk-texts"), w = mk.work;
+    box.innerHTML = !w ? "" : w.texts.map((t, k) => `<label${mk.text === t ? ' class="on"' : ""}><input type="radio" name="wr-mk-text" value="${k}"${mk.text === t ? " checked" : ""}><span class="h"><b>${esc(wordsKind(t.kind))}</b> · ${esc(VIS_LABEL(t.vis))}${t.sensitive ? " · " + esc(_("marked sensitive")) : ""} · ${esc([t.progress, fmtDate(t.date)].filter(Boolean).join(" · "))} · ${esc(_n("{n} character", "{n} characters", t.chars))}</span>${t.title ? `<strong>${esc(t.title)}</strong>` : ""}<span class="x">${esc(t.text)}</span></label>`).join("");
+    box.querySelectorAll("input").forEach(r => r.onchange = () => { mk.text = w.texts[+r.value]; showTexts(); mkPreview(); });
+    audLine();
+  }
+  // which audiences get the card: the text's own visibility decides
+  function audLine() { const t = mk.text, p = el("mk-aud"); p.hidden = !(mk.mode === "words" && t); if (t) p.textContent = [_("This text is public. Every audience gets this card."), _("This text is for followers only. Your followers and you get this card; the public page leaves it out."), _("This text is only for you. Only you get this card.")][t.vis] || ""; }
   function mkPreview() {
+    if (mk.mode === "words") { cid = 10000; const t = mk.text, w = mk.work; el("mk-cap").placeholder = t ? wordsKind(t.kind) : ""; el("mk-preview").innerHTML = t ? card(TINT.paper, wordsBody({ it: w, words: t, caption: el("mk-cap").value.trim() })) : ""; return; }
     cid = 10000; const dft = mkDefaults();
     el("mk-title").placeholder = dft.title; el("mk-cap").placeholder = dft.caption;
     el("mk-nhint").textContent = _("{n} picked. A card takes 3 to 10; drag to reorder.", { n: mk.picked.length });
@@ -935,7 +1046,17 @@
   };
   el("mk-q").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); if (mk.first) addPicked(mk.first); } };
   el("mk-title").oninput = mkPreview; el("mk-cap").oninput = mkPreview;
+  el("mk-mode").querySelectorAll("button").forEach(b => b.onclick = () => setMode(b.dataset.mode));
+  el("mk-wq").oninput = () => showWorks();
   el("mk-save").onclick = () => {
+    if (mk.mode === "words") {
+      const t = mk.text, w = mk.work; if (!t) { toast(_("Pick a text")); return; }
+      const id = Date.now();
+      made.push({ id, title: "", caption: el("mk-cap").value.trim(), n: 3, source: { type: "words", url: w.url, kind: t.kind, ref: t.ref } });
+      // drawn at once where this audience may see the text (stars only on the owner's own view until the page reloads); the server resolves it from then on
+      if (t.vis <= LEVEL) (D.words = D.words || {})[String(id)] = { kind: t.kind, text: t.text, more: t.more, title: t.title, progress: t.progress, date: t.date, item: { url: w.url, title: w.title, cover: w.cover, category: w.category, rating: LEVEL === 2 ? w.rating : null, credits: w.credits } };
+      mkdlg.close(); render(); saveDeck(); toast(_("Card added to the deck")); return;
+    }
     const its = mkItems(); if (its.length < 3) { toast(_("A card needs at least three titles")); return; }
     const n = mk.src === "hand" ? its.length : mk.n;
     const source = mk.src === "hand" ? { type: "hand", items: its.map(({ url, title, cover, category, note }) => ({ url, title, cover, category, note })) } : mk.src.startsWith("col:") ? { type: "collection", uuid: mk.src.slice(4) } : { type: "auto", cat: mk.src.split(":")[1] };
@@ -945,11 +1066,11 @@
 
 
   // ---------- publish ----------
-  function openPublish(preselect) { const tabs = $("pub-tabs"); const show = t => { tabs.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.t === t)); ["post", "page", "dl"].forEach(k => $("pub-" + k).hidden = k !== t); }; tabs.querySelectorAll("button").forEach(b => b.onclick = () => show(b.dataset.t)); show("post"); const grid = $("pub-grid"); grid.innerHTML = state.exportable.map(c => `<label><input type="checkbox" value="${c.id}" ${c.id === preselect ? "checked" : ""}>${c.svg}</label>`).join(""); const limit = () => { const on = [...grid.querySelectorAll("input:checked")].length; grid.querySelectorAll("label").forEach(l => l.classList.toggle("full", on >= 4 && !l.querySelector("input").checked)); grid.querySelectorAll("input").forEach(i => i.disabled = on >= 4 && !i.checked); }; grid.querySelectorAll("input").forEach(i => i.onchange = limit); limit(); $("pub-note").value = `${D.page_url}\n#NeoDB #Wrapped${Y}`; $("pub-link").value = D.page_url; $("gif-out").innerHTML = ""; audList(); postMode("images");
+  function openPublish(preselect) { const tabs = $("pub-tabs"); const show = t => { tabs.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.t === t)); ["post", "page", "dl", "qr"].forEach(k => $("pub-" + k).hidden = k !== t); if (t === "qr") qrTab(); }; tabs.querySelectorAll("button").forEach(b => b.onclick = () => show(b.dataset.t)); show("post"); const grid = $("pub-grid"); grid.innerHTML = state.exportable.map(c => `<label><input type="checkbox" value="${c.id}" ${c.id === preselect ? "checked" : ""}>${c.svg}</label>`).join(""); const limit = () => { const on = [...grid.querySelectorAll("input:checked")].length; grid.querySelectorAll("label").forEach(l => l.classList.toggle("full", on >= 4 && !l.querySelector("input").checked)); grid.querySelectorAll("input").forEach(i => i.disabled = on >= 4 && !i.checked); }; grid.querySelectorAll("input").forEach(i => i.onchange = limit); limit(); $("pub-note").value = `${D.page_url}\n#NeoDB #Wrapped${Y}`; $("pub-link").value = D.page_url; $("gif-out").innerHTML = ""; audList(); postMode("images");
     // a post never reaches a wider audience than the cards it carries (the server checks this too)
     document.querySelectorAll('#wr-pub-post input[name="wr-vis"]').forEach(r => { r.disabled = +r.value < LEVEL; r.checked = +r.value === LEVEL; }); pubdlg.showModal(); mp4Gate(); }
   // images: up to four picked cards; video: every card, made here like the MP4 download
-  function postMode(m) { document.querySelectorAll('input[name="wr-mode"]').forEach(r => { r.checked = r.value === m; }); $("pub-grid").hidden = m !== "images"; $("pub-imgnote").hidden = m !== "images"; $("pub-vidnote").hidden = m !== "video"; }
+  function postMode(m) { $("pub-musicrow").hidden = m !== "video" || !music; document.querySelectorAll('input[name="wr-mode"]').forEach(r => { r.checked = r.value === m; }); $("pub-grid").hidden = m !== "images"; $("pub-imgnote").hidden = m !== "images"; $("pub-vidnote").hidden = m !== "video"; }
   if (OWNER) document.querySelectorAll('input[name="wr-mode"]').forEach(r => { r.onchange = () => postMode(r.value); });
   if (OWNER) $("pub-edit").onclick = () => { pubdlg.close(); $("editdlg").showModal(); };
   // what each audience sees at the one link; the audience on screen counts live, another one as the owner last saw it
@@ -965,7 +1086,7 @@
       const fd = new FormData();
       if (video) {
         prog.hidden = false; prog.value = 0;
-        const { r } = await buildFile("mp4", v => { prog.value = v; });
+        const { r } = await buildFile("mp4", v => { prog.value = v; }, $("pub-music").checked);
         // the intro card is the video's still on the timeline
         const cv = await toCanvas(state.exportable[0], 1080), still = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("no PNG")), "image/png"));
         fd.append("kind", "video"); fd.append("video", r.blob, `${Y}-wrapped.mp4`); fd.append("poster", still, `${Y}-intro.png`);
@@ -984,7 +1105,8 @@
   if (OWNER) $("pub-copy").onclick = () => { navigator.clipboard && navigator.clipboard.writeText($("pub-link").value); toast(_("Link copied")); };
   // ---------- background music: the owner picks a track in Edit; a viewer hears it only after turning the sound on ----------
   // The file comes straight from Wikimedia Commons; if it fails to load, the toggle turns off and the page stays silent.
-  let music = D.music || null, audio = null;
+  // soundOff: the viewer turned the sound off in this view, so the show no longer starts it (not saved)
+  let music = D.music || null, audio = null, soundOff = false;
   const credit = t => `${esc(t.title)} · ${esc(t.composer)} · ${esc(t.performer)} · ${esc(t.licence)} · <a href="${esc(t.page)}" target="_blank" rel="noopener">Wikimedia Commons</a>`;
   function soundShow(on) {
     const b = $("sound"), np = $("nowplaying");
@@ -998,9 +1120,12 @@
     if (!on || !music) { if (audio) audio.pause(); soundShow(false); return; }
     // the chosen track repeats for as long as the sound is on
     if (!audio || audio.dataset.id !== music.id) { if (audio) audio.pause(); audio = new Audio(music.mp3); audio.dataset.id = music.id; audio.loop = true; audio.onerror = soundFailed; }
-    audio.play().then(() => soundShow(true), soundFailed);
+    // a browser that refuses sound without a tap (a swipe is not one) leaves the toggle off, with no message
+    audio.play().then(() => soundShow(true), e => { if (e && e.name === "NotAllowedError") soundShow(false); else soundFailed(); });
   }
-  $("sound").onclick = () => sound($("sound").getAttribute("aria-pressed") !== "true");
+  // the show starts the music, unless the viewer turned it off in this view
+  function soundWithShow() { if (music && !soundOff && !(audio && !audio.paused)) sound(true); }
+  $("sound").onclick = () => { const on = $("sound").getAttribute("aria-pressed") !== "true"; if (!on) soundOff = true; sound(on); };
   soundShow(false);
   if (OWNER) {
     // the menu in the Edit sheet: no music first, then the tracks; the play button tries the chosen one
@@ -1023,6 +1148,109 @@
     creditShow();
   }
 
+  // ---------- the QR code tab: one 4:5 image with the year in numbers and a code that opens the page ----------
+  // Drawn as SVG like the cards. The code style and its limits come from scan tests with three decoders: at most 33 modules,
+  // level Q with a picture in the middle (else M, else L), round corners only where both neighbours are light, plain rounded eyes.
+  const qrRR = (x, y, s, r) => `M${x + r} ${y}h${s - 2 * r}a${r} ${r} 0 0 1 ${r} ${r}v${s - 2 * r}a${r} ${r} 0 0 1 ${-r} ${r}h${2 * r - s}a${r} ${r} 0 0 1 ${-r} ${-r}v${2 * r - s}a${r} ${r} 0 0 1 ${r} ${-r}z`;
+  function qrSvg(text, x, y, size, avatar) {
+    const make = lv => { const c = window.qrcode(0, lv); c.addData(text); c.make(); return c; };
+    let center = avatar || null, q;
+    if (center) { q = make("Q"); if (q.getModuleCount() > 33) q = make("M"); if (q.getModuleCount() > 33) center = null; }
+    if (!center) { q = make("M"); if (q.getModuleCount() > 33) q = make("L"); }
+    const n = q.getModuleCount(), QZ = 4, k = size / (n + 2 * QZ), mid = n / 2, hr = center ? n * 0.15 : 0;
+    const inHole = (r, c) => hr > 0 && Math.hypot(r + 0.5 - mid, c + 0.5 - mid) < hr + 0.35;
+    const inEye = (r, c) => (r < 7 && c < 7) || (r < 7 && c >= n - 7) || (r >= n - 7 && c < 7);
+    const dark = (r, c) => r >= 0 && c >= 0 && r < n && c < n && q.isDark(r, c) && !inHole(r, c);
+    let d = "", eyes = "";
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) {
+      if (!dark(r, c) || inEye(r, c)) continue;
+      // a corner is round when the two modules beside it are light
+      const up = dark(r - 1, c), dn = dark(r + 1, c), lf = dark(r, c - 1), rt = dark(r, c + 1), tl = !up && !lf, tr = !up && !rt, br = !dn && !rt, bl = !dn && !lf;
+      d += `M${c + (tl ? 0.5 : 0)} ${r}H${c + 1 - (tr ? 0.5 : 0)}${tr ? "a.5 .5 0 0 1 .5 .5" : ""}V${r + 1 - (br ? 0.5 : 0)}${br ? "a.5 .5 0 0 1 -.5 .5" : ""}H${c + (bl ? 0.5 : 0)}${bl ? "a.5 .5 0 0 1 -.5 -.5" : ""}V${r + (tl ? 0.5 : 0)}${tl ? "a.5 .5 0 0 1 .5 -.5" : ""}z`;
+    }
+    [[0, 0], [0, n - 7], [n - 7, 0]].forEach(([r, c]) => { eyes += qrRR(c, r, 7, 0.66) + qrRR(c + 1, r + 1, 5, 0.42) + qrRR(c + 2, r + 2, 3, 0.27); });
+    const at = `transform="translate(${x + QZ * k} ${y + QZ * k}) scale(${k})" fill="${INK}"`;
+    let out = `<rect x="${x}" y="${y}" width="${size}" height="${size}" rx="28" fill="#fff" stroke="${LINE}" stroke-width="2"/><path ${at} d="${d}"/><path ${at} fill-rule="evenodd" d="${eyes}"/>`;
+    if (center) {
+      const cx = x + size / 2, cy = y + size / 2, r = (hr - 0.7) * k, id = "qa" + (iconN++);
+      out += `<clipPath id="${id}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath><image href="${esc(center)}" x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#000" stroke-opacity="0.12" stroke-width="1.5"/>`;
+    }
+    return out;
+  }
+  // a line no wider than maxW: 2 px smaller at a time down to min, then cut with an ellipsis
+  const qrFit = (t, size, weight, maxW, min) => { let z = size; while (z > min && EST(t, z, weight) > maxW) z -= 2; let x = String(t); while (x.length > 2 && EST(x, z, weight) > maxW) x = x.slice(0, -2) + "…"; return { t: x, size: z }; };
+  function qrHeadline(t, maxW) {
+    const W = (x, z) => EST(x, z, 800) - z * 0.03 * x.length;
+    for (let z = 72; z >= 56; z -= 4) if (W(t, z) <= maxW) return { lines: [t], size: z };
+    const lines = wrapW(t, 56, 800, maxW, 2, -1.7);
+    let z = 56; while (z > 44 && lines.some(l => W(l, z) > maxW)) z -= 4;
+    return { lines: lines.map(l => { while (l.length > 2 && W(l, z) > maxW) l = l.slice(0, -2) + "…"; return l; }), size: z };
+  }
+  function qrCard() {
+    const W = CW, H = CH, SPLIT = 780, clip = "qc" + (iconN++);
+    // the wall: the top titles, then the other rated ones by rating; no default covers, since the image is shared
+    const real = it => it.cover && !/default-cover/.test(it.cover);
+    const covers = [...new Set([...S.top, ...S.rated.slice().sort((a, b) => b.rating - a.rating)])].filter(real), nc = covers.length;
+    const bigC = nc < 21, cols = bigC ? 5 : 7, rows = bigC ? 2 : 3, w = bigC ? 300 : 196, h = w * 1.5, g = bigC ? 28 : 22, shift = (w + g) / 2;
+    let b = `<rect width="${W}" height="${H}" fill="${TINT.paper}"/><clipPath id="${clip}"><rect width="${W}" height="${SPLIT}"/></clipPath><g clip-path="url(#${clip})"><rect width="${W}" height="${SPLIT}" fill="${TINT.own2}"/><g transform="rotate(-8 540 ${SPLIT / 2})">`;
+    if (nc) for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) b += coverSvg(covers[(r * cols + c) % nc], -260 + c * (w + g) + (r % 2) * shift, -70 + r * (h + g), w, h, "", 0, "fill");
+    b += `</g></g>`;
+    const colW = 490, hl = qrHeadline(_("{name}’s year", { name: D.member.name }), colW);
+    b += T(80, 872, `${_("Annual summary")} ${Y}`.toUpperCase(), 30, { fill: PRIMARY, weight: 700, ls: 5 });
+    let y = hl.lines.length > 1 ? 948 : 958;
+    hl.lines.forEach((l, i) => { if (i) y += Math.round(hl.size * 1.14); b += T(78, y, l, hl.size, { weight: 800, ls: -(hl.size * 0.03).toFixed(1) }); });
+    const five = S.fiveStar.length, nums = [_n("{n} title", "{n} titles", n), five >= 3 ? _n("{n} five-star", "{n} five-star", five) : _n("{n} shelf", "{n} shelves", S.cats.length)];
+    const st = qrFit(nums.join(" · "), 34, 400, colW, 28); b += T(80, y + 58, st.t, st.size, { fill: MUTED });
+    b += iconMark(80, 1244, 40, 1);
+    const P = 390, px = 1000 - P, py = 842;
+    b += qrSvg(D.page_url, px, py, P, AVATAR || null);
+    const hd = qrFit(D.member.handle, 30, 600, 640, 24), wide = EST(hd.t, hd.size, 600) > P;
+    b += T(wide ? 1000 : px + P / 2, py + P + 46, hd.t, hd.size, { weight: 600, anchor: wide ? "end" : "middle" });
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" font-family="${SVG.font}">${b}</svg>`;
+  }
+  // the code opens the page for the widest audience that sees something; the image shows that audience's numbers
+  let qrBlob = null, qrLib = null;
+  const qrName = () => `${Y}-${String(D.member.handle).replace(/^@/, "").split("@")[0]}-qr.png`;
+  const loadQr = () => qrLib = qrLib || new Promise((res, rej) => { if (window.qrcode) return res(); const s = document.createElement("script"); s.src = `${CDN}/npm/qrcode-generator@1.4.4/qrcode.js`; s.onload = res; s.onerror = () => rej(new Error("no QR library")); document.head.appendChild(s); });
+  async function qrTab() {
+    const auds = D.audiences || [], open = [0, 1].find(lv => { const a = auds.find(x => x.level === lv); return a && !(lv === LEVEL ? !state.shown.length : a.off); });
+    const warn = $("qr-warn"), btns = ["qr-share", "qr-copy", "qr-dl"].map($), prev = $("qr-prev");
+    $("qr-link").innerHTML = _("The code opens {link}.", { link: `<b>${esc(D.page_url)}</b>` });
+    btns.forEach(b => { b.disabled = true; });
+    // one warning at most, the strongest reason first
+    const editBtn = `<button type="button" class="dc-btn outline" data-qr-edit>${_("Change in Edit")}</button>`;
+    let locked = false;
+    if (open == null) { locked = true; warn.innerHTML = `${esc(_("Only you can see the page now, so the code opens nothing for other people."))} ${editBtn}`; }
+    else if (open === 1) warn.innerHTML = `${esc(_("Only your followers can open this page, after they sign in."))} ${editBtn}`;
+    else if (D.anon_ok === false) warn.innerHTML = `${esc(_("People who are not signed in cannot open this page, because your profile is hidden from them."))} <a href="${esc(URLS.preferences)}">${esc(_("Change it in Settings"))}</a>`;
+    else warn.innerHTML = "";
+    warn.hidden = !warn.innerHTML;
+    const ed = warn.querySelector("[data-qr-edit]"); if (ed) ed.onclick = () => { pubdlg.close(); $("editdlg").showModal(); };
+    prev.classList.toggle("locked", locked);
+    // the image needs the cards of the audience the code opens; another view offers to switch to it
+    if (!locked && open !== LEVEL) {
+      prev.innerHTML = `<button type="button" class="dc-btn primary" data-qr-switch>${esc(_("Show the cards the code opens"))}</button>`;
+      prev.querySelector("[data-qr-switch]").onclick = () => { try { sessionStorage.setItem(REOPEN, "wr-pubdlg:qr"); } catch (e) { /* the page then opens on the stage */ } const u = new URL(location.href); u.searchParams.set("as", open); location.href = u.toString(); };
+      return;
+    }
+    try { await loadQr(); } catch (e) { toast(_("Export failed: {error}", { error: e.message })); return; }
+    const svg = qrCard(); prev.innerHTML = svg + (locked ? '<i class="fa-solid fa-lock"></i>' : "");
+    if (locked) return;
+    // the PNG is made now and kept, so Copy and Share run inside the click (Safari drops the gesture across a wait)
+    try { const cv = await toCanvas({ svg }, CW); qrBlob = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("no PNG")), "image/png")); }
+    catch (e) { toast(_("Export failed: {error}", { error: e.message })); return; }
+    const file = new File([qrBlob], qrName(), { type: "image/png" });
+    const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] })), canCopy = !!(navigator.clipboard && window.ClipboardItem);
+    $("qr-share").hidden = !canShare; $("qr-copy").hidden = !canCopy;
+    const first = canShare ? "qr-share" : canCopy ? "qr-copy" : "qr-dl";
+    btns.forEach(b => { b.disabled = false; b.classList.toggle("primary", b.id === "wr-" + first); b.classList.toggle("outline", b.id !== "wr-" + first); });
+  }
+  if (OWNER) {
+    $("qr-share").onclick = () => { if (!qrBlob) return; navigator.share({ files: [new File([qrBlob], qrName(), { type: "image/png" })] }).catch(e => { if (e && e.name !== "AbortError") toast(_("Could not share: {error}", { error: e.message })); }); };
+    $("qr-copy").onclick = () => { if (!qrBlob) return; navigator.clipboard.write([new ClipboardItem({ "image/png": qrBlob })]).then(() => toast(_("Image copied")), e => toast(_("Could not copy: {error}", { error: e.message }))); };
+    $("qr-dl").onclick = () => { if (qrBlob) setTimeout(URL.revokeObjectURL, 60000, saveBlob(qrBlob, qrName())); };
+  }
+
   // a modal dialog is on top of everything, so a toast goes into the topmost open one
   function toast(t) { const el = document.createElement("div"); el.className = "wr-toast"; el.setAttribute("role", "status"); el.textContent = t; ([...document.querySelectorAll("dialog[open]")].pop() || document.body).appendChild(el); setTimeout(() => el.remove(), 2200); }
 
@@ -1037,7 +1265,8 @@
     return u && D.cover_url ? D.cover_url.replace("UUID", u) : h;
   }
   async function inlineImages(svg) { const hrefs = [...new Set([...svg.matchAll(/<image href="([^"]+)"/g)].map(m => m[1]))]; for (const h of hrefs) { if (!dataCache.has(h)) { try { const r = await fetch(exportHref(h.replace(/&amp;/g, "&"))); const b = await r.blob(); dataCache.set(h, await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); })); } catch (e) { dataCache.set(h, ""); } } svg = svg.split(`<image href="${h}"`).join(`<image href="${dataCache.get(h)}"`); } return svg; }
-  async function toCanvas(c, size) { const svg = await inlineImages(c.svg.replace("<svg ", `<svg width="${size}" height="${size}" `)); const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); const im = new Image(); await new Promise((res, rej) => { im.onload = res; im.onerror = rej; im.src = url; }); const cv = document.createElement("canvas"); cv.width = cv.height = size; cv.getContext("2d").drawImage(im, 0, 0, size, size); URL.revokeObjectURL(url); return cv; }
+  // a card as a canvas `size` wide, in the card's 4:5 shape
+  async function toCanvas(c, size) { const hgt = Math.round(size * CH / CW), svg = await inlineImages(c.svg.replace("<svg ", `<svg width="${size}" height="${hgt}" `)); const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); const im = new Image(); await new Promise((res, rej) => { im.onload = res; im.onerror = rej; im.src = url; }); const cv = document.createElement("canvas"); cv.width = size; cv.height = hgt; cv.getContext("2d").drawImage(im, 0, 0, size, hgt); URL.revokeObjectURL(url); return cv; }
   // one card as a PNG; toBlob encodes off the main thread
   let lastUrl = null;
   const saveBlob = (blob, name) => { const url = URL.createObjectURL(blob), a = document.createElement("a"); a.download = name; a.href = url; a.click(); return url; };
@@ -1058,12 +1287,23 @@
     const off = () => { w.removeEventListener("message", on); w.removeEventListener("error", fail); };
     const on = e => { const d = e.data; if (d.type === "progress") { if (onProgress) onProgress(d.done, d.total); return; } off(); if (d.type === "error") rej(new Error(d.message)); else res(d); };
     const fail = e => { off(); exporter = null; rej(new Error(e.message || "the export worker stopped")); };
-    w.addEventListener("message", on); w.addEventListener("error", fail); w.postMessage(msg);
+    w.addEventListener("message", on); w.addEventListener("error", fail);
+    w.postMessage(msg, msg.audio ? [msg.audio.left.buffer, ...(msg.audio.right.buffer !== msg.audio.left.buffer ? [msg.audio.right.buffer] : [])] : []);
   });
   // the MP4 button is there only when this browser can encode H.264
-  function mp4Gate() { if (!OWNER) return; probe = probe || ask({ type: "probe" }).catch(() => ({ mp4: false })); probe.then(r => { $("dl-mp4").disabled = !r.mp4; $("mp4-note").hidden = !!r.mp4; }); }
+  function mp4Gate() { if (!OWNER) return; $("dl-musicrow").hidden = !music; probe = probe || ask({ type: "probe" }).catch(() => ({ mp4: false })); probe.then(r => { $("dl-mp4").disabled = !r.mp4; $("mp4-note").hidden = !!r.mp4; }); }
   // draw every card the worker does not have yet, then ask it for the file; progress runs from 0 to 1
-  async function buildFile(kind, onProgress) {
+  // the chosen track for an MP4: fetched from Wikimedia and decoded here at 48 kHz (only the page has Web Audio), then handed to
+  // the worker without a copy; null when it fails, so the video is made without sound
+  async function trackPcm(t) {
+    try {
+      const r = await fetch(t.mp3); if (!r.ok) throw new Error(r.status);
+      const buf = await new OfflineAudioContext(2, 1, 48000).decodeAudioData(await r.arrayBuffer());
+      const left = buf.getChannelData(0), right = buf.numberOfChannels > 1 ? buf.getChannelData(1) : left;
+      return { rate: 48000, left: new Float32Array(left), right: new Float32Array(right) };
+    } catch (e) { return null; }
+  }
+  async function buildFile(kind, onProgress, withMusic) {
     const cards = state.exportable, total = cards.length * 2;
     if (!cards.length) throw new Error(_("This audience sees no cards. Show some in Edit."));
     worker();
@@ -1079,7 +1319,10 @@
       onProgress((i + 1) / total);
     }
     const items = cards.map((c, i) => ({ key: keyOf(c), name: `${String(i + 1).padStart(2, "0")}-${c.id}.png` }));
-    const r = await ask({ type: "export", kind, items, lib: LIB }, done => onProgress((cards.length + done) / total));
+    const pcm = kind === "mp4" && withMusic && music ? await trackPcm(music) : null;
+    const msg = { type: "export", kind, items, lib: LIB, audio: pcm };
+    const r = await ask(msg, done => onProgress((cards.length + done) / total));
+    if (kind === "mp4" && withMusic && music) r.musicAsked = true;
     return { r, items };
   }
   async function exportAll(kind, btn) {
@@ -1087,11 +1330,15 @@
     btns.forEach(b => { b.disabled = true; }); btn.setAttribute("aria-busy", "true"); prog.hidden = false; prog.value = 0; out.innerHTML = "";
     if (lastUrl) { URL.revokeObjectURL(lastUrl); lastUrl = null; }
     try {
-      const { r, items } = await buildFile(kind, v => { prog.value = v; });
+      const { r, items } = await buildFile(kind, v => { prog.value = v; }, kind === "mp4" && $("dl-music").checked);
       const mb = (r.blob.size / 1048576).toFixed(1);
       if (kind === "zip") { setTimeout(URL.revokeObjectURL, 60000, saveBlob(r.blob, `${Y}-cards.zip`)); out.innerHTML = `<p class="dc-fine">${_("{size} MB, {n} files", { size: mb, n: items.length })}</p>`; }
       else if (kind === "gif") { lastUrl = saveBlob(r.blob, `${Y}-wrapped.gif`); out.innerHTML = `<img src="${lastUrl}" alt="${_("GIF preview")}"><p class="dc-fine">${_("{size} MB, {n} frames at 2.5 s", { size: mb, n: r.frames })}</p>`; }
-      else { lastUrl = saveBlob(r.blob, `${Y}-wrapped.mp4`); out.innerHTML = `<video src="${lastUrl}" controls muted loop playsinline></video><p class="dc-fine">${_("{size} MB, {seconds} s video", { size: mb, seconds: r.seconds })}</p>`; }
+      else {
+        lastUrl = saveBlob(r.blob, `${Y}-wrapped.mp4`);
+        const line = r.music ? _("{size} MB, {seconds} s video with music", { size: mb, seconds: r.seconds }) : _("{size} MB, {seconds} s video", { size: mb, seconds: r.seconds });
+        out.innerHTML = `<video src="${lastUrl}" controls loop playsinline></video><p class="dc-fine">${line}</p>${r.musicAsked && !r.music ? `<p class="dc-fine">${_("The music could not be added, so the video has no sound.")}</p>` : ""}`;
+      }
     } catch (e) { toast(_("Export failed: {error}", { error: e.message })); }
     prog.hidden = true; btns.forEach(b => { b.disabled = false; }); btn.removeAttribute("aria-busy"); mp4Gate();
   }
@@ -1103,6 +1350,6 @@
     let again = "";
     try { again = sessionStorage.getItem(REOPEN) || ""; sessionStorage.removeItem(REOPEN); } catch (e) { /* no storage, nothing to reopen */ }
     if (again === "wr-editdlg") $("editdlg").showModal();
-    else if (again === "wr-pubdlg") { openPublish(); $("pub-tabs").querySelector('[data-t="page"]').click(); }
+    else if (again.startsWith("wr-pubdlg")) { openPublish(); $("pub-tabs").querySelector(`[data-t="${again.split(":")[1] || "page"}"]`).click(); }
   }
 })();

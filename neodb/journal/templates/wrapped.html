@@ -178,25 +178,41 @@
           </header>
           <div class="mk">
             <div>
-              <label for="wr-mk-src">{% trans "Items from" %}</label>
-              <select id="wr-mk-src"></select>
-              <div class="mk-col" id="wr-mk-col" hidden></div>
-              <div id="wr-mk-pick" hidden>
+              <span class="wr-sizes mk-mode" id="wr-mk-mode">
+                <button type="button" data-mode="list" class="on">{% trans "A list of titles" %}</button>
+                <button type="button" data-mode="words">{% trans "One title, your words" %}</button>
+              </span>
+              <div id="wr-mk-words" hidden>
                 <input type="search"
-                       id="wr-mk-q"
-                       placeholder="{% trans 'Search your titles, or paste a link' %}"
-                       aria-label="{% trans 'Search your titles, or paste a link' %}"
+                       id="wr-mk-wq"
+                       placeholder="{% trans 'Search the titles you wrote about' %}"
+                       aria-label="{% trans 'Search the titles you wrote about' %}"
                        autocomplete="off">
-                <div class="results" id="wr-mk-res"></div>
-                <div class="picked" id="wr-mk-picked"></div>
+                <div class="results" id="wr-mk-works"></div>
+                <div class="mk-texts" id="wr-mk-texts"></div>
               </div>
-              <label id="wr-mk-nlabel">{% trans "How many" %}</label>
-              <div class="seg" id="wr-mk-n"></div>
-              <p class="dc-fine" id="wr-mk-nhint" hidden></p>
-              <label for="wr-mk-title">{% trans "Title" %}</label>
-              <input type="text" id="wr-mk-title" maxlength="120">
+              <div id="wr-mk-list">
+                <label for="wr-mk-src">{% trans "Items from" %}</label>
+                <select id="wr-mk-src"></select>
+                <div class="mk-col" id="wr-mk-col" hidden></div>
+                <div id="wr-mk-pick" hidden>
+                  <input type="search"
+                         id="wr-mk-q"
+                         placeholder="{% trans 'Search your titles, or paste a link' %}"
+                         aria-label="{% trans 'Search your titles, or paste a link' %}"
+                         autocomplete="off">
+                  <div class="results" id="wr-mk-res"></div>
+                  <div class="picked" id="wr-mk-picked"></div>
+                </div>
+                <label id="wr-mk-nlabel">{% trans "How many" %}</label>
+                <div class="seg" id="wr-mk-n"></div>
+                <p class="dc-fine" id="wr-mk-nhint" hidden></p>
+                <label for="wr-mk-title">{% trans "Title" %}</label>
+                <input type="text" id="wr-mk-title" maxlength="120">
+              </div>
               <label for="wr-mk-cap">{% trans "Small heading" %}</label>
               <input type="text" id="wr-mk-cap" maxlength="80">
+              <p class="dc-fine" id="wr-mk-aud" hidden></p>
               <div class="wr-actions">
                 <button class="dc-btn primary" type="button" id="wr-mk-save">
                   <i class="fa-solid fa-check"></i> {% trans "Add to the deck" %}
@@ -226,6 +242,7 @@
             <button class="on" data-t="post" type="button">{% trans "Post cards" %}</button>
             <button data-t="page" type="button">{% trans "Page link" %}</button>
             <button data-t="dl" type="button">{% trans "Download" %}</button>
+            <button data-t="qr" type="button">{% trans "QR code" %}</button>
           </div>
           <div id="wr-pub-post">
             <fieldset class="wr-mode">
@@ -242,6 +259,10 @@
             <p class="dc-fine" id="wr-pub-vidnote" hidden>
               {% trans "ZIP, GIF and video can take a minute and may need the latest Chrome." %}
             </p>
+            <label class="wr-withmusic" id="wr-pub-musicrow" hidden>
+              <input type="checkbox" id="wr-pub-music" checked>
+              {% trans "Include the background music in the video" %}
+            </label>
             <div class="pick-grid" id="wr-pub-grid"></div>
             <textarea id="wr-pub-note" rows="3" aria-label="{% trans 'Text of the post' %}"></textarea>
             <fieldset>
@@ -291,6 +312,29 @@
               </button>
             </div>
           </div>
+          <div id="wr-pub-qr" hidden>
+            <div class="qr-tab">
+              <div class="qr-prev" id="wr-qr-prev"></div>
+              <div class="qr-side">
+                <p>
+                  {% trans "One image with your year in numbers and a code that opens your page. Post it, send it, or print it." %}
+                </p>
+                <p class="wr-warn" id="wr-qr-warn" hidden></p>
+                <div class="qr-btns">
+                  <button class="dc-btn outline" type="button" id="wr-qr-share" hidden>
+                    <i class="fa-solid fa-share-nodes"></i> {% trans "Share…" %}
+                  </button>
+                  <button class="dc-btn outline" type="button" id="wr-qr-copy" hidden>
+                    <i class="fa-solid fa-copy"></i> {% trans "Copy image" %}
+                  </button>
+                  <button class="dc-btn outline" type="button" id="wr-qr-dl">
+                    <i class="fa-solid fa-download"></i> {% trans "Download PNG" %}
+                  </button>
+                </div>
+                <p class="dc-fine" id="wr-qr-link"></p>
+              </div>
+            </div>
+          </div>
           <div id="wr-pub-dl" hidden>
             <p>{% trans "Every card on the page as PNG files in one ZIP, or as a slideshow in a GIF or an MP4 video." %}</p>
             <p class="dc-fine">{% trans "ZIP, GIF and video can take a minute and may need the latest Chrome." %}</p>
@@ -305,6 +349,10 @@
                 <i class="fa-solid fa-video"></i> {% trans "MP4 video" %}
               </button>
             </div>
+            <label class="wr-withmusic" id="wr-dl-musicrow" hidden>
+              <input type="checkbox" id="wr-dl-music" checked>
+              {% trans "Include the background music in the video" %}
+            </label>
             <p class="dc-fine" id="wr-mp4-note" hidden>
               {% trans "This browser cannot make an MP4 video. The GIF works everywhere." %}
             </p>

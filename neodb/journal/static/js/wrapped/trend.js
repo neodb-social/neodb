@@ -82,7 +82,7 @@
   // columns, one per year in the window; light tops are bulk days; in a year in progress the earlier years show
   // the same months solid and the rest of the year as a ghost
   function columns(t, ui, opt) {
-    const n = t.win.length, x0 = 80, W = 920, top = opt.top, bottom = opt.bottom || 830, slot = W / n, bw = Math.min(70, slot * 0.62);
+    const n = t.win.length, x0 = 80, W = 920, top = opt.top, bottom = opt.bottom || 830 + ui.DY, slot = W / n, bw = Math.min(70, slot * 0.62);
     const max = Math.max(1, ...t.win.map(w => opt.share ? 1 : Math.max(w.val + w.bulk, t.inProgress ? w.full.val + w.full.bulk : 0)));
     const unit = (bottom - top) / max; let g = "";
     t.win.forEach((w, i) => {
@@ -112,23 +112,23 @@
       const top = ui.cardTop(h.text, line, { eyebrow: _("Year over year") });
       const items = [{ fill: GREY, label: going ? _("earlier years, {start} to {end}", { start: M[0], end: M[t.upTo] }) : _("earlier years") }, { stripes: ui.CATS.filter(c => t.now.cats[c]).slice(0, 4).map(c => ui.CAT_COLOR[c]), label: _("{year} by shelf", { year: t.Y }) }, t.win.some(w => w.first) ? { fill: GREY, opacity: 0.35, label: _("first year, not compared") } : null, t.win.some(w => w.bulk) ? { fill: BULK_BG, hatch: BULK_INK, label: _("bulk days, left out") } : null, going ? { fill: ui.LINE, stroke: ui.MUTED, dash: true, label: _("the full year") } : null];
       const up = (ui.legendRows(items) - 1) * 50;
-      return top.svg + columns(t, ui, { top: top.y + 90, bottom: 830 - up, mark: h.mark }) + ui.legend(items, 912 - up);
+      return top.svg + columns(t, ui, { top: top.y + 90, bottom: 830 + ui.DY - up, mark: h.mark }) + ui.legend(items, 912 + ui.DY - up);
     } };
     const recs = base.ok ? records(t, ui) : [];
     const bests = { id: "bests", name: _("Personal bests"), kind: "computed", record: true, interest: base.ok ? (recs.length >= 3 ? { ok: true } : { ok: false, reason: recs.length ? _n("only {n} record broken, under three", "only {n} records broken, under three", recs.length) : _("no record broken against the years since {year}", { year: t.ws }) }) : base, bg: () => ui.TINT.green, body: () => {
       const n = recs.length, title = { 3: _("Three records"), 4: _("Four records"), 5: _("Five records") }[n];
       const top = ui.cardTop(title, going ? _("set this year, against {start} to {end} of every year since {year}", { start: ML[0], end: ML[t.upTo], year: t.ws }) : _("set this year, against every year since {year}", { year: t.ws }), { eyebrow: _("Personal bests"), size: n > 4 ? 96 : undefined });
       // three to five records in rows of two: the new figure, what it counts, the old best; the note on bulk days takes the empty cell, else goes under the rows
-      const rows = Math.ceil(n / 2), y0 = top.y + 112, pitch = Math.min(170, (786 - y0) / (rows - 1)), note = _("Titles marked in bulk on one day are left out.");
+      const rows = Math.ceil(n / 2), y0 = top.y + 112, pitch = Math.min(220, (786 + ui.DY - y0) / (rows - 1)), note = _("Titles marked in bulk on one day are left out.");
       let b = top.svg;
       recs.forEach((r, i) => { const x = 80 + (i % 2) * 480, y = y0 + Math.floor(i / 2) * pitch, d = 300 + i * 120; b += ui.T(x, y, r.fmt(r.v), 60, { weight: 800, ls: -1.8, cls: "rise", d }) + ui.T(x, y + 44, r.label, 34, { weight: 700, cls: "rise", d: d + 40 }) + ui.T(x, y + 82, _("previous best {value} in {year}", { value: r.fmt(r.prev.v), year: r.prev.yr }), 34, { fill: ui.MUTED, cls: "fade", d: d + 100 }); });
-      if (t.now.bulk) b += n % 2 ? ui.wrapW(note, 34, 400, 420, 3).map((l, j) => ui.T(560, y0 + (rows - 1) * pitch - 20 + j * 42, l, 34, { fill: ui.MUTED, cls: "fade", d: 900 })).join("") : ui.T(80, 912, note, 34, { fill: ui.MUTED, cls: "fade", d: 900 });
+      if (t.now.bulk) b += n % 2 ? ui.wrapW(note, 34, 400, 420, 3).map((l, j) => ui.T(560, y0 + (rows - 1) * pitch - 20 + j * 42, l, 34, { fill: ui.MUTED, cls: "fade", d: 900 })).join("") : ui.T(80, 912 + ui.DY, note, 34, { fill: ui.MUTED, cls: "fade", d: 900 });
       return b;
     } };
     const s = base.ok ? shift(t) : null, moved = s && Math.abs(s.d) >= 15;
     const taste = { id: "taste", name: _("How your taste moved"), kind: "computed", interest: base.ok ? (moved ? { ok: true } : { ok: false, reason: s ? _("no shelf moved by 15 points; the largest change is {shelf}, {n} points", { shelf: ui.CAT_LABEL[s.c], n: Math.round(Math.abs(s.d)) }) : _("too few titles to compare") }) : base, bg: () => ui.TINT.coral, body: () => {
       const top = ui.cardTop(_("{shelf} went from {a}% to {b}%", { shelf: ui.CAT_LABEL[s.c], a: Math.round(s.a), b: Math.round(s.b) }), going ? _("of your year so far, against your average since {year}", { year: t.ws }) : _("of your year, against your average since {year}", { year: t.ws }), { eyebrow: _("How your taste moved") });
-      return top.svg + columns(t, ui, { top: top.y + 90, share: s }) + ui.legend([{ fill: ui.CAT_COLOR[s.c], label: _("{shelf}, share of each year", { shelf: ui.CAT_LABEL[s.c] }) }, { stripes: ui.CATS.filter(c => c !== s.c).slice(0, 4).map(c => ui.CAT_COLOR[c]), opacity: 0.3, label: _("other shelves") }], 912);
+      return top.svg + columns(t, ui, { top: top.y + 90, share: s }) + ui.legend([{ fill: ui.CAT_COLOR[s.c], label: _("{shelf}, share of each year", { shelf: ui.CAT_LABEL[s.c] }) }, { stripes: ui.CATS.filter(c => c !== s.c).slice(0, 4).map(c => ui.CAT_COLOR[c]), opacity: 0.3, label: _("other shelves") }], 912 + ui.DY);
     } };
     return { yoy, bests, taste };
   }

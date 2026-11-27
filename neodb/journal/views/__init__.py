@@ -84,6 +84,7 @@ from .wrapped import (
     wrapped_page,
     wrapped_save,
     wrapped_share,
+    wrapped_words,
 )
 
 __all__ = [
@@ -165,4 +166,5 @@ __all__ = [
     "wrapped_page",
     "wrapped_save",
     "wrapped_share",
+    "wrapped_words",
 ]

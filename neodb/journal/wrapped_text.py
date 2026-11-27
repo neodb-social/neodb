@@ -400,6 +400,8 @@ TEXT = [
     gettext_noop("{size} MB, {n} frames at 2.5 s"),
     gettext_noop("{size} MB, {n} files"),
     gettext_noop("{size} MB, {seconds} s video"),
+    gettext_noop("{size} MB, {seconds} s video with music"),
+    gettext_noop("The music could not be added, so the video has no sound."),
     gettext_noop("Every card is hidden from this audience"),
     gettext_noop("Back to the suggested cards"),
     gettext_noop("Not shared"),
@@ -410,6 +412,35 @@ TEXT = [
     gettext_noop("Sound off"),
     gettext_noop("No music"),
     gettext_noop("The music could not be loaded"),
+    gettext_noop("My comment"),
+    gettext_noop("My note"),
+    gettext_noop("My review"),
+    gettext_noop("One title, your words"),
+    gettext_noop("Pick a text"),
+    gettext_noop(
+        "This text is for followers only. Your followers and you get this card; the public page leaves it out."
+    ),
+    gettext_noop("This text is only for you. Only you get this card."),
+    gettext_noop("This text is public. Every audience gets this card."),
+    gettext_noop("You wrote no comment, note or review in {year}."),
+    gettext_noop("comment"),
+    gettext_noop("marked sensitive"),
+    gettext_noop("review"),
+    gettext_noop("the text is gone, or this audience cannot see it"),
+    gettext_noop("Change in Edit"),
+    gettext_noop("Change it in Settings"),
+    gettext_noop("Could not copy: {error}"),
+    gettext_noop("Could not share: {error}"),
+    gettext_noop("Image copied"),
+    gettext_noop(
+        "Only you can see the page now, so the code opens nothing for other people."
+    ),
+    gettext_noop("Only your followers can open this page, after they sign in."),
+    gettext_noop(
+        "People who are not signed in cannot open this page, because your profile is hidden from them."
+    ),
+    gettext_noop("Show the cards the code opens"),
+    gettext_noop("The code opens {link}."),
     # the stage, the piles of covers and the end of the page
     gettext_noop("Year"),
     gettext_noop("Copy link to this card"),
@@ -426,6 +457,10 @@ TEXT = [
 
 # each pair as a function of n, so gettext sees the literal forms; the key is the singular
 PLURALS = [
+    lambda n: ngettext("{n} five-star", "{n} five-star", n),
+    lambda n: ngettext("{n} shelf", "{n} shelves", n),
+    lambda n: ngettext("{n} character", "{n} characters", n),
+    lambda n: ngettext("{n} note", "{n} notes", n),
     lambda n: ngettext("{n} card", "{n} cards", n),
     lambda n: ngettext(
         "marks go back {n} year; the trend cards need five",

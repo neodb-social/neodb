@@ -5,7 +5,8 @@
 
 // the stage: the card's own colour fills the screen (a deep shade of it in dark mode, where the card stays light)
 .wr-stage {
-  --card: #{"min(88vw, 40rem, calc(100dvh - 16.5rem))"};
+  // the card is 4:5, so its width is 0.8 of the height the screen can give it
+  --card: #{"min(88vw, 40rem, calc((100dvh - 16.5rem) * 0.8))"};
   --stage-light: #f1f3f4;
   --stage-dark: #15191c;
   position: relative; display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh;
@@ -51,6 +52,11 @@
   .wr-ctl { display: flex; align-items: center; justify-content: center; gap: 1rem; padding: 0 0 0.4rem; }
   .wr-round { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; margin: 0; padding: 0; border: 1px solid rgba(127, 127, 127, 0.3); border-radius: 50%; background: transparent; color: var(--wr-ink); box-shadow: none; }
   .wr-round:hover { border-color: var(--pico-primary); color: var(--pico-primary); }
+  // immersive while the show plays: the controls fade away and the screen deepens a little at its edges
+  :is(.wr-bar, .wr-ctl, .wr-cue, .wr-end, .wr-nowplaying), .deck .card .cf { transition: opacity 0.6s ease; }
+  box-shadow: inset 0 0 0 rgba(0, 0, 0, 0); transition: background-color 0.6s ease, box-shadow 0.8s ease;
+  &.immersive:not(.awake) { box-shadow: inset 0 0 220px rgba(0, 0, 0, 0.16); cursor: none; }
+  &.immersive:not(.awake) :is(.wr-bar, .wr-ctl, .wr-cue, .wr-end, .wr-nowplaying), &.immersive:not(.awake) .deck .card .cf { opacity: 0; pointer-events: none; }
   &.at-end .wr-ctl { display: none; }
   &.none :is(.wr-ctl, .wr-prog, .wr-cue) { visibility: hidden; }
   &.at-end .wr-cue { visibility: hidden; }
@@ -263,6 +269,17 @@
   .results button { display: grid; grid-template-columns: 2rem minmax(0, 1fr) auto; gap: 0.5rem; align-items: center; width: 100%; margin: 0; padding: 0.3rem 0.5rem; background: transparent; color: var(--dc-strong); border: 0; border-bottom: 1px solid var(--dc-border); border-radius: 0; text-align: left; font-size: var(--dc-fs-sm); }
   .results button:hover { background: var(--dc-surface-2); }
   .results small { color: var(--dc-muted); }
+  // the two kinds of made card, and the texts of the chosen title as radio rows
+  .mk-mode { margin: 0 0 0.8rem; }
+  .mk-texts { display: flex; flex-direction: column; gap: 0.4rem; margin: 0 0 0.8rem; max-height: 18rem; overflow: auto; }
+  .mk-texts label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.1rem 0.5rem; margin: 0; padding: 0.45rem 0.6rem; border: 1px solid var(--dc-border); border-radius: var(--dc-radius-sm); background: var(--dc-surface); font-size: var(--dc-fs-sm); cursor: pointer; }
+  .mk-texts label.on { border-color: var(--pico-primary); }
+  .mk-texts input { grid-row: span 3; margin: 0.2rem 0 0; }
+  .mk-texts .h { font-size: var(--dc-fs-xs); color: var(--dc-muted); }
+  .mk-texts .h b { color: var(--dc-strong); }
+  .mk-texts strong { color: var(--dc-strong); }
+  .mk-texts .x { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--dc-strong); }
+  .results button.on { background: var(--dc-surface-2); }
   .mk-col { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: -0.4rem 0 0.8rem; font-size: var(--dc-fs-sm); color: var(--dc-muted); }
   .mk-col button { margin: 0; width: auto; padding: 0.3rem 0.7rem; font-size: var(--dc-fs-xs); }
   .preview svg { width: 100%; height: auto; border-radius: var(--dc-radius); border: 1px solid var(--dc-border); display: block; }
@@ -282,6 +299,16 @@
   .pick-grid label.full { opacity: 0.4; }
   #wr-pub-page .wr-sizes { margin-bottom: 0.6rem; }
   .gif-out { margin-top: 0.8rem; }
+  // the QR code tab: the image on the left, the text and the buttons in a column on the right
+  .qr-tab { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.2rem; align-items: start; }
+  .qr-prev { position: relative; display: grid; place-items: center; min-height: 6rem; }
+  .qr-prev svg { display: block; width: 100%; height: auto; border-radius: var(--dc-radius); border: 1px solid var(--dc-border); }
+  .qr-prev.locked svg { opacity: 0.35; }
+  .qr-prev.locked .fa-lock { position: absolute; font-size: 2.4rem; color: var(--dc-strong); }
+  .qr-btns { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; margin: 0 0 0.8rem; }
+  .qr-btns .dc-btn { width: auto; margin: 0; }
+  .wr-warn .dc-btn { margin: 0.4rem 0 0; padding: 0.3rem 0.7rem; font-size: var(--dc-fs-xs); }
+  @media (max-width: 600px) { .qr-tab { grid-template-columns: 1fr; } .qr-prev { max-width: 16rem; } }
   // Share: the three audiences at the one link, and a warning when signed-out visitors cannot open it
   .wr-auds { list-style: none; margin: 0 0 0.8rem; padding: 0; border: 1px solid var(--dc-border); border-radius: var(--dc-radius); }
   .wr-auds li { display: grid; grid-template-columns: 9rem auto; gap: 0.1rem 0.8rem; margin: 0; padding: 0.6rem 0.8rem; list-style: none; }
@@ -292,6 +319,8 @@
   .wr-auds small { grid-column: 1 / -1; color: var(--dc-muted); font-size: var(--dc-fs-xs); }
   .wr-warn { padding: 0.6rem 0.8rem; border-radius: var(--dc-radius); background: #fff4e5; color: #6b4300; font-size: var(--dc-fs-sm); }
   .wr-warn a { color: inherit; font-weight: 700; }
+  .wr-withmusic { display: flex; align-items: center; gap: 0.4rem; margin: 0 0 0.6rem; font-size: var(--dc-fs-sm); }
+  .wr-withmusic input { margin: 0; }
   .wr-mode { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin: 0 0 0.4rem; }
   .wr-mode label { margin: 0; }
   .gif-out :is(img, video) { width: 16rem; border-radius: var(--dc-radius); border: 1px solid var(--dc-border); display: block; }
