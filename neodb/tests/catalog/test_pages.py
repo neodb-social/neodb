@@ -1,7 +1,9 @@
 from datetime import datetime, timezone
 
 import pytest
+from django.db import connections
 from django.test import Client
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from lxml import html
 
@@ -253,6 +255,13 @@ def test_item_page_counts_marks_from_people_you_follow(client: Client) -> None:
     assert _following_marks_link(_item_page(client, book), book) == [
         "Marks from people you follow (3)"
     ]
+    # the list holds the same marks, plus the viewer's own
+    url = reverse("catalog:mark_list", args=[book.url_path, book.uuid, "following"])
+    marks = client.get(url).content.decode()
+    for n in ("done", "fol", "wish", "viewer"):
+        assert f"/users/{u[n].username}/" in marks
+    for n in ("priv", "stranger"):
+        assert f"/users/{u[n].username}/" not in marks
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -283,15 +292,31 @@ def test_item_page_count_matches_the_marks_it_links_to(client: Client) -> None:
 
 
 @pytest.mark.django_db(databases="__all__")
-def test_item_page_leaves_out_muted_and_unfollowed_marks(client: Client) -> None:
-    u = _users("fn", "viewer", "muted", "stranger")
+def test_item_page_has_no_count_without_followed_marks(client: Client) -> None:
+    u = _users("fn", "viewer", "friend", "stranger")
     book = Edition.objects.create(title="Quiet Book")
-    _follow(u["viewer"], u["muted"])
-    Takahe.mute(u["viewer"].identity.pk, u["muted"].identity.pk)
-    _mark(u["muted"], book)
+    _follow(u["viewer"], u["friend"])
+    _mark(u["viewer"], book)
     _mark(u["stranger"], book)
 
     client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
     assert _following_marks_link(_item_page(client, book), book) == [
         "Marks from people you follow"
     ]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_item_page_reads_the_follow_list_once(client: Client) -> None:
+    u = _users("fq", "viewer", "friend")
+    book = Edition.objects.create(title="Counted Book")
+    _follow(u["viewer"], u["friend"])
+    _mark(u["friend"], book)
+    client.force_login(u["viewer"], backend="mastodon.auth.OAuth2Backend")
+
+    with CaptureQueriesContext(connections["takahe"]) as t:
+        page = _item_page(client, book)
+    assert _following_marks_link(page, book) == ["Marks from people you follow (1)"]
+    follow_reads = [
+        q["sql"] for q in t.captured_queries if 'FROM "users_follow"' in q["sql"]
+    ]
+    assert len(follow_reads) == 1

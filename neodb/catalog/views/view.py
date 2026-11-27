@@ -186,17 +186,16 @@ def retrieve(request, item_path, item_uuid):
     shelf_actions = ShelfManager.get_actions_for_category(item.category)
     shelf_statuses = ShelfManager.get_statuses_for_category(item.category)
     if request.user.is_authenticated:
-        visible = q_piece_visible_to_user(request.user)
-        mark = Mark(request.user.identity, item)
         following = request.user.identity.following
-        if following:
-            # the marks the "marks from people you follow" link lists, less
-            # the viewer's own and the accounts the viewer muted
-            following_mark_count = (
-                ShelfMember._base_manager.filter(item=item, owner_id__in=following)
-                .filter(visible)
-                .count()
-            )
+        visible = q_piece_visible_to_user(request.user, following)
+        mark = Mark(request.user.identity, item)
+        # people pages have no comments header to show it on
+        if following and not isinstance(item, People):
+            # what the "marks from people you follow" link lists, less the
+            # viewer's own mark, which that list also shows
+            following_mark_count = ShelfMember._base_manager.filter(
+                item=item, owner_id__in=following, visibility__lt=2
+            ).count()
         child_item_comments = Comment.objects.filter(
             owner=request.user.identity, item__in=item.child_items.all()
         )
