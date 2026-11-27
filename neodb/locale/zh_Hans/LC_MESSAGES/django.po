@@ -10720,8 +10720,8 @@ msgstr "一周 {n} 部"
 
 #: journal/wrapped_text.py:149
 #, python-brace-format
-msgid "the busiest seven days began {date}; {n} weeks of the year had a title finished"
-msgstr "最勤奋的七天从{date}开始；全年有 {n} 周完成了作品"
+msgid "the busiest week began {date}; {n} weeks of the year had a title finished"
+msgstr "最勤奋的一周从{date}开始；全年有 {n} 周完成了作品"
 
 #: journal/wrapped_text.py:150
 msgid "titles finished that week"

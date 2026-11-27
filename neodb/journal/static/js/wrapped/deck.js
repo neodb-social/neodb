@@ -1,4 +1,6 @@
 (function () {
+  // the last save before the page goes elsewhere; the editing code sets it, and a page with no cards has nothing to save
+  let leave = () => Promise.resolve();
   // the owner can go to another year from the top bar: every year from the first finished title to this one
   (function years() {
     const D = WR.D, el = document.getElementById("wr-yr");
@@ -9,7 +11,7 @@
     const sel = document.createElement("select");
     sel.id = "wr-yr"; sel.className = "wr-yr"; sel.setAttribute("aria-label", WR._("Year"));
     sel.innerHTML = ys.map(y => `<option${y === D.year ? " selected" : ""}>${y}</option>`).join("");
-    sel.onchange = () => { location.href = D.make_url.replace(`/${D.year}/`, `/${sel.value}/`); };
+    sel.onchange = () => { leave().then(() => { location.href = D.make_url.replace(`/${D.year}/`, `/${sel.value}/`); }, () => { sel.value = String(D.year); toast(WR._("Could not save the deck; try again")); }); };
     el.replaceWith(sel);
   })();
   // a year with no finished title: say so on the stage instead of drawing empty cards
@@ -385,7 +387,7 @@
       return t.svg + grid + T(80, gy + 4 * 80 + 24, _("{start} to {end}", { start: fmtDate(isoDay(first)), end: fmtDate(isoDay(last)) }), 34, { fill: MUTED }) + legend([{ fill: FIN, label: _("a title finished") }, a.hasOther ? { fill: OTH, label: _("progress or a comment") } : null, { fill: EMPTY, label: _("nothing logged") }, { stroke: INK, label: _("the run") }], 900 + DY);
     } });
     cards.push({ id: "weeks", name: _("Week by week"), kind: "computed", interest: ok(n >= 30, _("{n} titles is too few for a week strip", { n })), bg: () => TINT.paper, body: () => {
-      const s0 = TM.marathonStart, t = cardTop(_("{n} in a week", { n: TM.weeks[TM.marathonWeek] }), _("the busiest seven days began {date}; {n} weeks of the year had a title finished", { date: fmtDate(isoDay(s0)), n: TM.weeks.filter(v => v).length }), { eyebrow: _("Week by week") });
+      const s0 = TM.marathonStart, t = cardTop(_("{n} in a week", { n: TM.weeks[TM.marathonWeek] }), _("the busiest week began {date}; {n} weeks of the year had a title finished", { date: fmtDate(isoDay(s0)), n: TM.weeks.filter(v => v).length }), { eyebrow: _("Week by week") });
       const wmax = Math.max(...TM.weeks), bottom = 820 + DY, room = bottom - (t.y + 90);
       let strip = "";
       TM.weeks.forEach((v, i) => { const h = v ? 16 + v / wmax * room : 6; strip += `<rect x="${80 + i * 17.4}" y="${bottom - h}" width="13" height="${h}" rx="4" fill="${i === TM.marathonWeek ? LOGO.coral : v ? PRIMARY : LINE}"/>`; });
@@ -548,17 +550,23 @@
   // the deck starts from the member's default post visibility; the server keeps the member's choices
   let deckState = Object.assign({ order: [], hidden: {} }, D.deck || {}), made = deckState.made || [], arranging = false, saveTimer = null, savedShown = JSON.stringify(D.shown || null);
   delete deckState.made;
-  let lastSave = Promise.resolve({});
+  let lastSave = Promise.resolve({}), saveFailed = false;
+  // one save at a time, in order: each sends the deck as it is when its turn comes, so an older state never lands after a newer one
   function persist(extra) {
     if (!OWNER) return Promise.resolve({});
-    const shown = (state.shown || []).map(c => c.id);
-    savedShown = JSON.stringify(shown);
-    lastSave = fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify(Object.assign({ aud: LEVEL, order: deckState.order, hidden: deckState.hidden, made, shown }, extra || {})) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    lastSave = lastSave.catch(() => {}).then(() => {
+      const shown = (state.shown || []).map(c => c.id);
+      savedShown = JSON.stringify(shown);
+      return fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify(Object.assign({ aud: LEVEL, order: deckState.order, hidden: deckState.hidden, made, shown }, extra || {})) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    }).then(r => { saveFailed = false; return r; }, e => { saveFailed = true; throw e; });
     return lastSave;
   }
+  // the card a link names; a malformed escape names no card, so the show opens on the first
+  const hashCard = () => { const h = location.hash.slice(1); try { return decodeURIComponent(h); } catch (e) { return h; } };
   const saveDeck = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => { saveTimer = null; persist().catch(() => toast(_("Could not save the deck; try again"))); }, 300); };
-  // the waiting save now, then the latest one: a page that goes elsewhere must not drop a change
-  function flushSave() { if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; return persist(); } return lastSave; }
+  // the waiting save now, or again the one that failed, then the latest one: a page that goes elsewhere must not drop a change
+  function flushSave() { if (saveTimer || saveFailed) { clearTimeout(saveTimer); saveTimer = null; return persist(); } return lastSave; }
+  leave = flushSave;
   // to another audience of this page: after the last save has landed, or not at all when it failed
   function goAudience(lv, reopen) { flushSave().then(() => { try { sessionStorage.setItem(REOPEN, reopen); } catch (e) { /* without storage the page just opens on the stage */ } const u = new URL(location.href); u.searchParams.set("as", lv); location.href = u.toString(); }, () => toast(_("Could not save the deck; try again"))); }
   // ---------- made cards: items from highest marks, a collection, or picked by hand ----------
@@ -739,9 +747,10 @@
     // the eye keeps the keyboard where it was after the grid is drawn again
     if (OWNER) [...$("hub").querySelectorAll("[data-eye]")].forEach(b => b.onclick = () => { const id = b.dataset.eye, c = cards.find(x => x.id === id); setHidden(id, !c.hidden); const again = $("hub").querySelector(`[data-eye="${id}"]`); if (again) again.focus(); });
     state.cards = cards; state.shown = shown;
-    if (OWNER && JSON.stringify(shown.map(c => c.id)) !== savedShown) saveDeck();
+    // while a job's result is not cached yet (D.warming), its cards are missing, so this list is not saved for visitors
+    if (OWNER && !D.warming && JSON.stringify(shown.map(c => c.id)) !== savedShown) saveDeck();
     // stay on the same card after an edit; on the first render, open the card the link names
-    const want = keepId != null ? keepId : decodeURIComponent(location.hash.slice(1));
+    const want = keepId != null ? keepId : hashCard();
     let k = shown.findIndex(c => c.id === want);
     if (k < 0) k = keepId != null ? Math.min(cur, shown.length - 1) : 0;
     cur = -1; arrive(k, "instant");
@@ -1056,7 +1065,7 @@
   el("mk-q").oninput = e => {
     clearTimeout(mk.lookupTimer); const v = e.target.value.trim();
     if (!v) { el("mk-res").innerHTML = ""; mk.first = null; return; }
-    if (isLink(v)) { mk.lookupTimer = setTimeout(() => lookupLink(v, 0), 250); return; }
+    if (isLink(v)) { mk.first = null; el("mk-res").innerHTML = ""; mk.lookupTimer = setTimeout(() => lookupLink(v, 0), 250); return; }
     const q = v.toLowerCase(), have = new Set(mk.picked.map(x => x.url));
     const year = S.items.filter(i => i.title.toLowerCase().includes(q) && !have.has(i.url)).slice(0, 6).map(i => ({ ...refOf(i), sub: `${CAT_LABEL[i.category]} · ${_("marked {date}", { date: fmtDate(i.date) })}` }));
     const seen = new Set(year.map(i => i.url)); const inCols = [];
@@ -1122,8 +1131,8 @@
     } catch (e) { toast(_("Posting failed: {error}", { error: e.message })); }
     prog.hidden = true; btn.disabled = false; btn.removeAttribute("aria-busy");
   };
-  if (OWNER) $("pub-copy").onclick = () => { navigator.clipboard && navigator.clipboard.writeText($("pub-link").value); toast(_("Link copied")); };
-  // ---------- background music: the owner picks a track in Edit; a viewer hears it only after turning the sound on ----------
+  if (OWNER) $("pub-copy").onclick = () => copyLink($("pub-link").value);
+  // ---------- background music: the owner picks a track in Edit; it starts with the show unless the viewer turns the sound off ----------
   // The file comes straight from Wikimedia Commons; if it fails to load, the toggle turns off and the page stays silent.
   // soundOff: the viewer turned the sound off in this view, so the show no longer starts it (not saved)
   let music = D.music || null, audio = null, soundOff = false;
@@ -1284,7 +1293,7 @@
     const u = coverUuid.get(h);
     return u && D.cover_url ? D.cover_url.replace("UUID", u) : h;
   }
-  async function inlineImages(svg) { const hrefs = [...new Set([...svg.matchAll(/<image href="([^"]+)"/g)].map(m => m[1]))]; for (const h of hrefs) { if (!dataCache.has(h)) { try { const r = await fetch(exportHref(h.replace(/&amp;/g, "&"))); const b = await r.blob(); dataCache.set(h, await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); })); } catch (e) { dataCache.set(h, ""); } } svg = svg.split(`<image href="${h}"`).join(`<image href="${dataCache.get(h)}"`); } return svg; }
+  async function inlineImages(svg) { const hrefs = [...new Set([...svg.matchAll(/<image href="([^"]+)"/g)].map(m => m[1]))]; for (const h of hrefs) { if (!dataCache.has(h)) { try { const r = await fetch(exportHref(h.replace(/&amp;/g, "&"))); if (!r.ok) throw new Error(r.status); const b = await r.blob(); dataCache.set(h, await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); })); } catch (e) { /* this file goes without the cover; the next export tries again */ } } svg = svg.split(`<image href="${h}"`).join(`<image href="${dataCache.get(h) || ""}"`); } return svg; }
   const pngBlob = cv => new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("no PNG")), "image/png"));
   // a card as a canvas `size` wide, in the card's 4:5 shape
   async function toCanvas(c, size) { const hgt = Math.round(size * CH / CW), svg = await inlineImages(c.svg.replace("<svg ", `<svg width="${size}" height="${hgt}" `)); const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); const im = new Image(); await new Promise((res, rej) => { im.onload = res; im.onerror = rej; im.src = url; }); const cv = document.createElement("canvas"); cv.width = size; cv.height = hgt; cv.getContext("2d").drawImage(im, 0, 0, size, hgt); URL.revokeObjectURL(url); return cv; }
@@ -1315,7 +1324,7 @@
     w.postMessage(msg, msg.audio ? [msg.audio.left.buffer, ...(msg.audio.right.buffer !== msg.audio.left.buffer ? [msg.audio.right.buffer] : [])] : []);
   });
   // the MP4 button is there only when this browser can encode H.264
-  function mp4Gate() { if (!OWNER) return; $("dl-musicrow").hidden = !music; probe = probe || ask({ type: "probe" }).catch(() => ({ mp4: false })); probe.then(r => { $("dl-mp4").disabled = !r.mp4; $("mp4-note").hidden = !!r.mp4; }); }
+  function mp4Gate() { if (!OWNER) return; $("dl-musicrow").hidden = !music; probe = probe || ask({ type: "probe" }).catch(() => ({ mp4: false })); probe.then(r => { $("dl-mp4").disabled = !r.mp4; $("mp4-note").hidden = !!r.mp4; const v = document.querySelector('input[name="wr-mode"][value="video"]'); v.disabled = !r.mp4; if (!r.mp4 && v.checked) postMode("images"); }); }
   // draw every card the worker does not have yet, then ask it for the file; progress runs from 0 to 1
   // the chosen track for an MP4: fetched from Wikimedia and decoded here at 48 kHz (only the page has Web Audio), then handed to
   // the worker without a copy; null when it fails, so the video is made without sound
@@ -1339,12 +1348,13 @@
     return run;
   }
   async function buildFileNow(kind, onProgress, withMusic) {
-    const cards = state.shown, total = cards.length * 2;
+    // the cards as they are now: a cover tint that lands meanwhile redraws the intro for the next export, not this one
+    const cards = state.shown.map(c => ({ id: c.id, svg: c.svg, key: keyOf(c) })), total = cards.length * 2;
     if (!cards.length) throw new Error(_("This audience sees no cards. Show some in Edit."));
     worker();
-    const keep = new Set(cards.map(keyOf)); [...sent].forEach(k => { if (!keep.has(k)) sent.delete(k); });
+    const keep = new Set(cards.map(c => c.key)); [...sent].forEach(k => { if (!keep.has(k)) sent.delete(k); });
     for (let i = 0; i < cards.length; i++) {
-      const c = cards[i], key = keyOf(c);
+      const c = cards[i], key = c.key;
       if (!sent.has(key)) {
         const bitmap = await createImageBitmap(await toCanvas(c, 1080));
         worker().postMessage({ type: "card", key, bitmap }, [bitmap]); sent.add(key);
@@ -1353,10 +1363,12 @@
       }
       onProgress((i + 1) / total);
     }
-    const items = cards.map((c, i) => ({ key: keyOf(c), name: `${String(i + 1).padStart(2, "0")}-${c.id}.png` }));
+    const items = cards.map((c, i) => ({ key: c.key, name: `${String(i + 1).padStart(2, "0")}-${c.id}.png` }));
     const pcm = kind === "mp4" && withMusic && music ? await trackPcm(music) : null;
     const msg = { type: "export", kind, items, lib: LIB, audio: pcm };
-    const r = await ask(msg, done => onProgress((cards.length + done) / total));
+    let r;
+    // after a failure (a card the worker could not encode, say) the next export sends every card again
+    try { r = await ask(msg, done => onProgress((cards.length + done) / total)); } catch (e) { sent.clear(); throw e; }
     if (kind === "mp4" && withMusic && music) r.musicAsked = true;
     return { r, items };
   }

@@ -170,7 +170,8 @@ async function mp4(m, progress) {
 const EXPORT = { zip, gif, mp4 };
 self.onmessage = async e => {
   const m = e.data;
-  if (m.type === "card") { const p = toPng(m.bitmap); p.catch(() => {}); pngs.set(m.key, p); return; }
+  // a card that fails to encode is dropped, so a later export with it sent again encodes it again
+  if (m.type === "card") { const p = toPng(m.bitmap); p.catch(() => { if (pngs.get(m.key) === p) pngs.delete(m.key); }); pngs.set(m.key, p); return; }
   try {
     if (m.type === "probe") { postMessage({ type: "probe", id: m.id, mp4: !!(await mp4Config()) }); return; }
     if (m.type === "export") {

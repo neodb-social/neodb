@@ -10617,7 +10617,7 @@ msgstr ""
 
 #: journal/wrapped_text.py:149
 #, python-brace-format
-msgid "the busiest seven days began {date}; {n} weeks of the year had a title finished"
+msgid "the busiest week began {date}; {n} weeks of the year had a title finished"
 msgstr ""
 
 #: journal/wrapped_text.py:150

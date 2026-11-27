@@ -5,8 +5,9 @@
 
 // the stage: the card's own colour fills the screen (a deep shade of it in dark mode, where the card stays light)
 .wr-stage {
-  // the card is 4:5, so its width is 0.8 of the height the screen can give it
-  --card: #{"min(88vw, 40rem, calc((100dvh - 16.5rem) * 0.8))"};
+  // the card is 4:5, so its width is 0.8 of the height the screen can give it; on a very short screen it keeps
+  // 12rem and the page scrolls
+  --card: #{"min(88vw, 40rem, max(12rem, calc((100dvh - 16.5rem) * 0.8)))"};
   --stage-light: #f1f3f4;
   --stage-dark: #15191c;
   position: relative; display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh;
@@ -95,7 +96,8 @@
     .wr-bar { gap: 0.5rem; padding: 0.6rem 0.75rem; }
     .wr-logo img { height: 1.3rem; }
     .wr-who { justify-content: flex-start; font-size: var(--dc-fs-sm); }
-    .wr-pill span { display: none; }
+    // the label goes out of sight but stays the button's name for screen readers
+    .wr-pill span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .deck { gap: 0.75rem; }
     #wr-prev, #wr-next { display: none; }
   }

@@ -165,7 +165,7 @@ TEXT = [
     gettext_noop("{n} titles is too few for a week strip"),
     gettext_noop("{n} in a week"),
     gettext_noop(
-        "the busiest seven days began {date}; {n} weeks of the year had a title finished"
+        "the busiest week began {date}; {n} weeks of the year had a title finished"
     ),
     gettext_noop("titles finished that week"),
     gettext_noop("the busiest week"),

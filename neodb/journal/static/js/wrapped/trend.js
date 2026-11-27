@@ -29,11 +29,14 @@
     for (let yr = ws; yr <= Y; yr++) { const y = at(yr) || {}; win.push({ yr, ...cut(y, upTo), full: cut(y, upTo, true), first: yr === firstYear }); }
     const now = win[win.length - 1], comp = win.filter(w => w.yr < Y && !w.first && w.val > 0);
     const all = Object.keys(years).map(Number).filter(yr => yr < Y && yr !== firstYear).map(yr => ({ yr, ...cut(years[yr], upTo) }));
-    return { firstYear, joinedYear, ws, win, now, comp, all, Y, upTo, inProgress: upTo < 11, yearsOfMarks: Y - firstYear + 1, yearsOnSite: Y - joinedYear + 1 };
+    // the first year stays out of the comparisons (often a part year), but no headline may claim to beat a bigger one
+    const firstVal = cut(at(firstYear) || {}, upTo).val;
+    return { firstYear, firstVal, joinedYear, ws, win, now, comp, all, Y, upTo, inProgress: upTo < 11, yearsOfMarks: Y - firstYear + 1, yearsOnSite: Y - joinedYear + 1 };
   }
   // the line for the intro card; imports date marks back to 1978 for some members, so the count is years on the site
   function introLine(t) {
-    if (!t || t.none) return "";
+    // a year before the member joined (imported marks) has no place in their years on the site
+    if (!t || t.none || t.yearsOnSite < 1) return "";
     return _("your {nth} year on NeoDB", { nth: ordinal(t.yearsOnSite), n: t.yearsOnSite }) + (t.firstYear < t.joinedYear ? _(", with marks back to {year}", { year: t.firstYear }) : "");
   }
   function eligible(t) {
@@ -46,10 +49,10 @@
 
   // the headline is always a true and kind statement; a quieter year gets a neutral one
   function headline(t, ui) {
-    const cv = t.now.val, maxComp = Math.max(...t.comp.map(w => w.val)), span = t.Y - t.ws + 1;
-    if (t.all.length >= 4 && t.all.every(w => w.val < cv)) return { text: _("Your biggest year ever"), mark: null };
-    if (cv > maxComp) return { text: _("Your biggest year in {n} years", { n: span }), mark: null };
-    const bigger = t.comp.filter(w => w.val >= cv).map(w => w.yr), last = Math.max(...bigger);
+    const cv = t.now.val, maxComp = Math.max(...t.comp.map(w => w.val)), span = t.Y - t.ws + 1, firstBigger = t.firstVal >= cv;
+    if (!firstBigger && t.all.length >= 4 && t.all.every(w => w.val < cv)) return { text: _("Your biggest year ever"), mark: null };
+    if (cv > maxComp && !(firstBigger && t.firstYear >= t.ws)) return { text: _("Your biggest year in {n} years", { n: span }), mark: null };
+    const bigger = t.comp.filter(w => w.val >= cv).map(w => w.yr).concat(firstBigger ? [t.firstYear] : []), last = Math.max(...bigger);
     if (t.Y - last >= 3) return { text: _("Your biggest year since {year}", { year: last }), mark: last };
     const shelf = Object.entries(t.now.cats).filter(([c, v]) => v >= 10 && t.comp.every(w => (w.cats[c] || 0) < v)).sort((a, b) => b[1] - a[1])[0];
     if (shelf) return { text: _("More {shelf} than in any year since {year}", { shelf: ui.CAT_NOUN[shelf[0]], year: t.ws }), mark: null };

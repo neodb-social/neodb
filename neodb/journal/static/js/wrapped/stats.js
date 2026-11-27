@@ -36,7 +36,7 @@
   // the "top shelf": five stars when there are any, else the highest own marks, else the best by the site's average
   let top, topLabel;
   if (fiveStar.length >= 3) { top = fiveStar; topLabel = _("Everything that got five stars this year"); }
-  else if (rated.length >= 3) { top = rated.slice().sort((a, b) => b.rating - a.rating || (b.site_rating || 0) - (a.site_rating || 0)).slice(0, 8); topLabel = _("Your best-rated titles of the year"); if (top.length < 8) { items.filter(i => i.site_rating && !top.includes(i)).sort((a, b) => b.site_rating - a.site_rating).slice(0, 8 - top.length).forEach(i => top.push(i)); topLabel = _("Your highest marks, then the titles others rate highest"); } }
+  else if (rated.length) { top = rated.slice().sort((a, b) => b.rating - a.rating || (b.site_rating || 0) - (a.site_rating || 0)).slice(0, 8); topLabel = _("Your best-rated titles of the year"); const more = top.length < 8 ? items.filter(i => i.site_rating && !top.includes(i)).sort((a, b) => b.site_rating - a.site_rating).slice(0, 8 - top.length) : []; if (more.length) { more.forEach(i => top.push(i)); topLabel = _("Your highest marks, then the titles others rate highest"); } }
   else { top = items.filter(i => i.site_rating).sort((a, b) => b.site_rating - a.site_rating).slice(0, 8); topLabel = _("No stars given this year, so here are the titles others rate highest"); }
   const bestOf = {}; cats.forEach(c => { bestOf[c] = byCat[c].slice().sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.site_rating || 0) - (a.site_rating || 0))[0]; });
   // the quiet favourite: a top mark that few others gave the title
@@ -48,7 +48,8 @@
   const decades = {}; dated.forEach(i => { const d = Math.floor(i.year / 10) * 10; decades[d] = (decades[d] || 0) + 1; });
   const decadeList = Object.keys(decades).map(Number).sort((a, b) => a - b).map(d => ({ decade: d, n: decades[d] }));
   // people
-  const people = {};
+  // no inherited keys: a credit named "Constructor" is a person too
+  const people = Object.create(null);
   items.forEach(i => i.credits.forEach(([role, name]) => { if (!name) return; const key = name.toLowerCase(); if (!people[key]) people[key] = { name, roles: new Set(), items: [] }; people[key].roles.add(role); if (!people[key].items.includes(i)) people[key].items.push(i); }));
   const peopleList = Object.values(people).map(p => ({ name: p.name, roles: [...p.roles], items: p.items, n: p.items.length, creator: [...p.roles].some(r => CREATOR_ROLES.includes(r)) }));
   const creators = peopleList.filter(p => p.creator && p.n >= 2).sort((a, b) => b.n - a.n || b.items[0].rating - a.items[0].rating).slice(0, 6);

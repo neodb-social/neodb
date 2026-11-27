@@ -99,10 +99,10 @@
       </section>
     </main>
     {% if is_owner %}
-      <dialog id="wr-editdlg">
+      <dialog id="wr-editdlg" aria-labelledby="wr-editdlg-title">
         <article>
           <header>
-            <strong>{% trans "Edit the deck" %}</strong>
+            <strong id="wr-editdlg-title">{% trans "Edit the deck" %}</strong>
             <button class="dc-nav"
                     type="button"
                     data-close
@@ -160,10 +160,10 @@
       </dialog>
     {% endif %}
     {% if is_owner %}
-      <dialog id="wr-mkdlg">
+      <dialog id="wr-mkdlg" aria-labelledby="wr-mkdlg-title">
         <article>
           <header>
-            <strong>{% trans "Make a card" %}</strong>
+            <strong id="wr-mkdlg-title">{% trans "Make a card" %}</strong>
             <button class="dc-nav"
                     type="button"
                     data-close
@@ -222,10 +222,10 @@
           </div>
         </article>
       </dialog>
-      <dialog id="wr-pubdlg">
+      <dialog id="wr-pubdlg" aria-labelledby="wr-pubdlg-title">
         <article>
           <header>
-            <strong>{% trans "Share" %}</strong>
+            <strong id="wr-pubdlg-title">{% trans "Share" %}</strong>
             <button class="dc-nav"
                     type="button"
                     data-close
