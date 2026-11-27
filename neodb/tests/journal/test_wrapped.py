@@ -3,6 +3,7 @@ import datetime
 import io
 import json
 import re
+import time
 from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock, patch
 from zoneinfo import ZoneInfo
@@ -250,6 +251,14 @@ class TestPayload:
             == "Title link end"
         )
         assert plain_excerpt("before >!unclosed spoiler") == "before"
+        assert plain_excerpt("a >!b!< c >!d!< e") == "a c e"
+
+    def test_plain_excerpt_stays_linear_on_unclosed_marks(self):
+        # each unclosed mark made the old patterns scan to the end again: about 3 s for 40,000 characters
+        for text in (">!" * 20000, "![" * 20000, "[a](" * 10000, "<" * 40000):
+            started = time.perf_counter()
+            plain_excerpt("start " + text, 2000)
+            assert time.perf_counter() - started < 0.5
 
 
 @pytest.mark.django_db(databases="__all__")

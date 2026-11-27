@@ -132,12 +132,31 @@ def _release_year(item: Item) -> int | None:
     return None
 
 
+def _drop_spoilers(s: str) -> str:
+    """The text without its >!spoilers!<, and without anything after a spoiler that is not closed.
+
+    str.find keeps this linear; a lazy regex scans to the end again for each unclosed >!."""
+    out, pos = [], 0
+    while (start := s.find(">!", pos)) >= 0:
+        out.append(s[pos:start])
+        end = s.find("!<", start + 2)
+        if end < 0:
+            return "".join(out)
+        out.append(" ")
+        pos = end + 2
+    out.append(s[pos:])
+    return "".join(out)
+
+
 def plain_excerpt(md: str, size: int = EXCERPT_CHARS) -> str:
-    """A short plain-text start of a review: no spoilers, images or markdown marks."""
-    s = re.sub(r">!.*?!<", " ", md or "", flags=re.S).split(">!")[0]
-    s = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", s)
-    s = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", s)
-    s = re.sub(r"<[^>]+>", " ", s)
+    """A short plain-text start of a review: no spoilers, images or markdown marks.
+
+    The text is cut first to a length the excerpt can need, and each pattern is bounded, so a long text
+    with many unclosed marks still takes linear time."""
+    s = _drop_spoilers((md or "")[: size * 10 + 1000])
+    s = re.sub(r"!\[[^\]]{0,500}\]\([^)]{0,2000}\)", " ", s)
+    s = re.sub(r"\[([^\]]{0,500})\]\([^)]{0,2000}\)", r"\1", s)
+    s = re.sub(r"<[^>]{1,500}>", " ", s)
     s = re.sub(r"[#*_>`~]+", "", s)
     return re.sub(r"\s+", " ", s).strip()[:size]
 
