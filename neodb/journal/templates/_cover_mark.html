@@ -4,9 +4,6 @@
    class="dc-mark{% if shelf_type %} marked{% endif %}"
    data-cover-mark="{{ uuid }}"
    {% if oob %}hx-swap-oob="outerHTML:[data-cover-mark='{{ uuid }}']"{% endif %}
-   hx-get="{% url 'journal:mark' uuid %}?{% if not shelf_type %}shelf_type=wishlist&amp;{% endif %}inline=1"
-   hx-target="body"
-   hx-swap="beforeend"
    title="{% if shelf_type %}{{ label|capfirst }}{% else %}{% trans "Add mark" %}{% endif %}">
   {% if shelf_type == "complete" %}
     <i class="fa-solid fa-check"></i>

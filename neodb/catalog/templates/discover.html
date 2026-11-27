@@ -234,6 +234,17 @@
             htmx.ajax('POST', '{% url "journal:cover_marks" %}', {values: {items: coverItems.join(',')}, swap: 'none'});
           });
         }
+        // one listener opens the mark dialog for every cover badge, so the
+        // shared cards carry no request markup of their own; a cover not
+        // shelved yet starts on the wishlist
+        const markUrl = '{% url "journal:mark" "_" %}';
+        document.getElementById('discover_top').addEventListener('click', e => {
+          const badge = e.target.closest('.dc-mark');
+          if (!badge) return;
+          e.preventDefault();
+          const query = badge.classList.contains('marked') ? '?inline=1' : '?shelf_type=wishlist&inline=1';
+          htmx.ajax('GET', markUrl.replace('_', badge.dataset.coverMark) + query, {target: 'body', swap: 'beforeend'});
+        });
         const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
         const savedIds = [];
         // apply the saved visibility; data-visible feeds the editor

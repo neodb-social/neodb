@@ -310,7 +310,8 @@ def test_mark_save_inline_swaps_cover_badge(client):
     badge = _cover_badge(response.content, book)
     assert badge.get("class") == "dc-mark marked"
     assert badge.get("title") == "Read"
-    assert badge.get("hx-get") == f"{url}?inline=1"
+    # the page opens the dialog for every badge, so a badge has no request
+    assert badge.get("hx-get") is None
     assert badge.xpath(".//i[@class='fa-solid fa-check']")
     assert badge.xpath(".//*[@data-rating='8.0']")
 
@@ -318,7 +319,7 @@ def test_mark_save_inline_swaps_cover_badge(client):
     badge = _cover_badge(response.content, book)
     assert badge.get("class") == "dc-mark"
     assert badge.get("title") == "Add mark"
-    assert badge.get("hx-get") == f"{url}?shelf_type=wishlist&inline=1"
+    assert badge.get("hx-get") is None
 
 
 @pytest.mark.django_db(databases="__all__")

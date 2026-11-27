@@ -798,6 +798,10 @@ class TestDiscoverFragments:
         assert f'data-cover-mark="{book.uuid}"' in guest
         assert "dc-member" not in guest
         assert badges_url not in guest
+        # one page listener opens the dialog; a card carries no request
+        mark_url = reverse("journal:mark", args=[book.uuid])
+        assert mark_url not in guest
+        assert reverse("journal:mark", args=["_"]) not in guest
 
         # the fan shelved the book, but the shared card has no viewer data:
         # the page asks for the badges after it loads
@@ -806,6 +810,8 @@ class TestDiscoverFragments:
         assert 'class="dc-mark marked"' not in member
         assert "dc-main dc-member" in member
         assert badges_url in member
+        assert mark_url not in member
+        assert reverse("journal:mark", args=["_"]) in member
 
     def test_episode_comment_link_is_switched_on_in_the_browser(self, site_config):
         site_config.discover_show_verified_podcasts = True
