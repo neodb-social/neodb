@@ -527,6 +527,39 @@ class TestReviewFixes:
         assert "Oldest List" not in titles(None)
         assert "Oldest List" in titles([oldest.uuid])
 
+    def test_friend_cards_pick_from_everyone_followed(self):
+        idle = [
+            User.register(email=f"rfi{k}@test.com", username=f"rfidle{k}").identity
+            for k in range(3)
+        ]
+        busy = User.register(email="rfb@test.com", username="rfbusy").identity
+        busier = User.register(email="rfb2@test.com", username="rfbusier").identity
+        for p in idle + [busy, busier]:
+            Takahe.follow(self.me.pk, p.pk, force_accept=True)
+        complete(busy, self.book, at(3, 3))
+        complete(busier, self.book, at(3, 4))
+        complete(busier, Edition.objects.create(title="More"), at(3, 5))
+        with patch("journal.wrapped.FRIENDS_MAX", 1):
+            friends = build_payload(self.me, YEAR, 0, TZ)["friends"]
+        # followed accounts with no completion this year never take the places of those with some
+        assert [f["handle"].split("@")[0] for f in friends] == ["rfbusier"]
+
+    def test_deleted_titles_stay_off_the_waiting_card(self):
+        gone = Edition.objects.create(title="Gone Book")
+        kept = Edition.objects.create(title="Still Here")
+        shelf = self.me.shelf_manager.get_shelf(ShelfType.WISHLIST)
+        for item, when in ((gone, at(1, 1, year=2020)), (kept, at(1, 1, year=2021))):
+            ShelfMember(
+                owner=self.me,
+                item=item,
+                parent=shelf,
+                visibility=0,
+                created_time=when,
+                position=0,
+            ).save(**QUIET)
+        Edition.objects.filter(pk=gone.pk).update(is_deleted=True)
+        assert build_payload(self.me, YEAR, 0, TZ)["waiting"]["title"] == "Still Here"
+
     def test_a_visitor_never_sees_people_they_block_or_moderated_accounts(self):
         pal = User.register(email="rfp@test.com", username="rfpal").identity
         Takahe.follow(self.me.pk, pal.pk, force_accept=True)
@@ -749,8 +782,12 @@ class TestInstanceStats:
         complete(me, Edition.objects.create(title="Secret"), at(2, 2), vis=2)
         # the top title reaches every visitor, so a private completion never names it
         assert compute_instance_stats(YEAR)["top"] is None
-        complete(me, Edition.objects.create(title="Open"), at(2, 3))
+        opened = Edition.objects.create(title="Open")
+        complete(me, opened, at(2, 3))
         assert compute_instance_stats(YEAR)["top"]["title"] == "Open"
+        # nor does a deleted title
+        Edition.objects.filter(pk=opened.pk).update(is_deleted=True)
+        assert compute_instance_stats(YEAR)["top"] is None
 
     def test_a_cold_cache_marks_the_payload_as_warming(self):
         clear_wrapped_cache()

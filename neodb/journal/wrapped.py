@@ -368,7 +368,8 @@ def _friends(
     that setting covers their homepage and their own cards, not being named on someone else's.
     """
     start, end = year_range(year, tz)
-    following = [f for f in owner.following if f not in hidden][:FRIENDS_MAX]
+    # the cap applies to members with completions, so followed accounts with none never take their places
+    following = [f for f in owner.following if f not in hidden]
     if not following:
         return []
     people = dict(
@@ -396,7 +397,9 @@ def _friends(
             {"u": my_items[item_id], "d": ts.astimezone(tz).date().isoformat()}
         )
     # names and handles from the takahe identities in one query, not one per member
-    ids = [pk for pk in people if totals.get(pk)]
+    ids = sorted((pk for pk in people if totals.get(pk)), key=lambda pk: -totals[pk])[
+        :FRIENDS_MAX
+    ]
     names = {
         pk: (name or username, f"{username}@{domain}")
         for pk, name, username, domain in TakaheIdentity.objects.filter(
@@ -574,6 +577,7 @@ def _waiting(
             parent__shelf_type=ShelfType.WISHLIST,
             visibility__lte=level,
             created_time__lt=end,
+            item__is_deleted=False,
         )
         .order_by("created_time")
         .values_list("item_id", "created_time")
@@ -606,6 +610,7 @@ def compute_instance_stats(year: int) -> dict[str, Any]:
         created_time__lt=end,
         owner__local=True,
         owner__deleted__isnull=True,
+        item__is_deleted=False,
     )
     # the top title is shown to anyone, so only public completions count for it
     top = (
@@ -775,7 +780,7 @@ def _kindred(
     candidates = [int(m[0]) for m in (kindred_matches(year) or {}).get(owner.pk, [])]
     if not candidates or not my_items:
         return None
-    # the whole following list, not the capped one the friend cards use
+    # the whole following list
     skip = set(owner.following) | set(owner.ignoring) | set(hidden)
     candidates = [b for b in candidates if b not in skip]
     if not candidates:
