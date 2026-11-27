@@ -79,6 +79,13 @@ def wrapped_cache(settings):
     cache.clear()
 
 
+@pytest.fixture(autouse=True)
+def _clear_circles_cache(wrapped_cache):
+    """Takes the place of the conftest fixture of this name, which clears reco keys in the shared redis:
+    here the cache is this module's own and was just cleared, so no fixture of this module touches redis.
+    The class fixtures that build data ask for ``wrapped_cache`` too, so it always runs first."""
+
+
 def clear_wrapped_cache() -> None:
     cache.clear()
 
@@ -126,7 +133,7 @@ def complete(identity, item, when, vis=0, grade=None, comment=None, tags=()):
 @pytest.mark.django_db(databases="__all__")
 class TestPayload:
     @pytest.fixture(autouse=True)
-    def setup_data(self):
+    def setup_data(self, wrapped_cache):
         clear_wrapped_cache()
         self.user = User.register(email="wrap@test.com", username="wrapper")
         self.me = self.user.identity
@@ -264,7 +271,7 @@ class TestPayload:
 @pytest.mark.django_db(databases="__all__")
 class TestFriends:
     @pytest.fixture(autouse=True)
-    def setup_data(self):
+    def setup_data(self, wrapped_cache):
         clear_wrapped_cache()
         self.me = User.register(email="f1@test.com", username="fme").identity
         self.pal = User.register(email="f2@test.com", username="fpal").identity
@@ -318,7 +325,7 @@ class TestKindred:
     """A member the owner does not follow whose public year overlaps the owner's the most."""
 
     @pytest.fixture(autouse=True)
-    def setup_data(self):
+    def setup_data(self, wrapped_cache):
         clear_wrapped_cache()
         self.me = self.member("kme")
         self.rare = self.member("krare")
@@ -455,7 +462,7 @@ class TestReviewFixes:
     """What the branch review found: the visitor payload, saves, and the data the cards draw from."""
 
     @pytest.fixture(autouse=True)
-    def setup_data(self):
+    def setup_data(self, wrapped_cache):
         clear_wrapped_cache()
         self.user = User.register(email="rf@test.com", username="rfowner")
         self.me = self.user.identity
@@ -909,7 +916,7 @@ class TestCardText:
 @pytest.mark.django_db(databases="__all__")
 class TestViews:
     @pytest.fixture(autouse=True)
-    def setup_data(self):
+    def setup_data(self, wrapped_cache):
         clear_wrapped_cache()
         self.user = User.register(email="v1@test.com", username="owner")
         self.me = self.user.identity
