@@ -348,17 +348,18 @@ def _friends(
 ) -> list[dict[str, Any]]:
     """Followed members with public completions this year: their totals and the shared titles.
 
-    Only anonymously viewable members and only their public marks; titles that are not also in
-    this member's year are counted but not sent.
+    Only their public marks; titles that are not also in this member's year are counted but not
+    sent. A followed member who hides their own pages from signed-out visitors is still listed:
+    that setting covers their homepage and their own cards, not being named on someone else's.
     """
     start, end = year_range(year, tz)
     following = list(owner.following)[:FRIENDS_MAX]
     if not following:
         return []
     people = dict(
-        APIdentity.objects.filter(
-            pk__in=following, anonymous_viewable=True, deleted__isnull=True
-        ).values_list("pk", "username")
+        APIdentity.objects.filter(pk__in=following, deleted__isnull=True).values_list(
+            "pk", "username"
+        )
     )
     if not people:
         return []

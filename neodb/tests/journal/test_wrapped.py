@@ -247,11 +247,16 @@ class TestFriends:
         complete(self.pal, self.other, at(1, 2), vis=0)
         complete(self.shy, self.shared, at(1, 3))
 
-    def test_only_public_titles_of_viewable_members(self):
-        friends = build_payload(self.me, YEAR, 0, TZ)["friends"]
-        assert [f["handle"].split("@")[0] for f in friends] == ["fpal"]
-        assert friends[0]["n"] == 2
-        assert [i["u"] for i in friends[0]["items"]] == [self.shared.url]
+    def test_only_public_titles_and_members_hidden_from_visitors_still_count(self):
+        friends = {
+            f["handle"].split("@")[0]: f
+            for f in build_payload(self.me, YEAR, 0, TZ)["friends"]
+        }
+        # fshy hides their own pages from signed-out visitors, which does not keep them off this deck
+        assert sorted(friends) == ["fpal", "fshy"]
+        assert friends["fpal"]["n"] == 2
+        assert [i["u"] for i in friends["fpal"]["items"]] == [self.shared.url]
+        assert [i["u"] for i in friends["fshy"]["items"]] == [self.shared.url]
 
     def test_visitors_get_friends_only_when_a_social_card_can_show(self):
         deck = WrappedDeck.objects.create(owner=self.me, year=YEAR)
