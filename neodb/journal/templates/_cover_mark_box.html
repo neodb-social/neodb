@@ -1,0 +1,6 @@
+{% load discover %}
+{% if item.class_name != "people" %}
+  <span class="dc-mark-box {{ item|cover_shape }}{% if item.class_name == "tvshow" or item.class_name == "work" %} status-only{% endif %}">
+    {% include "_cover_mark.html" with uuid=item.uuid only %}
+  </span>
+{% endif %}

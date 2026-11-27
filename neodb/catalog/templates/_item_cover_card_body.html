@@ -25,6 +25,9 @@
     {% with credit=item|primary_credit %}<span class="dc-meta">{{ credit }}</span>{% endwith %}
   {% endif %}
 </a>
+{% if mark_badge %}
+  {% include "_cover_mark_box.html" %}
+{% endif %}
 {% if show_progress_badges %}
   {% if can_update_progress %}
     <a href="#"

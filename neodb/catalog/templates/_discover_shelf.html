@@ -25,7 +25,7 @@
   </header>
   <ul class="dc-cards">
     {% for item in gallery.items %}
-      {% include "_item_cover_card.html" %}
+      {% include "_item_cover_card.html" with mark_badge=1 %}
     {% endfor %}
   </ul>
 </section>

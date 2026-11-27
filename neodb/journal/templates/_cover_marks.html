@@ -1,0 +1,3 @@
+{% for b in badges %}
+  {% include "_cover_mark.html" with uuid=b.uuid shelf_type=b.shelf_type label=b.label grade=b.grade only %}
+{% endfor %}

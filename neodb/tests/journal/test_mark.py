@@ -3,10 +3,21 @@ from datetime import timedelta
 
 import pytest
 from django.core.cache import cache
+from django.db import connections
+from django.test.utils import CaptureQueriesContext
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
+from lxml import html as lxml_html
 
-from catalog.models import Edition, IdType, Podcast, PodcastEpisode, TVEpisode
+from catalog.models import (
+    Edition,
+    Game,
+    IdType,
+    Movie,
+    Podcast,
+    PodcastEpisode,
+    TVEpisode,
+)
 from journal.jobs.migrations import backfill_member_progress_from_notes_20260720
 from journal.models import (
     Comment,
@@ -271,6 +282,134 @@ def test_mark_htmx_post_without_session_redirects_to_login(client):
     )
     assert response.status_code == 302
     assert response["Location"].startswith("/account/login")
+
+
+def _cover_oob(item) -> str:
+    return f"hx-swap-oob=\"outerHTML:[data-cover-mark='{item.uuid}']\""
+
+
+def _cover_badge(content: bytes, item) -> lxml_html.HtmlElement:
+    badges = [
+        el
+        for el in lxml_html.fragments_fromstring(content.decode())
+        if not isinstance(el, str) and el.get("data-cover-mark") == item.uuid
+    ]
+    assert len(badges) == 1
+    return badges[0]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_save_inline_swaps_cover_badge(client):
+    user = User.register(email="mark-cover@example.com", username="markcover")
+    book = Edition.objects.create(title="Cover Book")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:mark", args=[book.uuid])
+
+    response = client.post(url, _mark_post_data(inline="1"), HTTP_HX_REQUEST="true")
+    assert _cover_oob(book) in response.content.decode()
+    badge = _cover_badge(response.content, book)
+    assert badge.get("class") == "dc-mark marked"
+    assert badge.get("title") == "Read"
+    # the page opens the dialog for every badge, so a badge has no request
+    assert badge.get("hx-get") is None
+    assert badge.xpath(".//i[@class='fa-solid fa-check']")
+    assert badge.xpath(".//*[@data-rating='8.0']")
+
+    response = client.post(url, {"delete": "1", "inline": "1"}, HTTP_HX_REQUEST="true")
+    badge = _cover_badge(response.content, book)
+    assert badge.get("class") == "dc-mark"
+    assert badge.get("title") == "Add mark"
+    assert badge.get("hx-get") is None
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_mark_dialog_keeps_stored_shelf_over_asked_status(client):
+    user = User.register(email="mark-stale@example.com", username="markstale")
+    book = Edition.objects.create(title="Stale Card Book")
+    Mark(user.identity, book).update(ShelfType.COMPLETE, rating_grade=8)
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:mark", args=[book.uuid])
+
+    # a card rendered before the item was shelved still asks for wishlist
+    page = lxml_html.fromstring(
+        client.get(f"{url}?shelf_type=wishlist&inline=1").content.decode()
+    )
+    assert page.xpath('//input[@name="status"]/@value') == ["complete"]
+
+    other = Edition.objects.create(title="Unshelved Book")
+    other_url = reverse("journal:mark", args=[other.uuid])
+    page = lxml_html.fromstring(
+        client.get(f"{other_url}?shelf_type=progress&inline=1").content.decode()
+    )
+    assert page.xpath('//input[@name="status"]/@value') == ["progress"]
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_cover_marks_returns_badges_of_viewer_shelved_items_only(client):
+    user = User.register(email="cover-marks@example.com", username="covermarks")
+    other = User.register(email="cover-other@example.com", username="coverother")
+    done = Edition.objects.create(title="Done")
+    wished = Movie.objects.create(title="Wished")
+    dropped = Game.objects.create(title="Dropped")
+    theirs = Edition.objects.create(title="Theirs")
+    Mark(user.identity, done).update(ShelfType.COMPLETE, rating_grade=8)
+    Mark(user.identity, wished).update(ShelfType.WISHLIST)
+    Mark(user.identity, dropped).update(ShelfType.DROPPED)
+    Mark(other.identity, theirs).update(ShelfType.COMPLETE, rating_grade=6)
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+
+    junk = ["bad!", "", "-x", "!" * 22, "z" * 22, "1" * 100_000]
+    items = [done.uuid, wished.uuid, dropped.uuid, theirs.uuid, *junk]
+    response = client.post(reverse("journal:cover_marks"), {"items": ",".join(items)})
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert html.count('class="dc-mark marked"') == 3
+    assert "hx-swap-oob" not in html
+    assert f'data-cover-mark="{done.uuid}"' in html
+    assert 'title="Read"' in html
+    assert 'data-rating="8' in html
+    assert f'data-cover-mark="{wished.uuid}"' in html
+    assert 'title="To watch"' in html
+    assert "fa-solid fa-bookmark" in html
+    assert f'data-cover-mark="{dropped.uuid}"' in html
+    assert "fa-solid fa-ban" in html
+    assert theirs.uuid not in html
+    assert 'data-rating="6' not in html
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_cover_marks_queries_do_not_grow_with_covers(client):
+    user = User.register(email="cover-n@example.com", username="covern")
+    books = [Edition.objects.create(title=f"N{i}") for i in range(6)]
+    for b in books:
+        Mark(user.identity, b).update(ShelfType.COMPLETE, rating_grade=7)
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = reverse("journal:cover_marks")
+
+    def count(n: int) -> int:
+        items = ",".join(b.uuid for b in books[:n])
+        with (
+            CaptureQueriesContext(connections["default"]) as d,
+            CaptureQueriesContext(connections["takahe"]) as t,
+        ):
+            html = client.post(url, {"items": items}).content.decode()
+        assert html.count('class="dc-mark marked"') == n
+        return len(d.captured_queries) + len(t.captured_queries)
+
+    count(1)
+    assert count(1) == count(6)
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_cover_marks_is_a_member_post(client):
+    url = reverse("journal:cover_marks")
+    assert client.post(url, {"items": ""}).status_code == 302
+    user = User.register(email="cover-get@example.com", username="coverget")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    assert client.get(url).status_code == 405
+    response = client.post(url, {"items": ""})
+    assert response.status_code == 200
+    assert response.content.strip() == b""
 
 
 @pytest.mark.django_db(databases="__all__")

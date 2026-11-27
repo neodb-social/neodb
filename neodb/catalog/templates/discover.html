@@ -34,7 +34,8 @@
   </head>
   <body>
     {% include "_header.html" %}
-    <main class="dc-main" id="discover_top">
+    <main class="dc-main{% if request.user.is_authenticated %} dc-member{% endif %}"
+          id="discover_top">
       {% if request.user.is_authenticated %}
         {% with unread=request.user.unread_announcements %}
           {% if unread %}
@@ -225,6 +226,38 @@
         });
         const spotlight = document.getElementById('spotlight');
         if (spotlight && !spotlight.querySelector('.dc-spot')) spotlight.remove();
+        // the shared covers carry no viewer data: fetch the badges of the
+        // ones this member shelved and swap them in one pass, not as one
+        // htmx swap and event round per badge
+        const coverBadges = {};
+        document.querySelectorAll('[data-cover-mark]').forEach(el => {
+          (coverBadges[el.dataset.coverMark] ??= []).push(el);
+        });
+        const coverItems = Object.keys(coverBadges);
+        if (coverItems.length) {
+          fetch('{% url "journal:cover_marks" %}', {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            body: new URLSearchParams({items: coverItems.join(',')}),
+          }).then(r => r.ok ? r.text() : '').then(html => {
+            const t = document.createElement('template');
+            t.innerHTML = html;
+            t.content.querySelectorAll('[data-cover-mark]').forEach(badge => {
+              (coverBadges[badge.dataset.coverMark] || []).forEach(el => el.replaceWith(badge.cloneNode(true)));
+            });
+          }).catch(() => {});
+        }
+        // one listener opens the mark dialog for every cover badge, so the
+        // shared cards carry no request markup of their own; a cover not
+        // shelved yet starts on the wishlist
+        const markUrl = '{% url "journal:mark" "_" %}';
+        document.getElementById('discover_top').addEventListener('click', e => {
+          const badge = e.target.closest('.dc-mark');
+          if (!badge) return;
+          e.preventDefault();
+          const query = badge.classList.contains('marked') ? '?inline=1' : '?shelf_type=wishlist&inline=1';
+          htmx.ajax('GET', markUrl.replace('_', badge.dataset.coverMark) + query, {target: 'body', swap: 'beforeend'});
+        });
         const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
         const savedIds = [];
         // apply the saved visibility; data-visible feeds the editor
@@ -257,6 +290,8 @@
         // the personal rows arrive after the page; with none to show, the
         // section and its chip go
         document.getElementById('recommendations').addEventListener('htmx:afterSwap', e => {
+          // a badge swapped in a card bubbles up here too
+          if (e.target !== e.currentTarget) return;
           if (e.target.querySelector('.dc-cards')) return;
           e.target.style.display = 'none';
           const chip = document.querySelector('.dc-chips a[href="#recommendations"]');

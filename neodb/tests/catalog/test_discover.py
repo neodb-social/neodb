@@ -1,13 +1,17 @@
+import re
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 from types import SimpleNamespace
 from typing import Sequence
 
 import pytest
+from django.conf import settings
 from django.core.cache import cache
 from django.db import connections
 from django.test import Client
+from django.template.loader import render_to_string
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone
 
 from catalog.jobs.discover import DiscoverGenerator
@@ -786,6 +790,52 @@ class TestDiscoverFragments:
         assert member == []
         assert "Anna Director" in content
         assert 'id="layoutEditButton"' in content
+
+    def test_cover_mark_badge_is_shared_and_filled_in_the_browser(self, site_config):
+        book = Edition.objects.create(title="Badge Book")
+        fan = _mark_by_many(book, 1, "badgefan")[0]
+        DiscoverGenerator().run()
+        badges_url = reverse("journal:cover_marks")
+
+        guest = Client().get("/discover/").content.decode()
+        assert f'data-cover-mark="{book.uuid}"' in guest
+        assert "dc-member" not in guest
+        assert badges_url not in guest
+        # one page listener opens the dialog; a card carries no request
+        mark_url = reverse("journal:mark", args=[book.uuid])
+        assert mark_url not in guest
+        assert reverse("journal:mark", args=["_"]) not in guest
+
+        # the fan shelved the book, but the shared card has no viewer data:
+        # the page asks for the badges after it loads
+        member = _member_client(fan).get("/discover/").content.decode()
+        assert f'data-cover-mark="{book.uuid}"' in member
+        assert 'class="dc-mark marked"' not in member
+        assert "dc-main dc-member" in member
+        assert badges_url in member
+        assert mark_url not in member
+        assert reverse("journal:mark", args=["_"]) in member
+
+    def test_cover_mark_badge_follows_how_each_type_is_marked(self, site_config):
+        book = Edition.objects.create(title="Plain Book")
+        show = TVShow.objects.create(title="Seasoned Show")
+        person = People.objects.create(
+            localized_name=[{"lang": "en", "text": "Followed Person"}]
+        )
+
+        def box(item: Item) -> str:
+            html = render_to_string(
+                "_item_cover_card_body.html",
+                {"item": item, "mark_badge": 1, **settings.SITE_INFO},
+            )
+            match = re.search(r'<span class="dc-mark-box[^"]*"', html)
+            return match.group(0) if match else ""
+
+        # a book takes the add-mark badge; a show is marked through its
+        # seasons and shows only a status it has; a person has none
+        assert box(book) == '<span class="dc-mark-box tall"'
+        assert box(show) == '<span class="dc-mark-box tall status-only"'
+        assert box(person) == ""
 
     def test_episode_comment_link_is_switched_on_in_the_browser(self, site_config):
         site_config.discover_show_verified_podcasts = True

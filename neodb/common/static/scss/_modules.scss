@@ -468,6 +468,82 @@ a:hover .dc-cover img {
   }
 }
 
+// the viewer's own mark on a shared cover, in its top right corner. It sits
+// outside the cover link, so the box mirrors the cover and passes clicks
+// through to it. A shelved cover shows its status icon and the viewer's stars
+// on hover; an unshelved one shows the add-mark icon on hover only.
+.dc-mark-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  pointer-events: none;
+
+  &.sq {
+    aspect-ratio: 1;
+  }
+}
+
+.dc-mark {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: none;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--dc-radius-sm);
+  background: color-mix(in srgb, var(--pico-contrast-background) 80%, transparent);
+  color: var(--pico-contrast-inverse);
+  font-size: var(--dc-fs-xs);
+  text-decoration: none;
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--pico-contrast-inverse);
+    background: var(--pico-primary-background);
+  }
+
+  // icons set line-height 1; the text line height makes the pill as tall
+  // as the rating badge
+  > i {
+    line-height: inherit;
+  }
+
+  .dc-mark-grade {
+    display: none;
+  }
+
+  &:hover .dc-mark-grade,
+  &:focus-visible .dc-mark-grade {
+    display: inline-block;
+  }
+}
+
+.dc-member {
+  .dc-mark.marked,
+  .dc-card:focus-within .dc-mark,
+  .dc-spot:focus-within .dc-mark {
+    display: inline-flex;
+  }
+
+  @media (hover: hover) {
+    .dc-card:hover .dc-mark,
+    .dc-spot:hover .dc-mark {
+      display: inline-flex;
+    }
+  }
+
+  // a show or a work is marked through its seasons or editions, as on its
+  // item page, so its cover shows a status it has but never add-mark
+  .dc-mark-box.status-only .dc-mark:not(.marked) {
+    display: none;
+  }
+}
+
 // reading progress along the bottom edge of a cover
 .dc-progress {
   position: absolute;
