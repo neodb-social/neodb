@@ -11964,3 +11964,12 @@ msgstr "@{handle} 不在你的关注中，今年却与你有 {n} 部相同作品
 #: journal/wrapped_text.py:217
 msgid "View profile"
 msgstr "查看主页"
+
+#: journal/wrapped_text.py:398
+#, python-brace-format
+msgid "A deck can have up to {n} cards of your own"
+msgstr "一个卡片组最多可以有 {n} 张自己制作的卡片"
+
+#: journal/wrapped_text.py:399
+msgid "This audience sees none of this year's titles. Open another:"
+msgstr "这个可见范围看不到今年的任何作品。打开其他可见范围："

@@ -164,6 +164,21 @@ def mark_fetch_completed(url):
     )
 
 
+def fetch_job_id(url: str) -> str:
+    """The id of the queued fetch job for this url, so a caller can follow its state."""
+    return "fetch_" + hashlib.md5(url.encode()).hexdigest()
+
+
+def fetch_job(url: str) -> Job | None:
+    """The queued, running or recently finished fetch job for this url, if rq still has it."""
+    try:
+        return Job.fetch(
+            id=fetch_job_id(url), connection=django_rq.get_connection("fetch")
+        )
+    except Exception:
+        return None
+
+
 def enqueue_fetch(url, is_refetch, user=None):
     # SSRF gate. ``_fetch_task`` will eventually issue HTTP to ``url`` via
     # ``SiteManager``; reject malformed, non-HTTP(S), and private/loopback
@@ -174,7 +189,7 @@ def enqueue_fetch(url, is_refetch, user=None):
     if not is_valid_url(url):
         logger.warning(f"enqueue_fetch: refusing unsafe URL {url!r}")
         return None
-    job_id = "fetch_" + hashlib.md5(url.encode()).hexdigest()
+    job_id = fetch_job_id(url)
     in_progress = False
     try:
         job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))

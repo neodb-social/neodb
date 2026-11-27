@@ -14,12 +14,14 @@ import re
 import statistics
 import uuid
 from collections import defaultdict
+from collections.abc import Set as AbstractSet
 from typing import Any
 from zoneinfo import ZoneInfo
 
 import django_rq
 from django.conf import settings
 from django.core.cache import cache
+from django.core.signing import b62_decode
 from django.db import connection
 from django.db.models import Count, F, Min, QuerySet, Window
 from django.db.models.functions import RowNumber, TruncDate
@@ -51,6 +53,7 @@ from .models import (
     ShelfType,
     TagMember,
     WrappedDeck,
+    q_piece_visible_to_user,
 )
 from .models.wrapped import ALL_HIDDEN, AUDIENCES
 
@@ -323,17 +326,18 @@ def _history(
             {"m": z(), "b": z(), "c": {}, "d": z(), "r": z(), "f": z(), "g": z()},
         )
         mo = d.month - 1
+        if d.year == year - 1 and cat:
+            last_year[cat] += 1
+        # a bulk-import day counts toward nothing the cards compare, its ratings included
+        if per_day[d] > BULK_DAY:
+            y["b"][mo] += 1
+            continue
         g = grades.get(item_id)
         if g:
             y["r"][mo] += 1
             y["g"][mo] += g
             if g == 10:
                 y["f"][mo] += 1
-        if d.year == year - 1 and cat:
-            last_year[cat] += 1
-        if per_day[d] > BULK_DAY:
-            y["b"][mo] += 1
-            continue
         y["m"][mo] += 1
         if cat:
             y["c"].setdefault(cat, z())[mo] += 1
@@ -354,8 +358,30 @@ def _history(
     )
 
 
+def _hidden_people(viewer: Any) -> set[int]:
+    """Members this visitor must not see named or counted on someone else's cards: moderated accounts
+    they do not follow, and anyone they block or mute or who blocks them, as the journal's own rule for
+    other people's entries does. Whether a member lets signed-out visitors open their pages does not
+    matter here: that covers only the member's own pages, not being named on someone else's."""
+    restricted = set(
+        TakaheIdentity.objects.filter(restriction__gt=0).values_list("pk", flat=True)
+    )
+    if not viewer or not viewer.is_authenticated:
+        return restricted
+    me = viewer.identity
+    return (
+        (restricted - set(me.following) - {me.pk})
+        | set(Takahe.get_rejecting_ids(me.pk))
+        | set(Takahe.get_muting_ids(me.pk))
+    )
+
+
 def _friends(
-    owner: APIdentity, year: int, tz: ZoneInfo, my_items: dict[int, str]
+    owner: APIdentity,
+    year: int,
+    tz: ZoneInfo,
+    my_items: dict[int, str],
+    hidden: AbstractSet[int] = frozenset(),
 ) -> list[dict[str, Any]]:
     """Followed members with public completions this year: their totals and the shared titles.
 
@@ -364,7 +390,7 @@ def _friends(
     that setting covers their homepage and their own cards, not being named on someone else's.
     """
     start, end = year_range(year, tz)
-    following = list(owner.following)[:FRIENDS_MAX]
+    following = [f for f in owner.following if f not in hidden][:FRIENDS_MAX]
     if not following:
         return []
     people = dict(
@@ -410,19 +436,46 @@ def _friends(
     ]
 
 
-def _collections(owner: APIdentity, level: int) -> list[dict[str, Any]]:
+def _collections(
+    owner: APIdentity, level: int, viewer: Any = None, refs: list[str] | None = None
+) -> list[dict[str, Any]]:
+    """The owner's latest collections at this level and the latest they liked, for the picker, plus any
+    collection a saved card uses, however old. Another member's collection is that member's own content,
+    so it must pass the journal's rule for this visitor, as its own page would."""
     own = list(
         Collection.objects.filter(owner=owner, visibility__lte=level)
         .order_by("-edited_time")
         .values_list("pk", flat=True)[:COLLECTIONS_MAX]
     )
+    others = (
+        Collection.objects.filter(visibility=0)
+        .exclude(owner=owner)
+        .filter(q_piece_visible_to_user(viewer))  # pyrefly: ignore[bad-argument-type]
+    )
     liked = list(
-        Like.objects.filter(
-            owner=owner, target__in=Collection.objects.filter(visibility=0)
-        )
+        Like.objects.filter(owner=owner, target__in=others)
         .order_by("-created_time")
         .values_list("target_id", flat=True)[:COLLECTIONS_MAX]
     )
+    uids = []
+    for r in refs or []:
+        try:
+            uids.append(uuid.UUID(int=b62_decode(r)))
+        except ValueError:
+            continue
+    if uids:
+        own += [
+            pk
+            for pk in Collection.objects.filter(
+                owner=owner, visibility__lte=level, uid__in=uids
+            ).values_list("pk", flat=True)
+            if pk not in own
+        ]
+        liked += [
+            pk
+            for pk in others.filter(uid__in=uids).values_list("pk", flat=True)
+            if pk not in liked
+        ]
     ids = own + [i for i in liked if i not in own]
     if not ids:
         return []
@@ -657,7 +710,9 @@ def compute_kindred(year: int) -> dict[int, list[list[float]]]:
         if 2 <= len(f) <= KINDRED_ITEM_CAP
     }
     total = {o: sum(weight.get(i, 0.0) for i in items) for o, items in titles.items()}
-    excluded = excluded_identity_ids()
+    excluded = excluded_identity_ids() | set(
+        TakaheIdentity.objects.filter(restriction__gt=0).values_list("pk", flat=True)
+    )
     local = set(
         APIdentity.objects.filter(pk__in=list(titles), local=True).values_list(
             "pk", flat=True
@@ -706,7 +761,11 @@ def kindred_matches(year: int) -> dict[int, list[list[float]]] | None:
 
 
 def _kindred(
-    owner: APIdentity, year: int, tz: ZoneInfo, my_items: dict[int, str]
+    owner: APIdentity,
+    year: int,
+    tz: ZoneInfo,
+    my_items: dict[int, str],
+    hidden: AbstractSet[int] = frozenset(),
 ) -> dict[str, Any] | None:
     """The kindred member for this deck: the best cached match the owner may be shown now, with the titles
     both finished this year in public. The batch skipped bulk days and used the site's time zone, so the
@@ -719,6 +778,7 @@ def _kindred(
         set(Takahe.get_following_ids(owner.pk))
         | set(Takahe.get_rejecting_ids(owner.pk))
         | set(Takahe.get_muting_ids(owner.pk))
+        | hidden
     )
     candidates = [b for b in candidates if b not in skip]
     if not candidates:
@@ -783,6 +843,8 @@ def build_payload(
     tz: ZoneInfo,
     include_friends: bool = True,
     include_kindred: bool = False,
+    viewer: Any = None,
+    collection_refs: list[str] | None = None,
 ) -> dict[str, Any]:
     start, end = year_range(year, tz)
     ctypes = _ctype_categories()
@@ -812,11 +874,13 @@ def build_payload(
             owner=owner, item_id__in=ids, visibility__lte=level, grade__isnull=False
         ).values_list("item_id", "grade")
     )
-    comment = dict(
-        Comment.objects.filter(
+    # plain text with spoilers taken out, as the cards draw comments verbatim
+    comment = {
+        item_id: plain_excerpt(text, 2000)
+        for item_id, text in Comment.objects.filter(
             owner=owner, item_id__in=ids, visibility__lte=level
         ).values_list("item_id", "text")
-    )
+    }
     tags: dict[int, list[list[Any]]] = defaultdict(list)
     for item_id, title, vis, tvis in TagMember.objects.filter(
         owner=owner,
@@ -860,6 +924,7 @@ def build_payload(
                 "comment": comment.get(i),
                 "site_rating": info.get(i, {}).get("average"),
                 "dist": info.get(i, {}).get("distribution"),
+                "raters": info.get(i, {}).get("count") or 0,
                 "marks": counts.get(i, 0),
                 "year": _release_year(it),
                 "pages": _int_attr(it, "pages"),
@@ -876,6 +941,8 @@ def build_payload(
     history, last_year = _history(owner, level, year, tz, ctypes)
     waiting, pending = _waiting(owner, level, end, tz)
     stats = instance_stats(year)
+    # other members appear on the cards only as this visitor may see them
+    hidden = _hidden_people(viewer) if include_friends or include_kindred else set()
     payload: dict[str, Any] = {
         "year": year,
         "member": _member(owner),
@@ -885,12 +952,12 @@ def build_payload(
         "last_year": last_year or None,
         "waiting": waiting,
         "wishlist_pending": pending,
-        "collections": _collections(owner, level),
+        "collections": _collections(owner, level, viewer, collection_refs),
         "reviews": _reviews(owner, level, start, end, tz),
-        "friends": _friends(owner, year, tz, {i: paths[i] for i in ids})
+        "friends": _friends(owner, year, tz, {i: paths[i] for i in ids}, hidden)
         if include_friends
         else [],
-        "kindred": _kindred(owner, year, tz, {i: paths[i] for i in ids})
+        "kindred": _kindred(owner, year, tz, {i: paths[i] for i in ids}, hidden)
         if include_kindred
         else None,
         "instance_top": stats["top"] if stats else None,
@@ -922,14 +989,16 @@ def words_text(kind: str, piece: Any) -> dict[str, Any]:
     }
 
 
-def _words_item(it: Item, rating: int | None) -> dict[str, Any]:
+def _words_item(
+    it: Item, rating: int | None, credits: dict[int, list[list[str]]]
+) -> dict[str, Any]:
     return {
         "url": it.absolute_url,
         "title": it.display_title,
         "cover": it.display_cover_image_url,
         "category": str(it.category),
         "rating": rating,
-        "credits": _credits([it.pk]).get(it.pk, []),
+        "credits": credits.get(it.pk, []),
     }
 
 
@@ -949,7 +1018,8 @@ def resolve_words(
     A card whose text is gone, or is more private than the level, is not in the result, so its text
     never leaves the server for that audience.
     """
-    refs: dict[str, dict[str, str]] = defaultdict(dict)
+    # one text can back several cards, each with its own caption
+    refs: dict[str, dict[str, list[str]]] = defaultdict(lambda: defaultdict(list))
     for m in made:
         src = m.get("source") or {}
         if (
@@ -957,14 +1027,15 @@ def resolve_words(
             and src.get("kind") in WORDS_KINDS
             and _is_uuid(src.get("ref"))
         ):
-            refs[src["kind"]][str(uuid.UUID(src["ref"]))] = str(m.get("id"))
+            refs[src["kind"]][str(uuid.UUID(src["ref"]))].append(str(m.get("id")))
     found: list[tuple[str, str, Any]] = []
     for kind, cards in refs.items():
         for piece in _words_model(kind).objects.filter(
             owner=owner, uid__in=list(cards), visibility__lte=level
         ):
-            found.append((cards[str(piece.uid)], kind, piece))
+            found += [(card_id, kind, piece) for card_id in cards[str(piece.uid)]]
     items = _items_by_id(list({p.item_id for _, _, p in found}))
+    credits = _credits(list(items))
     grades = dict(
         Rating.objects.filter(
             owner=owner,
@@ -982,7 +1053,7 @@ def resolve_words(
             "kind": kind,
             **words_text(kind, piece),
             "date": piece.created_time.astimezone(tz).date().isoformat(),
-            "item": _words_item(it, grades.get(it.pk)),
+            "item": _words_item(it, grades.get(it.pk), credits),
         }
     return out
 
@@ -1007,12 +1078,18 @@ def words_menu(
             owner=owner, item_id__in=list(items), grade__isnull=False
         ).values_list("item_id", "grade")
     )
+    credits = _credits(list(items))
     works: dict[int, dict[str, Any]] = {}
     for kind, p in rows:
         it = items.get(p.item_id)
         if not it or it.is_deleted or str(it.category) not in CATEGORIES:
             continue
-        w = works.setdefault(it.pk, {**_words_item(it, grades.get(it.pk)), "texts": []})
+        w = works.get(it.pk)
+        if w is None:
+            w = works[it.pk] = {
+                **_words_item(it, grades.get(it.pk), credits),
+                "texts": [],
+            }
         w["texts"].append(
             {
                 "kind": kind,

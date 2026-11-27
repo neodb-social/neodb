@@ -1,7 +1,8 @@
 // The export worker of the annual summary: the page draws each card into a bitmap (only the page can draw an SVG) and
 // sends it here once; this worker keeps it as a PNG and makes the ZIP, the GIF and the MP4, so the page stays responsive.
-// Messages in: {type: "card", key, bitmap}, {type: "probe"}, {type: "export", kind: "zip" | "gif" | "mp4", items, lib}.
-// Messages out: {type: "probe", mp4}, {type: "progress", done, total}, {type: "export", blob, ...}, {type: "error", message}.
+// Messages in: {type: "card", key, bitmap}, {type: "probe", id}, {type: "export", id, kind: "zip" | "gif" | "mp4", items, lib}.
+// Messages out, each with the id of its request: {type: "probe", mp4}, {type: "progress", done, total}, {type: "export", blob, ...},
+// {type: "error", message}.
 // a card is 4:5
 const W = 1080, H = 1350;
 // each card's PNG, by a key the page builds from the card id and its drawing; a promise, as messages arrive while one is still encoding
@@ -170,15 +171,15 @@ self.onmessage = async e => {
   const m = e.data;
   if (m.type === "card") { const p = toPng(m.bitmap); p.catch(() => {}); pngs.set(m.key, p); return; }
   try {
-    if (m.type === "probe") { postMessage({ type: "probe", mp4: !!(await mp4Config()) }); return; }
+    if (m.type === "probe") { postMessage({ type: "probe", id: m.id, mp4: !!(await mp4Config()) }); return; }
     if (m.type === "export") {
       // only the cards of this export stay; a card drawn again after an edit has a new key
       const keep = new Set(m.items.map(x => x.key));
       [...pngs.keys()].forEach(k => { if (!keep.has(k)) pngs.delete(k); });
-      const out = await EXPORT[m.kind](m, done => postMessage({ type: "progress", done, total: m.items.length }));
-      postMessage({ type: "export", ...out });
+      const out = await EXPORT[m.kind](m, done => postMessage({ type: "progress", id: m.id, done, total: m.items.length }));
+      postMessage({ type: "export", id: m.id, ...out });
     }
   } catch (err) {
-    postMessage({ type: m.type === "probe" ? "probe" : "error", mp4: false, message: String((err && err.message) || err) });
+    postMessage({ type: m.type === "probe" ? "probe" : "error", id: m.id, mp4: false, message: String((err && err.message) || err) });
   }
 };

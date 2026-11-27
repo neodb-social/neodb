@@ -395,6 +395,8 @@ TEXT = [
     gettext_noop("Paste a link to add a title from anywhere."),
     gettext_noop("A card needs at least three titles"),
     gettext_noop("Card added to the deck"),
+    gettext_noop("A deck can have up to {n} cards of your own"),
+    gettext_noop("This audience sees none of this year's titles. Open another:"),
     gettext_noop("Pick at least one card"),
     gettext_noop("Posting failed: {error}"),
     gettext_noop("Link copied"),

@@ -11888,3 +11888,12 @@ msgstr ""
 #: journal/wrapped_text.py:217
 msgid "View profile"
 msgstr ""
+
+#: journal/wrapped_text.py:398
+#, python-brace-format
+msgid "A deck can have up to {n} cards of your own"
+msgstr ""
+
+#: journal/wrapped_text.py:399
+msgid "This audience sees none of this year's titles. Open another:"
+msgstr ""

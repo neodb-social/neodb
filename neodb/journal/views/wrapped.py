@@ -24,15 +24,18 @@ from django.urls import reverse
 from django.utils.cache import patch_cache_control
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
-from django.views.decorators.http import require_GET, require_POST
+from django.db import transaction
+from django.db.models import Min
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from catalog.common import SiteManager
 from catalog.models import Item
 from catalog.sites.fedi import FediverseInstance
-from catalog.search.utils import enqueue_fetch, get_fetch_lock
+from catalog.search.utils import enqueue_fetch, fetch_job, get_fetch_lock
 from common.sentry import count as sentry_count
 from common.utils import AuthedHttpRequest, target_identity_required
+from journal.models import ShelfMember, ShelfType
 from journal.models.common import VisibilityType
 from journal.models.wrapped import (
     ALL_HIDDEN,
@@ -50,6 +53,7 @@ from journal.wrapped import (
     kindred_allowed,
     resolve_words,
     words_menu,
+    year_range,
 )
 from journal.wrapped_music import BY_ID as MUSIC, menu as music_menu, track
 from journal.wrapped_text import card_text
@@ -68,9 +72,21 @@ VIDEO_BYTES_MAX = 16 * 1024 * 1024
 
 def _year(year: int | None) -> int:
     this = datetime.date.today().year
-    if not year or year < 2000 or year > this:
+    if not year or year < 1970 or year > this:
         return this
     return year
+
+
+def _most_public(owner: APIdentity, year: int, tz: ZoneInfo) -> int | None:
+    """The most public visibility among the owner's finished titles of the year; None when there are none.
+    An audience at this level or above has titles to show."""
+    start, end = year_range(year, tz)
+    return ShelfMember.objects.filter(
+        owner=owner,
+        parent__shelf_type=ShelfType.COMPLETE,
+        created_time__gte=start,
+        created_time__lt=end,
+    ).aggregate(v=Min("visibility"))["v"]
 
 
 def _made_for(deck: WrappedDeck, level: int) -> list[dict[str, Any]]:
@@ -86,8 +102,15 @@ def _made_for(deck: WrappedDeck, level: int) -> list[dict[str, Any]]:
 
 
 def _context(
-    owner: APIdentity, deck: WrappedDeck, year: int, level: int, is_owner: bool
+    owner: APIdentity,
+    deck: WrappedDeck,
+    year: int,
+    level: int,
+    is_owner: bool,
+    viewer: Any = None,
 ) -> dict[str, Any]:
+    # a visitor gets only the made cards their audience may see; the others, and their texts, stay here
+    made = deck.made if is_owner else _made_for(deck, level)
     payload = build_payload(
         owner,
         year,
@@ -95,14 +118,20 @@ def _context(
         deck.tzinfo,
         include_friends=friends_allowed(deck, level, is_owner),
         include_kindred=kindred_allowed(deck, level, is_owner),
+        viewer=viewer,
+        collection_refs=[
+            str((m.get("source") or {}).get("uuid") or "")
+            for m in made
+            if (m.get("source") or {}).get("type") == "collection"
+        ],
     )
     state = deck.state(level)
     # a "your words" card carries one text, and only an audience allowed to see that text gets it
-    words = resolve_words(owner, deck.made, level, deck.tzinfo)
+    words = resolve_words(owner, made, level, deck.tzinfo)
     if not is_owner:
         state["made"] = [
             m
-            for m in _made_for(deck, level)
+            for m in made
             if (m.get("source") or {}).get("type") != "words"
             or str(m.get("id")) in words
         ]
@@ -132,6 +161,13 @@ def _context(
             "preferences": reverse("users:preferences"),
         }
         payload["music_menu"] = music_menu()
+        payload["made_max"] = MADE_CARDS_MAX
+        if not payload["items"]:
+            # an audience with no titles: the empty page offers the audiences that have some
+            most_public = _most_public(owner, year, deck.tzinfo)
+            payload["levels_with_titles"] = [
+                lv for lv in AUDIENCES if most_public is not None and lv >= most_public
+            ]
         # whether people who are not signed in can open the page at all (the QR code tab warns when not)
         payload["anon_ok"] = bool(owner.anonymous_viewable)
         # what each audience sees, for the Share dialog: no count for an audience the owner has not opened
@@ -170,8 +206,17 @@ def wrapped_deck(request: AuthedHttpRequest, year: int | None = None):
     except ValueError:
         level = -1
     if level not in AUDIENCES:
-        level = next((lv for lv in AUDIENCES if not deck.is_off(lv)), 2)
-    resp = render(request, "wrapped.html", _context(owner, deck, y, level, True))
+        # the widest audience that is on and has titles at its level, so the owner never opens on an empty
+        # preview while their titles sit in a narrower one
+        most_public = _most_public(owner, y, deck.tzinfo)
+        on = [lv for lv in AUDIENCES if not deck.is_off(lv)]
+        level = next(
+            (lv for lv in on if most_public is not None and lv >= most_public),
+            on[0] if on else 2,
+        )
+    resp = render(
+        request, "wrapped.html", _context(owner, deck, y, level, True, request.user)
+    )
     patch_cache_control(resp, private=True)
     return resp
 
@@ -189,7 +234,11 @@ def wrapped_page(request: AuthedHttpRequest, user_name: str, year: int):
     level = next((lv for lv in levels if deck and not deck.is_off(lv)), None)
     if deck is None or level is None:
         raise Http404(_("This summary is not shared."))
-    resp = render(request, "wrapped.html", _context(target, deck, year, level, False))
+    resp = render(
+        request,
+        "wrapped.html",
+        _context(target, deck, year, level, False, request.user),
+    )
     # one link serves different cards to different viewers, so no shared cache may keep it
     patch_cache_control(resp, private=True)
     return resp
@@ -286,8 +335,21 @@ def wrapped_save(request: AuthedHttpRequest, year: int):
         aud = -1
     if aud not in AUDIENCES:
         return HttpResponseBadRequest("invalid audience")
+    if isinstance(data.get("made"), list) and len(data["made"]) > MADE_CARDS_MAX:
+        return HttpResponseBadRequest("too many cards")
     deck = deck_for(request.user.identity, _year(year), create=True)
     assert deck is not None
+    with transaction.atomic():
+        # the audiences share the JSON columns, so two saves must not read and write them at the same time
+        deck = WrappedDeck.objects.select_for_update().get(pk=deck.pk)
+        error = _save_choices(deck, aud, data)
+    return error or JsonResponse({"ok": True})
+
+
+def _save_choices(
+    deck: WrappedDeck, aud: int, data: dict[str, Any]
+) -> HttpResponseBadRequest | None:
+    """Apply one save to the locked deck; an invalid value saves nothing and returns the error."""
     fields = []
     if isinstance(data.get("order"), list):
         deck.order = [
@@ -321,7 +383,7 @@ def wrapped_save(request: AuthedHttpRequest, year: int):
         fields.append("shown")
     if fields:
         deck.save(update_fields=fields + ["edited_time"])
-    return JsonResponse({"ok": True})
+    return None
 
 
 @login_required
@@ -389,7 +451,12 @@ def wrapped_share(request: AuthedHttpRequest, year: int):
         Takahe.visibility_n2t(visibility, user.preference.post_public_mode),
         attachments=media,
     )
-    classic_crosspost = user.preference.mastodon_repost_mode == 1
+    # a non-public post cannot be boosted, so it is always posted as a copy
+    classic_crosspost = (
+        user.preference.mastodon_repost_mode == 1 or visibility != VisibilityType.Public
+    )
+    # a video goes to the other sites as its still (the intro card); the note carries the page link
+    cross_images = images or ([poster] if poster else [])
     if classic_crosspost and user.mastodon:
         attrs = {"platform": "mastodon", "mode": "wrapped"}
         try:
@@ -398,7 +465,7 @@ def wrapped_share(request: AuthedHttpRequest, year: int):
                 visibility,
                 attachments=[
                     (f"{year}-{k + 1}.png", img, "image/png")
-                    for k, img in enumerate(images)
+                    for k, img in enumerate(cross_images)
                 ],
             )
             sentry_count("crosspost.success", attributes=attrs)
@@ -413,7 +480,7 @@ def wrapped_share(request: AuthedHttpRequest, year: int):
         txt = comment.rstrip() + "\n\n##obj##"
         attrs = {"platform": "bluesky", "mode": "wrapped"}
         try:
-            user.bluesky.post(txt, obj=o, images=images)
+            user.bluesky.post(txt, obj=o, images=cross_images)
             sentry_count("crosspost.success", attributes=attrs)
         except Exception as e:
             logger.warning(f"wrapped post to {user.bluesky} failed: {e}")
@@ -434,10 +501,17 @@ def _ref(item: Item) -> dict[str, Any]:
 
 
 @login_required
-@require_GET
+@require_http_methods(["GET", "POST"])
 def wrapped_lookup(request: AuthedHttpRequest):
-    """Resolve a pasted link for Make a card: found, fetching, unsupported, missing or busy."""
-    url = request.GET.get("url", "").strip()
+    """Resolve a pasted link for Make a card: found, fetching, unsupported, missing or busy.
+
+    Answering never contacts another site: a link is matched only against known site patterns and this
+    instance's items, and a GET only reports what is known. A POST may start a fetch, which runs as a
+    queued job under the usual fetch limits; the job also detects sites a pattern cannot, and polls follow
+    its state, so a slow fetch keeps reporting "fetching" until it ends.
+    """
+    url = (request.POST if request.method == "POST" else request.GET).get("url", "")
+    url = url.strip()
     parsed = urlparse(url)
     if parsed.scheme not in ("http", "https") or not parsed.netloc or " " in url:
         return JsonResponse({"status": "invalid"})
@@ -446,15 +520,33 @@ def wrapped_lookup(request: AuthedHttpRequest):
         if not item or item.is_deleted:
             return JsonResponse({"status": "missing"})
         return JsonResponse({"status": "found", "item": _ref(item)})
-    site = SiteManager.get_site_by_url(url, detect_redirection=False)
-    if not site:
-        return JsonResponse({"status": "unsupported"})
-    item = site.get_item()
+    site = SiteManager.get_site_by_url(
+        url, detect_redirection=False, detect_fallback=False
+    )
+    item = site.get_item() if site else None
     if item and not item.is_deleted:
         return JsonResponse({"status": "found", "item": _ref(item)})
-    if get_fetch_lock(request.user, url):
-        enqueue_fetch(url, False, request.user)
+    job = fetch_job(url)
+    state = job.get_status() if job else None
+    if state in ("queued", "started", "deferred", "scheduled"):
         return JsonResponse({"status": "fetching"})
+    if state == "finished" and job:
+        # the job returns the item's path, "-" when no site can read the link, or nothing when it failed
+        result = job.result if isinstance(job.result, str) else None
+        if result == "-":
+            return JsonResponse({"status": "unsupported"})
+        item = Item.get_by_url(result, resolve_merge=True) if result else None
+        if item and not item.is_deleted:
+            return JsonResponse({"status": "found", "item": _ref(item)})
+        return JsonResponse({"status": "missing"})
+    if state == "failed":
+        return JsonResponse({"status": "missing" if site else "unsupported"})
+    if request.method != "POST":
+        return JsonResponse({"status": "unknown"})
+    if get_fetch_lock(request.user, url):
+        # the fetch refuses unsafe links (private or loopback hosts), which no site can read
+        queued = enqueue_fetch(url, False, request.user)
+        return JsonResponse({"status": "fetching" if queued else "unsupported"})
     return JsonResponse({"status": "busy"})
 
 

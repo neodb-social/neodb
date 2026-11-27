@@ -19,6 +19,15 @@
     msg.textContent = past ? WR._("Nothing was finished in {year}.", { year: WR.D.year }) : WR.D.owner_view ? WR._("Nothing finished this year yet. Mark a title as complete and the cards fill in.") : WR._("Nothing finished this year yet.");
     msg.hidden = false;
     document.querySelectorAll(".wrapped-page, #wr-dots, #wr-deck, .wr-ctl, #wr-cue, #wr-edit, #wr-publish").forEach(e => { e.hidden = true; });
+    // the owner on an audience that sees none of the year's titles: links to the audiences that do
+    const other = (WR.D.levels_with_titles || []).filter(lv => lv !== WR.D.level);
+    if (WR.D.owner_view && other.length) {
+      const label = { 0: WR._("Public"), 1: WR._("Followers only"), 2: WR._("Only me") }, nav = document.createElement("p");
+      nav.className = "wr-empty-aud";
+      nav.append(WR._("This audience sees none of this year's titles. Open another:"), " ");
+      other.forEach((lv, k) => { const a = document.createElement("a"), u = new URL(location.href); u.searchParams.set("as", lv); a.href = u.toString(); a.textContent = label[lv]; nav.append(a); if (k < other.length - 1) nav.append(" · "); });
+      msg.after(nav);
+    }
     return;
   }
   const { src, D, _, _n, CATS, CAT_LABEL, CAT_NOUN, CAT_ICON, CAT_COLOR, MONTHS, MONTHS_LONG, MONTHS_NARROW, ROLE_LABEL, stats: S, esc, cover, stars, fmtDate, who, trunc, SVG } = WR;
@@ -45,8 +54,9 @@
     S.items.forEach(it => { perDay[it.date] = (perDay[it.date] || 0) + 1; });
     S.items.forEach(it => {
       const mo = +it.date.slice(5, 7) - 1;
-      if (it.rating) { y.r[mo]++; y.g[mo] += it.rating; if (it.rating === 10) y.f[mo]++; }
+      // a bulk-import day counts toward nothing the cards compare, its ratings included
       if (perDay[it.date] > TREND.BULK_DAY) { y.b[mo]++; return; }
+      if (it.rating) { y.r[mo]++; y.g[mo] += it.rating; if (it.rating === 10) y.f[mo]++; }
       y.m[mo]++; (y.c[it.category] = y.c[it.category] || z())[mo]++;
       if (!days.has(it.date)) { days.add(it.date); y.d[mo]++; }
     });
@@ -83,7 +93,7 @@
   const withMarks = S.items.filter(i => i.marks != null);
   social.obscure = withMarks.length ? withMarks.filter(i => i.marks < 10).length / withMarks.length : null;
   social.obscureN = withMarks.filter(i => i.marks < 10).length;
-  const dItems = S.rated.filter(i => i.dist && i.dist.some(x => x > 0) && (i.marks || 0) >= 20);
+  const dItems = S.rated.filter(i => i.dist && i.dist.some(x => x > 0) && (i.raters || 0) >= 20);
   social.crowd = dItems.filter(i => i.rating >= 9).map(i => ({ it: i, share: i.dist[4] })).sort((a, b) => b.share - a.share)[0] || null;
   social.grain = dItems.filter(i => i.rating >= 8).map(i => { const star = Math.round(i.rating / 2); const below = i.dist.slice(0, star - 1).reduce((s, x) => s + x, 0); return { it: i, below, star }; }).sort((a, b) => b.below - a.below)[0] || null;
   social.early = S.items.filter(i => i.first_rank && i.first_rank <= 10 && (i.marks || 0) >= 50).sort((a, b) => b.marks - a.marks)[0] || null;
@@ -189,7 +199,10 @@
     return `<rect x="${x}" y="${y}" width="30" height="30" rx="8" fill="${it.fill || "none"}"${it.opacity ? ` opacity="${it.opacity}"` : ""}${it.stroke ? ` stroke="${it.stroke}" stroke-width="${it.dash ? 2 : 3}"` : ""}${it.dash ? ` stroke-dasharray="5 4"` : ""}/>`;
   }
   // fit "bottom" puts a square cover at the foot of its 2:3 box, so a row keeps one baseline; "fill" crops it to the box
-  function coverSvg(it, x, y, w, h, cls, d, fit) { const id = "cp" + (cid++); const sq = (it.category === "music" || it.category === "podcast") && fit !== "fill"; if (sq && h > w) { if (fit === "bottom") y += h - w; h = w; } return `<g class="${cls || "pop"}" style="--d:${d || 0}ms"><clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}"/></clipPath><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}" fill="${CAT_COLOR[it.category] || "#ccc"}"/><image href="${esc(src(it.cover))}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></g>`; }
+  // every cover a card draws, by its item's id, so an export can load it from this site's origin (a cross-origin image would
+  // block the PNG); covers from any source count: finished titles, collections, hand-picked titles, the wishlist, words cards
+  const coverUuid = new Map(), uuidOf = u => (String(u || "").split("?")[0].replace(/\/$/, "").split("/").pop() || "");
+  function coverSvg(it, x, y, w, h, cls, d, fit) { const id = "cp" + (cid++); if (it.cover && it.url && !coverUuid.has(it.cover)) coverUuid.set(it.cover, uuidOf(it.url)); const sq = (it.category === "music" || it.category === "podcast") && fit !== "fill"; if (sq && h > w) { if (fit === "bottom") y += h - w; h = w; } return `<g class="${cls || "pop"}" style="--d:${d || 0}ms"><clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}"/></clipPath><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}" fill="${CAT_COLOR[it.category] || "#ccc"}"/><image href="${esc(src(it.cover))}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></g>`; }
   // a rating as stars drawn as shapes, so a half star is exact: full stars in coral, a half star grey with its left half in coral.
   // y is the baseline of the row, as for text of the same size; returns the svg and the width of the row
   const starPts = (cx, cy, R) => Array.from({ length: 10 }, (z, k) => { const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? R * 0.42 : R; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
@@ -461,7 +474,7 @@
       let y = t.y + 84, b = t.svg;
       const row = (it, lbl, l1, l2, pct, color, d) => coverSvg(it, 80, y, 170, 255, "pop", d) + T(290, y + 34, lbl.toUpperCase(), 30, { fill: PRIMARY, weight: 700, ls: 3, cls: "fade", d: d + 100 }) + T(290, y + 84, trunc(it.title, CJK(it.title) ? 16 : 28), 40, { weight: 700, cls: "rise", d: d + 150 }) + T(290, y + 132, l1, 34, { fill: MUTED, cls: "rise", d: d + 200 }) + T(290, y + 174, l2, 34, { fill: MUTED, cls: "rise", d: d + 250 }) + G("growx", d + 300, `<rect x="290" y="${y + 204}" width="${pct * 6.9}" height="20" rx="10" fill="${color}"/>`) + `<rect x="290" y="${y + 204}" width="690" height="20" rx="10" fill="none" stroke="${LINE}" stroke-width="2"/>`;
       if (cr) { b += row(cr.it, _("With the crowd"), _("your five stars put you with the {pct}%", { pct: cr.share }), _("who gave it five too"), cr.share, LOGO.green, 200); y += 410; }
-      if (grOk) b += row(gr.it, _("Against the grain"), _("you rated it higher than {pct}%", { pct: gr.below }), _("of the {n} people who rated it", { n: gr.it.marks }), gr.below, LOGO.coral, 600);
+      if (grOk) b += row(gr.it, _("Against the grain"), _("you rated it higher than {pct}%", { pct: gr.below }), _("of the {n} people who rated it", { n: gr.it.raters }), gr.below, LOGO.coral, 600);
       return b;
     } });
     const e = social.early;
@@ -546,13 +559,19 @@
   // the deck starts from the member's default post visibility; the server keeps the member's choices
   let deckState = Object.assign({ order: [], hidden: {} }, D.deck || {}), made = deckState.made || [], arranging = false, saveTimer = null, savedShown = JSON.stringify(D.shown || null);
   delete deckState.made;
+  let lastSave = Promise.resolve({});
   function persist(extra) {
     if (!OWNER) return Promise.resolve({});
     const shown = (state.shown || []).map(c => c.id);
     savedShown = JSON.stringify(shown);
-    return fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify(Object.assign({ aud: LEVEL, order: deckState.order, hidden: deckState.hidden, made, shown }, extra || {})) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    lastSave = fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify(Object.assign({ aud: LEVEL, order: deckState.order, hidden: deckState.hidden, made, shown }, extra || {})) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+    return lastSave;
   }
-  const saveDeck = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => persist().catch(() => toast(_("Could not save the deck; try again"))), 300); };
+  const saveDeck = () => { clearTimeout(saveTimer); saveTimer = setTimeout(() => { saveTimer = null; persist().catch(() => toast(_("Could not save the deck; try again"))); }, 300); };
+  // the waiting save now, then the latest one: a page that goes elsewhere must not drop a change
+  function flushSave() { if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; return persist(); } return lastSave; }
+  // to another audience of this page: after the last save has landed, or not at all when it failed
+  function goAudience(lv, reopen) { flushSave().then(() => { try { sessionStorage.setItem(REOPEN, reopen); } catch (e) { /* without storage the page just opens on the stage */ } const u = new URL(location.href); u.searchParams.set("as", lv); location.href = u.toString(); }, () => toast(_("Could not save the deck; try again"))); }
   // ---------- made cards: items from highest marks, a collection, or picked by hand ----------
   const site = (D.member.url.match(/^https?:\/\/([^/]+)/) || [])[1] || "neodb.social";
   const myUrls = new Map(S.items.map(i => [i.url, i]));
@@ -760,7 +779,7 @@
     $("resetorder").onclick = () => { deckState.order = []; render(); saveDeck(); toast(_("Back to the default order")); };
     // the counts on every card depend on the page's visibility, so a change reloads the page from the server
     // the switch picks the audience to view and edit; the page opens again with that audience's cards and the Edit sheet open
-    document.querySelectorAll(".pagevis button").forEach(b => b.onclick = () => { if (b.dataset.pv === AUD) return; try { sessionStorage.setItem(REOPEN, "wr-editdlg"); } catch (e) { /* without storage the page just opens on the stage */ } const u = new URL(location.href); u.searchParams.set("as", levelOf(b.dataset.pv)); location.href = u.toString(); });
+    document.querySelectorAll(".pagevis button").forEach(b => b.onclick = () => { if (b.dataset.pv !== AUD) goAudience(levelOf(b.dataset.pv), "wr-editdlg"); });
     // every card of this audience off at once (cards that qualify later stay off too), or back to the suggested cards
     $("hideall").onclick = () => { deckState.hidden = { "*": true }; saveDeck(); render(); toast(_("Every card is hidden from this audience")); };
     $("suggest").onclick = () => { deckState.hidden = {}; saveDeck(); render(); toast(_("Back to the suggested cards")); };
@@ -1035,10 +1054,11 @@
   async function lookupLink(url, attempt) {
     if (el("mk-q").value.trim() !== url) return;
     showResults([{ label: _("From the link"), items: [], msg: attempt ? _("{site} is fetching this page; still checking…", { site: esc(site) }) : _("Looking it up on {site}…", { site: esc(site) }) }]);
-    let r; try { r = await fetch(`${URLS.lookup}?url=${encodeURIComponent(url)}`, { headers: { Accept: "application/json" } }).then(x => x.json()); } catch (e) { r = { status: "error" }; }
+    const start = !attempt, body = new URLSearchParams({ url });
+    let r; try { r = await fetch(start ? URLS.lookup : `${URLS.lookup}?${body}`, start ? { method: "POST", headers: { Accept: "application/json", "X-CSRFToken": CSRF }, body } : { headers: { Accept: "application/json" } }).then(x => x.json()); } catch (e) { r = { status: "error" }; }
     if (el("mk-q").value.trim() !== url) return;
     if (r.status === "found") { const it = { ...refRaw(r.item), how: "link" }; it.sub = `${CAT_LABEL[it.category] || it.category} · ${myUrls.has(it.url) ? _("marked {date}", { date: fmtDate(myUrls.get(it.url).date) }) : _("not marked in {year}", { year: Y })}`; showResults([{ label: _("From the link"), items: [it] }]); return; }
-    if (r.status === "fetching" && attempt < 12) { mk.lookupTimer = setTimeout(() => lookupLink(url, attempt + 1), 5000); return; }
+    if ((r.status === "fetching" || (r.status === "unknown" && !start)) && attempt < 12) { mk.lookupTimer = setTimeout(() => lookupLink(url, attempt + 1), 5000); return; }
     const msg = { fetching: _("Still not ready after a minute. Try the link again later."), unsupported: _("This site is not one this instance can read. Try a link to the title on a supported site, or to its page here."), missing: _("No title at this link on {site}.", { site: esc(site) }), busy: _("Too many lookups just now. Try again in a moment."), invalid: _("That does not look like a full link."), error: _("The lookup failed. Try again.") }[r.status] || _("The lookup failed. Try again.");
     showResults([{ label: _("From the link"), items: [], msg }]);
   }
@@ -1058,6 +1078,7 @@
   el("mk-mode").querySelectorAll("button").forEach(b => b.onclick = () => setMode(b.dataset.mode));
   el("mk-wq").oninput = () => showWorks();
   el("mk-save").onclick = () => {
+    if (made.length >= (D.made_max || 20)) { toast(_("A deck can have up to {n} cards of your own", { n: D.made_max || 20 })); return; }
     if (mk.mode === "words") {
       const t = mk.text, w = mk.work; if (!t) { toast(_("Pick a text")); return; }
       const id = Date.now();
@@ -1240,7 +1261,7 @@
     // the image needs the cards of the audience the code opens; another view offers to switch to it
     if (!locked && open !== LEVEL) {
       prev.innerHTML = `<button type="button" class="dc-btn primary" data-qr-switch>${esc(_("Show the cards the code opens"))}</button>`;
-      prev.querySelector("[data-qr-switch]").onclick = () => { try { sessionStorage.setItem(REOPEN, "wr-pubdlg:qr"); } catch (e) { /* the page then opens on the stage */ } const u = new URL(location.href); u.searchParams.set("as", open); location.href = u.toString(); };
+      prev.querySelector("[data-qr-switch]").onclick = () => goAudience(open, "wr-pubdlg:qr");
       return;
     }
     try { await loadQr(); } catch (e) { toast(_("Export failed: {error}", { error: e.message })); return; }
@@ -1265,8 +1286,7 @@
   function toast(t) { const el = document.createElement("div"); el.className = "wr-toast"; el.setAttribute("role", "status"); el.textContent = t; ([...document.querySelectorAll("dialog[open]")].pop() || document.body).appendChild(el); setTimeout(() => el.remove(), 2200); }
 
   // ---------- png and gif export ----------
-  const dataCache = new Map(), coverUuid = new Map();
-  const uuidOf = u => (String(u || "").split("?")[0].replace(/\/$/, "").split("/").pop() || "");
+  const dataCache = new Map();
   S.items.forEach(i => coverUuid.set(i.cover, i.uuid));
   (D.collections || []).forEach(c => c.items.forEach(x => coverUuid.set(x.cov, uuidOf(x.u))));
   function exportHref(h) {
@@ -1292,10 +1312,13 @@
     return exporter;
   }
   // one request to the worker; progress messages come before the answer
+  // one request to the worker: every reply carries the request's id, so two requests at once never take each other's answer
+  let askSeq = 0;
   const ask = (msg, onProgress) => new Promise((res, rej) => {
-    const w = worker();
+    const w = worker(), id = ++askSeq;
+    msg = { ...msg, id };
     const off = () => { w.removeEventListener("message", on); w.removeEventListener("error", fail); };
-    const on = e => { const d = e.data; if (d.type === "progress") { if (onProgress) onProgress(d.done, d.total); return; } off(); if (d.type === "error") rej(new Error(d.message === "stalled" ? _("the video encoder stopped working") : d.message)); else res(d); };
+    const on = e => { const d = e.data; if (d.id !== id) return; if (d.type === "progress") { if (onProgress) onProgress(d.done, d.total); return; } off(); if (d.type === "error") rej(new Error(d.message === "stalled" ? _("the video encoder stopped working") : d.message)); else res(d); };
     const fail = e => { off(); exporter = null; rej(new Error(e.message || "the export worker stopped")); };
     w.addEventListener("message", on); w.addEventListener("error", fail);
     w.postMessage(msg, msg.audio ? [msg.audio.left.buffer, ...(msg.audio.right.buffer !== msg.audio.left.buffer ? [msg.audio.right.buffer] : [])] : []);
@@ -1314,9 +1337,15 @@
     } catch (e) { return null; }
   }
   const stay = e => { e.preventDefault(); e.returnValue = ""; };
-  async function buildFile(kind, onProgress, withMusic) {
-    addEventListener("beforeunload", stay);
-    try { return await buildFileNow(kind, onProgress, withMusic); } finally { removeEventListener("beforeunload", stay); }
+  // one file at a time, from either tab: the worker keeps only the cards of the export it is making
+  let exportQueue = Promise.resolve();
+  function buildFile(kind, onProgress, withMusic) {
+    const run = exportQueue.then(async () => {
+      addEventListener("beforeunload", stay);
+      try { return await buildFileNow(kind, onProgress, withMusic); } finally { removeEventListener("beforeunload", stay); }
+    });
+    exportQueue = run.catch(() => {});
+    return run;
   }
   async function buildFileNow(kind, onProgress, withMusic) {
     const cards = state.exportable, total = cards.length * 2;

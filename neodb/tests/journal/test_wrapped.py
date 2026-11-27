@@ -4,7 +4,7 @@ import io
 import json
 import re
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -23,7 +23,9 @@ from django.utils.translation import override
 from catalog.models import Edition, Movie
 from journal.jobs.wrapped import WrappedInstanceStats
 from journal.models import (
+    Collection,
     Comment,
+    Like,
     Rating,
     Review,
     ShelfLogEntry,
@@ -44,7 +46,9 @@ from journal.wrapped import (
     kindred_allowed,
     instance_stats,
     plain_excerpt,
+    resolve_words,
 )
+from journal.models.wrapped import MADE_CARDS_MAX
 from journal.wrapped_music import track as music_track
 from journal.wrapped_text import PLURALS, TEXT, card_text
 from takahe.models import Domain
@@ -416,6 +420,205 @@ class TestKindred:
         assert b"krare" in page.content
         # followers were not shown it, so their page still carries no match
         assert not kindred_allowed(deck, 1, False)
+
+
+def page_data(response) -> dict:
+    m = re.search(
+        rb'<script id="wr-data" type="application/json">(.*?)</script>',
+        response.content,
+        re.S,
+    )
+    assert m, "no page data"
+    return json.loads(m.group(1))
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestReviewFixes:
+    """What the branch review found: the visitor payload, saves, and the data the cards draw from."""
+
+    @pytest.fixture(autouse=True)
+    def setup_data(self):
+        clear_wrapped_cache()
+        self.user = User.register(email="rf@test.com", username="rfowner")
+        self.me = self.user.identity
+        self.book = Edition.objects.create(title="Reviewed Book")
+        complete(
+            self.me, self.book, at(2, 2), grade=8, comment="good >!the twist!< ending"
+        )
+        self.owner = Client()
+        self.owner.force_login(self.user)
+
+    def words_card(self, card_id):
+        c = Comment.objects.get(owner=self.me, item=self.book)
+        return {
+            "id": card_id,
+            "title": "",
+            "caption": "",
+            "n": 3,
+            "source": {
+                "type": "words",
+                "url": self.book.absolute_url,
+                "kind": "comment",
+                "ref": str(c.uid),
+            },
+        }
+
+    def test_comments_lose_spoilers_and_ratings_count_raters(self):
+        it = build_payload(self.me, YEAR, 2, TZ)["items"][0]
+        assert "twist" not in it["comment"] and "good" in it["comment"]
+        assert it["raters"] == 1
+
+    def test_a_hidden_words_card_keeps_its_text_on_the_server(self):
+        deck = WrappedDeck.objects.create(
+            owner=self.me,
+            year=YEAR,
+            made=[self.words_card(7)],
+            hidden={"0": {"made-7": True}},
+        )
+        url = reverse("journal:wrapped_page", args=["rfowner", YEAR])
+        assert page_data(Client().get(url))["words"] == {}
+        deck.hidden = {}
+        deck.save()
+        assert list(page_data(Client().get(url))["words"]) == ["7"]
+
+    def test_two_cards_on_one_text_both_resolve(self):
+        words = resolve_words(self.me, [self.words_card(7), self.words_card(8)], 2, TZ)
+        assert sorted(words) == ["7", "8"]
+
+    def test_a_liked_collection_keeps_its_authors_rule(self):
+        author = User.register(email="rfa@test.com", username="rfauthor").identity
+        author.anonymous_viewable = False
+        author.save()
+        col = Collection(owner=author, title="Their List", visibility=0)
+        col.save(**QUIET)
+        Like.objects.create(owner=self.me, target=col)
+
+        def titles(viewer):
+            return [
+                c["title"]
+                for c in build_payload(self.me, YEAR, 0, TZ, viewer=viewer)[
+                    "collections"
+                ]
+            ]
+
+        # another member's collection is their own content: hidden from signed-out visitors as on its own page
+        assert "Their List" not in titles(None)
+        assert "Their List" in titles(self.user)
+
+    def test_a_saved_collection_card_outlives_the_picker_window(self):
+        oldest = Collection(owner=self.me, title="Oldest List", visibility=0)
+        oldest.save(**QUIET)
+        for k in range(30):
+            Collection(owner=self.me, title=f"Newer {k}", visibility=0).save(**QUIET)
+
+        def titles(refs):
+            p = build_payload(self.me, YEAR, 0, TZ, collection_refs=refs)
+            return [c["title"] for c in p["collections"]]
+
+        assert "Oldest List" not in titles(None)
+        assert "Oldest List" in titles([oldest.uuid])
+
+    def test_a_visitor_never_sees_people_they_block_or_moderated_accounts(self):
+        pal = User.register(email="rfp@test.com", username="rfpal").identity
+        Takahe.follow(self.me.pk, pal.pk, force_accept=True)
+        complete(pal, self.book, at(3, 3))
+        visitor = User.register(email="rfv@test.com", username="rfvisitor")
+
+        def friends(viewer):
+            return [
+                f["handle"].split("@")[0]
+                for f in build_payload(self.me, YEAR, 0, TZ, viewer=viewer)["friends"]
+            ]
+
+        assert friends(None) == ["rfpal"]
+        Takahe.block_or_mute(visitor.identity.pk, pal.pk, False)
+        assert friends(visitor) == []
+        # a moderated account stays hidden from people who do not follow it
+        TakaheIdentity.objects.filter(pk=pal.pk).update(restriction=1)
+        assert friends(None) == []
+        assert friends(self.user) == ["rfpal"]
+
+    def test_saves_reject_more_made_cards_than_allowed(self):
+        url = reverse("journal:wrapped_save", args=[YEAR])
+        made = [
+            {"id": k + 1, "n": 5, "source": {"type": "auto", "cat": "all"}}
+            for k in range(MADE_CARDS_MAX + 1)
+        ]
+        r = self.owner.post(
+            url, json.dumps({"aud": 0, "made": made}), content_type="application/json"
+        )
+        assert r.status_code == 400
+        r = self.owner.post(
+            url,
+            json.dumps({"aud": 0, "made": made[:-1]}),
+            content_type="application/json",
+        )
+        assert r.status_code == 200
+        assert (
+            len(WrappedDeck.objects.get(owner=self.me, year=YEAR).made)
+            == MADE_CARDS_MAX
+        )
+
+    def test_the_owner_opens_on_an_audience_with_titles(self):
+        user = User.register(email="rfq@test.com", username="rfquiet")
+        complete(
+            user.identity, Edition.objects.create(title="Quiet Book"), at(2, 3), vis=1
+        )
+        c = Client()
+        c.force_login(user)
+        assert page_data(c.get(reverse("journal:wrapped", args=[YEAR])))["level"] == 1
+        empty = page_data(c.get(reverse("journal:wrapped", args=[YEAR]) + "?as=0"))
+        assert empty["items"] == [] and empty["levels_with_titles"] == [1, 2]
+
+    def test_old_years_open(self):
+        assert (
+            self.owner.get(reverse("journal:wrapped", args=[1999])).status_code == 200
+        )
+
+    def test_bulk_day_ratings_stay_out_of_the_history(self):
+        for k in range(31):
+            complete(
+                self.me,
+                Edition.objects.create(title=f"Import {k}"),
+                at(5, 5, year=YEAR - 1),
+                grade=10,
+            )
+        year = build_payload(self.me, YEAR, 2, TZ)["history"]["years"][str(YEAR - 1)]
+        assert sum(year["r"]) == 0 and sum(year["f"]) == 0 and sum(year["b"]) == 31
+
+    def test_a_non_public_video_post_reaches_mastodon_as_a_copy_with_its_still(self):
+        mp4 = b"\x00\x00\x00\x18ftypmp42" + b"0" * 100
+        png = b"\x89PNG\r\n\x1a\n" + b"0" * 20
+        with (
+            patch("journal.views.wrapped.Takahe.upload_attachment"),
+            patch("journal.views.wrapped.Takahe.post") as post,
+            patch("users.models.User.mastodon", new_callable=PropertyMock) as mastodon,
+            patch(
+                "users.models.User.bluesky",
+                new_callable=PropertyMock,
+                return_value=None,
+            ),
+        ):
+            post.return_value.url = "https://example.org/p/1"
+            r = self.owner.post(
+                reverse("journal:wrapped_share", args=[YEAR]),
+                {
+                    "kind": "video",
+                    "comment": "my year",
+                    "visibility": 1,
+                    "aud": 0,
+                    "video": SimpleUploadedFile("v.mp4", mp4, "video/mp4"),
+                    "poster": SimpleUploadedFile("p.png", png, "image/png"),
+                },
+                HTTP_ACCEPT="application/json",
+            )
+        assert r.status_code == 200
+        account = mastodon.return_value
+        # a followers-only post cannot be boosted, so it goes as a copy, with the video's still
+        assert account.post.call_args.kwargs["attachments"] == [
+            (f"{YEAR}-1.png", png, "image/png")
+        ]
+        assert not account.boost_later.called
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -915,12 +1118,43 @@ class TestViews:
             url, {"url": settings.SITE_INFO["site_url"] + book.url}
         ).json()
         assert r["status"] == "found" and r["item"]["t"] == "Local One"
-        assert (
-            self.owner_client.get(url, {"url": "https://example.com/nothing"}).json()[
-                "status"
-            ]
-            == "unsupported"
-        )
+        # answering never contacts another site: no fallback probe, and a GET starts no fetch
+        link = "https://example.com/nothing"
+        with (
+            patch(
+                "catalog.common.sites.SiteManager.get_fallback_class_by_url",
+                side_effect=AssertionError("probed"),
+            ),
+            patch("journal.views.wrapped.enqueue_fetch") as enqueue,
+            patch("journal.views.wrapped.fetch_job", return_value=None),
+        ):
+            assert (
+                self.owner_client.get(url, {"url": link}).json()["status"] == "unknown"
+            )
+            assert not enqueue.called
+            # only a POST starts a fetch, as a queued job under the fetch limits
+            with patch("journal.views.wrapped.get_fetch_lock", return_value=True):
+                r = self.owner_client.post(url, {"url": link})
+            assert r.json()["status"] == "fetching" and enqueue.called
+
+        class Job:
+            def __init__(self, state, result):
+                self.state, self.result = state, result
+
+            def get_status(self):
+                return self.state
+
+        # polls follow the job: still running, then its result decides
+        for job, status in [
+            (Job("started", None), "fetching"),
+            (Job("finished", "-"), "unsupported"),
+            (Job("finished", book.url), "found"),
+            (Job("failed", None), "unsupported"),
+        ]:
+            with patch("journal.views.wrapped.fetch_job", return_value=job):
+                assert (
+                    self.owner_client.get(url, {"url": link}).json()["status"] == status
+                )
 
     def test_avatar_route_and_payload(self):
         # no picture of its own: no link in the payload, a 404 from the route, and the cards keep the site icon
