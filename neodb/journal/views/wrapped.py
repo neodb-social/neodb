@@ -540,22 +540,22 @@ def wrapped_lookup(request: AuthedHttpRequest):
     state = job.get_status() if job else None
     if state in ("queued", "started", "deferred", "scheduled"):
         return JsonResponse({"status": "fetching"})
-    # a site this instance knows could not be read just now (a timeout, say): a POST may try again
+    # a site was found but could not be read just now (a timeout, say): a POST may try again
     failed = False
     if state == "finished" and job:
-        # the job returns the item's path, or "-" when no site can read the link or the fetch failed
+        # the job returns the item's path, or "-" when no site can read the link or the fetch failed; the
+        # job's meta tells the two apart, also for a site the worker found only through a redirect
         result = job.result if isinstance(job.result, str) else None
         if result and result != "-":
             item = Item.get_by_url(result, resolve_merge=True)
             if item and not item.is_deleted:
                 return JsonResponse({"status": "found", "item": item_ref(item)})
             return JsonResponse({"status": "missing"})
-        if not site:
+        if not site and not (job.meta or {}).get("fetch_failed"):
             return JsonResponse({"status": "unsupported"})
         failed = True
     elif state == "failed":
-        if not site:
-            return JsonResponse({"status": "unsupported"})
+        # the job itself failed (it timed out or the worker stopped), which says nothing about the site
         failed = True
     if request.method != "POST":
         return JsonResponse({"status": "error" if failed else "unknown"})

@@ -1330,8 +1330,8 @@ class TestViews:
             assert r.json()["status"] == "fetching" and enqueue.called
 
         class Job:
-            def __init__(self, state, result):
-                self.state, self.result = state, result
+            def __init__(self, state, result, meta=None):
+                self.state, self.result, self.meta = state, result, meta or {}
 
             def get_status(self):
                 return self.state
@@ -1341,7 +1341,10 @@ class TestViews:
             (Job("started", None), "fetching"),
             (Job("finished", "-"), "unsupported"),
             (Job("finished", book.url), "found"),
-            (Job("failed", None), "unsupported"),
+            # a job that failed (timed out, say) says nothing about the site
+            (Job("failed", None), "error"),
+            # the worker found a site (through a redirect, say) but could not read it
+            (Job("finished", "-", {"fetch_failed": True}), "error"),
         ]:
             with patch("journal.views.wrapped.fetch_job", return_value=job):
                 assert (
@@ -1363,9 +1366,46 @@ class TestViews:
             assert not enqueue.called
             r = self.owner_client.post(url, {"url": link})
             assert r.json()["status"] == "fetching" and enqueue.called
+        # the same for a link no pattern here matches, when the worker found its site and failed to read it
+        with (
+            patch(
+                "journal.views.wrapped.fetch_job",
+                return_value=Job("finished", "-", {"fetch_failed": True}),
+            ),
+            patch("journal.views.wrapped.enqueue_fetch", return_value="id") as enqueue,
+            patch("journal.views.wrapped.get_fetch_lock", return_value=True),
+        ):
+            r = self.owner_client.post(url, {"url": link})
+            assert r.json()["status"] == "fetching" and enqueue.called
         # a link urlparse cannot read
         r = self.owner_client.get(url, {"url": "http://[::1/x"})
         assert r.json()["status"] == "invalid"
+
+    def test_the_fetch_job_notes_a_failed_read_of_a_found_site(self):
+        from catalog.search.utils import _fetch_task
+
+        job = MagicMock(meta={})
+        site = MagicMock()
+        site.get_resource_ready.return_value = None
+        with (
+            patch("catalog.search.utils.get_current_job", return_value=job),
+            patch(
+                "catalog.search.utils.SiteManager.get_site_by_url", return_value=site
+            ),
+        ):
+            assert _fetch_task("https://example.com/x", False, None) == "-"
+        assert job.meta == {"fetch_failed": True} and job.save_meta.called
+        # no site at all: unsupported, nothing to try again
+        job = MagicMock(meta={})
+        with (
+            patch("catalog.search.utils.get_current_job", return_value=job),
+            patch(
+                "catalog.search.utils.SiteManager.get_site_by_url", return_value=None
+            ),
+            patch("catalog.search.utils.search_by_ap_url", return_value=None),
+        ):
+            assert _fetch_task("https://example.com/x", False, None) == "-"
+        assert job.meta == {}
 
     def test_avatar_route_and_payload(self):
         # no picture of its own: no link in the payload, a 404 from the route, and the cards keep the site icon

@@ -6,6 +6,7 @@ from auditlog.context import set_actor
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import prefetch_related_objects
+from rq import get_current_job
 from rq.job import Job
 
 from catalog.common import (
@@ -210,6 +211,15 @@ def _record_fetch_failure(url: str) -> None:
     )
 
 
+def _mark_fetch_failed() -> None:
+    """Note on the running job that a site was found but reading it failed (a timeout, say), so a caller
+    may try again; the job still returns "-", which is all that older callers read."""
+    job = get_current_job()
+    if job:
+        job.meta["fetch_failed"] = True
+        job.save_meta()
+
+
 def record_search_failure(site: str, reason: str) -> None:
     sentry_count(
         "catalog.search.failure",
@@ -245,13 +255,16 @@ def _fetch_task(url: str, is_refetch: bool, user_pk: int | None):
             else:
                 logger.error(f"fetch {url} failed")
                 _record_fetch_failure(url)
+                _mark_fetch_failed()
         except DownloadError as e:
             # Expected external failure -> warn, not a Sentry error. Censored
             # responses are already skipped.
             if e.response_type != RESPONSE_CENSORSHIP:
                 logger.warning(f"fetch {url} error", extra={"exception": e})
             _record_fetch_failure(url)
+            _mark_fetch_failed()
         except Exception as e:
             logger.error(f"parse {url} error {e}", extra={"exception": e})
             _record_fetch_failure(url)
+            _mark_fetch_failed()
         return "-"
