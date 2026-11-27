@@ -625,6 +625,27 @@ class TestReviewFixes:
             self.owner.get(reverse("journal:wrapped", args=[YEAR])).status_code == 200
         )
 
+    def test_a_partial_save_keeps_cards_the_page_lacked_but_not_hidden_ones(self):
+        url = reverse("journal:wrapped_save", args=[YEAR])
+
+        def save(body):
+            r = self.owner.post(url, json.dumps(body), content_type="application/json")
+            assert r.status_code == 200
+            return WrappedDeck.objects.get(owner=self.me, year=YEAR).shown_for(0)
+
+        # with no saved list, an incomplete one is not saved
+        assert save({"aud": 0, "shown": ["intro"], "partial": True}) is None
+        assert save({"aud": 0, "shown": ["intro", "part", "made-7"]}) == [
+            "intro",
+            "part",
+            "made-7",
+        ]
+        # the page lacked "part" while warming; "made-7" the owner hides now, so visitors lose it at once
+        shown = save(
+            {"aud": 0, "shown": ["intro"], "hidden": {"made-7": True}, "partial": True}
+        )
+        assert shown == ["intro", "part"]
+
     def test_saves_reject_more_made_cards_than_allowed(self):
         url = reverse("journal:wrapped_save", args=[YEAR])
         made = [

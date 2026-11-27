@@ -557,8 +557,10 @@
     if (!OWNER) return Promise.resolve({});
     lastSave = lastSave.catch(() => {}).then(() => {
       const body = { aud: LEVEL, order: deckState.order, hidden: deckState.hidden, made }, music = pendingMusic;
-      // while a job's result is missing (D.warming) the list lacks its cards, so the saved list stays as it is
-      if (!D.warming) { body.shown = (state.shown || []).map(c => c.id); savedShown = JSON.stringify(body.shown); }
+      body.shown = (state.shown || []).map(c => c.id);
+      // while a job's result is missing (D.warming) the list lacks its cards: "partial" has the server keep the saved
+      // cards it does not name, except those the owner hides now, so a hide still reaches visitors at once
+      if (D.warming) body.partial = true; else savedShown = JSON.stringify(body.shown);
       if (music !== null) body.music = music;
       return fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.status); if (pendingMusic === music) pendingMusic = null; return r.json(); });
     }).then(r => { saveFailed = false; return r; }, e => { saveFailed = true; throw e; });

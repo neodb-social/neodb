@@ -375,12 +375,25 @@ def _save_choices(
         deck.music = music
         fields.append("music")
     if isinstance(data.get("shown"), list):
-        shown = dict(deck.shown or {})
-        shown[str(aud)] = [
-            c for c in data["shown"] if isinstance(c, str) and CARD_ID.match(c)
-        ][:100]
-        deck.shown = shown
-        fields.append("shown")
+        sent = [c for c in data["shown"] if isinstance(c, str) and CARD_ID.match(c)]
+        saved = deck.shown_for(aud)
+        if data.get("partial"):
+            # the page lacked some cards (a job's result was not cached yet): the saved cards it does not
+            # name stay, unless the owner has now hidden them (the overrides above are already applied);
+            # with no saved list yet, none is made from an incomplete one
+            if saved is None:
+                sent = None
+            else:
+                sent += [
+                    c
+                    for c in saved
+                    if c not in sent and deck.card_hidden(aud, c) is not True
+                ]
+        if sent is not None:
+            shown = dict(deck.shown or {})
+            shown[str(aud)] = sent[:100]
+            deck.shown = shown
+            fields.append("shown")
     if fields:
         deck.save(update_fields=fields + ["edited_time"])
     return None
