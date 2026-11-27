@@ -364,13 +364,14 @@ def test_cover_marks_returns_badges_of_viewer_shelved_items_only(client):
     assert response.status_code == 200
     html = response.content.decode()
     assert html.count('class="dc-mark marked"') == 3
-    assert _cover_oob(done) in html
+    assert "hx-swap-oob" not in html
+    assert f'data-cover-mark="{done.uuid}"' in html
     assert 'title="Read"' in html
     assert 'data-rating="8' in html
-    assert _cover_oob(wished) in html
+    assert f'data-cover-mark="{wished.uuid}"' in html
     assert 'title="To watch"' in html
     assert "fa-solid fa-bookmark" in html
-    assert _cover_oob(dropped) in html
+    assert f'data-cover-mark="{dropped.uuid}"' in html
     assert "fa-solid fa-ban" in html
     assert theirs.uuid not in html
     assert 'data-rating="6' not in html

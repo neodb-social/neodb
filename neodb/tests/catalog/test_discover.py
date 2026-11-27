@@ -1,12 +1,15 @@
+import re
 from datetime import datetime, timedelta
 from datetime import timezone as dt_timezone
 from types import SimpleNamespace
 from typing import Sequence
 
 import pytest
+from django.conf import settings
 from django.core.cache import cache
 from django.db import connections
 from django.test import Client
+from django.template.loader import render_to_string
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
@@ -812,6 +815,27 @@ class TestDiscoverFragments:
         assert badges_url in member
         assert mark_url not in member
         assert reverse("journal:mark", args=["_"]) in member
+
+    def test_cover_mark_badge_follows_how_each_type_is_marked(self, site_config):
+        book = Edition.objects.create(title="Plain Book")
+        show = TVShow.objects.create(title="Seasoned Show")
+        person = People.objects.create(
+            localized_name=[{"lang": "en", "text": "Followed Person"}]
+        )
+
+        def box(item: Item) -> str:
+            html = render_to_string(
+                "_item_cover_card_body.html",
+                {"item": item, "mark_badge": 1, **settings.SITE_INFO},
+            )
+            match = re.search(r'<span class="dc-mark-box[^"]*"', html)
+            return match.group(0) if match else ""
+
+        # a book takes the add-mark badge; a show is marked through its
+        # seasons and shows only a status it has; a person has none
+        assert box(book) == '<span class="dc-mark-box tall"'
+        assert box(show) == '<span class="dc-mark-box tall status-only"'
+        assert box(person) == ""
 
     def test_episode_comment_link_is_switched_on_in_the_browser(self, site_config):
         site_config.discover_show_verified_podcasts = True

@@ -536,6 +536,12 @@ a:hover .dc-cover img {
       display: inline-flex;
     }
   }
+
+  // a show or a work is marked through its seasons or editions, as on its
+  // item page, so its cover shows a status it has but never add-mark
+  .dc-mark-box.status-only .dc-mark:not(.marked) {
+    display: none;
+  }
 }
 
 // reading progress along the bottom edge of a cover

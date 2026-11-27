@@ -26,7 +26,7 @@
   {% endif %}
 </a>
 {% if mark_badge %}
-  <span class="dc-mark-box {{ item|cover_shape }}">{% include "_cover_mark.html" with uuid=item.uuid only %}</span>
+  {% include "_cover_mark_box.html" %}
 {% endif %}
 {% if show_progress_badges %}
   {% if can_update_progress %}

@@ -227,12 +227,25 @@
         const spotlight = document.getElementById('spotlight');
         if (spotlight && !spotlight.querySelector('.dc-spot')) spotlight.remove();
         // the shared covers carry no viewer data: fetch the badges of the
-        // ones this member shelved, once the footer adds the CSRF header
-        const coverItems = [...new Set(Array.from(document.querySelectorAll('[data-cover-mark]'), el => el.dataset.coverMark))];
+        // ones this member shelved and swap them in one pass, not as one
+        // htmx swap and event round per badge
+        const coverBadges = {};
+        document.querySelectorAll('[data-cover-mark]').forEach(el => {
+          (coverBadges[el.dataset.coverMark] ??= []).push(el);
+        });
+        const coverItems = Object.keys(coverBadges);
         if (coverItems.length) {
-          document.addEventListener('DOMContentLoaded', () => {
-            htmx.ajax('POST', '{% url "journal:cover_marks" %}', {values: {items: coverItems.join(',')}, swap: 'none'});
-          });
+          fetch('{% url "journal:cover_marks" %}', {
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            body: new URLSearchParams({items: coverItems.join(',')}),
+          }).then(r => r.ok ? r.text() : '').then(html => {
+            const t = document.createElement('template');
+            t.innerHTML = html;
+            t.content.querySelectorAll('[data-cover-mark]').forEach(badge => {
+              (coverBadges[badge.dataset.coverMark] || []).forEach(el => el.replaceWith(badge.cloneNode(true)));
+            });
+          }).catch(() => {});
         }
         // one listener opens the mark dialog for every cover badge, so the
         // shared cards carry no request markup of their own; a cover not
