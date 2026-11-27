@@ -265,6 +265,8 @@ def _clean_made(made: Any) -> list[dict[str, Any]]:
                 "cat": cat if cat in CATEGORIES else "all",
             }
         elif kind == "collection":
+            if not src.get("uuid"):
+                continue
             source = {"type": "collection", "uuid": _clean_str(src.get("uuid"), 40)}
         elif kind == "words":
             # one text of the member's on one title: a reference, so the card follows edits of the text

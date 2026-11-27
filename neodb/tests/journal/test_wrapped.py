@@ -538,6 +538,42 @@ class TestReviewFixes:
         assert friends(None) == []
         assert friends(self.user) == ["rfpal"]
 
+    def test_an_early_place_is_kept_only_up_to_the_cap(self):
+        popular = Edition.objects.create(title="Popular Book")
+        second = Edition.objects.create(title="Second Book")
+        for k in range(2):
+            other = User.register(
+                email=f"rfe{k}@test.com", username=f"rfearly{k}"
+            ).identity
+            complete(other, popular, at(1, k + 1))
+            complete(other, self.book, at(3, k + 1))
+        complete(other, second, at(1, 5))
+        complete(self.me, popular, at(2, 3))
+        complete(self.me, second, at(2, 4))
+        with patch("journal.wrapped.FIRST_RANK_MAX", 2):
+            items = build_payload(self.me, YEAR, 2, TZ)["items"]
+        ranks = {i["title"]: i["first_rank"] for i in items}
+        assert ranks == {"Reviewed Book": 1, "Second Book": 2, "Popular Book": None}
+
+    def test_a_collection_card_without_a_collection_is_dropped(self):
+        made = [{"id": 1, "n": 5, "source": {"type": "collection", "uuid": ""}}]
+        r = self.owner.post(
+            reverse("journal:wrapped_save", args=[YEAR]),
+            json.dumps({"aud": 0, "made": made}),
+            content_type="application/json",
+        )
+        assert r.status_code == 200
+        deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
+        assert deck.made == []
+        # an id that does not decode, stored before this check, still lets the page open
+        WrappedDeck.objects.filter(pk=deck.pk).update(
+            made=made
+            + [{"id": 2, "n": 5, "source": {"type": "collection", "uuid": "!"}}]
+        )
+        assert (
+            self.owner.get(reverse("journal:wrapped", args=[YEAR])).status_code == 200
+        )
+
     def test_saves_reject_more_made_cards_than_allowed(self):
         url = reverse("journal:wrapped_save", args=[YEAR])
         made = [
@@ -633,7 +669,7 @@ class TestQueryCount:
             with (
                 patch(
                     "journal.wrapped.instance_stats",
-                    return_value={"top": None, "counts": list(range(20))},
+                    return_value={"top": None, "counts": [list(range(20))] * 3},
                 ),
                 CaptureQueriesContext(connection) as a,
                 CaptureQueriesContext(connections["takahe"]) as b,
@@ -672,7 +708,7 @@ class TestInstanceStats:
             assert instance_stats(YEAR) is None
             assert q.return_value.enqueue.call_count == 1
         stats = compute_instance_stats(YEAR)
-        assert stats["top"]["title"] == "Top" and stats["counts"] == [1]
+        assert stats["top"]["title"] == "Top" and stats["counts"] == [[1], [1], [1]]
         with CaptureQueriesContext(connection) as ctx:
             assert instance_stats(YEAR) == stats
         assert len(ctx.captured_queries) == 0
@@ -685,6 +721,22 @@ class TestInstanceStats:
         ) as compute:
             WrappedInstanceStats().run()
         assert [c.args[0] for c in compute.call_args_list] == [this - 1, this]
+
+    def test_counts_follow_the_audience(self):
+        clear_wrapped_cache()
+        me = User.register(email="i2@test.com", username="iaud").identity
+        pal = User.register(email="i3@test.com", username="iaud2").identity
+        complete(me, Edition.objects.create(title="Open"), at(2, 2))
+        complete(me, Edition.objects.create(title="Mine"), at(2, 3), vis=2)
+        complete(pal, Edition.objects.create(title="Friends"), at(2, 4), vis=1)
+        # each audience is compared with completions of the kind it can see
+        assert compute_instance_stats(YEAR)["counts"] == [[1], [1, 1], [1, 2]]
+        with patch(
+            "journal.wrapped.instance_stats",
+            return_value={"top": None, "counts": [[1] * 10, [2] * 10, [3] * 10]},
+        ):
+            assert build_payload(me, YEAR, 0, TZ)["median"] == 1
+            assert build_payload(me, YEAR, 2, TZ)["median"] == 3
 
     def test_median_is_one_members_count_and_needs_ten(self):
         assert _median([3, 1, 2]) is None

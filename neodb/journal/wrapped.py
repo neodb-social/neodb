@@ -23,7 +23,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.signing import b62_decode
 from django.db import connection
-from django.db.models import Count, F, Min, QuerySet, Window
+from django.db.models import Count, F, Min, Q, QuerySet, Window
 from django.db.models.functions import RowNumber, TruncDate
 from django.urls import reverse
 
@@ -91,6 +91,8 @@ CREDIT_ROLES = {
     "performer": "actor",
 }
 ACTORS_PER_ITEM = 5
+# the Early card shows a place only up to this one (deck.js checks the same 10)
+FIRST_RANK_MAX = 10
 
 
 def _members() -> QuerySet[ShelfMember]:
@@ -182,20 +184,26 @@ def _credits(ids: list[int]) -> dict[int, list[list[str]]]:
 
 
 def _first_ranks(owner: APIdentity, ids: list[int]) -> dict[int, int]:
-    """For each title, how many members marked it before this member did, plus one."""
+    """The member's place among the members who marked each title, for titles where it is
+    FIRST_RANK_MAX or better. The count of earlier marks stops at FIRST_RANK_MAX rows, so a popular
+    title costs no more than an obscure one."""
     if not ids:
         return {}
     sql = """
-        SELECT a.item_id, count(b.piece_ptr_id)
+        SELECT a.item_id, (
+            SELECT count(*) FROM (
+                SELECT 1 FROM journal_shelfmember b
+                WHERE b.item_id = a.item_id AND b.created_time < a.created_time
+                LIMIT %s
+            ) earlier
+        )
         FROM journal_shelfmember a
-        JOIN journal_shelfmember b ON b.item_id = a.item_id AND b.created_time < a.created_time
         WHERE a.owner_id = %s AND a.item_id = ANY(%s)
-        GROUP BY a.item_id
     """
     with connection.cursor() as cur:
-        cur.execute(sql, [owner.pk, ids])
-        earlier = dict(cur.fetchall())
-    return {i: earlier.get(i, 0) + 1 for i in ids}
+        cur.execute(sql, [FIRST_RANK_MAX, owner.pk, ids])
+        rows = cur.fetchall()
+    return {i: n + 1 for i, n in rows if n < FIRST_RANK_MAX}
 
 
 def _grades(
@@ -446,7 +454,7 @@ def _collections(
     for r in refs or []:
         try:
             uids.append(uuid.UUID(int=b62_decode(r)))
-        except ValueError:
+        except ValueError, IndexError:  # IndexError: b62_decode("")
             continue
     if uids:
         own += [
@@ -580,7 +588,9 @@ def _instance_key(year: int) -> str:
 def compute_instance_stats(year: int) -> dict[str, Any]:
     """The instance's most finished title of the year, and every local member's completion count.
 
-    A whole-instance aggregate; it runs in a job and the result is cached, never per request.
+    ``counts[level]`` holds the counts of completions visible at that level, so a page compares the
+    member's count for its audience with counts of the same kind. A whole-instance aggregate; it runs
+    in a job and the result is cached, never per request.
     """
     tz = ZoneInfo(settings.TIME_ZONE)
     start, end = year_range(year, tz)
@@ -592,9 +602,16 @@ def compute_instance_stats(year: int) -> dict[str, Any]:
         owner__deleted__isnull=True,
     )
     top = qs.values("item_id").annotate(n=Count("pk")).order_by("-n", "item_id").first()
-    counts = sorted(
-        qs.values("owner_id").annotate(n=Count("pk")).values_list("n", flat=True)
+    per_member = list(
+        qs.values("owner_id")
+        .annotate(
+            n0=Count("pk", filter=Q(visibility=0)),
+            n1=Count("pk", filter=Q(visibility__lte=1)),
+            n2=Count("pk"),
+        )
+        .values_list("n0", "n1", "n2")
     )
+    counts = [sorted(r[lv] for r in per_member if r[lv]) for lv in range(3)]
     top_item = None
     if top:
         it = Item.objects.filter(pk=top["item_id"]).first()
@@ -913,8 +930,8 @@ def build_payload(
         if include_kindred
         else None,
         "instance_top": stats["top"] if stats else None,
-        "percentile": _percentile(stats["counts"], len(ids)) if stats else None,
-        "median": _median(stats["counts"]) if stats else None,
+        "percentile": _percentile(stats["counts"][level], len(ids)) if stats else None,
+        "median": _median(stats["counts"][level]) if stats else None,
     }
     return payload
 
