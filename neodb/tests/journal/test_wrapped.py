@@ -796,11 +796,16 @@ class TestInstanceStats:
         # the owner's page does not save its card list while a job's result is missing
         with patch("journal.wrapped.instance_stats", return_value=None):
             assert build_payload(me, YEAR, 0, TZ)["warming"] is True
-        with patch(
-            "journal.wrapped.instance_stats",
-            return_value={"top": None, "counts": [[]] * 3},
-        ):
+        warm = {"top": None, "counts": [[]] * 3}
+        with patch("journal.wrapped.instance_stats", return_value=warm):
             assert build_payload(me, YEAR, 0, TZ)["warming"] is False
+            # the kindred card and the flag come from one read of the cached matches
+            with patch("journal.wrapped.kindred_matches", return_value=None):
+                p = build_payload(me, YEAR, 2, TZ, include_kindred=True)
+                assert p["warming"] is True and p["kindred"] is None
+            with patch("journal.wrapped.kindred_matches", return_value={}):
+                p = build_payload(me, YEAR, 2, TZ, include_kindred=True)
+                assert p["warming"] is False
 
     def test_counts_follow_the_audience(self):
         clear_wrapped_cache()

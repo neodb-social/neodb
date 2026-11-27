@@ -770,14 +770,16 @@ def kindred_matches(year: int) -> dict[int, list[list[float]]] | None:
 def _kindred(
     owner: APIdentity,
     year: int,
+    matches: dict[int, list[list[float]]] | None,
     tz: ZoneInfo,
     my_items: dict[int, str],
     hidden: AbstractSet[int] = frozenset(),
 ) -> dict[str, Any] | None:
     """The kindred member for this deck: the best cached match the owner may be shown now, with the titles
     both finished this year in public. The batch skipped bulk days and used the site's time zone, so the
-    shared titles are counted again here; a match now under the minimum gives way to the next."""
-    candidates = [int(m[0]) for m in (kindred_matches(year) or {}).get(owner.pk, [])]
+    shared titles are counted again here; a match now under the minimum gives way to the next.
+    ``matches`` is the cached batch (None on a miss), read once by the caller so ``warming`` agrees."""
+    candidates = [int(m[0]) for m in (matches or {}).get(owner.pk, [])]
     if not candidates or not my_items:
         return None
     # the whole following list
@@ -929,6 +931,7 @@ def build_payload(
     history, last_year = _history(owner, level, year, tz, ctypes)
     waiting = _waiting(owner, level, end, tz)
     stats = instance_stats(year)
+    matches = kindred_matches(year) if include_kindred else None
     # other members appear on the cards only as this visitor may see them
     hidden = _hidden_people(viewer)
     payload: dict[str, Any] = {
@@ -944,7 +947,7 @@ def build_payload(
         ),
         "reviews": _reviews(owner, level, start, end, tz),
         "friends": _friends(owner, year, tz, paths, hidden) if include_friends else [],
-        "kindred": _kindred(owner, year, tz, paths, hidden)
+        "kindred": _kindred(owner, year, matches, tz, paths, hidden)
         if include_kindred
         else None,
         "instance_top": stats["top"] if stats else None,
@@ -952,8 +955,7 @@ def build_payload(
         "median": _median(stats["counts"][level]) if stats else None,
         # a job's result is not cached yet: the cards that need it are missing for now, so the owner's
         # page must not save that list as the one visitors see
-        "warming": stats is None
-        or (include_kindred and cache.get(_kindred_key(year)) is None),
+        "warming": stats is None or (include_kindred and matches is None),
     }
     return payload
 

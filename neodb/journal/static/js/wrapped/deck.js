@@ -550,14 +550,17 @@
   // the deck starts from the member's default post visibility; the server keeps the member's choices
   let deckState = Object.assign({ order: [], hidden: {} }, D.deck || {}), made = deckState.made || [], arranging = false, saveTimer = null, savedShown = JSON.stringify(D.shown || null);
   delete deckState.made;
-  let lastSave = Promise.resolve({}), saveFailed = false;
+  // pendingMusic: a track choice the server has not taken yet, so a save sent again after a failure still carries it
+  let lastSave = Promise.resolve({}), saveFailed = false, pendingMusic = null;
   // one save at a time, in order: each sends the deck as it is when its turn comes, so an older state never lands after a newer one
-  function persist(extra) {
+  function persist() {
     if (!OWNER) return Promise.resolve({});
     lastSave = lastSave.catch(() => {}).then(() => {
-      const shown = (state.shown || []).map(c => c.id);
-      savedShown = JSON.stringify(shown);
-      return fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify(Object.assign({ aud: LEVEL, order: deckState.order, hidden: deckState.hidden, made, shown }, extra || {})) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+      const body = { aud: LEVEL, order: deckState.order, hidden: deckState.hidden, made }, music = pendingMusic;
+      // while a job's result is missing (D.warming) the list lacks its cards, so the saved list stays as it is
+      if (!D.warming) { body.shown = (state.shown || []).map(c => c.id); savedShown = JSON.stringify(body.shown); }
+      if (music !== null) body.music = music;
+      return fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.status); if (pendingMusic === music) pendingMusic = null; return r.json(); });
     }).then(r => { saveFailed = false; return r; }, e => { saveFailed = true; throw e; });
     return lastSave;
   }
@@ -1170,7 +1173,7 @@
     sel.onchange = () => {
       stopTry(); const playing = audio && !audio.paused;
       music = tracks.find(x => x.id === sel.value) || null;
-      persist({ music: sel.value }).catch(() => toast(_("Could not save the deck; try again")));
+      pendingMusic = sel.value; persist().catch(() => toast(_("Could not save the deck; try again")));
       creditShow(); if (audio) { audio.pause(); audio = null; } soundShow(false);
       if (playing && music) sound(true);
     };
@@ -1293,10 +1296,12 @@
     const u = coverUuid.get(h);
     return u && D.cover_url ? D.cover_url.replace("UUID", u) : h;
   }
-  async function inlineImages(svg) { const hrefs = [...new Set([...svg.matchAll(/<image href="([^"]+)"/g)].map(m => m[1]))]; for (const h of hrefs) { if (!dataCache.has(h)) { try { const r = await fetch(exportHref(h.replace(/&amp;/g, "&"))); if (!r.ok) throw new Error(r.status); const b = await r.blob(); dataCache.set(h, await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); })); } catch (e) { /* this file goes without the cover; the next export tries again */ } } svg = svg.split(`<image href="${h}"`).join(`<image href="${dataCache.get(h) || ""}"`); } return svg; }
+  // the SVG with its images inlined, and whether any of them could not be read (that drawing then goes without it)
+  async function inlineImages(svg) { let missing = false; const hrefs = [...new Set([...svg.matchAll(/<image href="([^"]+)"/g)].map(m => m[1]))]; for (const h of hrefs) { if (!dataCache.has(h)) { try { const r = await fetch(exportHref(h.replace(/&amp;/g, "&"))); if (!r.ok) throw new Error(r.status); const b = await r.blob(); dataCache.set(h, await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); })); } catch (e) { /* this file goes without the cover; the next export tries again */ } } if (!dataCache.has(h)) missing = true; svg = svg.split(`<image href="${h}"`).join(`<image href="${dataCache.get(h) || ""}"`); } return { svg, missing }; }
   const pngBlob = cv => new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error("no PNG")), "image/png"));
   // a card as a canvas `size` wide, in the card's 4:5 shape
-  async function toCanvas(c, size) { const hgt = Math.round(size * CH / CW), svg = await inlineImages(c.svg.replace("<svg ", `<svg width="${size}" height="${hgt}" `)); const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); const im = new Image(); await new Promise((res, rej) => { im.onload = res; im.onerror = rej; im.src = url; }); const cv = document.createElement("canvas"); cv.width = size; cv.height = hgt; cv.getContext("2d").drawImage(im, 0, 0, size, hgt); URL.revokeObjectURL(url); return cv; }
+  // cv.missing: an image of the card could not be read, so this drawing is not kept for a later export
+  async function toCanvas(c, size) { const hgt = Math.round(size * CH / CW), { svg, missing } = await inlineImages(c.svg.replace("<svg ", `<svg width="${size}" height="${hgt}" `)); const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" })); const im = new Image(); await new Promise((res, rej) => { im.onload = res; im.onerror = rej; im.src = url; }); const cv = document.createElement("canvas"); cv.width = size; cv.height = hgt; cv.getContext("2d").drawImage(im, 0, 0, size, hgt); URL.revokeObjectURL(url); cv.missing = missing; return cv; }
   // one card as a PNG; toBlob encodes off the main thread
   let lastUrl = null;
   const saveBlob = (blob, name) => { const url = URL.createObjectURL(blob), a = document.createElement("a"); a.download = name; a.href = url; a.click(); return url; };
@@ -1356,8 +1361,9 @@
     for (let i = 0; i < cards.length; i++) {
       const c = cards[i], key = c.key;
       if (!sent.has(key)) {
-        const bitmap = await createImageBitmap(await toCanvas(c, 1080));
-        worker().postMessage({ type: "card", key, bitmap }, [bitmap]); sent.add(key);
+        const cv = await toCanvas(c, 1080), bitmap = await createImageBitmap(cv);
+        worker().postMessage({ type: "card", key, bitmap }, [bitmap]);
+        if (!cv.missing) sent.add(key);
         // let the page paint between two cards
         await new Promise(r => setTimeout(r, 0));
       }
