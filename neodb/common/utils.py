@@ -416,7 +416,7 @@ def int_param(params: QueryDict, key: str, default: int) -> int:
     """
     Read an integer that the page itself supplies (a select, radio or hidden
     input). Only a broken or tampered client sends a malformed one, so that is
-    a 400; a value a user types needs int_() and a fallback instead.
+    a 400; a value a user types needs a fallback instead.
     """
     value = params.get(key)
     if value is None:

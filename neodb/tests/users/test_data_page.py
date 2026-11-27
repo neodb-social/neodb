@@ -168,7 +168,10 @@ def test_steam_import_returns_to_its_page(client, user, monkeypatch):
     [
         ("", "", (12, 2)),
         ("-3", "abc", (12, 2)),
+        ("nan", "-0.5", (12, 2)),
+        ("24.0", "1e2", (24, 100)),
         ("99999999999", "40", (36500, 40)),
+        ("9" * 5000, "inf", (36500, 36500)),
     ],
 )
 def test_steam_import_thresholds_fall_back_to_form_defaults(
@@ -199,10 +202,20 @@ def test_steam_import_thresholds_fall_back_to_form_defaults(
         ("users:preferences", {"default_visibility": "abc"}),
         ("users:preferences", {"mastodon_repost_mode": ""}),
         ("users:authorized_app_revoke", {"token_id": "x"}),
+        ("users:authorized_app_revoke", {"token_id": ""}),
     ],
 )
 def test_malformed_choice_is_a_bad_request(client, url_name, data):
     assert client.post(reverse(url_name), data).status_code == 400
+
+
+def test_rejected_steam_import_keeps_the_verified_steam_id(client):
+    session = client.session
+    session["steam_id"] = "1"
+    session.save()
+    response = client.post(reverse("users:import_steam"), {"visibility": "7"})
+    assert response.status_code == 400
+    assert client.session.get("steam_id") == "1"
 
 
 def test_older_running_import_behind_a_finished_one_still_warns(client, user):

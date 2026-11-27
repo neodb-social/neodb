@@ -2,6 +2,7 @@ import copy
 import csv
 import datetime
 import logging
+import math
 import os
 import zipfile
 from dataclasses import dataclass
@@ -25,7 +26,7 @@ from catalog.common import SiteManager
 from catalog.models import Item, SiteName
 from catalog.recommendation import forget_for_user
 from catalog.sites import FediverseInstance
-from common.models import SiteConfig, int_
+from common.models import SiteConfig
 from common.models.lang import base_language_choices
 from common.sentry import record_activity
 from common.storage import (
@@ -1559,6 +1560,20 @@ def import_neodb(request):
     return _import_page(request, "neodb")
 
 
+def _steam_threshold(value: str | None, default: int) -> int:
+    """
+    A number input submits the text as typed, so "24.0" and "1e2" are valid
+    whole numbers. The cap keeps timedelta(days=) in range.
+    """
+    try:
+        n = float(value or "")
+    except ValueError:
+        return default
+    if math.isnan(n) or n < 0:
+        return default
+    return int(min(n, 36500))
+
+
 @login_required
 def import_steam(request):
     if request.method != "POST":
@@ -1566,17 +1581,18 @@ def import_steam(request):
 
     # core metadatas
     metadata = copy.deepcopy(SteamImporter.DefaultMetadata)
-    steam_id = (
-        request.session.pop("steam_id", "") or request.POST.get("steam_id", "").strip()
-    )
-    metadata["steam_id"] = steam_id
-    metadata["steam_api_key"] = request.POST.get("steam_api_key", "").strip()
+    # before the session pop, so a rejected post keeps the verified steam id
     try:
         metadata["visibility"] = VisibilityType(
             int_param(request.POST, "visibility", 0)
         )
     except ValueError:
         raise BadRequest(_("Invalid parameter"))
+    steam_id = (
+        request.session.pop("steam_id", "") or request.POST.get("steam_id", "").strip()
+    )
+    metadata["steam_id"] = steam_id
+    metadata["steam_api_key"] = request.POST.get("steam_api_key", "").strip()
 
     # config source
     source = request.POST.getlist("source[]")
@@ -1590,11 +1606,11 @@ def import_steam(request):
                 "include_free_sub": bool(
                     request.POST.get("free_filter", "played") == "all"
                 ),
-                # defaults match the form; timedelta(days=) overflows past 999999999
-                "playing_thresh": min(
-                    int_(request.POST.get("playing_thresh"), 12), 36500
+                # defaults match the form
+                "playing_thresh": _steam_threshold(
+                    request.POST.get("playing_thresh"), 12
                 ),
-                "finish_thresh": int_(request.POST.get("finish_thresh"), 2),
+                "finish_thresh": _steam_threshold(request.POST.get("finish_thresh"), 2),
                 "last_play_to_ctime": True,  # option disabled, always true
             }
         )
@@ -1656,8 +1672,7 @@ def authorized_app_create(request):
 @login_required
 @require_http_methods(["POST"])
 def authorized_app_revoke(request):
-    token_pk = request.POST.get("token_id")
-    if token_pk:
+    if "token_id" in request.POST:
         identity = request.user.identity
         application_id = Takahe.revoke_token(
             int_param(request.POST, "token_id", 0), identity.pk
