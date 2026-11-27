@@ -782,6 +782,12 @@ class TestInstanceStats:
         complete(me, Edition.objects.create(title="Secret"), at(2, 2), vis=2)
         # the top title reaches every visitor, so a private completion never names it
         assert compute_instance_stats(YEAR)["top"] is None
+        # with that result cached, the public payload and a signed-out visitor's page carry no top title
+        assert build_payload(me, YEAR, 0, TZ)["instance_top"] is None
+        WrappedDeck.objects.create(owner=me, year=YEAR)
+        r = Client().get(reverse("journal:wrapped_page", args=["itop", YEAR]))
+        assert r.status_code == 200 and page_data(r)["instance_top"] is None
+        assert b"Secret" not in r.content
         opened = Edition.objects.create(title="Open")
         complete(me, opened, at(2, 3))
         assert compute_instance_stats(YEAR)["top"]["title"] == "Open"
