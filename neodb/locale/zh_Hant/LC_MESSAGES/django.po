@@ -12005,8 +12005,8 @@ msgstr "立即更新"
 
 #: journal/templates/wrapped.html:199
 #, python-format
-msgid "Last updated %(time)s. Updates ended with February, so the cards stay as they are."
-msgstr "最後更新於 %(time)s。更新已隨二月結束，卡片將保持不變。"
+msgid "Last updated %(time)s. Updates ended on %(date)s."
+msgstr "最後更新於 %(time)s。更新已於 %(date)s 結束。"
 
 #: journal/views/wrapped.py:132
 #, python-format
@@ -12032,18 +12032,18 @@ msgstr "上次更新的卡片中沒有作品。"
 
 #: journal/templates/wrapped.html:82
 #, python-format
-msgid "Make your %(year)s cards any day until %(date)s. They update every night until %(auto)s, and you can update them by hand until %(date)s; after that they stay as they are."
-msgstr "在 %(date)s 之前的任意一天都可以生成你的 %(year)s 年度卡片。卡片每晚自動更新，直到 %(auto)s；在 %(date)s 之前也可以手動更新，之後卡片將保持不變。"
+msgid "Make your %(year)s cards by %(date)s. Card data refreshes every day in December."
+msgstr "請在 %(date)s 前生成你的 %(year)s 年度卡片。卡片資料在 12 月每天更新。"
 
 #: journal/templates/wrapped.html:84
 #, python-format
-msgid "Make your %(year)s cards any day until %(date)s. You can update them by hand until then; after that they stay as they are."
-msgstr "在 %(date)s 之前的任意一天都可以生成你的 %(year)s 年度卡片。在此之前可以手動更新，之後卡片將保持不變。"
+msgid "Make your %(year)s cards by %(date)s."
+msgstr "請在 %(date)s 前生成你的 %(year)s 年度卡片。"
 
 #: journal/templates/wrapped.html:198
 #, python-format
-msgid "The site updates them every night until %(auto)s; you can also update them now, until %(date)s."
-msgstr "站點每晚自動更新卡片，直到 %(auto)s；在 %(date)s 之前你也可以立即更新。"
+msgid "Card data refreshes every day in December. You can also update it now, until %(date)s."
+msgstr "卡片資料在 12 月每天更新；在 %(date)s 之前你也可以立即更新。"
 
 #: journal/templates/wrapped.html:200
 #, python-format

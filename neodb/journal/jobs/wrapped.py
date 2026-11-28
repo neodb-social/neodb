@@ -60,8 +60,8 @@ class WrappedKindred(BaseJob):
 
 @JobManager.register
 class WrappedDailyUpdate(BaseJob):
-    """Store the card data again for every made deck of a year, every night from 1 December to 2 January
-    (the member can still update it by hand to the end of February). One deck after another, each written
+    """Store the card data again for every made deck of a year, every day in December, the last
+    run on 1 January (the member can still update it by hand to the end of January). One deck after another, each written
     only when its data changed; a deck that fails is logged and the others go on."""
 
     @classmethod

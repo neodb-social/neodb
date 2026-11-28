@@ -152,7 +152,7 @@
             </div>
             <p class="dc-fine" id="wr-music-credit"></p>
           </div>
-          {# the cards show the data the last update stored: every night to 2 January, by hand to the end of February #}
+          {# the cards show the data the last update stored: every day in December, by hand to the end of January #}
           <div class="wr-update">
             <p class="wr-vislabel">{% trans "Card data" %}</p>
             {% if update.open or update.admin %}
@@ -163,7 +163,7 @@
                 {% if update.admin %}
                   {% trans "As an admin, you can make and update these cards at any time, for testing." %}
                 {% elif update.auto %}
-                  {% blocktranslate with auto=update.auto_last|date:"DATE_FORMAT" date=update.last|date:"DATE_FORMAT" %}The site updates them every night until {{ auto }}; you can also update them now, until {{ date }}.{% endblocktranslate %}
+                  {% blocktranslate with date=update.last|date:"DATE_FORMAT" %}Card data refreshes every day in December. You can also update it now, until {{ date }}.{% endblocktranslate %}
                 {% else %}
                   {% blocktranslate with date=update.last|date:"DATE_FORMAT" %}You can update them now, until {{ date }}; after that they stay as they are.{% endblocktranslate %}
                 {% endif %}
@@ -173,7 +173,7 @@
               </button>
             {% else %}
               <p class="dc-fine">
-                {% blocktranslate with time=update.time|date:"DATETIME_FORMAT" %}Last updated {{ time }}. Updates ended with February, so the cards stay as they are.{% endblocktranslate %}
+                {% blocktranslate with time=update.time|date:"DATETIME_FORMAT" date=update.last|date:"DATE_FORMAT" %}Last updated {{ time }}. Updates ended on {{ date }}.{% endblocktranslate %}
               </p>
             {% endif %}
           </div>

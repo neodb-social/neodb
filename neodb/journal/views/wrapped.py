@@ -60,7 +60,6 @@ from journal.wrapped.data import (
     live_year,
 )
 from journal.wrapped.record import (
-    auto_last,
     auto_update_open,
     can_make,
     deck_for,
@@ -243,7 +242,6 @@ def _context(
             "admin": not can_make(year) and _admin_any_time(viewer, year),
             "time": deck.refreshed_time,
             "auto": auto_update_open(year),
-            "auto_last": auto_last(year),
             "last": make_window(year)[1] - datetime.timedelta(days=1),
         }
     return ctx
@@ -302,7 +300,6 @@ def wrapped_year(request: AuthedHttpRequest, year: int | None = None):
             "state": make_state(y),
             "admin": not can_make(y) and _admin_any_time(request.user, y),
             "auto": auto_update_open(y),
-            "auto_last": auto_last(y),
             "start": start,
             "last": end - datetime.timedelta(days=1),
         },
@@ -316,7 +313,7 @@ def wrapped_year(request: AuthedHttpRequest, year: int | None = None):
 @login_required
 @require_POST
 def wrapped_generate(request: AuthedHttpRequest, year: int):
-    """Make the deck of a year, once, from 1 December to the end of February after it: this stores the card
+    """Make the deck of a year, once, from 1 December to the end of January after it: this stores the card
     data of each audience, which the cards then show until the next update."""
     owner = request.user.identity
     if _may_make(request.user, year):
@@ -339,7 +336,7 @@ def wrapped_generate(request: AuthedHttpRequest, year: int):
 @require_POST
 def wrapped_delete(request: AuthedHttpRequest, year: int):
     """Delete the owner's deck of a year with all their choices for it; posts made from it stay. While decks
-    can be made (to the end of February) the owner can make a new one; after that the year has none."""
+    can be made (to the end of January) the owner can make a new one; after that the year has none."""
     WrappedDeck.objects.filter(owner=request.user.identity, year=year).delete()
     return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
 
@@ -359,7 +356,7 @@ def _made_deck(owner: APIdentity, year: int, lock: bool = False) -> WrappedDeck:
 @login_required
 @require_POST
 def wrapped_refresh(request: AuthedHttpRequest, year: int):
-    """Store the card data again, now, while updates are open (to the end of February); at most once a
+    """Store the card data again, now, while updates are open (to the end of January); at most once a
     minute, as each update reads the whole year three times."""
     deck = _made_deck(request.user.identity, year)
     if not _may_make(request.user, year):
