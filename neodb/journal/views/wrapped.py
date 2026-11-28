@@ -219,7 +219,17 @@ def _context(
         }
         # a queued or running update: the page waits for it and reloads with the new data; a job that ends
         # with this time unchanged did not store anything
-        payload["updating"] = refresh_state(deck.pk) == "updating"
+        updating = refresh_state(deck.pk) == "updating"
+        if not updating:
+            # a job may have stored its data after this page read the deck, and cleared its marker before the
+            # state was read: the page waits then too, and reloads at once
+            updating = (
+                WrappedDeck.objects.filter(pk=deck.pk)
+                .values_list("refreshed_time", flat=True)
+                .first()
+                != deck.refreshed_time
+            )
+        payload["updating"] = updating
         payload["update_time"] = (
             deck.refreshed_time.isoformat() if deck.refreshed_time else None
         )
@@ -400,6 +410,10 @@ def wrapped_status(request: AuthedHttpRequest, year: int):
         .first()
     )
     state = refresh_state(deck.pk) if deck else ""
+    if deck and state != "updating":
+        # a job may have stored its time and cleared its marker between the two reads; it stores before it
+        # clears, so a second read has the time
+        deck = WrappedDeck.objects.defer("data").filter(pk=deck.pk).first()
     resp = JsonResponse(
         {
             "made": bool(deck and deck.refreshed_time),
@@ -445,17 +459,14 @@ def wrapped_page(request: AuthedHttpRequest, user_name: str, year: int):
             deck.save(update_fields=["timezone", "edited_time"])
         # the deck was stored while another process was still computing the instance totals: a job fills the
         # gap, and the page reloads when it is done
-        queued = (
+        if (
             _may_make(request.user, year)
             and any(p.get("warming") for p in (deck.data or {}).values())
             and aggregates_ready(year)
-            and enqueue_deck_refresh(deck)
-        )
+        ):
+            enqueue_deck_refresh(deck)
         level = _owner_level(request, deck)
         ctx = _context(target, deck, year, level, True, request.user)
-        if queued:
-            # the page holds the data read before the job; it waits even when the job ended before the state was read
-            ctx["payload"]["updating"] = True
     else:
         viewer = request.identity
         # a follower sees the followers' cards, or everyone's when the member shows followers none; anybody else sees everyone's

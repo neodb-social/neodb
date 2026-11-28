@@ -106,13 +106,17 @@
   const ACTIVITY = activityOf(ACT);
 
   const past = D.year < new Date().getFullYear();
-  // a job makes or updates the cards: ask the server until it has ended, for at most as long as the server waits for it;
-  // each request has its own time limit, so one that hangs is retried and the deadline still applies
+  // a job makes or updates the cards: ask the server until it has ended, for at most as long as the server waits for it.
+  // The deadline is a timer of its own, so a request that never settles cannot keep the page waiting; where the browser
+  // can, each request also has its own time limit, so one that hangs is retried
   function waitUpdate() {
-    const t0 = Date.now(), limit = () => typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(15000) } : {};
+    const limit = () => typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(15000) } : {};
     return new Promise((done, fail) => {
-      const next = () => Date.now() - t0 > 600000 ? fail("timeout") : setTimeout(tick, 2000);
-      const tick = () => fetch(URLS.status, { cache: "no-store", ...limit() }).then(r => { if (!r.ok) throw r.status; return r.json(); }).then(j => j.updating ? next() : done(j), next);
+      let over = false;
+      const stop = setTimeout(() => { over = true; fail("timeout"); }, 600000);
+      const next = () => { if (!over) setTimeout(tick, 2000); };
+      const tick = () => fetch(URLS.status, { cache: "no-store", ...limit() }).then(r => { if (!r.ok) throw r.status; return r.json(); })
+        .then(j => { if (over) return; if (j.updating) return next(); clearTimeout(stop); done(j); }, next);
       setTimeout(tick, 1000);
     });
   }

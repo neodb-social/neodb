@@ -80,8 +80,10 @@ def refresh_deck_job(deck_pk: int, make: bool = False, token: str = "") -> None:
             return
         refresh_deck(deck)
     except Exception:
-        # before the marker goes, so the waiting page never sees a job that ended without a result
-        cache.set(_failed_key(deck_pk), 1, REFRESH_FAILED_SECONDS)
+        # before the marker goes, so the waiting page never sees a job that ended without a result; not while a
+        # later job holds the marker, as the failure is not that job's
+        if cache.get(key) == token:
+            cache.set(_failed_key(deck_pk), 1, REFRESH_FAILED_SECONDS)
         raise
     finally:
         _release(deck_pk, token)
