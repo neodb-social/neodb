@@ -37,7 +37,7 @@ from catalog.sites.fedi import FediverseInstance
 from catalog.search.utils import enqueue_fetch, fetch_job, get_fetch_lock
 from common.sentry import count as sentry_count
 from common.sentry import record_activity
-from common.utils import AuthedHttpRequest, target_identity_required
+from common.utils import AuthedHttpRequest, clean_json, target_identity_required
 from journal.models.common import VisibilityType
 from journal.models.wrapped import (
     ALL_HIDDEN,
@@ -513,7 +513,8 @@ def _save_choices(
         deck.hidden = hidden
         fields.append("hidden")
     if "made" in data:
-        deck.made = _clean_made(data["made"])
+        # the made cards are the only free text a save stores: NUL and lone surrogates would fail the jsonb write
+        deck.made = clean_json(_clean_made(data["made"]))
         fields.append("made")
     if isinstance(data.get("daily"), bool):
         deck.daily = data["daily"]

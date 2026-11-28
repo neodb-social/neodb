@@ -1196,6 +1196,17 @@ class TestViews:
         )
         assert deck.made[0]["source"] == {"type": "auto", "cat": "all"}
         assert [i["url"] for i in deck.made[1]["source"]["items"]] == ["/book/x"]
+        # NUL and a lone surrogate in a title are stored cleaned, not refused by the database
+        r = self.owner_client.post(
+            url,
+            '{"aud": 0, "made": [{"id": 1, "title": "a\\u0000b\\ud800", "n": 5, "source": {"type": "auto", "cat": "all"}}]}',
+            content_type="application/json",
+        )
+        assert r.status_code == 200
+        assert (
+            WrappedDeck.objects.get(owner=self.me, year=YEAR).made[0]["title"]
+            == "ab\ufffd"
+        )
         # json.loads reads Infinity as a float: a bad value, not a server error
         r = self.owner_client.post(
             url, '{"aud": Infinity}', content_type="application/json"
