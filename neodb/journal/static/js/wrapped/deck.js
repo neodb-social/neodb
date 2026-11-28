@@ -1,16 +1,17 @@
 (function () {
   // the last save before the page goes elsewhere; the editing code sets it, and a page with no cards has nothing to save
   let leave = () => Promise.resolve();
-  // the owner can go to another year from the top bar: the years with a deck, and the year whose deck can be made now
+  // the owner can go to another year from the top bar: the years with a deck, and the year whose deck can be made now;
+  // the year page goes to that year's page, the deck to that year's deck (which sends the owner to the year page until it is made)
   (function years() {
-    const D = WR.D, el = document.getElementById("wr-yr");
-    if (!D.owner_view || !el || !D.make_url) return;
+    const D = WR.D, el = document.getElementById("wr-yr"), url = D.year_page ? D.make_url : D.page_url;
+    if (!D.owner_view || !el || !url) return;
     const ys = [...new Set([...(D.years || []), D.year])].sort((a, b) => b - a);
     if (ys.length < 2) return;
     const sel = document.createElement("select");
     sel.id = "wr-yr"; sel.className = "wr-yr"; sel.setAttribute("aria-label", WR._("Year"));
     sel.innerHTML = ys.map(y => `<option${y === D.year ? " selected" : ""}>${y}</option>`).join("");
-    sel.onchange = () => { leave().then(() => { location.href = D.make_url.replace(`/${D.year}/`, `/${sel.value}/`); }, () => { sel.value = String(D.year); toast(WR._("Could not save the deck; try again")); }); };
+    sel.onchange = () => { leave().then(() => { location.href = url.replace(new RegExp(`/${D.year}/$`), `/${sel.value}/`); }, () => { sel.value = String(D.year); toast(WR._("Could not save the deck; try again")); }); };
     el.replaceWith(sel);
   })();
   const { D, _, _n, CATS, CAT_LABEL, CAT_NOUN, CAT_ICON, CAT_COLOR, MONTHS, MONTHS_LONG, MONTHS_NARROW, ROLE_LABEL, stats: S, esc, cover, fmtDate, who, trunc, SVG } = WR;
@@ -99,41 +100,49 @@
   }
   const ACTIVITY = activityOf(ACT);
 
-  // stored cards with no title: say so on the stage instead of drawing empty cards; the whole-year section stays
-  // when it has titles now, and the owner can update the cards from here while updates are open
-  if (WR.empty) {
-    const msg = $("empty"), live = !!(D.live && D.live.items.length);
-    const past = D.year < new Date().getFullYear();
-    msg.textContent = live ? _("The cards have no titles from the last update.") : past ? _("Nothing was finished in {year}.", { year: D.year }) : OWNER ? _("Nothing finished this year yet. Mark a title as complete and the cards fill in.") : _("Nothing finished this year yet.");
-    msg.hidden = false;
-    document.querySelectorAll((live ? "" : ".wrapped-page, #wr-cue, ") + "#wr-dots, #wr-deck, .wr-ctl, #wr-edit, #wr-publish, #wr-pending").forEach(e => { e.hidden = true; });
-    if (live) {
-      yearSection();
-      $("cuetext").textContent = _("See the whole year");
-      $("cue").onclick = () => $("year").scrollIntoView({ behavior: RM ? "auto" : "smooth" });
+  const past = D.year < new Date().getFullYear();
+  // the owner's year page: the whole year under the stage, which offers to make the cards or links to them
+  if (D.year_page) {
+    if (WR.empty) {
+      const msg = $("empty");
+      msg.textContent = past ? _("Nothing was finished in {year}.", { year: D.year }) : _("Nothing finished this year yet. Mark a title as complete and the cards fill in.");
+      msg.hidden = false;
+      // a deck made before keeps its link
+      document.querySelectorAll(".wrapped-page, #wr-cue" + (D.deck_made ? "" : ", #wr-pending")).forEach(e => { e.hidden = true; });
+      return;
     }
-    if (OWNER && D.update_open && URLS.refresh) {
-      const btn = document.createElement("button");
-      btn.type = "button"; btn.className = "wr-pill primary"; btn.textContent = _("Update now");
-      btn.onclick = () => { btn.disabled = true; fetch(URLS.refresh, { method: "POST", headers: { "X-CSRFToken": CSRF } }).then(r => r.json()).then(j => { if (!j.ok) throw j.status; location.reload(); }).catch(st => { btn.disabled = false; toast(st === "busy" ? _("The cards were updated a moment ago; try again in a minute") : _("Could not update the cards; try again")); }); };
-      const p = document.createElement("p"); p.className = "wr-empty-aud"; p.append(btn); msg.after(p);
+    yearSection();
+    $("cuetext").textContent = _("See the whole year");
+    $("cue").onclick = () => $("year").scrollIntoView({ behavior: RM ? "auto" : "smooth" });
+    return;
+  }
+  // stored cards with no title: say so on the stage instead of drawing empty cards; the owner can update the
+  // cards from here while updates are open, go to the year page, or delete the deck (the Edit sheet needs cards)
+  if (WR.empty) {
+    const msg = $("empty");
+    msg.textContent = OWNER ? _("The cards have no titles from the last update.") : past ? _("Nothing was finished in {year}.", { year: D.year }) : _("Nothing finished this year yet.");
+    msg.hidden = false;
+    document.querySelectorAll("#wr-dots, #wr-deck, .wr-ctl, #wr-edit, #wr-publish").forEach(e => { e.hidden = true; });
+    if (OWNER) {
+      const p = document.createElement("p"), pill = (text, cls) => { const b = document.createElement("button"); b.type = "button"; b.className = "wr-pill" + (cls ? " " + cls : ""); b.textContent = text; p.append(b, " "); return b; };
+      p.className = "wr-empty-aud";
+      if (D.update_open && URLS.refresh) {
+        const btn = pill(_("Update now"), "primary");
+        btn.onclick = () => { btn.disabled = true; fetch(URLS.refresh, { method: "POST", headers: { "X-CSRFToken": CSRF } }).then(r => r.json()).then(j => { if (!j.ok) throw j.status; location.reload(); }).catch(st => { btn.disabled = false; toast(st === "busy" ? _("The cards were updated a moment ago; try again in a minute") : _("Could not update the cards; try again")); }); };
+      }
+      pill(_("See the whole year")).onclick = () => { location.href = D.make_url; };
+      if ($("delete")) pill(_("Delete the deck")).onclick = () => $("delete").requestSubmit();
+      msg.after(p);
     }
     // the owner on an audience that sees none of the year's titles: links to the audiences that do
     const other = (D.levels_with_titles || []).filter(lv => lv !== D.level);
-    if (OWNER && other.length && !live) {
+    if (OWNER && other.length) {
       const label = { 0: _("Public"), 1: _("Followers only"), 2: _("Only me") }, nav = document.createElement("p");
       nav.className = "wr-empty-aud";
       nav.append(_("This audience sees none of this year's titles. Open another:"), " ");
       other.forEach((lv, k) => { const a = document.createElement("a"), u = new URL(location.href); u.searchParams.set("as", lv); a.href = u.toString(); a.textContent = label[lv]; nav.append(a); if (k < other.length - 1) nav.append(" · "); });
       msg.after(nav);
     }
-    return;
-  }
-  // the deck is not made yet: the page shows the year, and the stage offers to make the cards
-  if (D.pending) {
-    yearSection();
-    $("cuetext").textContent = _("See the whole year");
-    $("cue").onclick = () => $("year").scrollIntoView({ behavior: RM ? "auto" : "smooth" });
     return;
   }
 
@@ -927,27 +936,18 @@
   // the show waits while the stage is scrolled away, the tab is in the background or a dialog is open (see the stylesheet)
   new IntersectionObserver(es => stage.classList.toggle("away", !es[0].isIntersecting), { threshold: 0.35 }).observe(stage);
   document.addEventListener("visibilitychange", () => stage.classList.toggle("bg", document.hidden));
-  const toYear = () => $("year").scrollIntoView({ behavior: RM ? "auto" : "smooth" });
-  $("cuetext").textContent = _("See the whole year"); $("cue").onclick = toYear;
-  // the end of the deck, and the end of the page, offer the next steps
+  // the end of the deck offers the next steps: for the owner the year page and Share, for a visitor their own year
   const replay = () => { window.scrollTo({ top: 0, behavior: "instant" }); go(0, "instant"); started = true; setAuto(true); };
-  const nextStep = OWNER ? `<button class="wr-pill primary" type="button" data-act="share"><i class="fa-solid fa-share-from-square"></i> ${_("Share")}</button>` : `<a class="wr-pill primary" href="${esc(D.make_url || "")}"><i class="fa-solid fa-wand-magic-sparkles"></i> ${_("Make your own {year}", { year: Y })}</a>`;
-  $("end").innerHTML = `<button class="wr-pill" type="button" data-act="replay"><i class="fa-solid fa-rotate-left"></i> ${_("Replay")}</button><button class="wr-pill" type="button" data-act="year"><i class="fa-solid fa-chevron-down"></i> ${_("See the whole year")}</button>${nextStep}`;
-  $("cta").innerHTML = `<div class="wr-actions"><button class="wr-pill" type="button" data-act="replay"><i class="fa-solid fa-rotate-left"></i> ${_("Replay")}</button>${OWNER ? `<button class="wr-pill" type="button" data-act="edit"><i class="fa-solid fa-pen"></i> ${_("Edit the deck")}</button>` : ""}${nextStep}</div>`;
-  document.querySelectorAll("[data-act]").forEach(b => b.onclick = () => ({ replay, year: toYear, share: () => openPublish(), edit: () => $("editdlg").showModal() })[b.dataset.act]());
+  const nextStep = OWNER ? `<a class="wr-pill" href="${esc(D.make_url || "")}"><i class="fa-solid fa-layer-group"></i> ${_("See the whole year")}</a><button class="wr-pill primary" type="button" data-act="share"><i class="fa-solid fa-share-from-square"></i> ${_("Share")}</button>` : `<a class="wr-pill primary" href="${esc(D.make_url || "")}"><i class="fa-solid fa-wand-magic-sparkles"></i> ${_("Make your own {year}", { year: Y })}</a>`;
+  $("end").innerHTML = `<button class="wr-pill" type="button" data-act="replay"><i class="fa-solid fa-rotate-left"></i> ${_("Replay")}</button>${nextStep}`;
+  document.querySelectorAll("[data-act]").forEach(b => b.onclick = () => ({ replay, share: () => openPublish() })[b.dataset.act]());
   playBtn();
   function copyLink(url) { (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast(_("Link copied")), () => window.prompt("", url)); }
 
   // ---------- the whole year: the counts, then a pile of covers for each month ----------
-  // it is also all the page shows before the deck is made
+  // only on the owner's year page, whose own data is the year as it is now
   function yearSection() {
-    // read at each view (D.live), while the cards keep what the last update stored; before the deck is made the
-    // page's own data is the live year
-    const L = D.live, its = L ? L.items.slice().sort((a, b) => a.date.localeCompare(b.date)) : S.items, per = {};
-    its.forEach(i => { per[i.date] = (per[i.date] || 0) + 1; });
-    const bulk = L ? new Set(Object.keys(per).filter(d => per[d] > TREND.BULK_DAY)) : BULK;
-    const act = L ? activityOf(L.activity.filter(a => !(a.kind === "complete" && bulk.has(a.date)))) : ACTIVITY;
-    const counts = L ? MONTHS.map((z, m) => its.filter(i => !bulk.has(i.date) && +i.date.slice(5, 7) === m + 1).length) : TM.counts, busiest = counts.indexOf(Math.max(...counts));
+    const its = S.items, act = ACTIVITY, counts = TM.counts, busiest = counts.indexOf(Math.max(...counts));
     const rated = its.filter(i => i.rating), avg = rated.length ? rated.reduce((a, i) => a + i.rating, 0) / rated.length : null;
     const months = MONTHS.map((z, m) => its.filter(i => +i.date.slice(5, 7) === m + 1)), cats = CATS.filter(c => its.some(i => i.category === c));
     $("stats").innerHTML = [[its.length, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[busiest], _n("busiest month, {n} title", "busiest month, {n} titles", counts[busiest])], [avg ? avg.toFixed(1) : _n("{n} day", "{n} days", act.streak), avg ? _("average rating, of 10") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num"${typeof a === "number" ? ` data-to="${a}"` : ""}>${typeof a === "number" ? a.toLocaleString() : a}</span><span class="lbl">${b}</span></div>`).join("");
@@ -986,7 +986,6 @@
     // the piles grow when their top comes up past the lowest 15% of the screen; a tall list on a phone does not wait for 20% of itself
     new IntersectionObserver((es, ob) => { if (es[0].isIntersecting) { piles.classList.add("in"); ob.disconnect(); } }, { rootMargin: "0px 0px -15% 0px" }).observe(piles);
   }
-  yearSection();
 
   // ---------- tint from the member's own covers ----------
   async function tintFromCovers() {

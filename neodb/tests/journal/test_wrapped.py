@@ -60,6 +60,7 @@ from journal.wrapped.record import (
     friends_allowed,
     kindred_allowed,
     refresh_deck,
+    snapshot,
     stored_payload,
 )
 from journal.wrapped.words import (
@@ -547,6 +548,10 @@ def page_data(response) -> dict:
     return json.loads(m.group(1))
 
 
+def deck_url(username: str, year: int = YEAR) -> str:
+    return reverse("journal:wrapped_page", args=[username, year])
+
+
 @pytest.mark.django_db(databases="__all__")
 class TestReviewFixes:
     """What the branch review found: the visitor payload, saves, and the data the cards draw from."""
@@ -804,9 +809,7 @@ class TestReviewFixes:
             made=made
             + [{"id": 2, "n": 5, "source": {"type": "collection", "uuid": "!"}}]
         )
-        assert (
-            self.owner.get(reverse("journal:wrapped", args=[YEAR])).status_code == 200
-        )
+        assert self.owner.get(deck_url("rfowner")).status_code == 200
 
     def test_a_partial_save_keeps_cards_the_page_lacked_but_not_hidden_ones(self):
         make_deck(self.me)
@@ -860,8 +863,8 @@ class TestReviewFixes:
         make_deck(user.identity)
         c = Client()
         c.force_login(user)
-        assert page_data(c.get(reverse("journal:wrapped", args=[YEAR])))["level"] == 1
-        empty = page_data(c.get(reverse("journal:wrapped", args=[YEAR]) + "?as=0"))
+        assert page_data(c.get(deck_url("rfquiet")))["level"] == 1
+        empty = page_data(c.get(deck_url("rfquiet") + "?as=0"))
         assert empty["items"] == [] and empty["levels_with_titles"] == [1, 2]
 
     def test_old_years_open(self):
@@ -1037,7 +1040,7 @@ class TestInstanceStats:
         owner = Client()
         owner.force_login(user)
         with on(datetime.date(YEAR, 12, 20)):
-            owner.get(reverse("journal:wrapped", args=[YEAR]))
+            owner.get(deck_url("ibusy"))
         stored = WrappedDeck.objects.get(pk=deck.pk).data["0"]
         assert not stored["warming"] and stored["instance_top"]["title"] == "Open"
         # an update with nothing new writes no data
@@ -1143,11 +1146,15 @@ class TestViews:
 
     def test_owner_page_renders_the_deck_once_it_is_made(self):
         make_deck(self.me)
-        r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+        r = self.page(self.owner_client)
         assert r.status_code == 200
         assert b"Shown Book" in r.content and b'id="wr-publish"' in r.content
         assert b'"lang": "en' in r.content and b'"text": {}' in r.content
-        assert "pending" not in page_data(r)
+        assert "year_page" not in page_data(r)
+        # the year page links to the cards
+        r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+        assert b"Open my cards" in r.content and deck_url("owner").encode() in r.content
+        assert b'id="wr-deck"' not in r.content and b'id="wr-publish"' not in r.content
 
     def test_before_the_deck_is_made_the_page_shows_the_year_and_no_cards(self):
         url = reverse("journal:wrapped", args=[YEAR])
@@ -1158,9 +1165,10 @@ class TestViews:
             assert self.owner_client.post(make).status_code == 302
         assert not WrappedDeck.objects.filter(owner=self.me).exists()
         data = page_data(r)
-        assert data["pending"] is True and [i["title"] for i in data["items"]] == [
+        assert data["year_page"] is True and [i["title"] for i in data["items"]] == [
             "Shown Book"
         ]
+        assert data["deck_made"] is False and b"Open my cards" not in r.content
         # the cards' own data is left out, and no job is asked for the instance totals
         assert data["history"] is None and data["friends"] == []
         assert b'id="wr-deck"' not in r.content and b'id="wr-publish"' not in r.content
@@ -1177,18 +1185,19 @@ class TestViews:
         )
         share = reverse("journal:wrapped_share", args=[YEAR])
         assert self.owner_client.post(share, {"aud": 0}).status_code == 404
-        # in the window the page offers the step, and making the deck twice keeps one
+        # in the window the page offers the step, and making the deck twice keeps one; then the cards open
         with on(datetime.date(YEAR + 1, 2, 28)):
             assert make.encode() in self.owner_client.get(url).content
             for _ in range(2):
                 r = self.owner_client.post(make)
-                assert r.status_code == 302 and r["Location"] == url
+                assert r.status_code == 302 and r["Location"] == deck_url("owner")
         assert WrappedDeck.objects.filter(owner=self.me, year=YEAR).count() == 1
         assert self.page(Client()).status_code == 200
         # a year outside the supported range is refused without an error
         for bad in (1, 9999):
             r = self.owner_client.post(reverse("journal:wrapped_generate", args=[bad]))
             assert r.status_code == 302
+            assert r["Location"] == reverse("journal:wrapped", args=[bad])
         # after the window a deck is no longer made
         with on(datetime.date(YEAR + 1, 3, 1)):
             r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR - 1]))
@@ -1198,7 +1207,7 @@ class TestViews:
 
     def test_share_warns_when_signed_out_visitors_cannot_open_the_page(self):
         make_deck(self.me)
-        url = reverse("journal:wrapped", args=[YEAR])
+        url = deck_url("owner")
         # the QR code tab has an empty warning of its own, so the test looks for the text
         warning = b"your profile is hidden from them"
         assert warning not in self.owner_client.get(url).content
@@ -1321,7 +1330,7 @@ class TestViews:
             default_storage.delete(name)
         # the page tells the script where a media file's link starts, so it can name the file
         make_deck(self.me)
-        data = page_data(self.owner_client.get(reverse("journal:wrapped", args=[YEAR])))
+        data = page_data(self.page(self.owner_client))
         assert data["media_prefix"].endswith(settings.MEDIA_URL)
         assert data["cover_url"] == "/wrapped/cover/"
 
@@ -1354,7 +1363,7 @@ class TestViews:
     def test_music_is_saved_and_reaches_visitors(self):
         save = reverse("journal:wrapped_save", args=[YEAR])
         make_deck(self.me)
-        r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+        r = self.page(self.owner_client)
         assert b'"music": null' in r.content and b"bach-bwv846" in r.content
         assert b'"music": null' in self.page(Client()).content  # no music by default
         r = self.owner_client.post(
@@ -1418,9 +1427,9 @@ class TestViews:
         assert b"an edited line for followers" not in self.page(fan).content
         refresh_deck(WrappedDeck.objects.get(owner=self.me, year=YEAR))
         assert b"an edited line for followers" in self.page(fan).content
-        r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]), {"as": 0})
+        r = self.owner_client.get(deck_url("owner"), {"as": 0})
         assert b"an edited line" not in r.content
-        r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]), {"as": 1})
+        r = self.owner_client.get(deck_url("owner"), {"as": 1})
         assert b"an edited line" in r.content
 
     def test_words_cards_are_cleaned_and_the_picker_lists_this_year(self):
@@ -1464,17 +1473,16 @@ class TestViews:
         deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
         assert deck.is_off(0) and not deck.is_off(1) and not deck.is_off(2)
 
-    def test_the_cards_keep_the_stored_data_and_the_year_section_is_read_now(self):
+    def test_the_cards_keep_the_stored_data_and_the_year_page_is_read_now(self):
         make_deck(self.me)
         complete(self.me, Edition.objects.create(title="Late Book"), at(5, 5))
+        complete(self.me, Edition.objects.create(title="Own Book"), at(6, 6), vis=2)
 
-        def titles(r, part=None):
-            data = page_data(r)
-            return [i["title"] for i in (data[part] if part else data)["items"]]
+        def titles(r):
+            return [i["title"] for i in page_data(r)["items"]]
 
         r = self.page(Client())
         assert titles(r) == ["Shown Book"]
-        assert titles(r, "live") == ["Shown Book", "Late Book"]
         # the link preview tells what the visitor's own cards hold
         assert (
             b'property="og:title"' in r.content
@@ -1482,18 +1490,19 @@ class TestViews:
         )
         assert b'property="og:url" content="http' in r.content
         assert b'property="og:image" content="http' in r.content
-        # visitors keep the year section for an hour, while the owner's marks stay as they are
+        # the deck page has no whole year, for visitors or the owner
+        for page in (r, self.page(self.owner_client)):
+            assert "live" not in page_data(page)
+            assert b'id="wr-year"' not in page.content
+            assert b'id="wr-piles"' not in page.content
+        assert titles(self.page(self.owner_client)) == ["Shown Book"]
+        assert b'property="og:title"' not in self.page(self.owner_client).content
+        # the owner's year page reads the year now, with every title
         with patch("journal.views.wrapped.live_year", wraps=live_year) as read:
-            self.page(Client())
-            assert not read.called
             r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
-            assert read.called and titles(r) == ["Shown Book"]
-        assert b'property="og:title"' not in r.content
-        # a mark made private reaches visitors at once
-        late = ShelfMember.objects.get(owner=self.me, item__title="Late Book")
-        late.visibility = 2
-        late.save(**QUIET)
-        assert titles(self.page(Client()), "live") == ["Shown Book"]
+            assert read.call_args.args[2] == 2
+        assert titles(r) == ["Shown Book", "Late Book", "Own Book"]
+        assert b'id="wr-piles"' in r.content
 
     def test_update_now_until_the_end_of_february(self):
         url = reverse("journal:wrapped_refresh", args=[YEAR])
@@ -1511,19 +1520,19 @@ class TestViews:
             titles = [i["title"] for i in deck.data["0"]["items"]]
             assert titles == ["Shown Book", "Late Book"]
             assert self.owner_client.post(url).status_code == 429  # once a minute
-            r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+            r = self.page(self.owner_client)
             assert b'id="wr-update-now"' in r.content
             assert b"updates them every night until" in r.content
         # after 2 January only the owner updates the deck, until the end of February
         with on(datetime.date(YEAR + 1, 1, 3)):
-            r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+            r = self.page(self.owner_client)
             assert b'id="wr-update-now"' in r.content
             assert b"every night" not in r.content
         clear_wrapped_cache()
         with on(datetime.date(YEAR + 1, 3, 1)):
             r = self.owner_client.post(url)
             assert r.status_code == 400 and r.json()["status"] == "closed"
-            r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+            r = self.page(self.owner_client)
             assert (
                 b'id="wr-update-now"' not in r.content and b"Updates ended" in r.content
             )
@@ -1594,7 +1603,7 @@ class TestViews:
         complete(
             self.me, Edition.objects.create(title="Private Note Book"), at(2, 3), vis=2
         )
-        url = reverse("journal:wrapped", args=[YEAR])
+        url = deck_url("owner")
         make_deck(self.me)
         r = self.owner_client.get(url)
         assert b'"level": 0' in r.content and b"Private Note Book" not in r.content
@@ -1605,12 +1614,83 @@ class TestViews:
         WrappedDeck.objects.filter(owner=self.me).update(hidden={"0": {"*": True}})
         assert b'"level": 1' in self.owner_client.get(url).content
 
-    def test_owner_visiting_own_page_goes_to_the_editor(self):
-        make_deck(self.me)
+    def test_the_owner_edits_on_the_deck_link(self):
+        # before the deck is made the link sends the owner to the year page
         r = self.page(self.owner_client)
         assert r.status_code == 302 and r["Location"] == reverse(
             "journal:wrapped", args=[YEAR]
         )
+        make_deck(self.me)
+        r = self.page(self.owner_client)
+        assert r.status_code == 200 and page_data(r)["owner_view"] is True
+        assert b'id="wr-editdlg"' in r.content and b'id="wr-delete"' in r.content
+        assert "private" in r["Cache-Control"] and "no-store" in r["Cache-Control"]
+        # the end of the deck leads the owner back to the year page
+        assert page_data(r)["make_url"] == reverse("journal:wrapped", args=[YEAR])
+
+    def test_the_year_page_is_the_owners_alone(self):
+        url = reverse("journal:wrapped", args=[YEAR])
+        r = Client().get(url)
+        assert r.status_code == 302 and r["Location"].startswith(reverse("users:login"))
+        # another member gets their own year, never this one
+        stranger = Client()
+        stranger.force_login(self.stranger)
+        make_deck(self.me)
+        r = stranger.get(url)
+        assert b"Shown Book" not in r.content and page_data(r)["deck_made"] is False
+        assert deck_url("owner").encode() not in r.content
+
+    def test_the_owner_deletes_the_deck(self):
+        url = reverse("journal:wrapped_delete", args=[YEAR])
+        make = reverse("journal:wrapped_generate", args=[YEAR])
+        make_deck(self.me)
+        make_deck(self.me, YEAR - 1)
+        make_deck(self.fan.identity)
+        mine = WrappedDeck.objects.filter(owner=self.me)
+        # the Edit sheet tells whether new cards can be made after it
+        with on(datetime.date(YEAR, 12, 10)):
+            r = self.page(self.owner_client)
+            assert b"You can make new cards until" in r.content
+        with on(datetime.date(YEAR + 1, 3, 1)):
+            r = self.page(self.owner_client)
+            assert b"cards cannot be made again" in r.content
+        # only a POST from the owner deletes it, and only that year's deck
+        assert self.owner_client.get(url).status_code == 405
+        assert Client().post(url).status_code == 302
+        stranger = Client()
+        stranger.force_login(self.stranger)
+        stranger.post(url)
+        assert mine.count() == 2
+        r = self.owner_client.post(url)
+        assert r.status_code == 302 and r["Location"] == reverse(
+            "journal:wrapped", args=[YEAR]
+        )
+        assert list(mine.values_list("year", flat=True)) == [YEAR - 1]
+        assert WrappedDeck.objects.filter(owner=self.fan.identity).exists()
+        assert self.page(Client()).status_code == 404
+        assert self.page(self.owner_client).status_code == 302
+        # while the window is open, the owner can make a new deck, which starts again
+        with on(datetime.date(YEAR, 12, 10)):
+            r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+            assert make.encode() in r.content
+            self.owner_client.post(make)
+        deck = mine.get(year=YEAR)
+        assert deck.refreshed_time is not None and deck.made == []
+
+    def test_an_update_leaves_a_deck_deleted_meanwhile(self):
+        deck = make_deck(self.me)
+        real = snapshot
+
+        def delete_while_reading(*args, **kwargs):
+            WrappedDeck.objects.filter(pk=deck.pk).delete()
+            return real(*args, **kwargs)
+
+        with patch("journal.wrapped.record.snapshot", side_effect=delete_while_reading):
+            assert refresh_deck(deck) is False
+        assert not WrappedDeck.objects.filter(owner=self.me).exists()
+        with on(datetime.date(YEAR, 12, 10)):
+            r = self.owner_client.post(reverse("journal:wrapped_refresh", args=[YEAR]))
+            assert r.status_code == 404
 
     def test_followers_page_payload_excludes_private(self):
         complete(
@@ -1691,7 +1771,7 @@ class TestViews:
                 assert bluesky.return_value.post.called == bool(flag)
                 assert not mastodon.return_value.post.called
             # the box shows only with an account it can post to, checked as the member's preference says
-            page = reverse("journal:wrapped", args=[YEAR])
+            page = deck_url("owner")
             box = re.compile(
                 rb'<input type="checkbox"\s+id="wr-pub-xpost"\s*(checked)?'
             )

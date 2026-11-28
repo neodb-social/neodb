@@ -49,7 +49,7 @@
             <i class="fa-solid fa-volume-xmark"></i> <span id="wr-soundtext"></span>
           </button>
           {% if is_owner %}
-            {% if not pending %}
+            {% if not year_page %}
               <button class="wr-pill" type="button" id="wr-edit">
                 <i class="fa-solid fa-pen"></i> <span>{% trans "Edit" %}</span>
               </button>
@@ -73,15 +73,19 @@
       <h1 class="wr-sr">
         {% blocktranslate with name=identity.display_name %}{{ name }}’s {{ year }}, card by card{% endblocktranslate %}
       </h1>
-      {% if pending %}
-        {# the deck is not made yet: a blank card where the deck goes, and the step that makes it #}
+      {% if year_page %}
         <div class="wr-pending" id="wr-pending">
-          {% if pending.state == "open" %}
+          {% if year_page.deck_url %}
+            <p>{% blocktranslate %}Your {{ year }} cards are ready.{% endblocktranslate %}</p>
+            <a class="wr-pill primary" href="{{ year_page.deck_url }}">
+              <i class="fa-solid fa-play"></i> {% trans "Open my cards" %}
+            </a>
+          {% elif year_page.state == "open" %}
             <p>
-              {% if pending.auto %}
-                {% blocktranslate with date=pending.last|date:"DATE_FORMAT" auto=pending.auto_last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. They update every night until {{ auto }}, and you can update them by hand until {{ date }}; after that they stay as they are.{% endblocktranslate %}
+              {% if year_page.auto %}
+                {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" auto=year_page.auto_last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. They update every night until {{ auto }}, and you can update them by hand until {{ date }}; after that they stay as they are.{% endblocktranslate %}
               {% else %}
-                {% blocktranslate with date=pending.last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. You can update them by hand until then; after that they stay as they are.{% endblocktranslate %}
+                {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. You can update them by hand until then; after that they stay as they are.{% endblocktranslate %}
               {% endif %}
             </p>
             <form method="post" action="{% url 'journal:wrapped_generate' year %}">
@@ -90,19 +94,19 @@
                 <i class="fa-solid fa-wand-magic-sparkles"></i> {% blocktranslate %}Make my {{ year }} cards{% endblocktranslate %}
               </button>
             </form>
-          {% elif pending.state == "early" %}
+          {% elif year_page.state == "early" %}
             <p>
-              {% blocktranslate with date=pending.start|date:"DATE_FORMAT" %}You can make your {{ year }} cards from {{ date }}.{% endblocktranslate %}
+              {% blocktranslate with date=year_page.start|date:"DATE_FORMAT" %}You can make your {{ year }} cards from {{ date }}.{% endblocktranslate %}
             </p>
           {% else %}
             <p>
-              {% blocktranslate with date=pending.last|date:"DATE_FORMAT" %}The {{ year }} cards could be made until {{ date }}.{% endblocktranslate %}
+              {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" %}The {{ year }} cards could be made until {{ date }}.{% endblocktranslate %}
             </p>
           {% endif %}
         </div>
       {% endif %}
       <p class="wr-empty" id="wr-empty" hidden></p>
-      {% if not pending %}
+      {% if not year_page %}
         <div class="wr-prog" id="wr-dots"></div>
         <div class="deck" id="wr-deck"></div>
         <div class="wr-ctl">
@@ -123,27 +127,29 @@
         <div class="wr-end" id="wr-end" hidden></div>
       {% endif %}
       <p class="wr-nowplaying" id="wr-nowplaying" hidden></p>
-      <button class="wr-cue" type="button" id="wr-cue">
-        <span id="wr-cuetext"></span> <i class="fa-solid fa-chevron-down"></i>
-      </button>
+      {% if year_page %}
+        <button class="wr-cue" type="button" id="wr-cue">
+          <span id="wr-cuetext"></span> <i class="fa-solid fa-chevron-down"></i>
+        </button>
+      {% endif %}
     </div>
-    <main class="wrapped-page" id="wr-year">
-      <section>
-        <p class="dc-eyebrow">{% blocktranslate %}{{ year }} annual summary{% endblocktranslate %}</p>
-        <h2 class="wr-h">{% trans "The whole year" %}</h2>
-        <div class="wr-stats" id="wr-stats"></div>
-      </section>
-      <section>
-        <div class="cat-filter"
-             id="wr-bymcat"
-             role="group"
-             aria-label="{% trans 'Filter by shelf' %}"></div>
-        <div class="piles" id="wr-piles"></div>
-      </section>
-      <section class="wr-cta" id="wr-cta">
-      </section>
-    </main>
-    {% if is_owner and not pending %}
+    {% if year_page %}
+      <main class="wrapped-page" id="wr-year">
+        <section>
+          <p class="dc-eyebrow">{% blocktranslate %}{{ year }} annual summary{% endblocktranslate %}</p>
+          <h2 class="wr-h">{% trans "The whole year" %}</h2>
+          <div class="wr-stats" id="wr-stats"></div>
+        </section>
+        <section>
+          <div class="cat-filter"
+               id="wr-bymcat"
+               role="group"
+               aria-label="{% trans 'Filter by shelf' %}"></div>
+          <div class="piles" id="wr-piles"></div>
+        </section>
+      </main>
+    {% endif %}
+    {% if is_owner and not year_page %}
       <dialog id="wr-editdlg" aria-labelledby="wr-editdlg-title">
         <article>
           <header>
@@ -226,10 +232,29 @@
           </div>
           <p class="dc-fine" id="wr-hubsub"></p>
           <div class="hub" id="wr-hub"></div>
+          {% translate "Delete these cards and every change you made to them? This cannot be undone." as delete_confirm %}
+          <form class="wr-delete"
+                id="wr-delete"
+                method="post"
+                action="{% url 'journal:wrapped_delete' year %}"
+                onsubmit="return confirm('{{ delete_confirm|escapejs }}')">
+            {% csrf_token %}
+            <p class="wr-vislabel">{% trans "Delete the deck" %}</p>
+            <p class="dc-fine">
+              {% if update.open %}
+                {% blocktranslate with date=update.last|date:"DATE_FORMAT" %}This deletes the cards and every change you made to them. Posts you published stay. You can make new cards until {{ date }}.{% endblocktranslate %}
+              {% else %}
+                {% blocktranslate %}This deletes the cards and every change you made to them. Posts you published stay. The {{ year }} cards cannot be made again.{% endblocktranslate %}
+              {% endif %}
+            </p>
+            <button class="dc-btn outline" type="submit">
+              <i class="fa-solid fa-trash"></i> {% trans "Delete" %}
+            </button>
+          </form>
         </article>
       </dialog>
     {% endif %}
-    {% if is_owner and not pending %}
+    {% if is_owner and not year_page %}
       <dialog id="wr-mkdlg" aria-labelledby="wr-mkdlg-title">
         <article>
           <header>

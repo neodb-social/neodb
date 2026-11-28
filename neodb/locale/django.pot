@@ -12008,3 +12008,30 @@ msgstr ""
 #, python-format
 msgid "You can update them now, until %(date)s; after that they stay as they are."
 msgstr ""
+
+#: journal/templates/wrapped.html:79
+#, python-format
+msgid "Your %(year)s cards are ready."
+msgstr ""
+
+#: journal/templates/wrapped.html:81
+msgid "Open my cards"
+msgstr ""
+
+#: journal/templates/wrapped.html:235
+msgid "Delete these cards and every change you made to them? This cannot be undone."
+msgstr ""
+
+#: journal/templates/wrapped.html:242 journal/wrapped/text.py:468
+msgid "Delete the deck"
+msgstr ""
+
+#: journal/templates/wrapped.html:245
+#, python-format
+msgid "This deletes the cards and every change you made to them. Posts you published stay. You can make new cards until %(date)s."
+msgstr ""
+
+#: journal/templates/wrapped.html:247
+#, python-format
+msgid "This deletes the cards and every change you made to them. Posts you published stay. The %(year)s cards cannot be made again."
+msgstr ""

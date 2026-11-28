@@ -66,7 +66,6 @@ from journal.wrapped.record import (
     deck_for,
     default_year,
     latest_year,
-    live_stamp,
     made_data,
     make_state,
     make_window,
@@ -91,9 +90,6 @@ IMAGES_MAX = 4
 IMAGE_BYTES_MAX = 4 * 1024 * 1024
 # a video of every card: about 0.3 MB a card, and a deck has at most about 60 cards
 VIDEO_BYTES_MAX = 20 * 1024 * 1024
-# the whole-year section of a visitor's page is kept this long: a shared link can bring many visitors, and the
-# section reads the whole year (about 0.1 to 0.2 s and 15 to 40 queries for 150 titles)
-LIVE_SECONDS = 3600
 
 
 def _year(year: int | None) -> int:
@@ -119,21 +115,6 @@ def _with_titles(deck: WrappedDeck) -> list[int]:
     return [
         lv for lv in AUDIENCES if ((deck.data or {}).get(str(lv)) or {}).get("items")
     ]
-
-
-def _live(
-    owner: APIdentity, deck: WrappedDeck, level: int, fresh: bool
-) -> dict[str, Any]:
-    """The whole-year section: read now for the owner, who may have just marked something, and kept for an
-    hour for visitors; the owner's read also replaces what visitors get. The key changes with the owner's
-    marks (their count and latest edit), so a mark made more private or deleted reaches visitors at once;
-    and with the page language, as titles are in it."""
-    key = f"wrapped:live:{owner.pk}:{deck.year}:{level}:{deck.timezone}:{get_language()}:{live_stamp(owner)}"
-    value = None if fresh else cache.get(key)
-    if value is None:
-        value = live_year(owner, deck.year, level, deck.tzinfo)
-        cache.set(key, value, LIVE_SECONDS)
-    return value
 
 
 def _og(owner: APIdentity, year: int, payload: dict[str, Any]) -> dict[str, str]:
@@ -172,7 +153,7 @@ def _context(
 ) -> dict[str, Any]:
     # a visitor gets only the made cards their audience may see; the others, and their texts, stay here
     made = deck.made if is_owner else _made_for(deck, level)
-    # the cards show what the last update stored; the whole-year section below them is read now
+    # the cards show what the last update stored
     payload = stored_payload(
         deck, level, viewer=viewer, is_owner=is_owner, picker=is_owner
     )
@@ -198,7 +179,6 @@ def _context(
             or str(m.get("id")) in words
         ]
     payload["words"] = words
-    payload["live"] = _live(owner, deck, level, fresh=is_owner)
     payload["deck"] = state
     payload["level"] = level
     # a visitor sees the list the owner last saw for this audience; without one the browser applies the rules and overrides
@@ -210,7 +190,7 @@ def _context(
     # covers on another host are read for exports through this origin, by the file the stored link names
     payload["cover_url"] = reverse("journal:wrapped_cover", args=["x"])[:-1]
     payload["media_prefix"] = _media_prefix()
-    # the owner's own page for this year: the year switch for the owner, "make your own" for a visitor
+    # the viewer's own year page: "see the whole year" for the owner, "make your own" for a visitor
     payload["make_url"] = reverse("journal:wrapped", args=[year])
     # the cards are drawn in the browser, in the language of the page
     payload["lang"] = get_language() or "en"
@@ -257,58 +237,30 @@ def _context(
     return ctx
 
 
+def _deck_path(owner: APIdentity, year: int) -> str:
+    return reverse("journal:wrapped_page", args=[owner.handle, year])
+
+
 @login_required
 @require_GET
-def wrapped_deck(request: AuthedHttpRequest, year: int | None = None):
+def wrapped_year(request: AuthedHttpRequest, year: int | None = None):
+    """The owner's year page: the whole year, read now, with every title (it is the owner's alone), and the
+    step to make the cards or the link to them. The cards themselves are on the deck page."""
     y = _year(year)
     if year != y:
         return HttpResponseRedirect(reverse("journal:wrapped", args=[y]))
     owner = request.user.identity
     deck = deck_for(owner, y)
-    if deck is None or deck.refreshed_time is None:
-        resp = render(request, "wrapped.html", _pending_context(request, owner, y))
-        patch_cache_control(resp, private=True, no_store=True)
-        return resp
-    if not deck.timezone and (tz := _session_tz(request)):
-        deck.timezone = tz
-        deck.save(update_fields=["timezone", "edited_time"])
-    # the deck was stored while another process was still computing the instance totals: fill the gap now
-    if (
-        can_make(y)
-        and any(p.get("warming") for p in (deck.data or {}).values())
-        and aggregates_ready(y)
-    ):
-        refresh_deck(deck)
-    # the audience the owner views and edits; by default the widest one that sees something
-    try:
-        level = int(request.GET.get("as", ""))
-    except ValueError:
-        level = -1
-    if level not in AUDIENCES:
-        # the widest audience that is on and has titles, so the owner never opens on an empty preview while
-        # their titles sit in a narrower one
-        on = [lv for lv in AUDIENCES if not deck.is_off(lv)]
-        with_titles = _with_titles(deck)
-        level = next((lv for lv in on if lv in with_titles), on[0] if on else 2)
-    resp = render(
-        request, "wrapped.html", _context(owner, deck, y, level, True, request.user)
-    )
-    # no_store: the browser keeps no copy to show again after sign-out
-    patch_cache_control(resp, private=True, no_store=True)
-    return resp
-
-
-def _pending_context(
-    request: AuthedHttpRequest, owner: APIdentity, year: int
-) -> dict[str, Any]:
-    """The owner's page before the deck is made: the year's titles and counts, and no cards. The owner sees
-    every title, as the deck's own audience is chosen only once it exists."""
-    tz = WrappedDeck(owner=owner, year=year, timezone=_session_tz(request)).tzinfo
-    payload = live_year(owner, year, 2, tz)
-    start, end = make_window(year)
+    if deck is not None and deck.refreshed_time is None:
+        deck = None
+    tz = (
+        deck or WrappedDeck(owner=owner, year=y, timezone=_session_tz(request))
+    ).tzinfo
+    payload = live_year(owner, y, 2, tz)
+    start, end = make_window(y)
     payload.update(
         {
-            "year": year,
+            "year": y,
             "member": _member(owner),
             "history": None,
             "friends": [],
@@ -319,24 +271,30 @@ def _pending_context(
             "words": {},
             "lang": get_language() or "en",
             "text": card_text(),
-            "make_url": reverse("journal:wrapped", args=[year]),
+            "make_url": reverse("journal:wrapped", args=[y]),
             "years": owner_years(owner),
-            "pending": True,
+            "year_page": True,
+            "deck_made": deck is not None,
         }
     )
-    return {
+    ctx = {
         "identity": owner,
-        "year": year,
+        "year": y,
         "payload": payload,
         "is_owner": True,
-        "pending": {
-            "state": make_state(year),
-            "auto": auto_update_open(year),
-            "auto_last": auto_last(year),
+        "year_page": {
+            "deck_url": _deck_path(owner, y) if deck else None,
+            "state": make_state(y),
+            "auto": auto_update_open(y),
+            "auto_last": auto_last(y),
             "start": start,
             "last": end - datetime.timedelta(days=1),
         },
     }
+    resp = render(request, "wrapped.html", ctx)
+    # no_store: the browser keeps no copy to show again after sign-out
+    patch_cache_control(resp, private=True, no_store=True)
+    return resp
 
 
 @login_required
@@ -344,8 +302,9 @@ def _pending_context(
 def wrapped_generate(request: AuthedHttpRequest, year: int):
     """Make the deck of a year, once, from 1 December to the end of February after it: this stores the card
     data of each audience, which the cards then show until the next update."""
+    owner = request.user.identity
     if can_make(year):
-        deck = deck_for(request.user.identity, year, create=True)
+        deck = deck_for(owner, year, create=True)
         assert deck is not None
         # a second submit waits for the first and then finds the deck made
         with transaction.atomic():
@@ -356,6 +315,16 @@ def wrapped_generate(request: AuthedHttpRequest, year: int):
             if deck.refreshed_time is None:
                 refresh_deck(deck)
                 record_activity("annual", "web")
+        return HttpResponseRedirect(_deck_path(owner, year))
+    return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
+
+
+@login_required
+@require_POST
+def wrapped_delete(request: AuthedHttpRequest, year: int):
+    """Delete the owner's deck of a year with all their choices for it; posts made from it stay. While decks
+    can be made (to the end of February) the owner can make a new one; after that the year has none."""
+    WrappedDeck.objects.filter(owner=request.user.identity, year=year).delete()
     return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
 
 
@@ -381,32 +350,64 @@ def wrapped_refresh(request: AuthedHttpRequest, year: int):
         return JsonResponse({"ok": False, "status": "closed"}, status=400)
     if not cache.add(f"wrapped:refresh:{deck.pk}", 1, 60):
         return JsonResponse({"ok": False, "status": "busy"}, status=429)
-    deck = WrappedDeck.objects.get(pk=deck.pk)
+    deck = WrappedDeck.objects.filter(pk=deck.pk).first()
+    if deck is None:
+        raise Http404(_("This summary is not made yet."))
     refresh_deck(deck)
     record_activity("annual", "web")
     return JsonResponse({"ok": True})
 
 
+def _owner_level(request: AuthedHttpRequest, deck: WrappedDeck) -> int:
+    """The audience the owner views and edits: the one asked for, else the widest one that is on and has
+    titles, so the owner never opens on an empty preview while their titles sit in a narrower one."""
+    try:
+        level = int(request.GET.get("as", ""))
+    except ValueError:
+        level = -1
+    if level in AUDIENCES:
+        return level
+    on = [lv for lv in AUDIENCES if not deck.is_off(lv)]
+    with_titles = _with_titles(deck)
+    return next((lv for lv in on if lv in with_titles), on[0] if on else 2)
+
+
 @require_GET
 @target_identity_required
 def wrapped_page(request: AuthedHttpRequest, user_name: str, year: int):
+    """The deck: one link for everybody. A visitor sees the cards of their audience; the owner sees one
+    audience at a time (``?as=N``) with the tools to edit and share them."""
     target = request.target_identity
-    if request.user.is_authenticated and target.user == request.user:
-        return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
     deck = deck_for(target, year)
     if deck is not None and deck.refreshed_time is None:
         deck = None
-    viewer = request.identity
-    # a follower sees the followers' cards, or everyone's when the member shows followers none; anybody else sees everyone's
-    levels = [1, 0] if viewer and viewer.is_following(target) else [0]
-    level = next((lv for lv in levels if deck and not deck.is_off(lv)), None)
-    if deck is None or level is None:
-        raise Http404(_("This summary is not shared."))
-    ctx = _context(target, deck, year, level, False, request.user)
-    ctx["og"] = _og(target, year, ctx["payload"])
+    if request.user.is_authenticated and target.user == request.user:
+        if deck is None:
+            return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
+        if not deck.timezone and (tz := _session_tz(request)):
+            deck.timezone = tz
+            deck.save(update_fields=["timezone", "edited_time"])
+        # the deck was stored while another process was still computing the instance totals: fill the gap now
+        if (
+            can_make(year)
+            and any(p.get("warming") for p in (deck.data or {}).values())
+            and aggregates_ready(year)
+        ):
+            refresh_deck(deck)
+        level = _owner_level(request, deck)
+        ctx = _context(target, deck, year, level, True, request.user)
+    else:
+        viewer = request.identity
+        # a follower sees the followers' cards, or everyone's when the member shows followers none; anybody else sees everyone's
+        levels = [1, 0] if viewer and viewer.is_following(target) else [0]
+        level = next((lv for lv in levels if deck and not deck.is_off(lv)), None)
+        if deck is None or level is None:
+            raise Http404(_("This summary is not shared."))
+        ctx = _context(target, deck, year, level, False, request.user)
+        ctx["og"] = _og(target, year, ctx["payload"])
     resp = render(request, "wrapped.html", ctx)
     # one link serves different cards to different viewers, so no shared cache may keep it, and the
-    # browser keeps no copy to show again after the viewer loses access
+    # browser keeps no copy to show again after the viewer loses access or signs out
     patch_cache_control(resp, private=True, no_store=True)
     return resp
 

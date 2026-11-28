@@ -10,10 +10,6 @@ from zoneinfo import ZoneInfo
 from django.conf import settings
 from django.core.signing import b62_decode
 from django.db import transaction
-from django.db.models import (
-    Count,
-    Max,
-)
 from django.utils import timezone, translation
 
 from common.models import SiteConfig
@@ -29,7 +25,6 @@ from journal.models.wrapped import ALL_HIDDEN, AUDIENCES
 
 from .base import (
     _hidden_people,
-    _members,
 )
 from .aggregates import (
     year_aggregates,
@@ -175,12 +170,6 @@ def deck_for(owner: APIdentity, year: int, create: bool = False) -> WrappedDeck 
     return deck
 
 
-def live_stamp(owner: APIdentity) -> str:
-    """Changes with the owner's marks (their count and latest edit): the whole-year section's cache key."""
-    v = _members().filter(owner=owner).aggregate(n=Count("pk"), t=Max("edited_time"))
-    return f"{v['n']}:{v['t'].timestamp() if v['t'] else 0}"
-
-
 def snapshot(
     owner: APIdentity,
     year: int,
@@ -222,7 +211,10 @@ def refresh_deck(deck: WrappedDeck, instance: tuple[Any, Any] | None = None) -> 
     with transaction.atomic():
         # the read above takes a while, and a save may have changed the made cards meanwhile; the row is
         # locked for the write, and the made cards' data is read again for them as they are now
-        locked = WrappedDeck.objects.select_for_update().get(pk=deck.pk)
+        locked = WrappedDeck.objects.select_for_update().filter(pk=deck.pk).first()
+        if locked is None:
+            # the owner deleted the deck meanwhile
+            return False
         if locked.made != deck.made:
             for key in data:
                 data[key]["made_data"] = made_data(

@@ -12082,3 +12082,30 @@ msgstr "站点每晚自动更新卡片，直到 %(auto)s；在 %(date)s 之前�
 #, python-format
 msgid "You can update them now, until %(date)s; after that they stay as they are."
 msgstr "在 %(date)s 之前你可以立即更新，之后卡片将保持不变。"
+
+#: journal/templates/wrapped.html:79
+#, python-format
+msgid "Your %(year)s cards are ready."
+msgstr "你的 %(year)s 年度卡片已生成。"
+
+#: journal/templates/wrapped.html:81
+msgid "Open my cards"
+msgstr "查看我的卡片"
+
+#: journal/templates/wrapped.html:235
+msgid "Delete these cards and every change you made to them? This cannot be undone."
+msgstr "要删除这些卡片和你对它们的所有修改吗？此操作无法撤销。"
+
+#: journal/templates/wrapped.html:242 journal/wrapped/text.py:468
+msgid "Delete the deck"
+msgstr "删除卡片组"
+
+#: journal/templates/wrapped.html:245
+#, python-format
+msgid "This deletes the cards and every change you made to them. Posts you published stay. You can make new cards until %(date)s."
+msgstr "这会删除卡片和你对它们的所有修改，已发布的帖文会保留。在 %(date)s 之前你可以重新生成卡片。"
+
+#: journal/templates/wrapped.html:247
+#, python-format
+msgid "This deletes the cards and every change you made to them. Posts you published stay. The %(year)s cards cannot be made again."
+msgstr "这会删除卡片和你对它们的所有修改，已发布的帖文会保留。%(year)s 年度卡片将无法再次生成。"
