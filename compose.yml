@@ -169,6 +169,8 @@ services:
       - POSTGRES_DB=neodb
       - POSTGRES_USER=neodb
       - POSTGRES_PASSWORD=aubergine
+      # the default before 18, kept so 18+ uses the same mount
+      - PGDATA=/var/lib/postgresql/data
 
   takahe-db:
     image: postgres:${POSTGRES_VERSION:-14-alpine}
@@ -180,6 +182,8 @@ services:
       - POSTGRES_DB=takahe
       - POSTGRES_USER=takahe
       - POSTGRES_PASSWORD=aubergine
+      # the default before 18, kept so 18+ uses the same mount
+      - PGDATA=/var/lib/postgresql/data
 
   migration:
     <<: *neodb-service
