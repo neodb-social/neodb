@@ -424,7 +424,6 @@ TEXT = [
     gettext_noop("The music could not be added, so the video has no sound."),
     gettext_noop("Every card is hidden from this audience"),
     gettext_noop("Back to the suggested cards"),
-    gettext_noop("Not shared"),
     gettext_noop("Suggested cards"),
     gettext_noop("Posted the video to your timeline"),
     gettext_noop("This audience sees no cards. Show some in Edit."),
@@ -452,14 +451,11 @@ TEXT = [
     gettext_noop("Could not copy: {error}"),
     gettext_noop("Could not share: {error}"),
     gettext_noop("Image copied"),
-    gettext_noop(
-        "Public and Followers see no cards, so only you can open this page now."
-    ),
-    gettext_noop("Only your followers can open this page, after they sign in."),
+    gettext_noop("Public and followers-only views have no cards."),
+    gettext_noop("Only signed-in followers can see shared cards."),
     gettext_noop(
         "People who are not signed in cannot open this page, because your profile is hidden from them."
     ),
-    gettext_noop("Show the cards the code opens"),
     # the stage, the piles of covers and the end of the page
     gettext_noop("Year"),
     gettext_noop("Copy link to this card"),

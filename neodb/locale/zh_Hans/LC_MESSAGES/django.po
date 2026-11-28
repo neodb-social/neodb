@@ -11665,10 +11665,9 @@ msgstr "{month}，{titles}"
 msgid "Show this card"
 msgstr "显示这张卡片"
 
-#: journal/templates/wrapped.html:107 journal/templates/wrapped.html:108
-#: journal/templates/wrapped.html:226 journal/templates/wrapped.html:227
-msgid "Who can see these cards"
-msgstr "谁可以看到这组卡片"
+#: journal/templates/wrapped.html:363
+msgid "Visible cards by audience"
+msgstr "各可见范围的卡片数"
 
 #: journal/wrapped_text.py:332
 msgid "Hide or show a card with its eye, change the order with Arrange, or make your own with the plus."
@@ -11751,10 +11750,6 @@ msgstr "已在这个可见范围隐藏全部卡片"
 #: journal/wrapped_text.py:404
 msgid "Back to the suggested cards"
 msgstr "已恢复为推荐的卡片"
-
-#: journal/wrapped_text.py:405
-msgid "Not shared"
-msgstr "未分享"
 
 #: journal/wrapped_text.py:407
 msgid "Posted the video to your timeline"
@@ -11878,12 +11873,12 @@ msgid "Image copied"
 msgstr "图片已复制"
 
 #: journal/wrapped_text.py:433
-msgid "Public and Followers see no cards, so only you can open this page now."
-msgstr "公开和关注者都看不到任何卡片，所以现在只有你能打开这个页面。"
+msgid "Public and followers-only views have no cards."
+msgstr "公开和仅关注者可见的范围内都没有卡片。"
 
 #: journal/wrapped_text.py:434
-msgid "Only your followers can open this page, after they sign in."
-msgstr "只有关注你的人登录后才能打开这个页面。"
+msgid "Only signed-in followers can see shared cards."
+msgstr "只有已登录的关注者可以看到分享的卡片。"
 
 #: journal/wrapped_text.py:436
 msgid "Show the cards the code opens"

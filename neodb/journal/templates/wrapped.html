@@ -355,13 +355,15 @@
                 <button class="dc-btn outline" type="button" id="wr-qr-dl" hidden>
                   <i class="fa-solid fa-download"></i> {% trans "Download PNG" %}
                 </button>
+                <button class="dc-btn outline" type="button" id="wr-qr-switch" hidden>
+                  {% trans "Show the cards the code opens" %}
+                </button>
               </div>
             </div>
-            <p class="wr-vislabel">{% trans "Who can see these cards" %}</p>
+            <p class="wr-vislabel">{% trans "Visible cards by audience" %}</p>
             <ul class="wr-auds" id="wr-auds">
             </ul>
             <div class="wr-audfoot">
-              <p class="dc-fine" id="wr-audnote"></p>
               <button class="dc-btn outline" type="button" id="wr-pub-edit">
                 <i class="fa-solid fa-pen"></i> {% trans "Change in Edit" %}
               </button>

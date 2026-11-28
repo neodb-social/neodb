@@ -1185,9 +1185,14 @@
   }
   if (OWNER) document.querySelectorAll('input[name="wr-mode"]').forEach(r => { r.onchange = () => postMode(r.value); });
   if (OWNER) $("pub-edit").onclick = () => { pubdlg.close(); $("editdlg").showModal(); };
-  // what each audience sees at the one link; the audience on screen counts live, another one as the owner last saw it.
-  // Only the note of the audience on screen is shown, so the list stays short.
-  function audList() { $("auds").innerHTML = (D.audiences || []).map(a => { const name = ["public", "followers", "me"][a.level], here = a.level === LEVEL, n = here ? state.shown.length : a.shown, off = here ? !state.shown.length : a.off; return `<li${here ? ' class="on"' : ""}><b>${esc(PAGEVIS[name].label)}</b><span class="st">${esc(off ? _("Not shared") : n == null ? _("Suggested cards") : _n("{n} card", "{n} cards", n))}</span></li>`; }).join(""); $("audnote").textContent = PAGEVIS[AUD].note; }
+  function audList() {
+    $("auds").innerHTML = (D.audiences || []).map(a => {
+      const here = a.level === LEVEL, name = ["public", "followers", "me"][a.level];
+      const count = here ? state.shown.length : a.off ? 0 : a.shown;
+      const label = count == null ? _("Suggested cards") : _n("{n} card", "{n} cards", count);
+      return `<li${here ? ' class="on"' : ""}><b>${esc(PAGEVIS[name].label)}</b><span class="st">${esc(label)}</span></li>`;
+    }).join("");
+  }
   if (OWNER) $("publish").onclick = () => openPublish();
   if (OWNER) $("pub-send").onclick = async () => {
     const video = (document.querySelector('input[name="wr-mode"]:checked') || {}).value === "video";
@@ -1319,21 +1324,24 @@
     let z = 56; while (z > 44 && lines.some(l => W(l, z) > maxW)) z -= 4;
     return { lines: lines.map(l => { while (l.length > 2 && W(l, z) > maxW) l = l.slice(0, -2) + "…"; return l; }), size: z };
   }
-  function qrCard() {
+  function qrCard(showTitles) {
     const W = CW, H = CH, SPLIT = 780, clip = "qc" + (iconN++);
     // the wall: the top titles, then the other rated ones by rating; no default covers, since the image is shared
     const real = it => it.cover && !/default-cover/.test(it.cover);
-    const covers = [...new Set([...S.top, ...S.rated.slice().sort((a, b) => b.rating - a.rating)])].filter(real), nc = covers.length;
+    const covers = showTitles ? [...new Set([...S.top, ...S.rated.slice().sort((a, b) => b.rating - a.rating)])].filter(real) : [], nc = covers.length;
     const bigC = nc < 21, cols = bigC ? 5 : 7, rows = bigC ? 2 : 3, w = bigC ? 300 : 196, h = w * 1.5, g = bigC ? 28 : 22, shift = (w + g) / 2;
     let b = `<rect width="${W}" height="${H}" fill="${TINT.paper}"/><clipPath id="${clip}"><rect width="${W}" height="${SPLIT}"/></clipPath><g clip-path="url(#${clip})"><rect width="${W}" height="${SPLIT}" fill="${TINT.own2}"/><g transform="rotate(-8 540 ${SPLIT / 2})">`;
     if (nc) for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) b += coverSvg(covers[(r * cols + c) % nc], -260 + c * (w + g) + (r % 2) * shift, -70 + r * (h + g), w, h, "", 0, "fill");
     b += `</g></g>`;
+    if (!nc) b += iconMark((W - 240) / 2, (SPLIT - 240) / 2, 240, 1);
     const colW = 490, hl = qrHeadline(_("{name}’s year", { name: D.member.name }), colW);
     b += T(80, 872, `${_("Annual summary")} ${Y}`.toUpperCase(), 30, { fill: PRIMARY, weight: 700, ls: 5 });
     let y = hl.lines.length > 1 ? 948 : 958;
     hl.lines.forEach((l, i) => { if (i) y += Math.round(hl.size * 1.14); b += T(78, y, l, hl.size, { weight: 800, ls: -(hl.size * 0.03).toFixed(1) }); });
-    const five = S.fiveStar.length, nums = [_n("{n} title", "{n} titles", n), five >= 3 ? _n("{n} five-star", "{n} five-star", five) : _n("{n} shelf", "{n} shelves", S.cats.length)];
-    const st = qrFit(nums.join(" · "), 34, 400, colW, 28); b += T(80, y + 58, st.t, st.size, { fill: MUTED });
+    if (showTitles) {
+      const five = S.fiveStar.length, nums = [_n("{n} title", "{n} titles", n), five >= 3 ? _n("{n} five-star", "{n} five-star", five) : _n("{n} shelf", "{n} shelves", S.cats.length)];
+      const st = qrFit(nums.join(" · "), 34, 400, colW, 28); b += T(80, y + 58, st.t, st.size, { fill: MUTED });
+    }
     b += iconMark(80, 1244, 40, 1);
     const P = 390, px = 1000 - P, py = 842;
     b += qrSvg(D.page_url, px, py, P, AVATAR || null);
@@ -1352,25 +1360,25 @@
     btns.forEach(b => { b.hidden = true; });
     // one warning at most, the strongest reason first; the link and the code open the same page
     const editBtn = `<button type="button" class="dc-btn outline" data-qr-edit>${esc(_("Change in Edit"))}</button>`;
-    let locked = false;
-    if (open == null) { locked = true; warn.innerHTML = `${esc(_("Public and Followers see no cards, so only you can open this page now."))} ${editBtn}`; }
-    else if (open === 1) warn.innerHTML = `${esc(_("Only your followers can open this page, after they sign in."))} ${editBtn}`;
+    if (open == null) warn.innerHTML = `${esc(_("Public and followers-only views have no cards."))} ${editBtn}`;
+    else if (open === 1) warn.innerHTML = `${esc(_("Only signed-in followers can see shared cards."))} ${editBtn}`;
     else if (D.anon_ok === false) warn.innerHTML = `${esc(_("People who are not signed in cannot open this page, because your profile is hidden from them."))} <a href="${esc(URLS.preferences)}">${esc(_("Change it in Settings"))}</a>`;
     else warn.innerHTML = "";
     warn.hidden = !warn.innerHTML;
     const ed = warn.querySelector("[data-qr-edit]"); if (ed) ed.onclick = () => { pubdlg.close(); $("editdlg").showModal(); };
-    prev.classList.toggle("locked", locked);
-    // the image needs the cards of the audience the code opens; another view offers to switch to it
-    if (!locked && open !== LEVEL) {
-      prev.innerHTML = `<button type="button" class="dc-btn outline" data-qr-switch>${esc(_("Show the cards the code opens"))}</button>`;
-      prev.querySelector("[data-qr-switch]").onclick = () => goAudience(open, "wr-pubdlg:page");
-      return;
-    }
+    const switchBtn = $("qr-switch");
+    switchBtn.hidden = open == null || open === LEVEL;
+    switchBtn.onclick = () => goAudience(open, "wr-pubdlg:page");
     try { await loadQr(); } catch (e) { toast(_("Export failed: {error}", { error: e.message })); return; }
-    const svg = qrCard(); prev.innerHTML = svg + (locked ? '<i class="fa-solid fa-lock"></i>' : "");
-    if (locked) return;
+    const svg = qrCard(open === LEVEL);
+    prev.innerHTML = svg;
+    const preview = prev.firstElementChild;
     // the PNG is made now and kept, so Copy and Share run inside the click (Safari drops the gesture across a wait)
-    try { const cv = await toCanvas({ svg }, CW); qrBlob = await pngBlob(cv); }
+    try {
+      const blob = await pngBlob(await toCanvas({ svg }, CW));
+      if (prev.firstElementChild !== preview) return;
+      qrBlob = blob;
+    }
     catch (e) { toast(_("Export failed: {error}", { error: e.message })); return; }
     const file = new File([qrBlob], qrName(), { type: "image/png" });
     const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] })), canCopy = !!(navigator.clipboard && window.ClipboardItem);

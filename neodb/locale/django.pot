@@ -11584,9 +11584,8 @@ msgstr ""
 msgid "Show this card"
 msgstr ""
 
-#: journal/templates/wrapped.html:107 journal/templates/wrapped.html:108
-#: journal/templates/wrapped.html:226 journal/templates/wrapped.html:227
-msgid "Who can see these cards"
+#: journal/templates/wrapped.html:363
+msgid "Visible cards by audience"
 msgstr ""
 
 #: journal/wrapped_text.py:332
@@ -11669,10 +11668,6 @@ msgstr ""
 
 #: journal/wrapped_text.py:404
 msgid "Back to the suggested cards"
-msgstr ""
-
-#: journal/wrapped_text.py:405
-msgid "Not shared"
 msgstr ""
 
 #: journal/wrapped_text.py:407
@@ -11800,11 +11795,11 @@ msgid "Image copied"
 msgstr ""
 
 #: journal/wrapped_text.py:433
-msgid "Public and Followers see no cards, so only you can open this page now."
+msgid "Public and followers-only views have no cards."
 msgstr ""
 
 #: journal/wrapped_text.py:434
-msgid "Only your followers can open this page, after they sign in."
+msgid "Only signed-in followers can see shared cards."
 msgstr ""
 
 #: journal/wrapped_text.py:436
