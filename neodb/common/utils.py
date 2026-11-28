@@ -4,12 +4,13 @@ import logging
 import math
 import mimetypes
 import re
+import time
 import uuid
 from typing import TYPE_CHECKING, Any, get_args, get_origin
 from urllib.parse import urlencode, urljoin
 
 import django_rq
-from discord import HTTPException, SyncWebhook
+import httpx
 from django.conf import settings
 from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import Paginator
@@ -441,15 +442,79 @@ def discord_send(channel, content, **args) -> bool:
     return True
 
 
-def _discord_send(dw, content, **args):
-    webhook = SyncWebhook.from_url(dw)
+# the pattern discord.py used to accept a webhook URL
+_DISCORD_WEBHOOK_RE = re.compile(
+    r"discord(?:app)?\.com/api/webhooks/(?P<id>[0-9]{17,20})/(?P<token>[A-Za-z0-9\.\-\_]{60,})"
+)
+_DISCORD_ATTEMPTS = 5
+_DISCORD_MAX_RETRY_AFTER = 60
+
+
+def _discord_retry_after(r: httpx.Response) -> float:
     try:
-        webhook.send(content, **args)
-    except (HTTPException, RuntimeError) as e:
-        # discord.py raises RuntimeError("Unreachable code in HTTP handling.")
-        # when its internal retry loop exhausts without a specific exception
-        # (transient network/HTTP failure). Notifications are best-effort.
-        logger.warning(f"discord webhook {webhook.id} send failed: {e}")
+        return float(r.json()["retry_after"])
+    except ValueError, KeyError, TypeError:
+        pass
+    try:
+        return float(r.headers.get("Retry-After", 1))
+    except ValueError:
+        return 1.0
+
+
+def discord_webhook_post(
+    url: str,
+    content: str,
+    *,
+    wait: bool = False,
+    thread_id: str | None = None,
+    **fields: Any,
+) -> dict | None:
+    """Execute a Discord webhook, see
+    https://discord.com/developers/docs/resources/webhook#execute-webhook
+
+    `fields` are extra JSON fields such as `username` or `thread_name`.
+    Returns the created message when `wait` is set. Raises ValueError for a
+    URL that is not a Discord webhook, httpx.HTTPError when the post fails.
+    """
+    m = _DISCORD_WEBHOOK_RE.search(url)
+    if not m:
+        raise ValueError("not a Discord webhook URL")
+    endpoint = f"https://discord.com/api/webhooks/{m['id']}/{m['token']}"
+    params = {"wait": "true"} if wait else {}
+    if thread_id:
+        params["thread_id"] = thread_id
+    for attempt in range(_DISCORD_ATTEMPTS):
+        r = httpx.post(
+            endpoint, params=params, json={"content": content, **fields}, timeout=10
+        )
+        retry = attempt + 1 < _DISCORD_ATTEMPTS
+        # as discord.py did: a 429 without Via comes from Cloudflare, not
+        # Discord, and lasts too long to wait for
+        if r.status_code == 429 and retry and r.headers.get("Via"):
+            delay = _discord_retry_after(r)
+            if delay <= _DISCORD_MAX_RETRY_AFTER:
+                time.sleep(delay)
+                continue
+        elif r.status_code >= 500 and retry:
+            time.sleep(1 + attempt * 2)
+            continue
+        if r.is_error:
+            # raise_for_status() would put the URL, and so the token, in the message
+            raise httpx.HTTPStatusError(
+                f"HTTP {r.status_code}: {r.text[:200]}", request=r.request, response=r
+            )
+        return r.json() if wait else None
+    return None
+
+
+def _discord_send(dw, content, **args):
+    m = _DISCORD_WEBHOOK_RE.search(dw)
+    webhook_id = m["id"] if m else "(invalid url)"
+    try:
+        discord_webhook_post(dw, content, **args)
+    except (httpx.HTTPError, ValueError) as e:
+        # Notifications are best-effort.
+        logger.warning(f"discord webhook {webhook_id} send failed: {e}")
 
 
 def _schema_in(annotation: Any) -> type[Schema] | None:

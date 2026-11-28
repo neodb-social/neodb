@@ -1,11 +1,10 @@
 import time
+from zoneinfo import ZoneInfo
 
-import pytz
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.utils import timezone
 from django.utils.deprecation import MiddlewareMixin
-from pytz.tzinfo import BaseTzInfo
 from tz_detect.utils import offset_to_timezone
 
 
@@ -85,10 +84,8 @@ class SafeTimezoneMiddleware(MiddlewareMixin):
         tz = request.session.get("detected_tz")
         if tz:
             try:
-                if isinstance(tz, BaseTzInfo):
-                    timezone.activate(tz)
-                elif isinstance(tz, str):
-                    timezone.activate(pytz.timezone(tz))
+                if isinstance(tz, str):
+                    timezone.activate(ZoneInfo(tz))
                 else:
                     timezone.activate(offset_to_timezone(tz))
                 request.timezone_active = True

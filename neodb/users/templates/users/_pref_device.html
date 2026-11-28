@@ -45,7 +45,7 @@
     $("#user_style").val(localStorage.getItem("user_style")||"");
     $("#solo_mode").prop("checked", localStorage.getItem("solo_mode")=="1");
     $("#demetrication").prop("checked", localStorage.getItem("demetrication")=="1");
-    var _p=Cookies.get('per_page') || 20;
+    var _p=(document.cookie.match(/(?:^|; )per_page=([^;]*)/) || [])[1] || 20;
     $('#'+_p+'_per_page').prop('checked', true);
     function save_local() {
       var _c=$('input[name=theme_color]:checked').val();
@@ -54,7 +54,7 @@
       localStorage.setItem("user_style", $("#user_style").val());
       localStorage.setItem("solo_mode", $("#solo_mode").prop("checked")?"1":"0");
       localStorage.setItem("demetrication", $("#demetrication").prop("checked")?"1":"0");
-      Cookies.set('per_page', $('input[name=per_page]:checked').val(), {expires: 120, sameSite: 'Lax'});
+      document.cookie = 'per_page=' + encodeURIComponent($('input[name=per_page]:checked').val()) + '; max-age=10368000; path=/; SameSite=Lax';
       alert("{% trans 'Settings for current device saved' %}");
     }
   </script>

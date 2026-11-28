@@ -353,7 +353,6 @@ INTERNAL_IPS = ["127.0.0.1"]
 # Application definition
 
 INSTALLED_APPS = [
-    # "maintenance_mode",  # this has to be first if enabled
     "django.contrib.admin",
     "hijack",
     "hijack.contrib.admin",
@@ -412,7 +411,6 @@ MIDDLEWARE = [
     "users.middlewares.LanguageMiddleware",
     "common.middleware.SafeTimezoneMiddleware",
     "auditlog.middleware.AuditlogMiddleware",
-    # "maintenance_mode.middleware.MaintenanceModeMiddleware",  # this should be last if enabled
 ]
 
 ROOT_URLCONF = "boofilsic.urls"

@@ -4,11 +4,10 @@ import time
 import httpx
 import pytest
 import requests
-from igdb.wrapper import IGDBWrapper
 
 from catalog.common import *
 from catalog.models import Game, IdType, SiteName
-from catalog.sites.igdb import IGDB, igdb_limiter
+from catalog.sites.igdb import IGDB, _igdb_post, igdb_limiter
 from common.models.misc import MISSING_COVER
 
 
@@ -69,18 +68,18 @@ class TestIGDB:
         )
 
     def test_api_query_handles_429_without_crashing(self, monkeypatch):
-        # IGDBWrapper raises requests' HTTPError (not httpx's) on a 429;
+        # _igdb_post raises requests' HTTPError (not httpx's) on a 429;
         # api_query must catch it and degrade to [] rather than let it
         # propagate and crash the caller (e.g. a Steam import job).
         monkeypatch.setattr(igdb_limiter(), "acquire", lambda timeout: None)
         monkeypatch.setattr(time, "sleep", lambda s: None)
 
-        def _raise_429(self, endpoint, query):
+        def _raise_429(endpoint, query, headers):
             response = requests.Response()
             response.status_code = 429
             raise requests.exceptions.HTTPError("429 Client Error", response=response)
 
-        monkeypatch.setattr(IGDBWrapper, "api_request", _raise_429)
+        monkeypatch.setattr("catalog.sites.igdb._igdb_post", _raise_429)
         assert IGDB.api_query("games", "fields *;") == []
 
     def test_api_query_retries_429_then_succeeds(self, monkeypatch):
@@ -93,7 +92,7 @@ class TestIGDB:
 
         calls = {"n": 0}
 
-        def _flaky(self, endpoint, query):
+        def _flaky(endpoint, query, headers):
             calls["n"] += 1
             if calls["n"] == 1:
                 response = requests.Response()
@@ -104,9 +103,27 @@ class TestIGDB:
                 )
             return b'[{"id": 1}]'
 
-        monkeypatch.setattr(IGDBWrapper, "api_request", _flaky)
+        monkeypatch.setattr("catalog.sites.igdb._igdb_post", _flaky)
         assert IGDB.api_query("games", "fields *;") == [{"id": 1}]
         assert sleeps == [2.0]
+
+    def test_igdb_post_sends_apicalypse_query(self, monkeypatch):
+        captured = {}
+
+        def _post(url, **kwargs):
+            captured.update(kwargs, url=url)
+            response = requests.Response()
+            response.status_code = 200
+            response._content = b"[]"
+            return response
+
+        monkeypatch.setattr("catalog.sites.igdb.requests.post", _post)
+        headers = {"Client-ID": "cid", "Authorization": "Bearer tok"}
+        assert _igdb_post("games", "fields *;", headers) == b"[]"
+        assert captured["url"] == "https://api.igdb.com/v4/games"
+        assert captured["headers"] == headers
+        assert captured["data"] == "fields *;"
+        assert captured["timeout"]
 
     def test_search_task_429_records_failure(self, monkeypatch):
         # search_task never called raise_for_status(), so a 429 silently

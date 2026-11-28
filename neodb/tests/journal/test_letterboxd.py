@@ -1,4 +1,7 @@
 import os
+from datetime import time
+from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -26,7 +29,8 @@ class TestLetterboxdImporter:
         )
 
         task = LetterboxdImporter.create(self.user, visibility=0, file=zip_path)
-        task.run()
+        with patch("journal.importers.letterboxd.randint", return_value=0):
+            task.run()
 
         # Verify the task completed successfully
         assert task.metadata["imported"] > 0, "No items were imported"
@@ -40,6 +44,10 @@ class TestLetterboxdImporter:
         assert mark.rating_grade == 10
         assert mark.comment_text == "this is a comment."
         assert mark.tags == ["hacktivist"]
+        # pytz zones passed to replace(tzinfo=) used the LMT offset, +08:06
+        assert mark.created_time is not None
+        local = mark.created_time.astimezone(ZoneInfo("Asia/Shanghai"))
+        assert local.time() == time(22, 0)
 
         collection = Collection.objects.filter(
             owner=self.identity, title="test list"

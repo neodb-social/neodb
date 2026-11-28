@@ -15,7 +15,6 @@ import httpx
 import requests
 from django.conf import settings
 from django.core.cache import cache
-from igdb.wrapper import IGDBWrapper
 
 from common.models import normalize_game_platforms
 
@@ -86,6 +85,31 @@ def _igdb_access_token():
     return token
 
 
+_IGDB_API_URL = "https://api.igdb.com/v4/"
+
+
+def _igdb_headers() -> dict[str, str]:
+    return {
+        "Client-ID": SiteConfig.system.igdb_client_id,
+        "Authorization": f"Bearer {_igdb_access_token()}",
+    }
+
+
+def _igdb_post(endpoint: str, query: str, headers: dict[str, str]) -> bytes:
+    """POST an Apicalypse query, see https://api-docs.igdb.com/#requests
+
+    Raises requests' HTTPError on a non-2xx response.
+    """
+    response = requests.post(
+        _IGDB_API_URL + endpoint,
+        headers=headers,
+        data=query,
+        timeout=SiteConfig.system.downloader_request_timeout,
+    )
+    response.raise_for_status()
+    return response.content
+
+
 def search_igdb_by_3p_url(steam_url):
     r = IGDB.api_query(
         "websites",
@@ -118,15 +142,13 @@ class IGDB(AbstractSite):
         if get_mock_mode():
             r = BasicDownloader(key).download().json()
         else:
-            _wrapper = IGDBWrapper(
-                SiteConfig.system.igdb_client_id, _igdb_access_token()
-            )
+            headers = _igdb_headers()
             try:
                 attempt = 0
                 while True:
                     igdb_limiter().acquire(timeout=60.0)
                     try:
-                        r = json.loads(_wrapper.api_request(p, q))
+                        r = json.loads(_igdb_post(p, q, headers))
                         break
                     except requests.exceptions.HTTPError as e:
                         response = e.response
@@ -145,7 +167,7 @@ class IGDB(AbstractSite):
                         attempt += 1
             except requests.exceptions.RequestException as e:
                 # Transient third-party failure (rate limit, timeout, etc.) -> warn,
-                # not a Sentry error; IGDBWrapper raises requests' HTTPError, not httpx's.
+                # not a Sentry error; _igdb_post raises requests' HTTPError, not httpx's.
                 logger.warning(f"IGDB API: {e}", extra={"exception": e})
                 return []
             if settings.DOWNLOADER_SAVEDIR:
@@ -273,13 +295,13 @@ class IGDB(AbstractSite):
         if not await igdb_limiter().try_acquire_async():
             record_search_failure(SiteName.IGDB.value, "throttled")
             return []
-        _wrapper = IGDBWrapper(SiteConfig.system.igdb_client_id, _igdb_access_token())
+        headers = _igdb_headers()
         async with httpx.AsyncClient() as client:
             rs = []
             try:
-                url = IGDBWrapper._build_url("games")
-                params = _wrapper._compose_request(q)
-                response = await client.post(url, **params)
+                response = await client.post(
+                    _IGDB_API_URL + "games", headers=headers, content=q
+                )
                 response.raise_for_status()
                 rs = json.loads(response.content)
             except httpx.HTTPError as e:
