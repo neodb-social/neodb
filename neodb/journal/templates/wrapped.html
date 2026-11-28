@@ -80,9 +80,11 @@
             <a class="wr-pill primary" href="{{ year_page.deck_url }}">
               <i class="fa-solid fa-play"></i> {% trans "Open my cards" %}
             </a>
-          {% elif year_page.state == "open" %}
+          {% elif year_page.state == "open" or year_page.admin %}
             <p>
-              {% if year_page.auto %}
+              {% if year_page.admin %}
+                {% trans "As an admin, you can make and update these cards at any time, for testing." %}
+              {% elif year_page.auto %}
                 {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" auto=year_page.auto_last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. They update every night until {{ auto }}, and you can update them by hand until {{ date }}; after that they stay as they are.{% endblocktranslate %}
               {% else %}
                 {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. You can update them by hand until then; after that they stay as they are.{% endblocktranslate %}
@@ -195,12 +197,14 @@
           {# the cards show the data the last update stored: every night to 2 January, by hand to the end of February #}
           <div class="wr-update">
             <p class="wr-vislabel">{% trans "Card data" %}</p>
-            {% if update.open %}
+            {% if update.open or update.admin %}
               <p class="dc-fine">
                 {% blocktranslate with time=update.time|date:"DATETIME_FORMAT" %}Updated {{ time }}. The cards show your marks and the site's numbers as they were then.{% endblocktranslate %}
               </p>
               <p class="dc-fine">
-                {% if update.auto %}
+                {% if update.admin %}
+                  {% trans "As an admin, you can make and update these cards at any time, for testing." %}
+                {% elif update.auto %}
                   {% blocktranslate with auto=update.auto_last|date:"DATE_FORMAT" date=update.last|date:"DATE_FORMAT" %}The site updates them every night until {{ auto }}; you can also update them now, until {{ date }}.{% endblocktranslate %}
                 {% else %}
                   {% blocktranslate with date=update.last|date:"DATE_FORMAT" %}You can update them now, until {{ date }}; after that they stay as they are.{% endblocktranslate %}
@@ -243,6 +247,8 @@
             <p class="dc-fine">
               {% if update.open %}
                 {% blocktranslate with date=update.last|date:"DATE_FORMAT" %}This deletes the cards and every change you made to them. Posts you published stay. You can make new cards until {{ date }}.{% endblocktranslate %}
+              {% elif update.admin %}
+                {% trans "This deletes the cards and every change you made to them. Posts you published stay." %}
               {% else %}
                 {% blocktranslate %}This deletes the cards and every change you made to them. Posts you published stay. The {{ year }} cards cannot be made again.{% endblocktranslate %}
               {% endif %}

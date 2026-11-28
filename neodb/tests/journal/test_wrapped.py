@@ -1688,9 +1688,68 @@ class TestViews:
         with patch("journal.wrapped.record.snapshot", side_effect=delete_while_reading):
             assert refresh_deck(deck) is False
         assert not WrappedDeck.objects.filter(owner=self.me).exists()
+        url = reverse("journal:wrapped_refresh", args=[YEAR])
         with on(datetime.date(YEAR, 12, 10)):
-            r = self.owner_client.post(reverse("journal:wrapped_refresh", args=[YEAR]))
-            assert r.status_code == 404
+            assert self.owner_client.post(url).status_code == 404
+            # deleted while Update now reads the year
+            deck = make_deck(self.me)
+            with patch(
+                "journal.wrapped.record.snapshot", side_effect=delete_while_reading
+            ):
+                assert self.owner_client.post(url).status_code == 404
+        assert not WrappedDeck.objects.filter(owner=self.me).exists()
+
+    def test_the_year_page_cuts_the_year_in_the_decks_time_zone(self):
+        session = self.owner_client.session
+        session["detected_tz"] = "America/Los_Angeles"
+        session.save()
+        url = reverse("journal:wrapped", args=[YEAR])
+
+        def zone(client):
+            with patch("journal.views.wrapped.live_year", wraps=live_year) as read:
+                client.get(url)
+            return read.call_args.args[3]
+
+        # the browser's zone until the deck has one of its own
+        assert zone(self.owner_client) == ZoneInfo("America/Los_Angeles")
+        make_deck(self.me)
+        assert zone(self.owner_client) == ZoneInfo("America/Los_Angeles")
+        WrappedDeck.objects.filter(owner=self.me).update(timezone="Asia/Tokyo")
+        assert zone(self.owner_client) == ZoneInfo("Asia/Tokyo")
+
+    def test_a_superuser_makes_and_updates_a_deck_at_any_time(self):
+        make = reverse("journal:wrapped_generate", args=[YEAR])
+        refresh = reverse("journal:wrapped_refresh", args=[YEAR])
+        year_url = reverse("journal:wrapped", args=[YEAR])
+        note = b"As an admin, you can make and update these cards at any time"
+        # outside the window a member can neither make nor update
+        with on(datetime.date(YEAR + 1, 3, 1)):
+            r = self.owner_client.get(year_url)
+            assert make.encode() not in r.content and note not in r.content
+            self.owner_client.post(make)
+        assert not WrappedDeck.objects.filter(owner=self.me).exists()
+        self.user.is_superuser = True
+        self.user.save()
+        # before the window opens
+        with on(datetime.date(YEAR, 11, 20)):
+            r = self.owner_client.get(year_url)
+            assert make.encode() in r.content and note in r.content
+            r = self.owner_client.post(make)
+            assert r.status_code == 302 and r["Location"] == deck_url("owner")
+        assert WrappedDeck.objects.get(owner=self.me, year=YEAR).refreshed_time
+        # and after it closes
+        with on(datetime.date(YEAR + 1, 3, 1)):
+            r = self.page(self.owner_client)
+            assert b'id="wr-update-now"' in r.content and note in r.content
+            assert page_data(r)["update_open"] is True
+            assert b"cards cannot be made again" not in r.content
+            complete(self.me, Edition.objects.create(title="Late Book"), at(7, 7))
+            assert self.owner_client.post(refresh).status_code == 200
+            # never for a year still to come
+            self.owner_client.post(reverse("journal:wrapped_generate", args=[YEAR + 2]))
+        deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
+        assert "Late Book" in [i["title"] for i in deck.data["2"]["items"]]
+        assert not WrappedDeck.objects.filter(owner=self.me, year=YEAR + 2).exists()
 
     def test_followers_page_payload_excludes_private(self):
         complete(

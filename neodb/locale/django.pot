@@ -12035,3 +12035,11 @@ msgstr ""
 #, python-format
 msgid "This deletes the cards and every change you made to them. Posts you published stay. The %(year)s cards cannot be made again."
 msgstr ""
+
+#: journal/templates/wrapped.html:86 journal/templates/wrapped.html:206
+msgid "As an admin, you can make and update these cards at any time, for testing."
+msgstr ""
+
+#: journal/templates/wrapped.html:251
+msgid "This deletes the cards and every change you made to them. Posts you published stay."
+msgstr ""

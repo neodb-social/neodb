@@ -938,9 +938,11 @@
   document.addEventListener("visibilitychange", () => stage.classList.toggle("bg", document.hidden));
   // the end of the deck offers the next steps: for the owner the year page and Share, for a visitor their own year
   const replay = () => { window.scrollTo({ top: 0, behavior: "instant" }); go(0, "instant"); started = true; setAuto(true); };
-  const nextStep = OWNER ? `<a class="wr-pill" href="${esc(D.make_url || "")}"><i class="fa-solid fa-layer-group"></i> ${_("See the whole year")}</a><button class="wr-pill primary" type="button" data-act="share"><i class="fa-solid fa-share-from-square"></i> ${_("Share")}</button>` : `<a class="wr-pill primary" href="${esc(D.make_url || "")}"><i class="fa-solid fa-wand-magic-sparkles"></i> ${_("Make your own {year}", { year: Y })}</a>`;
+  const nextStep = OWNER ? `<button class="wr-pill" type="button" data-act="year"><i class="fa-solid fa-layer-group"></i> ${_("See the whole year")}</button><button class="wr-pill primary" type="button" data-act="share"><i class="fa-solid fa-share-from-square"></i> ${_("Share")}</button>` : `<a class="wr-pill primary" href="${esc(D.make_url || "")}"><i class="fa-solid fa-wand-magic-sparkles"></i> ${_("Make your own {year}", { year: Y })}</a>`;
   $("end").innerHTML = `<button class="wr-pill" type="button" data-act="replay"><i class="fa-solid fa-rotate-left"></i> ${_("Replay")}</button>${nextStep}`;
-  document.querySelectorAll("[data-act]").forEach(b => b.onclick = () => ({ replay, share: () => openPublish() })[b.dataset.act]());
+  // to the year page after the waiting save, as the year menu does
+  const toYearPage = () => leave().then(() => { location.href = D.make_url; }, () => toast(_("Could not save the deck; try again")));
+  document.querySelectorAll("[data-act]").forEach(b => b.onclick = () => ({ replay, share: () => openPublish(), year: toYearPage })[b.dataset.act]());
   playBtn();
   function copyLink(url) { (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast(_("Link copied")), () => window.prompt("", url)); }
 

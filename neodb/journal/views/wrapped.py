@@ -98,6 +98,15 @@ def _year(year: int | None) -> int:
     return year
 
 
+def _admin_any_time(user: Any, year: int) -> bool:
+    """A superuser may make and update a deck outside the window, to test it on the live site."""
+    return bool(getattr(user, "is_superuser", False)) and 1970 <= year <= latest_year()
+
+
+def _may_make(user: Any, year: int) -> bool:
+    return can_make(year) or _admin_any_time(user, year)
+
+
 def _session_tz(request: AuthedHttpRequest) -> str:
     """The time zone the browser reported, when it is a real one; else empty (the site's own)."""
     tz = request.session.get("detected_tz")
@@ -208,7 +217,7 @@ def _context(
         }
         payload["music_menu"] = music_menu()
         payload["years"] = owner_years(owner)
-        payload["update_open"] = can_make(year)
+        payload["update_open"] = _may_make(viewer, year)
         payload["made_max"] = MADE_CARDS_MAX
         if not payload["items"]:
             # an audience with no titles: the empty page offers the audiences that have some
@@ -229,6 +238,7 @@ def _context(
         # the Card data part of the Edit dialog: when the data was stored, and whether it still updates
         ctx["update"] = {
             "open": can_make(year),
+            "admin": not can_make(year) and _admin_any_time(viewer, year),
             "time": deck.refreshed_time,
             "auto": auto_update_open(year),
             "auto_last": auto_last(year),
@@ -253,8 +263,11 @@ def wrapped_year(request: AuthedHttpRequest, year: int | None = None):
     deck = deck_for(owner, y)
     if deck is not None and deck.refreshed_time is None:
         deck = None
-    tz = (
-        deck or WrappedDeck(owner=owner, year=y, timezone=_session_tz(request))
+    # the deck's time zone once it has one, so the year page and the cards cut the year alike
+    tz = WrappedDeck(
+        owner=owner,
+        year=y,
+        timezone=(deck.timezone if deck else "") or _session_tz(request),
     ).tzinfo
     payload = live_year(owner, y, 2, tz)
     start, end = make_window(y)
@@ -285,6 +298,7 @@ def wrapped_year(request: AuthedHttpRequest, year: int | None = None):
         "year_page": {
             "deck_url": _deck_path(owner, y) if deck else None,
             "state": make_state(y),
+            "admin": not can_make(y) and _admin_any_time(request.user, y),
             "auto": auto_update_open(y),
             "auto_last": auto_last(y),
             "start": start,
@@ -303,7 +317,7 @@ def wrapped_generate(request: AuthedHttpRequest, year: int):
     """Make the deck of a year, once, from 1 December to the end of February after it: this stores the card
     data of each audience, which the cards then show until the next update."""
     owner = request.user.identity
-    if can_make(year):
+    if _may_make(request.user, year):
         deck = deck_for(owner, year, create=True)
         assert deck is not None
         # a second submit waits for the first and then finds the deck made
@@ -346,7 +360,7 @@ def wrapped_refresh(request: AuthedHttpRequest, year: int):
     """Store the card data again, now, while updates are open (to the end of February); at most once a
     minute, as each update reads the whole year three times."""
     deck = _made_deck(request.user.identity, year)
-    if not can_make(year):
+    if not _may_make(request.user, year):
         return JsonResponse({"ok": False, "status": "closed"}, status=400)
     if not cache.add(f"wrapped:refresh:{deck.pk}", 1, 60):
         return JsonResponse({"ok": False, "status": "busy"}, status=429)
@@ -354,6 +368,9 @@ def wrapped_refresh(request: AuthedHttpRequest, year: int):
     if deck is None:
         raise Http404(_("This summary is not made yet."))
     refresh_deck(deck)
+    # the owner may have deleted the deck while it was read
+    if not WrappedDeck.objects.filter(pk=deck.pk).exists():
+        raise Http404(_("This summary is not made yet."))
     record_activity("annual", "web")
     return JsonResponse({"ok": True})
 
@@ -389,7 +406,7 @@ def wrapped_page(request: AuthedHttpRequest, user_name: str, year: int):
             deck.save(update_fields=["timezone", "edited_time"])
         # the deck was stored while another process was still computing the instance totals: fill the gap now
         if (
-            can_make(year)
+            _may_make(request.user, year)
             and any(p.get("warming") for p in (deck.data or {}).values())
             and aggregates_ready(year)
         ):
