@@ -26,6 +26,7 @@ from common.storage import (
     media_file_writer,
     media_key,
 )
+from journal.importers.base import read_matching_csv
 from journal.models import Mark, Review, ShelfType
 from users.models import Task, TaskCancelled
 
@@ -210,15 +211,7 @@ class RymImporter(Task):
     def _run_matching(self) -> None:
         in_path = self.local_path()
         out_key = self._derive_matched_path(self.metadata["file"])
-        with open(in_path, encoding="utf-8-sig", newline="") as fin:
-            reader = csv.DictReader(fin)
-            raw_fieldnames = list(reader.fieldnames or [])
-            fieldnames = [h.strip() for h in raw_fieldnames]
-            extra = [c for c in MATCHED_EXTRA_COLUMNS if c not in fieldnames]
-            rows = []
-            for raw_row in reader:
-                # normalize header whitespace (RYM exports have inconsistent spaces)
-                rows.append({k.strip(): v for k, v in raw_row.items()})
+        fieldnames, rows = read_matching_csv(in_path, MATCHED_EXTRA_COLUMNS)
         self.metadata["total"] = len(rows)
         self.metadata["matched_file"] = out_key
         self._raise_if_cancelled()
@@ -230,7 +223,7 @@ class RymImporter(Task):
         try:
             with media_file_writer(out_key) as out_path:
                 with open(out_path, "w", encoding="utf-8", newline="") as fout:
-                    writer = csv.DictWriter(fout, fieldnames=fieldnames + extra)
+                    writer = csv.DictWriter(fout, fieldnames=fieldnames)
                     writer.writeheader()
                     for row in rows:
                         self._match_row(row)

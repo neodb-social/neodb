@@ -12,6 +12,7 @@ from catalog.common import *
 from catalog.models import *
 from catalog.models.utils import detect_isbn_asin
 from common.storage import media_exists, media_file_writer
+from journal.importers.base import read_matching_csv
 from journal.models import *
 from users.models import Task, TaskCancelled
 
@@ -178,12 +179,7 @@ class HardcoverImporter(Task):
     def _run_matching(self) -> None:
         in_path = self.local_path()
         out_key = self._derive_matched_path(self.metadata["file"])
-        with open(in_path, encoding="utf-8-sig", newline="") as fin:
-            reader = csv.DictReader(fin)
-            fieldnames = [h.strip() for h in reader.fieldnames or []]
-            extra = [c for c in MATCHED_EXTRA_COLUMNS if c not in fieldnames]
-            # k is None for extra cells in ragged rows; drop them
-            rows = [{k.strip(): v for k, v in raw.items() if k} for raw in reader]
+        fieldnames, rows = read_matching_csv(in_path, MATCHED_EXTRA_COLUMNS)
         self.metadata["total"] = len(rows)
         self.metadata["matched_file"] = out_key
         self._raise_if_cancelled()
@@ -191,7 +187,7 @@ class HardcoverImporter(Task):
 
         with media_file_writer(out_key) as out_path:
             with open(out_path, "w", encoding="utf-8", newline="") as fout:
-                writer = csv.DictWriter(fout, fieldnames=fieldnames + extra)
+                writer = csv.DictWriter(fout, fieldnames=fieldnames)
                 writer.writeheader()
                 for row in rows:
                     self._match_row(row)

@@ -198,6 +198,26 @@ class TestMatchedFileGeneration:
             RymImporter, "_external_match", lambda self, *a, **k: ext_url
         )
 
+    def test_extra_cell_is_ignored(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        with open(self.in_path, "w", encoding="utf-8-sig", newline="") as f:
+            csv.writer(f).writerows(
+                [
+                    ["RYM Album", " Title", "Ownership"],
+                    ["10", "First album", "w", "surplus"],
+                    ["20", "Second album", "o"],
+                ]
+            )
+        self._stub_matchers(monkeypatch)
+        task = self._make_task()
+        task.run()
+        with open(task.local_path("matched_file"), encoding="utf-8", newline="") as f:
+            rows = list(csv.DictReader(f))
+        assert [(row["Title"], row["shelf"]) for row in rows] == [
+            ("First album", ShelfType.WISHLIST.value),
+            ("Second album", ShelfType.COMPLETE.value),
+        ]
+        assert all(None not in row for row in rows)
+
     def test_default_shelf_and_collect_date(self, monkeypatch):
         self._stub_matchers(monkeypatch)
         task = self._make_task()
