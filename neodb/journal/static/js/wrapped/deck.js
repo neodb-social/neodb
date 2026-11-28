@@ -26,7 +26,7 @@
   const $ = id => document.getElementById("wr-" + id), RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const n = S.items.length, Y = D.year, base = D.member.url.split("/users/")[0];
   // the bars each card must clear, set from 2025 production data (data-findings-2026-11-03.md and the round-nine pass rates)
-  const RULE = { SMALL: 25, STREAK: 7, ACTIVE: 10, BUSY_MIN: 5, FAN: 10, GAP: 3, GAP_MARKS: 20, NEW: 0.6, OLD: 0.2, WISH: 3, WAIT: 365, TAGGED: 10 };
+  const RULE = { SMALL: 25, STREAK: 7, ACTIVE: 10, BUSY_MIN: 5, FAN: 10, GAP: 3, GAP_MARKS: 20, NEW: 0.6, OLD: 0.2, WISH: 3, WAIT: 365, TAGGED: 10, REACTED: 3 };
   // a small year keeps to these cards; the others start hidden and can be shown one by one
   const SMALL = n < RULE.SMALL, COMPACT = new Set(["intro", "covers", "top", "outro"]);
   const INK = SVG.ink, MUTED = SVG.muted, PRIMARY = SVG.primary, LINE = SVG.line;
@@ -479,7 +479,7 @@
     // a member the owner does not follow, from the site's daily matches: only the owner sees it unless they turn it on for an
     // audience, and it does not depend on followed members, so the rule above for the friend cards does not apply
     const kin = D.kindred ? { ...D.kindred, its: (D.kindred.items || []).map(i => mine.get(path(i.u))).filter(Boolean) } : null;
-    cards.push({ id: "kindred", name: _("Kindred member"), kind: "social", interest: !kin || !kin.its.length ? { ok: false, reason: _("no one you do not follow shares five of your titles this year") } : LEVEL < 2 ? { ok: false, reason: _("only you see it, unless you show it to this audience") } : { ok: true }, bg: () => TINT.blue, body: () => {
+    cards.push({ id: "kindred", name: _("Kindred member"), kind: "social", nav: D.kindred ? { url: D.kindred.url, label: _("View profile"), icon: "fa-user" } : null, interest: !kin || !kin.its.length ? { ok: false, reason: _("no one you do not follow shares five of your titles this year") } : LEVEL < 2 ? { ok: false, reason: _("only you see it, unless you show it to this audience") } : { ok: true }, bg: () => TINT.blue, body: () => {
       const t = cardTop(kin.name, _("@{handle} is not someone you follow, yet shares {n} of your titles this year", { handle: kin.handle, n: kin.n }), { eyebrow: _("Kindred member") });
       return t.svg + coverRow(kin.its, t.y + 60 + Math.round(DY * 0.35), 4, 400).svg;
     } });
@@ -597,6 +597,14 @@
       return t.svg + lines.map((l, i) => T(80, qy + i * 54, (i === 0 ? "“" : "") + l + (i === lines.length - 1 ? "…”" : ""), 38, { weight: 500, cls: "rise", d: 150 + i * 80 })).join("")
         + (() => { const cy = Math.min(760 + DY, qy + (lines.length - 1) * 54 + 64), tx = it ? 210 : 80; return (it ? coverSvg(it, 80, cy, 100, 150, "pop", 800, "bottom") : "") + T(tx, cy + 60, wrapW(it ? it.title : rv.title, 34, 700, 1000 - tx, 1)[0], 34, { weight: 700, cls: "rise", d: 850 }) + T(tx, cy + 104, meta, 34, { fill: MUTED, cls: "rise", d: 900 }); })();
     } });
+    // the most reacted: the text whose post got the most likes and boosts, as the server found it for this audience;
+    // it starts hidden when it is the text The essay shows
+    const R = D.reacted, rn = R ? R.likes + R.boosts : 0;
+    const asEssay = !!R && (rv ? R.kind === "review" && R.ref === rv.ref : !!es && es.comment.length >= 140 && R.kind === "comment" && R.item.url === es.url);
+    cards.push({ id: "reacted", name: _("Most reacted"), kind: "computed", nav: R ? { url: R.url, label: _("View post"), icon: "fa-comment" } : null, interest: ok(R && rn >= RULE.REACTED && !asEssay, !R ? _("no likes or boosts on your comments, notes or reviews this year") : asEssay ? _("it is the same text as The essay") : _n("your most reacted text has {n} like or boost, under {min}", "your most reacted text has {n} likes and boosts, under {min}", rn, { min: RULE.REACTED })), bg: () => TINT.blue, body: () => {
+      const counts = [[R.likes, _n("{n} like", "{n} likes", R.likes)], [R.boosts, _n("{n} boost", "{n} boosts", R.boosts)], [R.replies, _n("{n} reply", "{n} replies", R.replies)]].filter(c => c[0] > 0).map(c => c[1]).join(" · ");
+      return wordsBody({ it: R.item, words: R, caption: _("Most reacted"), meta: counts });
+    } });
     return cards;
   }
   function outro() { return { id: "outro", name: _("Outro"), kind: "computed", interest: { ok: true }, footInk: true, bg: () => TINT.own2, body: () => `${piece(`translate(35 ${1115 + DY}) scale(0.9 -0.9)`, TINT.piece2, PIECE.piece, 60, 60)}${T(80, 520 + DY / 2, _("See you in"), 120, { weight: 800, ls: -3.6, cls: "rise", d: 100 })}${T(80, 660 + DY / 2, Y + 1, 120, { fill: PRIMARY, weight: 800, ls: -3.6, cls: "rise", d: 250 })}${T(80, 750 + DY / 2, D.member.url, 34, { fill: MUTED, cls: "fade", d: 400 })}` }; }
@@ -652,7 +660,8 @@
     const cat = src.cat || "all"; return { title: cat === "all" ? _("My top {n} titles of {year}", { n, year: Y }) : _("My top {n} {shelf} of {year}", { n, shelf: CAT_NOUN[cat], year: Y }), caption: _("Highest marks") };
   }
   // ---------- made cards: one title, your words (text first: the member's text is the headline) ----------
-  // m = { it: the title, words: { kind, text, title, progress, date, more }, caption: the member's small heading or "" }
+  // m = { it: the title, words: { kind, text, title, progress, date, more }, caption: the member's small heading or "",
+  //   meta: a line in place of the stars and the date (the Most reacted card's counts) }
   const wordsKind = k => ({ comment: _("My comment"), note: _("My note"), review: _("My review") }[k]);
   // the small heading, cut to one line of the given width
   const eyebrowW = (t, maxW) => T(80, 150, wrapW(String(t).toUpperCase(), 30, 700, maxW, 1, 5)[0], 30, { fill: PRIMARY, weight: 700, ls: 5, cls: "fade", d: 0 });
@@ -695,7 +704,7 @@
       + coverSvg(it, 80, 720 + DY, 120, 180, "pop", 600, "bottom")
       + title.map((l, i) => T(230, yTitle - (title.length - 1 - i) * 54, l, 44, { weight: 700, cls: "rise", d: 650 })).join("")
       + (by ? T(230, yBy, wrapW(by, 34, 400, 770, 1)[0], 34, { fill: MUTED, cls: "rise", d: 700 }) : "")
-      + wordsMeta(m, 230, yMeta, 750, 34);
+      + (m.meta ? T(230, yMeta, wrapW(m.meta, 34, 700, 770, 1)[0], 34, { fill: PRIMARY, weight: 700, cls: "rise", d: 750 }) : wordsMeta(m, 230, yMeta, 750, 34));
   }
   function topNBody(m, its) {
     // the title of a made card names a list: one line at 96 px at most, else 64 px, so the covers keep the room
@@ -739,7 +748,7 @@
     const by = id => c.find(k => k.id === id);
     const tc = TREND.cards(TR, UI);
     const xb = id => x.find(k => k.id === id);
-    return ordered([by("intro"), by("covers"), by("shelves"), tc.yoy, by("busiest"), by("biggest"), by("top"), ...c.filter(k => k.id.startsWith("best-")), by("quiet"), by("disagree"), by("streak"), by("weeks"), xb("marathonday"), by("era"), tc.taste, by("people"), xb("tags"), ...s, ...madeCards(), xb("versus"), xb("again"), xb("finally"), xb("waiting"), xb("essay"), tc.bests, outro()].filter(Boolean));
+    return ordered([by("intro"), by("covers"), by("shelves"), tc.yoy, by("busiest"), by("biggest"), by("top"), ...c.filter(k => k.id.startsWith("best-")), by("quiet"), by("disagree"), by("streak"), by("weeks"), xb("marathonday"), by("era"), tc.taste, by("people"), xb("tags"), ...s, ...madeCards(), xb("versus"), xb("again"), xb("finally"), xb("waiting"), xb("essay"), xb("reacted"), tc.bests, outro()].filter(Boolean));
   }
   // one visibility for the whole page; a card is only shown or hidden, and a card the rules reject starts hidden with its reason
   const REOPEN = "wr-reopen";
@@ -771,7 +780,7 @@
     const shown = cards.filter(c => !c.hidden), hid = cards.filter(c => c.hidden), mid = shown.filter(c => !FIXED.has(c.id));
     const deck = $("deck"), keepId = state.curId;
     const btn = (attr, icon, label) => `<button class="dc-nav" type="button" title="${esc(label)}" aria-label="${esc(label)}" ${attr}><i class="fa-solid ${icon}"></i></button>`;
-    deck.innerHTML = shown.map((c, i) => `<div class="card" data-id="${c.id}" data-i="${i}" data-bg="${c.bgc || TINT.paper}"><div class="face">${c.svg}</div><div class="cf"><span class="n">${i + 1}/${shown.length}</span><span class="btns">${c.id === "kindred" && D.kindred ? `<a class="dc-nav" href="${esc(D.kindred.url)}" target="_blank" rel="noopener" title="${esc(_("View profile"))}" aria-label="${esc(_("View profile"))}"><i class="fa-solid fa-user"></i></a>` : ""}${btn("data-link", "fa-link", _("Copy link to this card"))}${OWNER ? btn("data-share", "fa-share-from-square", _("Post this card")) : ""}${btn("data-dl", "fa-download", _("Download PNG"))}</span></div></div>`).join("");
+    deck.innerHTML = shown.map((c, i) => `<div class="card" data-id="${c.id}" data-i="${i}" data-bg="${c.bgc || TINT.paper}"><div class="face">${c.svg}</div><div class="cf"><span class="n">${i + 1}/${shown.length}</span><span class="btns">${c.nav ? `<a class="dc-nav" href="${esc(c.nav.url)}" target="_blank" rel="noopener" title="${esc(c.nav.label)}" aria-label="${esc(c.nav.label)}"><i class="fa-solid ${c.nav.icon}"></i></a>` : ""}${btn("data-link", "fa-link", _("Copy link to this card"))}${OWNER ? btn("data-share", "fa-share-from-square", _("Post this card")) : ""}${btn("data-dl", "fa-download", _("Download PNG"))}</span></div></div>`).join("");
     $("dots").innerHTML = shown.map((c, i) => `<button type="button" data-i="${i}" aria-label="${i + 1}/${shown.length} ${esc(c.name)}"><b></b></button>`).join("");
     if (OWNER) {
       const hub = $("hub"); hub.classList.toggle("arranging", arranging);

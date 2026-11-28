@@ -12033,3 +12033,43 @@ msgstr ""
 #: journal/templates/wrapped.html:251
 msgid "This deletes the cards and every change you made to them. Posts you published stay."
 msgstr ""
+
+#: journal/wrapped/text.py:317
+msgid "Most reacted"
+msgstr ""
+
+#: journal/wrapped/text.py:319
+msgid "no likes or boosts on your comments, notes or reviews this year"
+msgstr ""
+
+#: journal/wrapped/text.py:320
+msgid "it is the same text as The essay"
+msgstr ""
+
+#: journal/wrapped/text.py:538
+#, python-brace-format
+msgid "{n} like"
+msgid_plural "{n} likes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped/text.py:539
+#, python-brace-format
+msgid "{n} boost"
+msgid_plural "{n} boosts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped/text.py:540
+#, python-brace-format
+msgid "{n} reply"
+msgid_plural "{n} replies"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped/text.py:542
+#, python-brace-format
+msgid "your most reacted text has {n} like or boost, under {min}"
+msgid_plural "your most reacted text has {n} likes and boosts, under {min}"
+msgstr[0] ""
+msgstr[1] ""

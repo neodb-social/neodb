@@ -12049,3 +12049,36 @@ msgstr "卡片資料在 12 月每天更新；在 %(date)s 之前你也可以立�
 #, python-format
 msgid "You can update them now, until %(date)s; after that they stay as they are."
 msgstr "在 %(date)s 之前你可以立即更新，之後卡片將保持不變。"
+
+#: journal/wrapped/text.py:317
+msgid "Most reacted"
+msgstr "互動最多"
+
+#: journal/wrapped/text.py:319
+msgid "no likes or boosts on your comments, notes or reviews this year"
+msgstr "今年你的短評、筆記和評論沒有收到喜歡或轉播"
+
+#: journal/wrapped/text.py:320
+msgid "it is the same text as The essay"
+msgstr "與“長評”是同一篇文字"
+
+#: journal/wrapped/text.py:538
+msgid "{n} like"
+msgid_plural "{n} likes"
+msgstr[0] "{n} 個喜歡"
+
+#: journal/wrapped/text.py:539
+msgid "{n} boost"
+msgid_plural "{n} boosts"
+msgstr[0] "{n} 次轉播"
+
+#: journal/wrapped/text.py:540
+msgid "{n} reply"
+msgid_plural "{n} replies"
+msgstr[0] "{n} 則回應"
+
+#: journal/wrapped/text.py:542
+#, python-brace-format
+msgid "your most reacted text has {n} like or boost, under {min}"
+msgid_plural "your most reacted text has {n} likes and boosts, under {min}"
+msgstr[0] "互動最多的文字只有 {n} 個喜歡和轉播，少於 {min} 個"

@@ -29,6 +29,7 @@ from journal.models import (
     CollectionMember,
     Comment,
     Like,
+    Note,
     Rating,
     Review,
     ShelfLogEntry,
@@ -50,8 +51,10 @@ from journal.wrapped.aggregates import (
 from journal.wrapped.base import (
     BULK_DAY,
     plain_excerpt,
+    year_range,
 )
 from journal.wrapped.data import (
+    _reacted,
     build_payload,
     live_year,
 )
@@ -71,6 +74,7 @@ from journal.wrapped.music import track as music_track
 from journal.wrapped.text import PLURALS, TEXT, card_text
 from takahe.models import Domain
 from takahe.models import Identity as TakaheIdentity
+from takahe.models import Post as TakahePost
 from takahe.utils import Takahe
 from users.jobs.cleanup import clear_identity_data
 from users.models import APIdentity, User
@@ -918,6 +922,183 @@ class TestReviewFixes:
             (f"{YEAR}-1.png", png, "image/png")
         ]
         assert not account.boost_later.called
+
+
+@pytest.mark.django_db(databases="__all__")
+class TestMostReacted:
+    @pytest.fixture(autouse=True)
+    def setup_data(self, wrapped_cache):
+        clear_wrapped_cache()
+        self.me = User.register(email="react@test.com", username="reactor").identity
+        self.book = Edition.objects.create(title="Reacted Book")
+        self.film = Movie.objects.create(title="Reacted Film")
+        self.other = Edition.objects.create(title="Other Book")
+
+    def text(self, cls, item, when, vis=0, likes=0, boosts=0, replies=0, **fields):
+        """A comment, note or review saved with its post (a comment posts through its mark otherwise), and
+        the counts that post keeps."""
+        piece = cls(
+            owner=self.me, item=item, visibility=vis, created_time=when, **fields
+        )
+        piece.save(index_when_save=False, post_when_save=True)
+        assert piece.latest_post_id
+        TakahePost.objects.filter(pk=piece.latest_post_id).update(
+            stats={"likes": likes, "boosts": boosts, "replies": replies}
+        )
+        return piece
+
+    def reacted(self, level):
+        return build_payload(self.me, YEAR, level, TZ)["reacted"]
+
+    def test_likes_and_boosts_rank_and_replies_only_show(self):
+        self.text(Comment, self.book, at(2, 1), text="two and two", likes=2, boosts=2)
+        self.text(
+            Review,
+            self.film,
+            at(2, 2),
+            title="Talked about",
+            body="many replies",
+            likes=3,
+            replies=9,
+        )
+        r = self.reacted(0)
+        assert r["kind"] == "comment" and r["text"] == "two and two"
+        assert (r["likes"], r["boosts"], r["replies"]) == (2, 2, 0)
+        assert r["item"]["title"] == "Reacted Book"
+        post = Comment.objects.get(owner=self.me, item=self.book).latest_post_id
+        assert r["url"].endswith(f"/@reactor/posts/{post}/")
+
+    def test_a_tie_goes_to_the_earlier_text(self):
+        self.text(Comment, self.film, at(5, 1), text="later", likes=3)
+        self.text(Note, self.book, at(4, 1), content="earlier", boosts=3)
+        r = self.reacted(0)
+        assert (r["kind"], r["text"]) == ("note", "earlier")
+
+    def test_each_audience_counts_only_the_posts_it_may_see(self):
+        self.text(Comment, self.book, at(2, 1), text="for everyone", likes=3)
+        self.text(Comment, self.film, at(2, 2), vis=1, text="for followers", likes=10)
+        self.text(Note, self.other, at(2, 3), vis=2, content="only mentioned", likes=20)
+        assert self.reacted(0)["text"] == "for everyone"
+        assert self.reacted(1)["text"] == "for followers"
+        assert self.reacted(2)["text"] == "only mentioned"
+        public = json.dumps(build_payload(self.me, YEAR, 0, TZ))
+        assert "for followers" not in public and "only mentioned" not in public
+        # one read for every audience, as the stored deck does, picks the same texts
+        together = _reacted(self.me, (0, 1, 2), *year_range(YEAR, TZ), TZ)
+        assert {lv: r["text"] for lv, r in together.items() if r} == {
+            0: "for everyone",
+            1: "for followers",
+            2: "only mentioned",
+        }
+
+    def test_a_public_text_on_a_narrower_post_stays_off_the_public_card(self):
+        piece = self.text(Comment, self.book, at(2, 1), text="narrow post", likes=9)
+        self.text(Comment, self.film, at(2, 2), text="wide post", likes=3)
+        TakahePost.objects.filter(pk=piece.latest_post_id).update(
+            visibility=Takahe.Visibilities.followers
+        )
+        assert self.reacted(0)["text"] == "wide post"
+        assert self.reacted(1)["text"] == "narrow post"
+
+    def test_no_likes_or_boosts_gives_no_card_data(self):
+        assert self.reacted(2) is None
+        self.text(Comment, self.book, at(2, 1), text="only replies", replies=4)
+        assert self.reacted(2) is None
+        # a text from another year does not count
+        self.text(Comment, self.film, at(2, 1, year=YEAR - 1), text="old", likes=50)
+        assert self.reacted(2) is None
+
+    def test_counts_only_and_never_who_reacted(self):
+        piece = self.text(Comment, self.book, at(2, 1), text="liked")
+        fans = [
+            User.register(email=f"fan{k}@test.com", username=f"fanreactor{k}").identity
+            for k in range(3)
+        ]
+        for fan in fans:
+            Takahe.interact_post(piece.latest_post_id, fan.pk, "like")
+        Takahe.interact_post(piece.latest_post_id, fans[0].pk, "boost")
+        r = self.reacted(0)
+        assert (r["likes"], r["boosts"]) == (3, 1)
+        assert set(r) == {
+            "kind",
+            "ref",
+            "text",
+            "more",
+            "title",
+            "progress",
+            "chars",
+            "date",
+            "likes",
+            "boosts",
+            "replies",
+            "url",
+            "item",
+        }
+        stored = json.dumps(snapshot(self.me, YEAR, TZ))
+        assert all(f"fanreactor{k}" not in stored for k in range(3))
+
+    def test_a_deleted_post_text_or_title_drops_out(self):
+        first = self.text(Comment, self.book, at(2, 1), text="first", likes=8)
+        second = self.text(Comment, self.film, at(2, 2), text="second", likes=5)
+        self.text(Note, self.other, at(2, 3), content="third", likes=3)
+        assert self.reacted(0)["text"] == "first"
+        TakahePost.objects.filter(pk=first.latest_post_id).update(state="deleted")
+        assert self.reacted(0)["text"] == "second"
+        second.delete()
+        assert self.reacted(0)["text"] == "third"
+        self.other.is_deleted = True
+        self.other.save()
+        assert self.reacted(0) is None
+
+    def test_the_stored_deck_keeps_the_counts_of_its_last_update(self):
+        piece = self.text(Comment, self.book, at(2, 1), text="frozen", likes=4)
+        self.text(Comment, self.film, at(2, 2), vis=1, text="followers", likes=6)
+        deck = make_deck(self.me)
+        assert deck.data["0"]["reacted"]["text"] == "frozen"
+        assert deck.data["1"]["reacted"]["text"] == "followers"
+        TakahePost.objects.filter(pk=piece.latest_post_id).update(
+            stats={"likes": 40, "boosts": 0, "replies": 0}
+        )
+        assert stored_payload(deck, 0)["reacted"]["likes"] == 4
+        refresh_deck(deck)
+        assert stored_payload(deck, 0)["reacted"]["likes"] == 40
+
+    def test_reviews_carry_the_ref_the_card_compares(self):
+        review = self.text(
+            Review, self.book, at(2, 1), title="Mine", body="long text", likes=3
+        )
+        p = build_payload(self.me, YEAR, 0, TZ)
+        assert p["reviews"][0]["ref"] == p["reacted"]["ref"] == str(review.uid)
+
+    def test_queries_do_not_grow_with_texts(self):
+        start, end = year_range(YEAR, TZ)
+
+        def run():
+            with (
+                CaptureQueriesContext(connection) as a,
+                CaptureQueriesContext(connections["takahe"]) as b,
+            ):
+                _reacted(self.me, (0, 1, 2), start, end, TZ)
+            assert b.captured_queries
+            return len(a.captured_queries) + len(b.captured_queries)
+
+        kinds = [
+            (Comment, {"text": "c"}),
+            (Note, {"content": "n"}),
+            (Review, {"title": "r", "body": "r"}),
+        ]
+
+        def add(n, offset):
+            for k in range(n):
+                cls, fields = kinds[k % 3]
+                item = Edition.objects.create(title=f"Q{offset + k}")
+                self.text(cls, item, at(3, 1 + offset + k), likes=1 + k, **fields)
+
+        add(3, 0)
+        run()
+        small = run()
+        add(9, 3)
+        assert run() == small
 
 
 @pytest.mark.django_db(databases="__all__")
