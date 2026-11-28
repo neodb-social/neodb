@@ -34,6 +34,8 @@ Set the data path from `.env` in your shell:
 NEODB_DATA=/var/lib/neodb
 ```
 
+Check that `$NEODB_DATA` has no `neodb-db.pg14` or `takahe-db.pg14` folder. If one exists, an earlier attempt stopped part way and that folder may hold the only copy of your data. Do not remove it: go back to the old data as described at the end of this section, then start again.
+
 Stop the cluster, then start only the two databases:
 ```bash
 docker compose --profile production down
@@ -50,7 +52,7 @@ docker compose exec -T neodb-db pg_dump -U neodb -Fc neodb > neodb.dump \
 
 Continue only if the output ends with `Dump OK`. If it does not, stop here. The old data is still in place, and `docker compose --profile production up -d` starts the site again.
 
-Stop the databases and move the old data aside. If `neodb-db.pg14` or `takahe-db.pg14` folders exist from an earlier attempt, rename or remove them first, or `mv` puts the data inside them.
+Stop the databases and move the old data aside:
 ```bash
 docker compose down \
   && mv $NEODB_DATA/neodb-db $NEODB_DATA/neodb-db.pg14 \
@@ -68,14 +70,17 @@ docker compose exec -T neodb-db pg_restore -U neodb -d neodb < neodb.dump \
   && echo "Restore OK"
 ```
 
-Continue only if the output ends with `Restore OK`. If it does not, do not start the cluster. Go back to the old data, then set `POSTGRES_VERSION=14-alpine` in `.env` and start the cluster as usual:
+Continue only if the output ends with `Restore OK`. If it does not, do not start the cluster. Go back to the old data:
 ```bash
-docker compose down
-mv $NEODB_DATA/neodb-db $NEODB_DATA/neodb-db.failed
-mv $NEODB_DATA/takahe-db $NEODB_DATA/takahe-db.failed
-mv $NEODB_DATA/neodb-db.pg14 $NEODB_DATA/neodb-db
-mv $NEODB_DATA/takahe-db.pg14 $NEODB_DATA/takahe-db
+docker compose down \
+  && mv $NEODB_DATA/neodb-db $NEODB_DATA/neodb-db.failed \
+  && mv $NEODB_DATA/takahe-db $NEODB_DATA/takahe-db.failed \
+  && mv $NEODB_DATA/neodb-db.pg14 $NEODB_DATA/neodb-db \
+  && mv $NEODB_DATA/takahe-db.pg14 $NEODB_DATA/takahe-db \
+  && echo "Rollback OK"
 ```
+
+If the output ends with `Rollback OK`, set `POSTGRES_VERSION` back to the value it had before the upgrade (`14-alpine` if it was not set) and start the cluster as usual. If it does not, fix the move that failed before you start the cluster.
 
 Start the cluster:
 ```bash
