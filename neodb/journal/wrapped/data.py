@@ -581,9 +581,8 @@ def _year_titles(
 
 
 def live_year(owner: APIdentity, year: int, level: int, tz: ZoneInfo) -> dict[str, Any]:
-    """The year's finished titles and active days at this level, read at each view: the page's whole-year
-    section (the counts and the month piles) stays current, while the cards show what the last update
-    stored. Before the deck is made, this is all the page shows."""
+    """The year's finished titles and active days at this level, read at each view: the owner's year page
+    (the counts and the month piles) stays current, while the cards show what the last update stored."""
     start, end = year_range(year, tz)
     ids, items, when = _year_titles(owner, level, start, end)
     rating = _grades(owner, ids, level)
