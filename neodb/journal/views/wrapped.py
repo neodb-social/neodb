@@ -219,17 +219,7 @@ def _context(
         }
         # a queued or running update: the page waits for it and reloads with the new data; a job that ends
         # with this time unchanged did not store anything
-        updating = refresh_state(deck.pk) == "updating"
-        if not updating:
-            # a job may have stored its data after this page read the deck, and cleared its marker before the
-            # state was read: the page waits then too, and reloads at once
-            updating = (
-                WrappedDeck.objects.filter(pk=deck.pk)
-                .values_list("refreshed_time", flat=True)
-                .first()
-                != deck.refreshed_time
-            )
-        payload["updating"] = updating
+        payload["updating"] = refresh_state(deck.pk) == "updating"
         payload["update_time"] = (
             deck.refreshed_time.isoformat() if deck.refreshed_time else None
         )
@@ -347,12 +337,10 @@ def wrapped_generate(request: AuthedHttpRequest, year: int):
         return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
     deck = deck_for(owner, year, create=True)
     assert deck is not None
-    with transaction.atomic():
-        deck = WrappedDeck.objects.select_for_update().get(pk=deck.pk)
-        if not deck.timezone and (tz := _session_tz(request)):
-            deck.timezone = tz
-            deck.save(update_fields=["timezone", "edited_time"])
-    # queued once the time zone is committed, as the job reads it; a second submit finds the job queued
+    if not deck.timezone and (tz := _session_tz(request)):
+        deck.timezone = tz
+        deck.save(update_fields=["timezone", "edited_time"])
+    # queued once the time zone is stored, as the job reads it; a second submit finds the job queued
     if deck.refreshed_time is None:
         if enqueue_deck_refresh(deck, make=True):
             record_activity("annual", "web")
@@ -402,8 +390,8 @@ def wrapped_refresh(request: AuthedHttpRequest, year: int):
 @login_required
 @require_GET
 def wrapped_status(request: AuthedHttpRequest, year: int):
-    """Whether the owner's deck of a year is made, and whether a job that stores its card data is queued or
-    running or has just failed: the year page and the Edit sheet wait on this."""
+    """Whether the owner's deck of a year is made, whether a job that stores its card data is queued or
+    running, and when the data was stored: the year page and the Edit sheet wait on this."""
     deck = (
         WrappedDeck.objects.defer("data")
         .filter(owner=request.user.identity, year=year)
@@ -418,7 +406,6 @@ def wrapped_status(request: AuthedHttpRequest, year: int):
         {
             "made": bool(deck and deck.refreshed_time),
             "updating": state == "updating",
-            "failed": state == "failed",
             "time": deck.refreshed_time.isoformat()
             if deck and deck.refreshed_time
             else None,

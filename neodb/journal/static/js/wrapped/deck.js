@@ -106,16 +106,14 @@
   const ACTIVITY = activityOf(ACT);
 
   const past = D.year < new Date().getFullYear();
-  // a job makes or updates the cards: ask the server until it has ended, for at most as long as the server waits for it.
-  // The deadline is a timer of its own, so a request that never settles cannot keep the page waiting; where the browser
-  // can, each request also has its own time limit, so one that hangs is retried
+  // a job makes or updates the cards: ask the server until it has ended, for at most as long as the server waits for it;
+  // the deadline is a timer of its own, so a request that never settles cannot keep the page waiting
   function waitUpdate() {
-    const limit = () => typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(15000) } : {};
     return new Promise((done, fail) => {
       let over = false;
       const stop = setTimeout(() => { over = true; fail("timeout"); }, 600000);
       const next = () => { if (!over) setTimeout(tick, 2000); };
-      const tick = () => fetch(URLS.status, { cache: "no-store", ...limit() }).then(r => { if (!r.ok) throw r.status; return r.json(); })
+      const tick = () => fetch(URLS.status, { cache: "no-store" }).then(r => { if (!r.ok) throw r.status; return r.json(); })
         .then(j => { if (over) return; if (j.updating) return next(); clearTimeout(stop); done(j); }, next);
       setTimeout(tick, 1000);
     });
@@ -127,7 +125,7 @@
     const html = btn.innerHTML;
     btn.disabled = true; btn.setAttribute("aria-busy", "true"); btn.textContent = _("Updating the card data");
     (queued ? Promise.resolve() : before().then(() => fetch(URLS.refresh, { method: "POST", headers: { "X-CSRFToken": CSRF } })).then(r => r.json()).then(j => { if (!j.ok) throw j.status; }))
-      .then(waitUpdate).then(j => { if (j.failed || j.time === D.update_time) throw "failed"; return before(); }).then(() => location.reload())
+      .then(waitUpdate).then(j => { if (j.time === D.update_time) throw "failed"; return before(); }).then(() => location.reload())
       .catch(st => { btn.disabled = false; btn.removeAttribute("aria-busy"); btn.innerHTML = html; toast(st === "busy" ? _("The cards were updated a moment ago; try again in a minute") : _("Could not update the cards; try again")); });
   }
   // the owner's year page: the year at a glance, under the step that makes the cards or the link to them

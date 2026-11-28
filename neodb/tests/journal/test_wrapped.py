@@ -1341,28 +1341,6 @@ class TestInstanceStats:
         # an update with nothing new writes no data
         assert refresh_deck(WrappedDeck.objects.get(pk=deck.pk)) is False
 
-    def test_a_page_waits_for_a_warming_job_that_ended_before_it_read_the_state(
-        self,
-    ):
-        clear_wrapped_cache()
-        user = User.register(email="i8@test.com", username="ifast")
-        complete(user.identity, Edition.objects.create(title="Open"), at(2, 3))
-        cache.add(_instance_key(YEAR) + ":lock", 1, 600)
-        with patch("journal.wrapped.aggregates.time.sleep"):
-            deck = make_deck(user.identity)
-        compute_instance_stats(YEAR)
-        owner = Client()
-        owner.force_login(user)
-        # the job runs at once, so it has ended when the page reads the state; the page still holds the data
-        # read before it, so it waits, and the new update time has it reload
-        with on(datetime.date(YEAR, 12, 20)):
-            data = page_data(owner.get(deck_url("ifast")))
-        stored = WrappedDeck.objects.get(pk=deck.pk)
-        assert data["updating"] is True and refresh_state(deck.pk) == ""
-        assert data["items"] and not stored.data["0"]["warming"]
-        assert stored.refreshed_time
-        assert data["update_time"] != stored.refreshed_time.isoformat()
-
     def test_a_cold_cache_marks_the_payload_as_warming(self):
         clear_wrapped_cache()
         me = User.register(email="i5@test.com", username="iwarm").identity
@@ -1911,12 +1889,7 @@ class TestViews:
         make = reverse("journal:wrapped_generate", args=[YEAR])
         year_url = reverse("journal:wrapped", args=[YEAR])
         deck_jobs.hold = True
-        assert self.status().json() == {
-            "made": False,
-            "updating": False,
-            "failed": False,
-            "time": None,
-        }
+        assert self.status().json() == {"made": False, "updating": False, "time": None}
         with on(datetime.date(YEAR, 12, 10)):
             with patch("journal.views.wrapped.record_activity") as act:
                 # a second submit finds the job queued, and nothing is read in the request
@@ -1969,20 +1942,21 @@ class TestViews:
             ):
                 with pytest.raises(RuntimeError):
                     deck_jobs.run()
-            status = self.status().json()
-            assert status == {
+            assert self.status().json() == {
                 "made": False,
                 "updating": False,
-                "failed": True,
                 "time": None,
             }
+            deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
+            assert refresh_state(deck.pk) == "failed"
             r = self.owner_client.get(year_url)
             assert b"Your cards could not be made" in r.content
             assert make.encode() in r.content and not page_data(r)["making"]
             # a new submit queues a new job, and the failure is forgotten
             self.owner_client.post(make)
-            assert len(deck_jobs.held) == 1 and self.status().json()["failed"] is False
+            assert len(deck_jobs.held) == 1 and refresh_state(deck.pk) == "updating"
             deck_jobs.run()
+            assert refresh_state(deck.pk) == ""
         assert WrappedDeck.objects.get(owner=self.me, year=YEAR).refreshed_time
 
     def test_update_now_waits_for_its_job(self, deck_jobs):
@@ -2021,21 +1995,11 @@ class TestViews:
             # and then once a minute, as before
             assert self.owner_client.post(url).status_code == 429
 
-    def test_only_the_job_that_holds_the_marker_clears_it(self, deck_jobs):
+    def test_a_job_holds_the_marker_again_for_its_run(self, deck_jobs):
         deck = make_deck(self.me)
         deck_jobs.hold = True
         assert enqueue_deck_refresh(deck)
-        func, args = deck_jobs.held.pop()
-        # the first marker expires while its job waits, and a second job is queued; the first job then runs
-        # and leaves the second job's marker
-        cache.delete(f"wrapped:updating:{deck.pk}")
-        assert enqueue_deck_refresh(deck)
-        func(*args)
-        assert refresh_state(deck.pk) == "updating"
-        deck_jobs.run()
-        assert refresh_state(deck.pk) == ""
-        # a job whose marker expired while it waited holds it again for its run
-        assert enqueue_deck_refresh(deck)
+        # the marker expires while the job waits in the queue; the job holds it again while it runs
         cache.delete(f"wrapped:updating:{deck.pk}")
         seen = []
         real = wrapped_jobs.refresh_deck
@@ -2048,7 +2012,7 @@ class TestViews:
             deck_jobs.run()
         assert seen == ["updating"] and refresh_state(deck.pk) == ""
 
-    def test_a_job_that_ends_between_two_reads_is_seen_as_done(self, deck_jobs):
+    def test_the_status_reads_the_time_after_the_job_state(self, deck_jobs):
         url = reverse("journal:wrapped_refresh", args=[YEAR])
         deck = make_deck(self.me)
         before = deck.refreshed_time
@@ -2067,34 +2031,9 @@ class TestViews:
                 "journal.views.wrapped.refresh_state", side_effect=finish_then_read
             ):
                 status = self.status().json()
-            after = WrappedDeck.objects.get(pk=deck.pk).refreshed_time
-            assert after and after > before
-            assert not status["updating"] and status["time"] == after.isoformat()
-            # likewise the owner's page, which holds the data read before the job: it waits, and reloads at once
-            cache.delete(f"wrapped:refresh:{deck.pk}")
-            self.owner_client.post(url)
-            with patch(
-                "journal.views.wrapped.refresh_state", side_effect=finish_then_read
-            ):
-                data = page_data(self.page(self.owner_client))
-            assert data["updating"] is True and data["update_time"] == after.isoformat()
-            # with no job, the page does not wait
-            assert page_data(self.page(self.owner_client))["updating"] is False
-
-    def test_a_failure_belongs_to_the_job_that_holds_the_marker(self, deck_jobs):
-        deck = make_deck(self.me)
-        deck_jobs.hold = True
-        assert enqueue_deck_refresh(deck)
-        func, args = deck_jobs.held.pop()
-        # the first marker expires while its job runs, a second job is queued, and then the first job fails
-        cache.delete(f"wrapped:updating:{deck.pk}")
-        assert enqueue_deck_refresh(deck)
-        with patch("journal.jobs.wrapped.refresh_deck", side_effect=RuntimeError):
-            with pytest.raises(RuntimeError):
-                func(*args)
-        assert refresh_state(deck.pk) == "updating"
-        deck_jobs.run()
-        assert refresh_state(deck.pk) == ""
+        after = WrappedDeck.objects.get(pk=deck.pk).refreshed_time
+        assert after and after > before
+        assert not status["updating"] and status["time"] == after.isoformat()
 
     def test_a_job_leaves_a_deck_deleted_while_it_waits(self, deck_jobs):
         make = reverse("journal:wrapped_generate", args=[YEAR])
