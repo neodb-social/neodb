@@ -68,41 +68,26 @@ class TestForceRecreateApp:
         assert not _force_recreate_app("Sharkey")
 
 
-class TestGetRedirectUris:
-    def test_contains_site_url(self):
-        result = _get_redirect_uris("4.1.0")
-        assert settings.SITE_INFO["site_url"] in result
-
-    def test_pixelfed_returns_single_uri(self):
-        result = _get_redirect_uris("3.5.5 (compatible; Pixelfed 0.11.4)")
-        # Pixelfed does not support multiple redirect URIs
-        assert "\n" not in result
-
-    def test_modern_may_have_multiple_uris(self):
-        # Modern servers support multiple URIs; result is \n-separated
-        result = _get_redirect_uris("4.1.0")
-        # At minimum, the primary site URL is included
-        assert settings.SITE_INFO["site_url"] + "/account/login/oauth" in result
-
-    def test_mitra_returns_single_uri(self, monkeypatch):
-        monkeypatch.setattr(
-            SiteConfig.system, "alternative_domains", ["alt.example.org"]
-        )
-        result = _get_redirect_uris("4.0.0 (compatible; Mitra 5.10.0)")
-        assert result == settings.SITE_INFO["site_url"] + "/account/login/oauth"
-
-    def test_alternative_domains_are_cleaned(self, monkeypatch):
-        primary = settings.SITE_INFO["site_url"] + "/account/login/oauth"
-        monkeypatch.setattr(
-            SiteConfig.system,
-            "alternative_domains",
-            ["", "  ", settings.SITE_DOMAIN, "Alt.Example.org", "alt.example.org"],
-        )
-        result = _get_redirect_uris("4.1.0")
-        assert result.split("\n") == [
-            primary,
-            "https://alt.example.org/account/login/oauth",
-        ]
+@pytest.mark.parametrize(
+    ("version", "alternates"),
+    [
+        ("4.1.0", ["https://alt.example.org/account/login/oauth"]),
+        ("3.5.5 (compatible; Pixelfed 0.11.4)", []),
+        ("4.0.0 (compatible; Mitra 5.10.0)", []),
+        ("Friendica 2023.05", []),
+        ("0.13.1", []),
+    ],
+)
+def test_redirect_uris(
+    version: str, alternates: list[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        SiteConfig.system,
+        "alternative_domains",
+        ["", "  ", settings.SITE_DOMAIN, "Alt.Example.org", "alt.example.org"],
+    )
+    primary = settings.SITE_INFO["site_url"] + "/account/login/oauth"
+    assert _get_redirect_uris(version).split("\n") == [primary, *alternates]
 
 
 class TestResponseError:
