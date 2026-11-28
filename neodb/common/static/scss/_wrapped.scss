@@ -311,12 +311,10 @@
   .qr-tab { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: 1.2rem; align-items: start; margin: 0 0 1.2rem; }
   .qr-prev { position: relative; display: grid; place-items: center; min-height: 6rem; }
   .qr-prev svg { display: block; width: 100%; height: auto; border-radius: var(--dc-radius); border: 1px solid var(--dc-border); }
-  .qr-prev.locked svg { opacity: 0.35; }
-  .qr-prev.locked .fa-lock { position: absolute; font-size: 2.4rem; color: var(--dc-strong); }
   .qr-btns { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
   .qr-btns .dc-btn { width: auto; margin: 0; }
   .wr-warn .dc-btn { margin: 0.4rem 0 0; padding: 0.3rem 0.7rem; font-size: var(--dc-fs-xs); }
-  // the three audiences at the one link, side by side; the note of the one on screen under them
+  // the three audiences at the one link
   .wr-auds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 0 0.6rem; padding: 0; overflow: hidden; list-style: none; border: 1px solid var(--dc-border); border-radius: var(--dc-radius); }
   .wr-auds li { display: flex; flex-direction: column; gap: 0.1rem; margin: 0; padding: 0.5rem 0.8rem; list-style: none; font-size: var(--dc-fs-sm); }
   .wr-auds li + li { border-left: 1px solid var(--dc-border); }
@@ -324,8 +322,7 @@
   .wr-auds b { color: var(--dc-strong); }
   .wr-auds .st { color: var(--dc-muted); }
   .wr-auds li.on .st { font-weight: 600; color: var(--dc-strong); }
-  .wr-audfoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; }
-  .wr-audfoot .dc-fine { flex: 1 1 16rem; margin: 0; }
+  .wr-audfoot { display: flex; justify-content: flex-end; }
   .wr-audfoot .dc-btn { width: auto; margin: 0; }
   @media (max-width: 600px) {
     .qr-tab { grid-template-columns: minmax(0, 1fr); justify-items: center; }

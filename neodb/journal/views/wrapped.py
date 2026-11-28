@@ -220,16 +220,17 @@ def _context(
         payload["years"] = owner_years(owner)
         payload["update_open"] = _may_make(viewer, year)
         payload["made_max"] = MADE_CARDS_MAX
+        levels_with_titles = _with_titles(deck)
         if not payload["items"]:
             # an audience with no titles: the empty page offers the audiences that have some
-            payload["levels_with_titles"] = _with_titles(deck)
+            payload["levels_with_titles"] = levels_with_titles
         # whether people who are not signed in can open the page at all (the QR code tab warns when not)
         payload["anon_ok"] = bool(owner.anonymous_viewable)
         # what each audience sees, for the Share dialog: no count for an audience the owner has not opened
         payload["audiences"] = [
             {
                 "level": lv,
-                "off": deck.is_off(lv),
+                "off": lv not in levels_with_titles or deck.is_off(lv),
                 "shown": len(sh) if (sh := deck.shown_for(lv)) is not None else None,
             }
             for lv in AUDIENCES

@@ -1251,6 +1251,18 @@ class TestViews:
         assert data["urls"]["preferences"] == reverse("users:preferences")
         assert self.page(Client()).status_code in (302, 403)
 
+    def test_share_counts_empty_audiences_before_the_owner_views_them(self) -> None:
+        deck = make_deck(self.me)
+        for level in ("0", "1"):
+            deck.data[level]["items"] = []
+        deck.save(update_fields=["data"])
+        audiences = page_data(self.page(self.owner_client))["audiences"]
+        assert [(a["shown"], a["off"]) for a in audiences] == [
+            (None, True),
+            (None, True),
+            (None, False),
+        ]
+
     def test_owner_without_year_goes_to_the_year_of_the_season(self):
         url = reverse("journal:wrapped_current_year")
         # this year in December, the year before in the other months
