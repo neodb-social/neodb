@@ -106,14 +106,38 @@
   const ACTIVITY = activityOf(ACT);
 
   const past = D.year < new Date().getFullYear();
+  // a job makes or updates the cards: ask the server until it has ended, for at most as long as the server waits for it;
+  // the deadline is a timer of its own, so a request that never settles cannot keep the page waiting
+  function waitUpdate() {
+    return new Promise((done, fail) => {
+      let over = false;
+      const stop = setTimeout(() => { over = true; fail("timeout"); }, 600000);
+      const next = () => { if (!over) setTimeout(tick, 2000); };
+      const tick = () => fetch(URLS.status, { cache: "no-store" }).then(r => { if (!r.ok) throw r.status; return r.json(); })
+        .then(j => { if (over) return; if (j.updating) return next(); clearTimeout(stop); done(j); }, next);
+      setTimeout(tick, 1000);
+    });
+  }
+  // Update now: queue the job (unless the page opened while one ran), wait for it, then reload with the new data;
+  // ``before`` saves the owner's choices first, so the page that comes back has them; a job that ended without a new
+  // update time stored nothing (it failed, or the worker lost it)
+  function updateNow(btn, before, queued) {
+    const html = btn.innerHTML;
+    btn.disabled = true; btn.setAttribute("aria-busy", "true"); btn.textContent = _("Updating the card data");
+    (queued ? Promise.resolve() : before().then(() => fetch(URLS.refresh, { method: "POST", headers: { "X-CSRFToken": CSRF } })).then(r => r.json()).then(j => { if (!j.ok) throw j.status; }))
+      .then(waitUpdate).then(j => { if (j.time === D.update_time) throw "failed"; return before(); }).then(() => location.reload())
+      .catch(st => { btn.disabled = false; btn.removeAttribute("aria-busy"); btn.innerHTML = html; toast(st === "busy" ? _("The cards were updated a moment ago; try again in a minute") : _("Could not update the cards; try again")); });
+  }
   // the owner's year page: the year at a glance, under the step that makes the cards or the link to them
   if (D.year_page) {
+    // the cards are being made: open them once they are; else the page shows the step again, with what went wrong
+    if (D.making) waitUpdate().then(j => { if (j.made) location.href = D.deck_url; else location.reload(); }, () => location.reload());
     if (WR.empty) {
       const msg = $("empty");
       msg.textContent = past ? _("Nothing was finished in {year}.", { year: D.year }) : _("Nothing finished this year yet. Mark a title as complete and the cards fill in.");
       msg.hidden = false;
       // a deck made before keeps its link
-      document.querySelectorAll("#wr-stats, #wr-months" + (D.deck_made ? "" : ", #wr-pending")).forEach(e => { e.hidden = true; });
+      document.querySelectorAll("#wr-stats, #wr-months" + (D.deck_made || D.making ? "" : ", #wr-pending")).forEach(e => { e.hidden = true; });
       return;
     }
     yearSection();
@@ -130,8 +154,9 @@
       const p = document.createElement("p"), pill = (text, cls) => { const b = document.createElement("button"); b.type = "button"; b.className = "wr-pill" + (cls ? " " + cls : ""); b.textContent = text; p.append(b, " "); return b; };
       p.className = "wr-empty-aud";
       if (D.update_open && URLS.refresh) {
-        const btn = pill(_("Update now"), "primary");
-        btn.onclick = () => { btn.disabled = true; fetch(URLS.refresh, { method: "POST", headers: { "X-CSRFToken": CSRF } }).then(r => r.json()).then(j => { if (!j.ok) throw j.status; location.reload(); }).catch(st => { btn.disabled = false; toast(st === "busy" ? _("The cards were updated a moment ago; try again in a minute") : _("Could not update the cards; try again")); }); };
+        const btn = pill(_("Update now"), "primary"), none = () => Promise.resolve();
+        btn.onclick = () => updateNow(btn, none);
+        if (D.updating) updateNow(btn, none, true);
       }
       pill(_("See the whole year")).onclick = () => { location.href = D.make_url; };
       if ($("delete")) pill(_("Delete the deck")).onclick = () => $("delete").requestSubmit();
@@ -1275,15 +1300,11 @@
     $("editdlg").addEventListener("close", stopTry);
     creditShow();
   }
-  // the card data in the Edit sheet: a button that stores the data again now
+  // the card data in the Edit sheet: a button that has a job store the data again now
   if (OWNER && $("update-now")) {
     const btn = $("update-now");
-    btn.onclick = () => {
-      btn.disabled = true;
-      // the owner's choices first, so the page that comes back has them
-      flushSave().then(() => fetch(URLS.refresh, { method: "POST", headers: { "X-CSRFToken": CSRF } })).then(r => r.json()).then(j => { if (!j.ok) throw j.status; location.reload(); })
-        .catch(st => { btn.disabled = false; toast(st === "busy" ? _("The cards were updated a moment ago; try again in a minute") : _("Could not update the cards; try again")); });
-    };
+    btn.onclick = () => updateNow(btn, flushSave);
+    if (D.updating) updateNow(btn, flushSave, true);
   }
 
   // ---------- the QR code tab: one 4:5 image with the year in numbers and a code that opens the page ----------

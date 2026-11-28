@@ -289,6 +289,7 @@ TEXT = [
     gettext_noop("since {year}"),
     gettext_noop("The cards were updated a moment ago; try again in a minute"),
     gettext_noop("Could not update the cards; try again"),
+    gettext_noop("Updating the card data"),
     gettext_noop("The cards have no titles from the last update."),
     gettext_noop("Update now"),
     gettext_noop("Finally takes its place; show both if you like"),

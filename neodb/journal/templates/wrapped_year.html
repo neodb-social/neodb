@@ -27,8 +27,17 @@
               <i class="fa-solid fa-play"></i> {% trans "Open my cards" %}
             </a>
           </div>
+        {% elif year_page.making %}
+          <div class="wr-pending dc-surface" id="wr-pending" aria-live="polite">
+            <p aria-busy="true">
+              {% blocktranslate %}Making your {{ year }} cards. This can take a minute, and you can leave this page: the cards are made either way.{% endblocktranslate %}
+            </p>
+          </div>
         {% elif year_page.state == "open" or year_page.admin %}
           <div class="wr-pending dc-surface" id="wr-pending">
+            {% if year_page.failed %}
+              <p role="alert">{% trans "Your cards could not be made. Try again." %}</p>
+            {% endif %}
             <p>
               {% if year_page.admin %}
                 {% trans "As an admin, you can make and update these cards at any time, for testing." %}
