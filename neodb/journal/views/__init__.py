@@ -78,8 +78,8 @@ from .shelf_ap import shelf_ap_items, shelf_ap_retrieve
 from .tag import user_tag_edit, user_tag_list, user_tag_member_list
 from .wrapped import (
     wrapped_avatar,
-    wrapped_deck,
     wrapped_cover,
+    wrapped_delete,
     wrapped_generate,
     wrapped_lookup,
     wrapped_page,
@@ -87,6 +87,7 @@ from .wrapped import (
     wrapped_save,
     wrapped_share,
     wrapped_words,
+    wrapped_year,
 )
 
 __all__ = [
@@ -162,8 +163,8 @@ __all__ = [
     "user_tag_list",
     "user_tag_member_list",
     "wrapped_avatar",
-    "wrapped_deck",
     "wrapped_cover",
+    "wrapped_delete",
     "wrapped_generate",
     "wrapped_lookup",
     "wrapped_page",
@@ -171,4 +172,5 @@ __all__ = [
     "wrapped_save",
     "wrapped_share",
     "wrapped_words",
+    "wrapped_year",
 ]

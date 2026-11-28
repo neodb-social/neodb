@@ -1,4 +1,4 @@
-// annual summary: a full-screen stage that plays the cards one at a time, then the whole year below it
+// annual summary: the deck page is a full-screen stage that plays the cards one at a time; the owner's year page puts the whole year under it
 // Pico sets --pico-color again on every button, so the page's own text colours are kept here
 .wr-body { --wr-ink: var(--pico-color); --wr-muted: var(--pico-muted-color); }
 .wr-sr { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -121,7 +121,7 @@
 .wr-pill.primary:hover { color: var(--pico-primary-inverse); filter: brightness(1.08); }
 .wr-pill .wr-av { width: 1.3rem; height: 1.3rem; margin: -0.15rem 0 -0.15rem -0.45rem; }
 
-// the whole year, under the stage
+// the whole year, under the stage of the owner's year page
 .wrapped-page {
   max-width: 1120px;
   margin: 0 auto;
@@ -164,9 +164,6 @@
   .month-h { display: flex; align-items: baseline; gap: 0.6rem; margin: 0 0 0.6rem; }
   .month-h h3 { margin: 0; font-size: var(--dc-fs-base); color: var(--dc-strong); }
   .month-h .n { font-size: var(--dc-fs-sm); color: var(--dc-muted); }
-
-  .wr-cta { padding: calc(var(--dc-gap) * 2) 0 0; border-top: 1px solid var(--dc-border); }
-  .wr-cta .wr-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
 
   @media (max-width: 768px) {
     padding: calc(var(--dc-gap) * 2) 1rem 2rem;
@@ -223,6 +220,10 @@
   // the card data: when it was stored, until when it updates, and the button that updates it now
   .wr-update .dc-fine { margin: 0 0 0.6rem; }
   .wr-update .dc-btn { width: auto; margin: 0; }
+  // deleting the deck: last in the sheet, apart from the cards
+  .wr-delete { margin: 1.5rem 0 0; padding: 1rem 0 0; border-top: 1px solid var(--dc-border); }
+  .wr-delete .dc-fine { margin: 0 0 0.6rem; }
+  .wr-delete .dc-btn { width: auto; margin: 0; border-color: var(--pico-del-color); color: var(--pico-del-color); }
   .wr-vis .wr-sizes { margin: 0; }
   // the background music: a menu, a button to try the chosen track, and its credit
   .wr-musicrow { display: flex; align-items: center; gap: 0.5rem; }

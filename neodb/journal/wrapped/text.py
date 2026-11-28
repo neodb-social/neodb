@@ -465,7 +465,7 @@ TEXT = [
     gettext_noop("Share"),
     gettext_noop("See the whole year"),
     gettext_noop("Make your own {year}"),
-    gettext_noop("Edit the deck"),
+    gettext_noop("Delete the deck"),
     gettext_noop("{month}, {titles}"),
 ]
 

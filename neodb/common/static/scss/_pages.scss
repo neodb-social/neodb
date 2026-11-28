@@ -508,38 +508,6 @@ main.import-preview {
   max-width: 500px;
 }
 
-// The wrapped chart is square and never wider than its column.
-#viz0 {
-  max-width: 100%;
-  aspect-ratio: 1 / 1;
-}
-
-.wrapped-share-row {
-  display: flex;
-}
-
-.wrapped-share-preview {
-  width: 6em;
-  margin: 1em;
-
-  img {
-    width: 6em;
-  }
-}
-
-.wrapped-share-note {
-  width: 100%;
-
-  textarea {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-.wrapped-share-options {
-  margin: 0.5em;
-}
-
 // A video or audio attachment never widens the event card it sits in.
 .attachment-media {
   max-width: 100%;
@@ -603,12 +571,6 @@ main.import-preview {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-}
-
-// roughViz draws its own axes; the wrapped chart only wants the bars.
-.yAxisviz0,
-.rough-yAxisviz0 {
-  display: none;
 }
 
 // Shown only once the login page has been waiting long enough to look stuck.
