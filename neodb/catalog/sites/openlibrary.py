@@ -2,6 +2,7 @@ import logging
 import re
 import threading
 from datetime import datetime
+from email.utils import parseaddr
 from urllib.parse import quote_plus
 
 import httpx
@@ -54,8 +55,8 @@ def _openlibrary_user_agent() -> str:
     operator's from-address when one is configured; without it we still send
     an honest UA, just on the slower unidentified tier.
     """
-    contact = (SiteConfig.system.email_from or "").strip()
-    if contact:
+    _, contact = parseaddr(SiteConfig.system.email_from or "")
+    if contact and contact.isascii() and contact.isprintable():
         return f"{settings.NEODB_USER_AGENT} ({contact})"
     return settings.NEODB_USER_AGENT
 
