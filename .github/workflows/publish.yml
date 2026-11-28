@@ -48,6 +48,9 @@ jobs:
     needs:
       - prepare_release
     runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    # workflow_run gets a read-only cache by default; this job builds only the
+    # default branch checkout, so it may write the cache that releases read
+    cache-mode: write
     strategy:
       fail-fast: false
       matrix:
