@@ -39,7 +39,7 @@
                   <div>
                     <span class="handler" title="@{{ identity.full_handle }}">@{{ identity.full_handle }}</span>
                     <span class="action inline"><span><small><a data-handle="@{{ identity.full_handle }}"
-   _="on click call navigator.clipboard.writeText(@data-handle) then halt"><i class="fa-regular fa-copy"></i></a></small></span></span>
+                                                                _="on click call navigator.clipboard.writeText(@data-handle) then halt"><i class="fa-regular fa-copy"></i></a></small></span></span>
                   </div>
                 </hgroup>
               </div>
@@ -208,7 +208,7 @@
           <summary>
             {% trans "Recent posts" %}
             <small><a href="{% url 'journal:user_post_list' identity.handle %}"
-   title="{% trans 'Show all' %}"><i class="fa-solid fa-list"></i></a></small>
+                      title="{% trans 'Show all' %}"><i class="fa-solid fa-list"></i></a></small>
           </summary>
           <div class="text-sm">{% include "posts.html" with posts=recent_posts collapse_content=1 %}</div>
         </details>

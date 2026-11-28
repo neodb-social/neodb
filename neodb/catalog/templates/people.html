@@ -37,15 +37,15 @@
   <div>
     {% if item.imdb %}
       {% trans "IMDb" %}: <a href="https://www.imdb.com/name/{{ item.imdb }}/"
-    target="_blank"
-    rel="noopener">{{ item.imdb }}</a>
+                             target="_blank"
+                             rel="noopener">{{ item.imdb }}</a>
     {% endif %}
   </div>
   <div>
     {% if item.official_site %}
       {% trans "website" %}: <a href="{{ item.official_site|http_href }}"
-    target="_blank"
-    rel="noopener">{{ item.official_site|strip_scheme }}</a>
+                                target="_blank"
+                                rel="noopener">{{ item.official_site|strip_scheme }}</a>
     {% endif %}
   </div>
 {% endblock %}
