@@ -50,6 +50,7 @@ from journal.wrapped.aggregates import (
 )
 from journal.wrapped.base import (
     BULK_DAY,
+    _items_by_id,
     plain_excerpt,
     year_range,
 )
@@ -1017,6 +1018,46 @@ class TestMostReacted:
         )
         self.text(Comment, self.film, at(2, 2), text="plain", likes=3)
         assert self.reacted(2)["text"] == "plain"
+
+    def test_a_text_made_private_during_the_read_stays_out(self):
+        first = self.text(Comment, self.book, at(2, 1), text="was public", likes=9)
+        self.text(Comment, self.film, at(2, 2), text="still public", likes=3)
+        narrowed = []
+
+        def narrowing(ids):
+            # the owner narrows the winner after the ranking read it as public
+            if not narrowed:
+                Comment.objects.filter(pk=first.pk).update(visibility=2, text="private")
+                narrowed.append(True)
+            return _items_by_id(ids)
+
+        with patch("journal.wrapped.data._items_by_id", side_effect=narrowing):
+            r = _reacted(self.me, (0,), *year_range(YEAR, TZ), TZ)[0]
+        assert narrowed and r is not None and r["text"] == "still public"
+
+    def test_titles_that_are_gone_leave_before_the_ranking_is_cut(self):
+        self.text(Comment, self.other, at(2, 1), text="gone title", likes=9)
+        self.text(Comment, self.book, at(2, 2), text="kept title", likes=3)
+        self.other.is_deleted = True
+        self.other.save()
+        with patch("journal.wrapped.data.REACTED_TRIES", 1):
+            assert self.reacted(0)["text"] == "kept title"
+
+    def test_a_text_that_is_all_spoiler_is_skipped(self):
+        self.text(Comment, self.book, at(2, 1), text=">!the twist!<", likes=9)
+        self.text(Comment, self.film, at(2, 2), text="plain words", likes=3)
+        assert self.reacted(0)["text"] == "plain words"
+
+    def test_a_hidden_card_keeps_its_text_from_visitors(self):
+        self.text(Comment, self.book, at(2, 1), text="hide me", likes=5)
+        deck = make_deck(self.me, hidden={"0": {"reacted": True}})
+        assert stored_payload(deck, 0)["reacted"] is None
+        assert stored_payload(deck, 0, is_owner=True)["reacted"]["text"] == "hide me"
+        deck.hidden = {}
+        deck.shown = {"0": ["intro", "reacted"]}
+        assert stored_payload(deck, 0)["reacted"]["text"] == "hide me"
+        deck.shown = {"0": ["intro"]}
+        assert stored_payload(deck, 0)["reacted"] is None
 
     def test_no_likes_or_boosts_gives_no_card_data(self):
         assert self.reacted(2) is None

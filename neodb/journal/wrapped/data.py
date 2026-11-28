@@ -539,7 +539,16 @@ def _reacted(
                     boosts,
                 )
             )
-    ranked.sort()
+    # titles that are gone, or on no shelf the deck draws, leave the ranking before it is cut
+    ctypes = _ctype_categories()
+    live = {
+        pk
+        for pk, ct in Item.objects.filter(
+            pk__in={r[5] for r in ranked}, is_deleted=False
+        ).values_list("pk", "polymorphic_ctype_id")
+        if _category_of(ct, ctypes)
+    }
+    ranked = sorted(r for r in ranked if r[5] in live)
     # a text that wins at several levels is read once; the card draws no stars, so it is the same at each
     cards: dict[int, dict[str, Any] | None] = {}
 
@@ -551,14 +560,27 @@ def _reacted(
         it = _items_by_id([item_id]).get(item_id)
         if not it or it.is_deleted or str(it.category) not in CATEGORIES:
             return None
-        piece = _words_model(kind).objects.filter(pk=pk).first()
+        # read again under the rules it was ranked by, so a text made private meanwhile stays out
+        piece = (
+            _words_model(kind)
+            .objects.filter(
+                pk=pk,
+                visibility__lte=row[3],
+                **({"sensitive": False} if kind == "note" else {}),
+            )
+            .first()
+        )
         if piece is None:
+            return None
+        words = words_text(kind, piece)
+        # a text that is all spoiler has nothing left to quote
+        if not words["text"]:
             return None
         post_id = latest[pk]
         cards[pk] = {
             "kind": kind,
             "ref": str(piece.uid),
-            **words_text(kind, piece),
+            **words,
             "date": piece.created_time.astimezone(tz).date().isoformat(),
             "likes": likes,
             "boosts": boosts,

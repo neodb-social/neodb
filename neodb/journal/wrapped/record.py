@@ -254,6 +254,9 @@ def stored_payload(
     Make a card dialog also gets their latest own and liked collections, read now."""
     p = dict((deck.data or {}).get(str(level)) or {})
     owner = deck.owner
+    # the Most reacted text reaches a visitor only while its card may be shown to their audience
+    if not is_owner and not deck.may_show(level, "reacted", True):
+        p["reacted"] = None
     friends = (p.get("friends") or []) if friends_allowed(deck, level, is_owner) else []
     kin = p.get("kindred") if kindred_allowed(deck, level, is_owner) else None
     # other people as they are now, as the stored data names them: not those this visitor must not see, nor
