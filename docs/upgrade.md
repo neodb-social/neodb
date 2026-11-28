@@ -48,7 +48,7 @@ docker compose exec -T neodb-db pg_dump -U neodb -Fc neodb > neodb.dump \
 
 Continue only if the output ends with `Dump OK`. If it does not, stop here. The old data is still in place, and `docker compose --profile production up -d` starts the site again.
 
-Stop the databases and move the old data aside:
+Stop the databases and move the old data aside. If `neodb-db.pg14` or `takahe-db.pg14` folders exist from an earlier attempt, rename or remove them first, or `mv` puts the data inside them.
 ```bash
 docker compose down \
   && mv $NEODB_DATA/neodb-db $NEODB_DATA/neodb-db.pg14 \
