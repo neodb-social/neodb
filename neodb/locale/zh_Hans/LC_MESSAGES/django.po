@@ -11855,10 +11855,6 @@ msgid "{n} note"
 msgid_plural "{n} notes"
 msgstr[0] "{n} 条笔记"
 
-#: journal/templates/wrapped.html:245
-msgid "QR code"
-msgstr "二维码"
-
 #: journal/templates/wrapped.html:321
 msgid "Share…"
 msgstr "分享…"
@@ -11882,8 +11878,8 @@ msgid "Image copied"
 msgstr "图片已复制"
 
 #: journal/wrapped_text.py:433
-msgid "Only you can see the page now, so other people cannot open it from the link or the code."
-msgstr "现在只有你能看到这个页面，别人无法通过链接或二维码打开。"
+msgid "Public and Followers see no cards, so only you can open this page now."
+msgstr "公开和关注者都看不到任何卡片，所以现在只有你能打开这个页面。"
 
 #: journal/wrapped_text.py:434
 msgid "Only your followers can open this page, after they sign in."
