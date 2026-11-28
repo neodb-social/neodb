@@ -21,9 +21,10 @@ class WrappedDeck(models.Model):
     """A member's annual summary for one year: which cards each audience sees and how the cards are arranged.
 
     The member makes the deck once, from 1 December to the end of February after the year; that stores the
-    card data of each audience in ``data``, and the cards show only that. Until the end of February the
-    site updates it every night unless the member turned ``daily`` off, and the member can update it by
-    hand; after that it stays as it is. One link serves everybody: a visitor sees the cards of their own
+    card data of each audience in ``data`` (all the cards need, made cards included, so later changes to
+    items, collections or texts do not reach it), and the cards show only that. The site updates it every
+    night until 2 January, and the member can update it by hand until the end of February; after that it
+    stays as it is. One link serves everybody: a visitor sees the cards of their own
     audience (0 everyone, 1 followers, 2 the owner), with counts from entries at that level. The order and
     the made cards are the same for all three audiences.
 
@@ -48,8 +49,6 @@ class WrappedDeck(models.Model):
     data = models.JSONField(default=dict)
     # when the data was last stored; None until the member makes the deck
     refreshed_time = models.DateTimeField(null=True, blank=True)
-    # the member lets the site update the data every night while updates are open (to the end of February)
-    daily = models.BooleanField(default=True)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
 

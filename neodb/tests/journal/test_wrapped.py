@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.core.files import File
+from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import connection, connections
 from django.test import Client
@@ -25,6 +26,7 @@ from catalog.models import Edition, Movie, TVSeason, TVShow
 from journal.jobs.wrapped import WrappedDailyUpdate, WrappedInstanceStats
 from journal.models import (
     Collection,
+    CollectionMember,
     Comment,
     Like,
     Rating,
@@ -588,6 +590,57 @@ class TestReviewFixes:
     def test_two_cards_on_one_text_both_resolve(self):
         words = resolve_words(self.me, [self.words_card(7), self.words_card(8)], 2, TZ)
         assert sorted(words) == ["7", "8"]
+
+    def page_text(self, deck):
+        url = reverse("journal:wrapped_page", args=["rfowner", YEAR])
+        return json.dumps(page_data(Client().get(url))["collections"])
+
+    def test_made_cards_keep_what_they_showed_when_saved(self):
+        author = User.register(email="rfs@test.com", username="rfsaved").identity
+        col = Collection(owner=author, title="Their List", visibility=0)
+        col.save(**QUIET)
+        listed = Edition.objects.create(title="Listed Book")
+        CollectionMember(owner=author, parent=col, item=listed, position=1).save(
+            **QUIET
+        )
+        card = {"id": 8, "n": 3, "source": {"type": "collection", "uuid": col.uuid}}
+        deck = make_deck(self.me, made=[self.words_card(7), card])
+
+        def shown():
+            p = stored_payload(WrappedDeck.objects.get(pk=deck.pk), 0, viewer=self.user)
+            cols = [
+                (c["title"], [i["t"] for i in c["items"]]) for c in p["collections"]
+            ]
+            return cols, {k: w["text"] for k, w in p["words"].items()}
+
+        before = shown()
+        assert before[0] == [("Their List", ["Listed Book"])] and set(before[1]) == {
+            "7"
+        }
+        assert "author_id" not in str(stored_payload(deck, 0)["collections"])
+        # later changes to the collection, its items and the text do not reach the cards
+        Collection.objects.filter(pk=col.pk).update(title="Renamed List")
+        Edition.objects.filter(pk=listed.pk).update(is_deleted=True)
+        Comment.objects.filter(owner=self.me, item=self.book).update(
+            text="changed later"
+        )
+        assert shown() == before
+        # a visitor gets the collection only while its card is shown to their audience
+        assert "Their List" in self.page_text(deck)
+        WrappedDeck.objects.filter(pk=deck.pk).update(hidden={"0": {"made-8": True}})
+        assert "Their List" not in self.page_text(deck)
+        WrappedDeck.objects.filter(pk=deck.pk).update(hidden={})
+        # another member's collection made private leaves the cards at once, as their own content
+        Collection.objects.filter(pk=col.pk).update(visibility=2)
+        assert shown()[0] == [] and shown()[1] == before[1]
+        # a saved change to the made cards stores what they show now
+        r = self.owner.post(
+            reverse("journal:wrapped_save", args=[YEAR]),
+            json.dumps({"aud": 0, "made": [self.words_card(7)]}),
+            content_type="application/json",
+        )
+        assert r.status_code == 200
+        assert shown()[1] == {"7": "changed later"}
 
     def test_a_liked_collection_keeps_its_authors_rule(self):
         author = User.register(email="rfa@test.com", username="rfauthor").identity
@@ -1225,6 +1278,30 @@ class TestViews:
             )
             assert r.status_code == 400
 
+    def test_export_reads_the_stored_cover_file(self):
+        name = default_storage.save(
+            "item/book/2025/01/01/wrapped-test.png", ContentFile(PNG)
+        )
+        try:
+            r = Client().get(reverse("journal:wrapped_cover", args=[name]))
+            body = b"".join(getattr(r, "streaming_content"))
+            assert r.status_code == 200 and body == PNG
+            for bad in (
+                "item/book/../../../x.png",
+                "users/a/x.png",
+                "item/book/2025/x.txt",
+                "item/book/2025/01/01/missing.png",
+            ):
+                r = Client().get(reverse("journal:wrapped_cover", args=[bad]))
+                assert r.status_code == 404
+        finally:
+            default_storage.delete(name)
+        # the page tells the script where a media file's link starts, so it can name the file
+        make_deck(self.me)
+        data = page_data(self.owner_client.get(reverse("journal:wrapped", args=[YEAR])))
+        assert data["media_prefix"].endswith(settings.MEDIA_URL)
+        assert data["cover_url"] == "/wrapped/cover/"
+
     def test_hand_picked_titles_keep_only_this_sites_covers(self):
         make_deck(self.me)
         site = settings.SITE_INFO["site_url"].rstrip("/")
@@ -1312,9 +1389,11 @@ class TestViews:
             shown={"0": ["intro", "made-7"]}
         )
         assert b"only my followers may read" not in self.page(Client()).content
-        # the card follows edits of its text
+        # the card keeps its text until the next update
         c.text = "an edited line for followers"
         c.save(**QUIET)
+        assert b"an edited line for followers" not in self.page(fan).content
+        refresh_deck(WrappedDeck.objects.get(owner=self.me, year=YEAR))
         assert b"an edited line for followers" in self.page(fan).content
         r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]), {"as": 0})
         assert b"an edited line" not in r.content
@@ -1393,10 +1472,9 @@ class TestViews:
         late.save(**QUIET)
         assert titles(self.page(Client()), "live") == ["Shown Book"]
 
-    def test_update_now_and_the_daily_switch(self):
+    def test_update_now_until_the_end_of_february(self):
         url = reverse("journal:wrapped_refresh", args=[YEAR])
         make = reverse("journal:wrapped_generate", args=[YEAR])
-        save = reverse("journal:wrapped_save", args=[YEAR])
         with on(datetime.date(YEAR, 12, 9)):
             # nothing to update before the deck is made
             assert self.owner_client.post(url).status_code == 404
@@ -1411,10 +1489,13 @@ class TestViews:
             assert titles == ["Shown Book", "Late Book"]
             assert self.owner_client.post(url).status_code == 429  # once a minute
             r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
-            assert b'id="wr-update-now"' in r.content and b'id="wr-daily"' in r.content
-            body = json.dumps({"aud": 0, "daily": False})
-            self.owner_client.post(save, body, content_type="application/json")
-            assert not WrappedDeck.objects.get(pk=deck.pk).daily
+            assert b'id="wr-update-now"' in r.content
+            assert b"updates them every night until" in r.content
+        # after 2 January only the owner updates the deck, until the end of February
+        with on(datetime.date(YEAR + 1, 1, 3)):
+            r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+            assert b'id="wr-update-now"' in r.content
+            assert b"every night" not in r.content
         clear_wrapped_cache()
         with on(datetime.date(YEAR + 1, 3, 1)):
             r = self.owner_client.post(url)
@@ -1424,26 +1505,30 @@ class TestViews:
                 b'id="wr-update-now"' not in r.content and b"Updates ended" in r.content
             )
 
-    def test_the_daily_update_runs_only_while_updates_are_open(self):
+    def test_the_daily_update_runs_from_december_to_2_january(self):
         mine = make_deck(self.me)
-        other = make_deck(self.fan.identity, daily=False)
-        before = (mine.data, other.data)
+        other = make_deck(self.fan.identity)
         complete(self.me, Edition.objects.create(title="Late Book"), at(8, 8))
         complete(self.fan.identity, Edition.objects.create(title="Fan Book"), at(8, 8))
-        with on(datetime.date(YEAR + 1, 3, 1)):
-            WrappedDailyUpdate().run()
-        assert WrappedDeck.objects.get(pk=mine.pk).data == before[0]
+
+        def titles(deck):
+            return [
+                i["title"]
+                for i in WrappedDeck.objects.get(pk=deck.pk).data["2"]["items"]
+            ]
+
+        for day in (datetime.date(YEAR, 11, 30), datetime.date(YEAR + 1, 1, 3)):
+            with on(day):
+                WrappedDailyUpdate().run()
+        assert "Late Book" not in titles(mine) and "Fan Book" not in titles(other)
         with (
-            on(datetime.date(YEAR + 1, 2, 28)),
+            on(datetime.date(YEAR + 1, 1, 2)),
             patch("journal.jobs.wrapped.year_aggregates", wraps=year_aggregates) as agg,
         ):
             WrappedDailyUpdate().run()
-        # read once for the year, not once a deck
+        # read once for the year, not once a deck; every made deck is updated
         assert [c.args for c in agg.call_args_list] == [(YEAR,)]
-        mine.refresh_from_db()
-        other.refresh_from_db()
-        assert "Late Book" in [i["title"] for i in mine.data["2"]["items"]]
-        assert other.data == before[1]
+        assert "Late Book" in titles(mine) and "Fan Book" in titles(other)
 
     def test_visitor_needs_a_deck_and_an_open_audience(self):
         assert self.page(Client()).status_code == 404  # never opened by the owner

@@ -220,9 +220,8 @@
   .wr-actions .dc-btn { padding: 0.5rem 0.9rem; }
   // the page's visibility first, apart from the cards: its label, the switch and what the chosen level means
   .wr-vis, .wr-music, .wr-update { margin: 0 0 1.2rem; padding: 0 0 1rem; border-bottom: 1px solid var(--dc-border); }
-  // the card data: when it was stored, the daily update and the button that updates it now
+  // the card data: when it was stored, until when it updates, and the button that updates it now
   .wr-update .dc-fine { margin: 0 0 0.6rem; }
-  .wr-update label { display: block; margin: 0 0 0.6rem; }
   .wr-update .dc-btn { width: auto; margin: 0; }
   .wr-vis .wr-sizes { margin: 0; }
   // the background music: a menu, a button to try the chosen track, and its credit

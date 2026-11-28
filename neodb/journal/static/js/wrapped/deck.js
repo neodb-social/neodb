@@ -213,8 +213,7 @@
   // fit "bottom" puts a square cover at the foot of its 2:3 box, so a row keeps one baseline; "fill" crops it to the box
   // every cover a card draws, by its item's id, so an export can load it from this site's origin (a cross-origin image would
   // block the PNG); covers from any source count: finished titles, collections, hand-picked titles, the wishlist, words cards
-  const coverUuid = new Map(), uuidOf = u => (String(u || "").split("?")[0].replace(/\/$/, "").split("/").pop() || "");
-  function coverSvg(it, x, y, w, h, cls, d, fit) { const id = "cp" + (cid++); if (it.cover && it.url && !coverUuid.has(it.cover)) coverUuid.set(it.cover, uuidOf(it.url)); const sq = (it.category === "music" || it.category === "podcast") && fit !== "fill"; if (sq && h > w) { if (fit === "bottom") y += h - w; h = w; } return `<g class="${cls || "pop"}" style="--d:${d || 0}ms"><clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}"/></clipPath><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}" fill="${CAT_COLOR[it.category] || "#ccc"}"/><image href="${esc(it.cover)}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></g>`; }
+  function coverSvg(it, x, y, w, h, cls, d, fit) { const id = "cp" + (cid++); const sq = (it.category === "music" || it.category === "podcast") && fit !== "fill"; if (sq && h > w) { if (fit === "bottom") y += h - w; h = w; } return `<g class="${cls || "pop"}" style="--d:${d || 0}ms"><clipPath id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}"/></clipPath><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${Math.round(w * 0.06)}" fill="${CAT_COLOR[it.category] || "#ccc"}"/><image href="${esc(it.cover)}" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></g>`; }
   // a rating as stars drawn as shapes, so a half star is exact: full stars in coral, a half star grey with its left half in coral.
   // y is the baseline of the row, as for text of the same size; returns the svg and the width of the row
   const starPts = (cx, cy, R) => Array.from({ length: 10 }, (z, k) => { const a = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? R * 0.42 : R; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
@@ -1241,11 +1240,7 @@
     $("editdlg").addEventListener("close", stopTry);
     creditShow();
   }
-  // the card data in the Edit sheet: the daily update, and a button that stores the data again now
-  if (OWNER && $("daily")) {
-    const box = $("daily");
-    box.onchange = () => { const on = box.checked; fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify({ aud: LEVEL, daily: on }) }).then(r => { if (!r.ok) throw new Error(r.status); }).catch(() => { box.checked = !on; toast(_("Could not save the deck; try again")); }); };
-  }
+  // the card data in the Edit sheet: a button that stores the data again now
   if (OWNER && $("update-now")) {
     const btn = $("update-now");
     btn.onclick = () => {
@@ -1364,12 +1359,12 @@
 
   // ---------- png and gif export ----------
   const dataCache = new Map();
-  S.items.forEach(i => coverUuid.set(i.cover, i.uuid));
-  (D.collections || []).forEach(c => c.items.forEach(x => coverUuid.set(x.cov, uuidOf(x.u))));
+  // a cover in the site's media storage on another host is read through this origin by the file its stored link
+  // names, not by the item, so an export matches the stored cards after an item changes or is merged
   function exportHref(h) {
     try { if (new URL(h, location.href).origin === location.origin) return h; } catch (e) { return h; }
-    const u = coverUuid.get(h);
-    return u && D.cover_url ? D.cover_url.replace("UUID", u) : h;
+    const p = D.media_prefix || "";
+    return p && D.cover_url && h.startsWith(p) ? D.cover_url + h.slice(p.length).split("?")[0] : h;
   }
   // the SVG with its images inlined, and whether any of them could not be read (that drawing then goes without it)
   async function inlineImages(svg) { let missing = false; const hrefs = [...new Set([...svg.matchAll(/<image href="([^"]+)"/g)].map(m => m[1]))]; for (const h of hrefs) { if (!dataCache.has(h)) { try { const r = await fetch(exportHref(h.replace(/&amp;/g, "&"))); if (!r.ok) throw new Error(r.status); const b = await r.blob(); dataCache.set(h, await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); })); } catch (e) { /* this file goes without the cover; the next export tries again */ } } if (!dataCache.has(h)) missing = true; svg = svg.split(`<image href="${h}"`).join(`<image href="${dataCache.get(h) || ""}"`); } return { svg, missing }; }

@@ -78,7 +78,11 @@
         <div class="wr-pending" id="wr-pending">
           {% if pending.state == "open" %}
             <p>
-              {% blocktranslate with date=pending.last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. Until then they update every day, unless you turn that off in Edit; after that they stay as they are.{% endblocktranslate %}
+              {% if pending.auto %}
+                {% blocktranslate with date=pending.last|date:"DATE_FORMAT" auto=pending.auto_last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. They update every night until {{ auto }}, and you can update them by hand until {{ date }}; after that they stay as they are.{% endblocktranslate %}
+              {% else %}
+                {% blocktranslate with date=pending.last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. You can update them by hand until then; after that they stay as they are.{% endblocktranslate %}
+              {% endif %}
             </p>
             <form method="post" action="{% url 'journal:wrapped_generate' year %}">
               {% csrf_token %}
@@ -182,17 +186,20 @@
             </div>
             <p class="dc-fine" id="wr-music-credit"></p>
           </div>
-          {# the cards show the data the last update stored; updates stop after February #}
+          {# the cards show the data the last update stored: every night to 2 January, by hand to the end of February #}
           <div class="wr-update">
             <p class="wr-vislabel">{% trans "Card data" %}</p>
             {% if update.open %}
               <p class="dc-fine">
                 {% blocktranslate with time=update.time|date:"DATETIME_FORMAT" %}Updated {{ time }}. The cards show your marks and the site's numbers as they were then.{% endblocktranslate %}
               </p>
-              <label for="wr-daily">
-                <input type="checkbox" id="wr-daily" {% if update.daily %}checked{% endif %}>
-                {% blocktranslate with date=update.last|date:"DATE_FORMAT" %}Update every day until {{ date }}{% endblocktranslate %}
-              </label>
+              <p class="dc-fine">
+                {% if update.auto %}
+                  {% blocktranslate with auto=update.auto_last|date:"DATE_FORMAT" date=update.last|date:"DATE_FORMAT" %}The site updates them every night until {{ auto }}; you can also update them now, until {{ date }}.{% endblocktranslate %}
+                {% else %}
+                  {% blocktranslate with date=update.last|date:"DATE_FORMAT" %}You can update them now, until {{ date }}; after that they stay as they are.{% endblocktranslate %}
+                {% endif %}
+              </p>
               <button class="dc-btn outline" type="button" id="wr-update-now">
                 <i class="fa-solid fa-rotate"></i> <span>{% trans "Update now" %}</span>
               </button>

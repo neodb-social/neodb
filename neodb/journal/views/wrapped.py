@@ -4,6 +4,7 @@ import datetime
 import io
 import json
 import logging
+import mimetypes
 import re
 from typing import Any
 from urllib.parse import urlparse
@@ -20,6 +21,7 @@ from django.http import (
 )
 from django.shortcuts import render
 from django.core.cache import cache
+from django.core.files.storage import default_storage
 from django.core.files import File
 from django.urls import reverse
 from django.utils.cache import patch_cache_control
@@ -51,14 +53,16 @@ from journal.wrapped import (
     WORDS_KINDS,
     _member,
     aggregates_ready,
+    auto_last,
+    auto_update_open,
     can_make,
     deck_for,
     default_year,
     latest_year,
     item_ref,
     live_year,
+    made_data,
     refresh_deck,
-    resolve_words,
     stored_payload,
     live_stamp,
     make_state,
@@ -162,21 +166,23 @@ def _context(
     made = deck.made if is_owner else _made_for(deck, level)
     # the cards show what the last update stored; the whole-year section below them is read now
     payload = stored_payload(
-        deck,
-        level,
-        viewer=viewer,
-        is_owner=is_owner,
-        picker=is_owner,
-        collection_refs=[
+        deck, level, viewer=viewer, is_owner=is_owner, picker=is_owner
+    )
+    state = deck.state(level)
+    # a "your words" card carries one text, and only an audience allowed to see that text gets it: the
+    # stored texts are those of this level, and a visitor gets only those of the made cards they may see
+    ids = {str(m.get("id")) for m in made}
+    words = {k: v for k, v in payload["words"].items() if k in ids}
+    if not is_owner:
+        # likewise only the collections of the made cards this visitor may see
+        refs = {
             str((m.get("source") or {}).get("uuid") or "")
             for m in made
             if (m.get("source") or {}).get("type") == "collection"
-        ],
-    )
-    state = deck.state(level)
-    # a "your words" card carries one text, and only an audience allowed to see that text gets it
-    words = resolve_words(owner, made, level, deck.tzinfo)
-    if not is_owner:
+        }
+        payload["collections"] = [
+            c for c in payload["collections"] if c["uuid"] in refs
+        ]
         state["made"] = [
             m
             for m in made
@@ -193,7 +199,9 @@ def _context(
     payload["page_url"] = settings.SITE_INFO["site_url"].rstrip("/") + reverse(
         "journal:wrapped_page", args=[owner.handle, year]
     )
-    payload["cover_url"] = reverse("journal:wrapped_cover", args=["UUID"])
+    # covers on another host are read for exports through this origin, by the file the stored link names
+    payload["cover_url"] = reverse("journal:wrapped_cover", args=["x"])[:-1]
+    payload["media_prefix"] = _media_prefix()
     # the owner's own page for this year: the year switch for the owner, "make your own" for a visitor
     payload["make_url"] = reverse("journal:wrapped", args=[year])
     # the cards are drawn in the browser, in the language of the page
@@ -234,7 +242,8 @@ def _context(
         ctx["update"] = {
             "open": can_make(year),
             "time": deck.refreshed_time,
-            "daily": deck.daily,
+            "auto": auto_update_open(year),
+            "auto_last": auto_last(year),
             "last": make_window(year)[1] - datetime.timedelta(days=1),
         }
     return ctx
@@ -314,6 +323,8 @@ def _pending_context(
         "is_owner": True,
         "pending": {
             "state": make_state(year),
+            "auto": auto_update_open(year),
+            "auto_last": auto_last(year),
             "start": start,
             "last": end - datetime.timedelta(days=1),
         },
@@ -525,11 +536,19 @@ def _save_choices(
         fields.append("hidden")
     if "made" in data:
         # the made cards are the only free text a save stores: NUL and lone surrogates would fail the jsonb write
-        deck.made = clean_json(_clean_made(data["made"]))
-        fields.append("made")
-    if isinstance(data.get("daily"), bool):
-        deck.daily = data["daily"]
-        fields.append("daily")
+        made = clean_json(_clean_made(data["made"]))
+        if made != deck.made:
+            deck.made = made
+            fields.append("made")
+            # a new or changed made card stores what it shows now, as the deck's other data does
+            stored = dict(deck.data or {})
+            for key, p in stored.items():
+                stored[key] = {
+                    **p,
+                    "made_data": made_data(deck.owner, made, int(key), deck.tzinfo),
+                }
+            deck.data = stored
+            fields.append("data")
     if "music" in data:
         music = str(data["music"] or "")
         if music and music not in MUSIC:
@@ -772,25 +791,38 @@ def wrapped_avatar(request: HttpRequest, identity_id: int):
     return resp
 
 
-@require_GET
-def wrapped_cover(request: HttpRequest, item_uuid: str):
-    """A cover served from this site's origin, so a card drawn into a canvas can be exported.
+def _media_prefix() -> str:
+    """The absolute start of a media file's link: what a stored cover link has before the file's name."""
+    u = default_storage.url("x").split("?")[0]
+    if not u.startswith(("http://", "https://")):
+        u = settings.SITE_INFO["site_url"].rstrip("/") + u
+    return u[:-1]
 
-    On an instance whose media lives on another host, a cross-origin image would taint the canvas
-    and block the PNG and GIF download.
+
+# an item cover as catalog/models/utils.py:item_cover_path names it
+COVER_FILE = re.compile(
+    r"^item/[A-Za-z0-9_-]+/[A-Za-z0-9_./-]+\.(?:jpe?g|png|webp|gif)$", re.I
+)
+
+
+@require_GET
+def wrapped_cover(request: HttpRequest, name: str):
+    """A cover file served from this site's origin, so a card drawn into a canvas can be exported.
+
+    On an instance whose media lives on another host, a cross-origin image would taint the canvas and block
+    the downloads. The file is the one the stored card names, not the item's current cover, so an export
+    matches the stored cards after the item changes or is merged.
     """
-    item = Item.get_by_url(item_uuid)
-    if not item or item.is_deleted or not item.has_cover():
+    if ".." in name or not COVER_FILE.match(name):
         raise Http404()
     try:
-        f = item.cover.open("rb")
+        if not default_storage.exists(name):
+            raise Http404()
+        f = default_storage.open(name, "rb")
+    except Http404:
+        raise
     except Exception:
         raise Http404()
-    resp = FileResponse(
-        f,
-        content_type="image/jpeg"
-        if item.cover.name.endswith((".jpg", ".jpeg"))
-        else None,
-    )
+    resp = FileResponse(f, content_type=mimetypes.guess_type(name)[0])
     resp["Cache-Control"] = "public, max-age=604800"
     return resp

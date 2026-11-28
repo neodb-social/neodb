@@ -119,6 +119,18 @@ def make_window(year: int) -> tuple[datetime.date, datetime.date]:
     return datetime.date(year, 12, 1), datetime.date(year + 1, 3, 1)
 
 
+def auto_last(year: int) -> datetime.date:
+    """The last day the site updates a deck of this year by itself: 2 January after it."""
+    return datetime.date(year + 1, 1, 2)
+
+
+def auto_update_open(year: int) -> bool:
+    """Whether the nightly job still updates the decks of this year: from 1 December to 2 January."""
+    if year < 1970 or year >= 9999:
+        return False
+    return make_window(year)[0] <= _today() <= auto_last(year)
+
+
 def make_state(year: int) -> str:
     """ "early" before the window for making the deck of this year, "open" in it, "closed" after it."""
     if year < 1970 or year >= 9999:
@@ -539,15 +551,18 @@ def _collections(
     hidden: AbstractSet[int],
     refs: list[str] | None,
     picker: bool,
+    store: bool = False,
 ) -> list[dict[str, Any]]:
     """Collections a saved card uses, however old, and for the owner's picker their latest own collections at
     this level and the latest they liked. Another member's collection is that member's own content, so it
     must pass the journal's rule for this visitor, as its own page would: public, its author not hidden
-    from the visitor (``hidden``), and for a signed-out visitor an author who allows them."""
+    from the visitor (``hidden``), and for a signed-out visitor an author who allows them. ``store``: for
+    the deck's stored data, which serves every visitor, so the visitor's rules are left to each page and
+    each collection keeps its id and author for that."""
     others = Collection.objects.filter(visibility=0).exclude(owner=owner)
     if hidden:
         others = others.exclude(owner_id__in=hidden)
-    if not viewer or not viewer.is_authenticated:
+    if not store and (not viewer or not viewer.is_authenticated):
         others = others.filter(owner__anonymous_viewable=True)
     own, liked = [], []
     if picker:
@@ -624,8 +639,75 @@ def _collections(
                 "owner": c.owner.full_handle,
                 "total": getattr(c, "total", 0),
                 "items": by_col.get(pk, []),
+                **({"author_id": c.owner_id} if store else {}),
             }
         )
+    return out
+
+
+def made_data(
+    owner: APIdentity, made: list[dict[str, Any]], level: int, tz: ZoneInfo
+) -> dict[str, Any]:
+    """What the made cards that read the journal show at this level, as the deck stores it: the collections
+    of collection cards and the texts of "your words" cards, with their titles as they are now."""
+    refs = [
+        str((m.get("source") or {}).get("uuid") or "")
+        for m in made
+        if (m.get("source") or {}).get("type") == "collection"
+    ]
+    return {
+        "collections": _collections(
+            owner, level, None, frozenset(), refs, picker=False, store=True
+        )
+        if refs
+        else [],
+        "words": resolve_words(owner, made, level, tz),
+    }
+
+
+def _shown_collections(
+    stored: list[dict[str, Any]], viewer: Any, hidden: AbstractSet[int]
+) -> list[dict[str, Any]]:
+    """The stored collections a visitor may see now: another member's only while it is still public and its
+    author is neither hidden from the visitor nor gone, and for a signed-out visitor allows them."""
+    others = {c["author_id"] for c in stored if c.get("rel") == "liked"}
+    authors = (
+        dict(
+            APIdentity.objects.filter(pk__in=others, deleted__isnull=True).values_list(
+                "pk", "anonymous_viewable"
+            )
+        )
+        if others
+        else {}
+    )
+    public = (
+        {
+            str(u)
+            for u in Collection.objects.filter(
+                uid__in=[
+                    uuid.UUID(int=b62_decode(c["uuid"]))
+                    for c in stored
+                    if c.get("rel") == "liked"
+                ],
+                visibility=0,
+            ).values_list("uid", flat=True)
+        }
+        if others
+        else set()
+    )
+    signed_in = bool(viewer and viewer.is_authenticated)
+    out = []
+    for c in stored:
+        if c.get("rel") == "liked":
+            a = c.get("author_id")
+            if (
+                a not in authors
+                or a in hidden
+                or not (signed_in or authors[a])
+                or str(uuid.UUID(int=b62_decode(c["uuid"]))) not in public
+            ):
+                continue
+        out.append({k: v for k, v in c.items() if k != "author_id"})
     return out
 
 
@@ -1282,12 +1364,17 @@ def live_stamp(owner: APIdentity) -> str:
 
 
 def snapshot(
-    owner: APIdentity, year: int, tz: ZoneInfo, instance: tuple[Any, Any] | None = None
+    owner: APIdentity,
+    year: int,
+    tz: ZoneInfo,
+    instance: tuple[Any, Any] | None = None,
+    made: list[dict[str, Any]] | None = None,
 ) -> dict[str, dict[str, Any]]:
-    """The card data of each audience, as the deck stores it: the social and kindred data of everyone, as
-    each page leaves out what its own visitor must not see; the collections that made cards use are read
-    when the page renders, as those cards are the owner's own picks. Titles are in the owner's language,
-    whether the owner or the nightly job stores the data."""
+    """The card data of each audience, as the deck stores it: everything the cards show, the made cards'
+    collections and texts and every title's name, cover link and numbers included, so later changes to an
+    item (a merge, a new cover, a deletion), a collection or a text do not reach the cards. Only the people
+    on the social cards are checked again when a page renders, against what its visitor may see. Titles are
+    in the owner's language, whether the owner or the nightly job stores the data."""
     instance = instance or year_aggregates(year)
     lang = (owner.user.language if owner.user else "") or settings.LANGUAGE_CODE
     out = {}
@@ -1305,6 +1392,7 @@ def snapshot(
                 instance=instance,
             )
             p.pop("collections", None)
+            p["made_data"] = made_data(owner, made or [], level, tz)
             out[str(level)] = p
     return out
 
@@ -1312,7 +1400,7 @@ def snapshot(
 def refresh_deck(deck: WrappedDeck, instance: tuple[Any, Any] | None = None) -> bool:
     """Store the card data as it is now; True when it changed. The time is stored either way, as the page
     tells the owner when the data was last updated."""
-    data = snapshot(deck.owner, deck.year, deck.tzinfo, instance)
+    data = snapshot(deck.owner, deck.year, deck.tzinfo, instance, deck.made)
     fields = ["refreshed_time"]
     changed = data != deck.data
     if changed:
@@ -1328,13 +1416,12 @@ def stored_payload(
     level: int,
     viewer: Any = None,
     is_owner: bool = False,
-    collection_refs: list[str] | None = None,
     picker: bool = False,
 ) -> dict[str, Any]:
     """The cards' data for one audience as the last update stored it, with what depends on this page applied
-    now: the members this visitor must not see leave the social cards, the social and kindred data reach
-    only an audience whose cards may show them, the member's name and picture are current, and the
-    collections of the made cards (and of the owner's picker) are read now."""
+    now: the members this visitor must not see leave the social cards and the made cards' collections, and
+    the social and kindred data reach only an audience whose cards may show them. ``picker``: the owner's
+    Make a card dialog also gets their latest own and liked collections, read now."""
     p = dict((deck.data or {}).get(str(level)) or {})
     owner = deck.owner
     friends = (p.get("friends") or []) if friends_allowed(deck, level, is_owner) else []
@@ -1365,10 +1452,17 @@ def stored_payload(
         if kin and kin.get("id") in present and _discoverable(kin["id"])
         else None
     )
-    p["member"] = _member(owner)
-    p["collections"] = _collections(
-        owner, level, viewer, hidden, collection_refs, picker
-    )
+    made = p.pop("made_data", None) or {}
+    cols = _shown_collections(made.get("collections") or [], viewer, hidden)
+    if picker:
+        have = {c["uuid"] for c in cols}
+        cols += [
+            c
+            for c in _collections(owner, level, viewer, hidden, None, True)
+            if c["uuid"] not in have
+        ]
+    p["collections"] = cols
+    p["words"] = made.get("words") or {}
     return p
 
 

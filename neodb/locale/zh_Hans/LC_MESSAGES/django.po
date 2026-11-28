@@ -12023,11 +12023,6 @@ msgid "finished once before"
 msgid_plural "finished {n} times before"
 msgstr[0] "之前完成过 {n} 次"
 
-#: journal/templates/wrapped.html:81
-#, python-format
-msgid "Make your %(year)s cards any day until %(date)s. Until then they update every day, unless you turn that off in Edit; after that they stay as they are."
-msgstr "在 %(date)s 之前的任意一天都可以生成你的 %(year)s 年度卡片。在此之前卡片每天更新，除非你在“编辑”中关闭；之后卡片将保持不变。"
-
 #: journal/templates/wrapped.html:185
 msgid "Card data"
 msgstr "卡片数据"
@@ -12036,11 +12031,6 @@ msgstr "卡片数据"
 #, python-format
 msgid "Updated %(time)s. The cards show your marks and the site's numbers as they were then."
 msgstr "更新于 %(time)s。卡片显示的是那时你的标记和站内数据。"
-
-#: journal/templates/wrapped.html:192
-#, python-format
-msgid "Update every day until %(date)s"
-msgstr "在 %(date)s 之前每天更新"
 
 #: journal/templates/wrapped.html:195
 msgid "Update now"
@@ -12072,3 +12062,23 @@ msgstr "选择可见性，编辑这类用户访问你的年度总结时能看到
 #: journal/wrapped_text.py:292
 msgid "The cards have no titles from the last update."
 msgstr "上次更新的卡片中没有作品。"
+
+#: journal/templates/wrapped.html:82
+#, python-format
+msgid "Make your %(year)s cards any day until %(date)s. They update every night until %(auto)s, and you can update them by hand until %(date)s; after that they stay as they are."
+msgstr "在 %(date)s 之前的任意一天都可以生成你的 %(year)s 年度卡片。卡片每晚自动更新，直到 %(auto)s；在 %(date)s 之前也可以手动更新，之后卡片将保持不变。"
+
+#: journal/templates/wrapped.html:84
+#, python-format
+msgid "Make your %(year)s cards any day until %(date)s. You can update them by hand until then; after that they stay as they are."
+msgstr "在 %(date)s 之前的任意一天都可以生成你的 %(year)s 年度卡片。在此之前可以手动更新，之后卡片将保持不变。"
+
+#: journal/templates/wrapped.html:198
+#, python-format
+msgid "The site updates them every night until %(auto)s; you can also update them now, until %(date)s."
+msgstr "站点每晚自动更新卡片，直到 %(auto)s；在 %(date)s 之前你也可以立即更新。"
+
+#: journal/templates/wrapped.html:200
+#, python-format
+msgid "You can update them now, until %(date)s; after that they stay as they are."
+msgstr "在 %(date)s 之前你可以立即更新，之后卡片将保持不变。"

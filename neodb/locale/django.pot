@@ -11948,11 +11948,6 @@ msgid_plural "finished {n} times before"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/templates/wrapped.html:81
-#, python-format
-msgid "Make your %(year)s cards any day until %(date)s. Until then they update every day, unless you turn that off in Edit; after that they stay as they are."
-msgstr ""
-
 #: journal/templates/wrapped.html:185
 msgid "Card data"
 msgstr ""
@@ -11960,11 +11955,6 @@ msgstr ""
 #: journal/templates/wrapped.html:188
 #, python-format
 msgid "Updated %(time)s. The cards show your marks and the site's numbers as they were then."
-msgstr ""
-
-#: journal/templates/wrapped.html:192
-#, python-format
-msgid "Update every day until %(date)s"
 msgstr ""
 
 #: journal/templates/wrapped.html:195
@@ -11997,4 +11987,24 @@ msgstr ""
 
 #: journal/wrapped_text.py:292
 msgid "The cards have no titles from the last update."
+msgstr ""
+
+#: journal/templates/wrapped.html:82
+#, python-format
+msgid "Make your %(year)s cards any day until %(date)s. They update every night until %(auto)s, and you can update them by hand until %(date)s; after that they stay as they are."
+msgstr ""
+
+#: journal/templates/wrapped.html:84
+#, python-format
+msgid "Make your %(year)s cards any day until %(date)s. You can update them by hand until then; after that they stay as they are."
+msgstr ""
+
+#: journal/templates/wrapped.html:198
+#, python-format
+msgid "The site updates them every night until %(auto)s; you can also update them now, until %(date)s."
+msgstr ""
+
+#: journal/templates/wrapped.html:200
+#, python-format
+msgid "You can update them now, until %(date)s; after that they stay as they are."
 msgstr ""
