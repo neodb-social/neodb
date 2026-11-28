@@ -1,7 +1,13 @@
+from pathlib import Path
+from unittest.mock import AsyncMock
+
 import pytest
+from pytest_httpx import HTTPXMock
 
 from catalog.common import SiteManager, use_local_response
+from catalog.common.downloaders import get_mock_file
 from catalog.models import Edition, IdType, People, SiteName, Work
+from catalog.sites.openlibrary import OpenLibrary, openlibrary_limiter
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -51,21 +57,11 @@ class TestOpenLibrary:
         assert author_refs[0]["id_value"] == "OL34184A"
         assert author_refs[0]["url"] == "https://openlibrary.org/authors/OL34184A"
 
-    @use_local_response
-    def test_work_relationship(self):
-        t_url = "https://openlibrary.org/books/OL7353617M"
-        site = SiteManager.get_site_by_url(t_url)
-        assert site is not None
-        site.get_resource_ready()
-        assert site.resource is not None
-
-        metadata = site.resource.metadata
-        if "required_resources" in metadata and metadata["required_resources"]:
-            work_resource = metadata["required_resources"][0]
-            assert work_resource["model"] == "Work"
-            assert work_resource["id_type"] == IdType.OpenLibrary_Work
-            assert "id_value" in work_resource
-            assert "url" in work_resource
+        (work,) = metadata["required_resources"]
+        assert work["model"] == "Work"
+        assert work["id_type"] == IdType.OpenLibrary_Work
+        assert work["id_value"] == "OL45804W"
+        assert work["url"] == "https://openlibrary.org/works/OL45804W"
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -202,29 +198,23 @@ class TestOpenLibraryAuthor:
         assert lookup.get(IdType.IMDB) == "nm0001094"
 
 
-def test_openlibrary_search_categories_sync():
-    """Test that OpenLibrary search respects category filtering (sync test)"""
-    import asyncio
+@pytest.mark.asyncio
+async def test_openlibrary_search_categories(
+    httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    acquire = AsyncMock(return_value=True)
+    monkeypatch.setattr(openlibrary_limiter(), "try_acquire_async", acquire)
+    fixture_url = (
+        "https://openlibrary.org/search.json?title=Fantastic+Mr+Fox&author=Roald+Dahl"
+        "&limit=3&fields=key,title,editions,editions.key,editions.title"
+    )
+    fixture = (
+        Path(__file__).resolve().parents[2] / "test_data" / get_mock_file(fixture_url)
+    )
+    httpx_mock.add_response(content=fixture.read_bytes())
 
-    from catalog.sites.openlibrary import OpenLibrary
-
-    async def run_test():
-        # Should return empty for unsupported categories
-        movie_results = await OpenLibrary.search_task(
-            "Python", page=1, category="movie", page_size=3
-        )
-        assert len(movie_results) == 0
-
-        # Test that the method exists and doesn't crash for supported categories
-        # (We don't test actual network calls in unit tests)
-        try:
-            book_results = await OpenLibrary.search_task(
-                "test", page=1, category="book", page_size=1
-            )
-            # Results might be empty due to network issues in testing, that's ok
-            assert isinstance(book_results, list)
-        except Exception:
-            # Network issues are acceptable in unit tests
-            pass
-
-    asyncio.run(run_test())
+    assert await OpenLibrary.search_task("Fantastic Mr Fox", 1, "movie", 3) == []
+    acquire.assert_not_awaited()
+    (result,) = await OpenLibrary.search_task("Fantastic Mr Fox", 1, "book", 3)
+    assert result.display_title == "Fantastic Mr. Fox"
+    assert result.source_url == "https://openlibrary.org/books/OL7353617M"
