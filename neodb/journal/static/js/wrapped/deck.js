@@ -1,7 +1,7 @@
 (function () {
   // the last save before the page goes elsewhere; the editing code sets it, and a page with no cards has nothing to save
   let leave = () => Promise.resolve();
-  // the owner can go to another year from the top bar: the years with a deck, and the year whose deck can be made now;
+  // the owner can go to another year from the year menu: the years with a deck, and the year whose deck can be made now;
   // the year page goes to that year's page, the deck to that year's deck (which sends the owner to the year page until it is made)
   (function years() {
     const D = WR.D, el = document.getElementById("wr-yr"), url = D.year_page ? D.make_url : D.page_url;
@@ -16,7 +16,7 @@
   })();
   const { D, _, _n, CATS, CAT_LABEL, CAT_NOUN, CAT_ICON, CAT_COLOR, MONTHS, MONTHS_LONG, MONTHS_NARROW, ROLE_LABEL, stats: S, esc, cover, fmtDate, who, trunc, SVG } = WR;
   // the owner gets the editing controls and saves to the server; a visitor sees the cards the owner left shown
-  const OWNER = !!D.owner_view, URLS = D.urls || {}, CDN = document.getElementById("wr-stage").dataset.cdn || "https://cdn.jsdelivr.net";
+  const OWNER = !!D.owner_view, URLS = D.urls || {}, CDN = document.getElementById("wr-stage")?.dataset.cdn || "https://cdn.jsdelivr.net";
   const CSRF = (document.querySelector("[name=csrfmiddlewaretoken]") || {}).value || "";
   const $ = id => document.getElementById("wr-" + id), RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const n = S.items.length, Y = D.year, base = D.member.url.split("/users/")[0];
@@ -101,19 +101,17 @@
   const ACTIVITY = activityOf(ACT);
 
   const past = D.year < new Date().getFullYear();
-  // the owner's year page: the whole year under the stage, which offers to make the cards or links to them
+  // the owner's year page: the year at a glance, under the step that makes the cards or the link to them
   if (D.year_page) {
     if (WR.empty) {
       const msg = $("empty");
       msg.textContent = past ? _("Nothing was finished in {year}.", { year: D.year }) : _("Nothing finished this year yet. Mark a title as complete and the cards fill in.");
       msg.hidden = false;
       // a deck made before keeps its link
-      document.querySelectorAll(".wrapped-page, #wr-cue" + (D.deck_made ? "" : ", #wr-pending")).forEach(e => { e.hidden = true; });
+      document.querySelectorAll("#wr-stats, #wr-months" + (D.deck_made ? "" : ", #wr-pending")).forEach(e => { e.hidden = true; });
       return;
     }
     yearSection();
-    $("cuetext").textContent = _("See the whole year");
-    $("cue").onclick = () => $("year").scrollIntoView({ behavior: RM ? "auto" : "smooth" });
     return;
   }
   // stored cards with no title: say so on the stage instead of drawing empty cards; the owner can update the
@@ -936,9 +934,10 @@
   // the show waits while the stage is scrolled away, the tab is in the background or a dialog is open (see the stylesheet)
   new IntersectionObserver(es => stage.classList.toggle("away", !es[0].isIntersecting), { threshold: 0.35 }).observe(stage);
   document.addEventListener("visibilitychange", () => stage.classList.toggle("bg", document.hidden));
-  // the end of the deck offers the next steps: for the owner the year page and Share, for a visitor their own year
+  // the end of the deck offers the next steps: for the owner the year page and Share, for a visitor their own
+  // cards while they can still be made
   const replay = () => { window.scrollTo({ top: 0, behavior: "instant" }); go(0, "instant"); started = true; setAuto(true); };
-  const nextStep = OWNER ? `<button class="wr-pill" type="button" data-act="year"><i class="fa-solid fa-layer-group"></i> ${_("See the whole year")}</button><button class="wr-pill primary" type="button" data-act="share"><i class="fa-solid fa-share-from-square"></i> ${_("Share")}</button>` : `<a class="wr-pill primary" href="${esc(D.make_url || "")}"><i class="fa-solid fa-wand-magic-sparkles"></i> ${_("Make your own {year}", { year: Y })}</a>`;
+  const nextStep = OWNER ? `<button class="wr-pill" type="button" data-act="year"><i class="fa-solid fa-layer-group"></i> ${_("See the whole year")}</button><button class="wr-pill primary" type="button" data-act="share"><i class="fa-solid fa-share-from-square"></i> ${_("Share")}</button>` : D.make_url ? `<a class="wr-pill primary" href="${esc(D.make_url)}"><i class="fa-solid fa-wand-magic-sparkles"></i> ${_("Make your own {year}", { year: Y })}</a>` : "";
   $("end").innerHTML = `<button class="wr-pill" type="button" data-act="replay"><i class="fa-solid fa-rotate-left"></i> ${_("Replay")}</button>${nextStep}`;
   // to the year page after the waiting save, as the year menu does
   const toYearPage = () => leave().then(() => { location.href = D.make_url; }, () => toast(_("Could not save the deck; try again")));
@@ -1157,15 +1156,24 @@
 
 
   // ---------- publish ----------
-  function openPublish(preselect) { const tabs = $("pub-tabs"); const show = t => { tabs.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.t === t)); ["post", "page", "dl", "qr"].forEach(k => $("pub-" + k).hidden = k !== t); if (t === "qr") qrTab(); }; tabs.querySelectorAll("button").forEach(b => b.onclick = () => show(b.dataset.t)); show("post"); const grid = $("pub-grid"); grid.innerHTML = state.shown.map(c => `<label><input type="checkbox" value="${c.id}" ${c.id === preselect ? "checked" : ""}>${c.svg}</label>`).join(""); const limit = () => { const on = [...grid.querySelectorAll("input:checked")].length; grid.querySelectorAll("label").forEach(l => l.classList.toggle("full", on >= 4 && !l.querySelector("input").checked)); grid.querySelectorAll("input").forEach(i => i.disabled = on >= 4 && !i.checked); }; grid.querySelectorAll("input").forEach(i => i.onchange = limit); limit(); $("pub-note").value = `${D.page_url}\n#NeoDB #Wrapped${Y}`; $("pub-link").value = D.page_url; $("gif-out").innerHTML = ""; audList(); postMode("images");
+  function openPublish(preselect) { const tabs = $("pub-tabs"); const show = t => { tabs.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.t === t)); ["post", "page", "dl"].forEach(k => $("pub-" + k).hidden = k !== t); if (t === "page") qrTab(); }; tabs.querySelectorAll("button").forEach(b => b.onclick = () => show(b.dataset.t)); show("post"); const grid = $("pub-grid"); grid.innerHTML = state.shown.map(c => `<label><input type="checkbox" value="${c.id}" ${c.id === preselect ? "checked" : ""}>${c.svg}</label>`).join(""); const limit = () => { const on = [...grid.querySelectorAll("input:checked")].length; grid.querySelectorAll("label").forEach(l => l.classList.toggle("full", on >= 4 && !l.querySelector("input").checked)); grid.querySelectorAll("input").forEach(i => i.disabled = on >= 4 && !i.checked); }; grid.querySelectorAll("input").forEach(i => i.onchange = limit); limit(); $("pub-note").value = `${D.page_url}\n#NeoDB #Wrapped${Y}`; $("pub-link").value = D.page_url; $("gif-out").innerHTML = ""; audList(); postMode("images");
     // a post never reaches a wider audience than the cards it carries (the server checks this too)
     document.querySelectorAll('#wr-pub-post input[name="wr-vis"]').forEach(r => { r.disabled = +r.value < LEVEL; r.checked = +r.value === LEVEL; }); pubdlg.showModal(); mp4Gate(); }
-  // images: up to four picked cards; video: every card, made here like the MP4 download
-  function postMode(m) { $("pub-musicrow").hidden = m !== "video" || !music; document.querySelectorAll('input[name="wr-mode"]').forEach(r => { r.checked = r.value === m; }); $("pub-grid").hidden = m !== "images"; $("pub-imgnote").hidden = m !== "images"; $("pub-vidnote").hidden = m !== "video"; }
+  // images: up to four picked cards, and one picked card can be copied; video: every card, made here like the MP4
+  // download, shown as the intro card it starts with
+  const canCopyImg = !!(navigator.clipboard && window.ClipboardItem);
+  function postMode(m) {
+    const video = m === "video", vid = $("pub-vid");
+    $("pub-musicrow").hidden = !video || !music; document.querySelectorAll('input[name="wr-mode"]').forEach(r => { r.checked = r.value === m; });
+    $("pub-grid").hidden = video; $("pub-imgnote").hidden = video; $("pub-vidnote").hidden = !video; $("pub-copyimg").hidden = video || !canCopyImg;
+    vid.hidden = !video;
+    vid.innerHTML = video && state.shown.length ? `<div class="pv">${state.shown[0].svg}<i class="fa-solid fa-circle-play"></i></div><span>${esc(_n("{n} card", "{n} cards", state.shown.length))}</span>` : "";
+  }
   if (OWNER) document.querySelectorAll('input[name="wr-mode"]').forEach(r => { r.onchange = () => postMode(r.value); });
   if (OWNER) $("pub-edit").onclick = () => { pubdlg.close(); $("editdlg").showModal(); };
-  // what each audience sees at the one link; the audience on screen counts live, another one as the owner last saw it
-  function audList() { $("auds").innerHTML = (D.audiences || []).map(a => { const name = ["public", "followers", "me"][a.level], here = a.level === LEVEL, n = here ? state.shown.length : a.shown, off = here ? !state.shown.length : a.off; return `<li${here ? ' class="on"' : ""}><b>${esc(PAGEVIS[name].label)}</b><span class="st">${off ? _("Not shared") : n == null ? _("Suggested cards") : _n("{n} card", "{n} cards", n)}</span><small>${esc(PAGEVIS[name].note)}</small></li>`; }).join(""); }
+  // what each audience sees at the one link; the audience on screen counts live, another one as the owner last saw it.
+  // Only the note of the audience on screen is shown, so the list stays short.
+  function audList() { $("auds").innerHTML = (D.audiences || []).map(a => { const name = ["public", "followers", "me"][a.level], here = a.level === LEVEL, n = here ? state.shown.length : a.shown, off = here ? !state.shown.length : a.off; return `<li${here ? ' class="on"' : ""}><b>${esc(PAGEVIS[name].label)}</b><span class="st">${off ? _("Not shared") : n == null ? _("Suggested cards") : _n("{n} card", "{n} cards", n)}</span></li>`; }).join(""); $("audnote").textContent = PAGEVIS[AUD].note; }
   if (OWNER) $("publish").onclick = () => openPublish();
   if (OWNER) $("pub-send").onclick = async () => {
     const video = (document.querySelector('input[name="wr-mode"]:checked') || {}).value === "video";
@@ -1196,6 +1204,13 @@
     prog.hidden = true; btn.disabled = false; btn.removeAttribute("aria-busy");
   };
   if (OWNER) $("pub-copy").onclick = () => copyLink($("pub-link").value);
+  // the image goes to the clipboard as a promise, so Safari keeps the click while the PNG is made
+  if (OWNER) $("pub-copyimg").onclick = () => {
+    const ids = [...document.querySelectorAll("#wr-pub-grid input:checked")].map(i => i.value);
+    if (ids.length !== 1) { toast(_("Pick exactly one card to copy")); return; }
+    const c = state.shown.find(x => x.id === ids[0]);
+    navigator.clipboard.write([new ClipboardItem({ "image/png": toCanvas(c, 1080).then(pngBlob) })]).then(() => toast(_("Image copied")), e => toast(_("Could not copy: {error}", { error: e.message })));
+  };
   // ---------- background music: the owner picks a track in Edit; it starts with the show unless the viewer turns the sound off ----------
   // The file comes straight from Wikimedia Commons; if it fails to load, the toggle turns off and the page stays silent.
   // soundOff: the viewer turned the sound off in this view, so the show no longer starts it (not saved)
@@ -1319,12 +1334,11 @@
   async function qrTab() {
     const auds = D.audiences || [], open = [0, 1].find(lv => { const a = auds.find(x => x.level === lv); return a && !(lv === LEVEL ? !state.shown.length : a.off); });
     const warn = $("qr-warn"), btns = ["qr-share", "qr-copy", "qr-dl"].map($), prev = $("qr-prev");
-    $("qr-link").innerHTML = _("The code opens {link}.", { link: `<b>${esc(D.page_url)}</b>` });
     btns.forEach(b => { b.disabled = true; });
-    // one warning at most, the strongest reason first
+    // one warning at most, the strongest reason first; the link and the code open the same page
     const editBtn = `<button type="button" class="dc-btn outline" data-qr-edit>${_("Change in Edit")}</button>`;
     let locked = false;
-    if (open == null) { locked = true; warn.innerHTML = `${esc(_("Only you can see the page now, so the code opens nothing for other people."))} ${editBtn}`; }
+    if (open == null) { locked = true; warn.innerHTML = `${esc(_("Only you can see the page now, so other people cannot open it from the link or the code."))} ${editBtn}`; }
     else if (open === 1) warn.innerHTML = `${esc(_("Only your followers can open this page, after they sign in."))} ${editBtn}`;
     else if (D.anon_ok === false) warn.innerHTML = `${esc(_("People who are not signed in cannot open this page, because your profile is hidden from them."))} <a href="${esc(URLS.preferences)}">${esc(_("Change it in Settings"))}</a>`;
     else warn.innerHTML = "";
@@ -1334,7 +1348,7 @@
     // the image needs the cards of the audience the code opens; another view offers to switch to it
     if (!locked && open !== LEVEL) {
       prev.innerHTML = `<button type="button" class="dc-btn primary" data-qr-switch>${esc(_("Show the cards the code opens"))}</button>`;
-      prev.querySelector("[data-qr-switch]").onclick = () => goAudience(open, "wr-pubdlg:qr");
+      prev.querySelector("[data-qr-switch]").onclick = () => goAudience(open, "wr-pubdlg:page");
       return;
     }
     try { await loadQr(); } catch (e) { toast(_("Export failed: {error}", { error: e.message })); return; }
@@ -1346,8 +1360,7 @@
     const file = new File([qrBlob], qrName(), { type: "image/png" });
     const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] })), canCopy = !!(navigator.clipboard && window.ClipboardItem);
     $("qr-share").hidden = !canShare; $("qr-copy").hidden = !canCopy;
-    const first = canShare ? "qr-share" : canCopy ? "qr-copy" : "qr-dl";
-    btns.forEach(b => { b.disabled = false; b.classList.toggle("primary", b.id === "wr-" + first); b.classList.toggle("outline", b.id !== "wr-" + first); });
+    btns.forEach(b => { b.disabled = false; });
   }
   if (OWNER) {
     $("qr-share").onclick = () => { if (!qrBlob) return; navigator.share({ files: [new File([qrBlob], qrName(), { type: "image/png" })] }).catch(e => { if (e && e.name !== "AbortError") toast(_("Could not share: {error}", { error: e.message })); }); };

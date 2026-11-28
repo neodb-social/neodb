@@ -1151,10 +1151,21 @@ class TestViews:
         assert b"Shown Book" in r.content and b'id="wr-publish"' in r.content
         assert b'"lang": "en' in r.content and b'"text": {}' in r.content
         assert "year_page" not in page_data(r)
-        # the year page links to the cards
+        # the Edit sheet: the audience, the cards, then the music and the card data, and Delete last
+        c = r.content
+        assert (
+            c.index(b'id="wr-vislabel"')
+            < c.index(b'id="wr-hub"')
+            < c.index(b'id="wr-music"')
+            < c.index(b'class="wr-update"')
+            < c.index(b'id="wr-delete"')
+        )
+        # the year page links to the cards, under the site's own header and with no stage
         r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
         assert b"Open my cards" in r.content and deck_url("owner").encode() in r.content
         assert b'id="wr-deck"' not in r.content and b'id="wr-publish"' not in r.content
+        assert b'class="nav-logo"' in r.content and b'id="wr-stage"' not in r.content
+        assert b"Your year at a glance" in r.content
 
     def test_before_the_deck_is_made_the_page_shows_the_year_and_no_cards(self):
         url = reverse("journal:wrapped", args=[YEAR])
@@ -1198,24 +1209,41 @@ class TestViews:
             r = self.owner_client.post(reverse("journal:wrapped_generate", args=[bad]))
             assert r.status_code == 302
             assert r["Location"] == reverse("journal:wrapped", args=[bad])
-        # after the window a deck is no longer made
+        # after the window a deck is no longer made, and the year page no longer offers it
         with on(datetime.date(YEAR + 1, 3, 1)):
+            late = reverse("journal:wrapped_generate", args=[YEAR - 1])
             r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR - 1]))
-            assert b"could be made until" in r.content
-            self.owner_client.post(reverse("journal:wrapped_generate", args=[YEAR - 1]))
+            assert r.status_code == 200 and b'id="wr-pending"' not in r.content
+            assert late.encode() not in r.content
+            self.owner_client.post(late)
+            # a deck made in time keeps its link
+            r = self.owner_client.get(url)
+            assert (
+                b"Open my cards" in r.content
+                and deck_url("owner").encode() in r.content
+            )
         assert not WrappedDeck.objects.filter(owner=self.me, year=YEAR - 1).exists()
+
+    def test_a_visitor_is_offered_their_own_cards_only_while_they_can_be_made(self):
+        make_deck(self.me)
+        own = reverse("journal:wrapped", args=[YEAR])
+        with on(datetime.date(YEAR + 1, 2, 28)):
+            assert page_data(self.page(Client()))["make_url"] == own
+        with on(datetime.date(YEAR + 1, 3, 1)):
+            assert "make_url" not in page_data(self.page(Client()))
+            # the owner keeps the way back to the year page
+            assert page_data(self.page(self.owner_client))["make_url"] == own
 
     def test_share_warns_when_signed_out_visitors_cannot_open_the_page(self):
         make_deck(self.me)
         url = deck_url("owner")
-        # the QR code tab has an empty warning of its own, so the test looks for the text
-        warning = b"your profile is hidden from them"
-        assert warning not in self.owner_client.get(url).content
+        # the Link and QR code tab draws one warning for both from the page data
+        assert page_data(self.owner_client.get(url))["anon_ok"] is True
         self.me.anonymous_viewable = False
         self.me.save()
-        r = self.owner_client.get(url)
-        assert warning in r.content
-        assert reverse("users:preferences").encode() in r.content
+        data = page_data(self.owner_client.get(url))
+        assert data["anon_ok"] is False
+        assert data["urls"]["preferences"] == reverse("users:preferences")
         assert self.page(Client()).status_code in (302, 403)
 
     def test_owner_without_year_goes_to_the_year_of_the_season(self):

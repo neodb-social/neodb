@@ -199,8 +199,10 @@ def _context(
     # covers on another host are read for exports through this origin, by the file the stored link names
     payload["cover_url"] = reverse("journal:wrapped_cover", args=["x"])[:-1]
     payload["media_prefix"] = _media_prefix()
-    # the viewer's own year page: "see the whole year" for the owner, "make your own" for a visitor
-    payload["make_url"] = reverse("journal:wrapped", args=[year])
+    # the viewer's own year page: "see the whole year" for the owner, "make your own" for a visitor only while
+    # the cards of this year can still be made
+    if is_owner or _may_make(viewer, year):
+        payload["make_url"] = reverse("journal:wrapped", args=[year])
     # the cards are drawn in the browser, in the language of the page
     payload["lang"] = get_language() or "en"
     payload["text"] = card_text()
@@ -305,7 +307,7 @@ def wrapped_year(request: AuthedHttpRequest, year: int | None = None):
             "last": end - datetime.timedelta(days=1),
         },
     }
-    resp = render(request, "wrapped.html", ctx)
+    resp = render(request, "wrapped_year.html", ctx)
     # no_store: the browser keeps no copy to show again after sign-out
     patch_cache_control(resp, private=True, no_store=True)
     return resp

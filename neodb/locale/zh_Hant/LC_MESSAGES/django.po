@@ -10166,12 +10166,12 @@ msgid "A card from a collection follows the collection as it changes."
 msgstr "來自收藏單的卡片會隨收藏單的變化而更新。"
 
 #: journal/templates/wrapped.html:158
-msgid "Post cards"
-msgstr "發佈卡片"
+msgid "Cards"
+msgstr "卡片"
 
-#: journal/templates/wrapped.html:159
-msgid "Page link"
-msgstr "頁面連結"
+#: journal/templates/wrapped.html:278
+msgid "Link and QR code"
+msgstr "連結和 QR Code"
 
 #: journal/templates/wrapped.html:163
 msgid "Pick up to four cards for one post."
@@ -11442,6 +11442,10 @@ msgid "Pick at least one card"
 msgstr "請至少選擇一張卡片"
 
 #: journal/wrapped_text.py:351
+msgid "Pick exactly one card to copy"
+msgstr "複製時請只選擇一張卡片"
+
+#: journal/wrapped_text.py:351
 #, python-brace-format
 msgid "Posting failed: {error}"
 msgstr "發佈失敗：{error}"
@@ -11601,7 +11605,7 @@ msgid "Sign in"
 msgstr "登入"
 
 #: journal/templates/wrapped.html:76
-msgid "The whole year"
+msgid "Your year at a glance"
 msgstr "全年一覽"
 
 #: journal/templates/wrapped.html:104 journal/wrapped_text.py:414
@@ -11855,8 +11859,8 @@ msgid "Image copied"
 msgstr "圖片已複製"
 
 #: journal/wrapped_text.py:433
-msgid "Only you can see the page now, so the code opens nothing for other people."
-msgstr "現在只有你能看到這個頁面，所以別人掃描後打不開任何內容。"
+msgid "Only you can see the page now, so other people cannot open it from the link or the code."
+msgstr "現在只有你能看到這個頁面，別人無法透過連結或 QR Code 開啟。"
 
 #: journal/wrapped_text.py:434
 msgid "Only your followers can open this page, after they sign in."
@@ -11865,11 +11869,6 @@ msgstr "只有關注你的人登入後才能開啟這個頁面。"
 #: journal/wrapped_text.py:436
 msgid "Show the cards the code opens"
 msgstr "查看掃描後顯示的卡片"
-
-#: journal/wrapped_text.py:437
-#, python-brace-format
-msgid "The code opens {link}."
-msgstr "掃描後開啟 {link}。"
 
 #: journal/wrapped_text.py:454
 #, python-brace-format
@@ -11953,11 +11952,6 @@ msgstr "生成我的 %(year)s 年度卡片"
 msgid "You can make your %(year)s cards from %(date)s."
 msgstr "從 %(date)s 起可以生成你的 %(year)s 年度卡片。"
 
-#: journal/templates/wrapped.html:82
-#, python-format
-msgid "The %(year)s cards could be made until %(date)s."
-msgstr "%(year)s 年度卡片的生成截止於 %(date)s。"
-
 #: journal/views/wrapped.py:408 journal/views/wrapped.py:475
 msgid "This summary is not made yet."
 msgstr "這份年度總結還沒有生成。"
@@ -12033,7 +12027,7 @@ msgid "Could not update the cards; try again"
 msgstr "無法更新卡片，請重試"
 
 #: journal/templates/wrapped.html:157
-msgid "Choose an audience to edit the cards it sees when it opens your annual summary"
+msgid "Choose an audience to edit the cards they see when they open your annual summary"
 msgstr "選擇可見性，編輯這類使用者開啟你的年度總結時能看到的卡片組"
 
 #: journal/wrapped_text.py:292
