@@ -1,6 +1,7 @@
 from io import StringIO
 
 import pytest
+from django.core.cache import cache
 from django.core.management import call_command
 
 from catalog.common import SiteManager, use_local_response
@@ -1842,6 +1843,7 @@ class TestFetchWorksForPersonTask:
 
 
 @pytest.mark.django_db(databases="__all__", transaction=True)
+@pytest.mark.usefixtures("isolated_cache")
 class TestFetchPeopleWorksView:
     def _make_person(
         self, *, with_tmdb: bool = True, with_douban: bool = False
@@ -1870,10 +1872,8 @@ class TestFetchPeopleWorksView:
         return f"{person.url}/fetch_people_works"
 
     def test_unauthenticated_redirects(self):
-        from django.core.cache import cache
         from django.test import Client
 
-        cache.clear()
         person = self._make_person()
         client = Client()
         response = client.post(self._url(person))
@@ -1892,10 +1892,8 @@ class TestFetchPeopleWorksView:
         assert response.status_code == 404
 
     def test_person_without_tmdb_returns_400(self):
-        from django.core.cache import cache
         from django.test import Client
 
-        cache.clear()
         person = self._make_person(with_tmdb=False)
         user = User.register(email="viewer2@example.com", username="viewer2")
         client = Client()
@@ -1904,10 +1902,8 @@ class TestFetchPeopleWorksView:
         assert response.status_code == 400
 
     def test_primary_tmdb_id_without_resource_returns_400(self):
-        from django.core.cache import cache
         from django.test import Client
 
-        cache.clear()
         person = self._make_person(with_tmdb=False)
         person.tmdb_person = "17419"
         person.save()
@@ -1920,12 +1916,10 @@ class TestFetchPeopleWorksView:
     def test_enqueues_and_locks(self, monkeypatch):
         import sys
 
-        from django.core.cache import cache
         from django.test import Client
 
         from catalog.jobs.people_works import fetch_works_for_person_task
 
-        cache.clear()
         person = self._make_person()
         tmdb_resource = person.external_resources.get(id_type=IdType.TMDB_Person)
         user = User.register(email="viewer3@example.com", username="viewer3")
@@ -1962,12 +1956,10 @@ class TestFetchPeopleWorksView:
     def test_enqueues_douban_resource(self, monkeypatch):
         import sys
 
-        from django.core.cache import cache
         from django.test import Client
 
         from catalog.jobs.people_works import fetch_works_for_person_task
 
-        cache.clear()
         person = self._make_person(with_tmdb=False, with_douban=True)
         douban_resource = person.external_resources.get(id_type=IdType.DoubanPersonage)
         user = User.register(email="viewer8@example.com", username="viewer8")
@@ -1997,10 +1989,8 @@ class TestFetchPeopleWorksView:
         )
 
     def test_invalid_resource_id_returns_400(self):
-        from django.core.cache import cache
         from django.test import Client
 
-        cache.clear()
         person = self._make_person()
         user = User.register(email="viewer6@example.com", username="viewer6")
         client = Client()
@@ -2033,10 +2023,8 @@ class TestFetchPeopleWorksView:
         assert b'name="resource_id"' in response.content
 
     def test_protected_person_forbidden_for_non_staff(self):
-        from django.core.cache import cache
         from django.test import Client
 
-        cache.clear()
         person = self._make_person()
         person.is_protected = True
         person.save()

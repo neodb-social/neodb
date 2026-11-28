@@ -33,18 +33,10 @@ from takahe.models import Domain, Identity, Post
 from takahe.utils import Takahe
 from users.models import User
 
-CACHE_SETTINGS = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "calendar-api-tests",
-    }
-}
-
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(CACHES=CACHE_SETTINGS)
+@pytest.mark.usefixtures("isolated_cache")
 def test_calendar_api_returns_calendar_data():
-    cache.clear()
     user = User.register(email="cal@example.com", username="caluser")
     book = Edition.objects.create(title="Calendar Book")
     Mark(user.identity, book).update(ShelfType.COMPLETE, visibility=0)
@@ -71,9 +63,8 @@ def test_calendar_api_returns_calendar_data():
 
 
 @pytest.mark.django_db(databases="__all__")
-@override_settings(CACHES=CACHE_SETTINGS)
+@pytest.mark.usefixtures("isolated_cache")
 def test_calendar_api_follower_view():
-    cache.clear()
     owner = User.register(email="owner@example.com", username="owneruser")
     follower = User.register(email="follower@example.com", username="followeruser")
     book = Edition.objects.create(title="Follower Book")
@@ -1208,8 +1199,8 @@ def test_collection_reorder_items_permissions():
 
 
 @pytest.mark.django_db(databases="__all__")
+@pytest.mark.usefixtures("isolated_cache")
 def test_collection_trending_endpoint():
-    cache.clear()
     owner = User.register(email="trend@example.com", username="trenduser")
     collection = Collection.objects.create(
         owner=owner.identity,
@@ -2374,8 +2365,8 @@ class TestItemPostsApi:
 
 
 @pytest.mark.django_db(databases="__all__")
+@pytest.mark.usefixtures("isolated_cache")
 def test_collection_trending_excludes_non_public():
-    cache.clear()
     owner = User.register(email="trend2@example.com", username="trenduser2")
     public_collection = Collection.objects.create(
         owner=owner.identity,
