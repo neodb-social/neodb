@@ -43,7 +43,7 @@
                 {% include "_post_action_menu.html" with post=article.latest_post piece=article piece_edit_url=piece_edit_url piece_delete_url=piece_delete_url %}
               {% elif request.user.identity == article.owner %}
                 <span><a href="{{ article.edit_url }}"
-   title="{% trans 'Edit' %}"><i class="fa-solid fa-pen"></i></a></span>
+                         title="{% trans 'Edit' %}"><i class="fa-solid fa-pen"></i></a></span>
               {% endif %}
             </span>
           {% endif %}

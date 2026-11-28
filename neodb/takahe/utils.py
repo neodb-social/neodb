@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from blurhash_rs import blurhash_encode
+from blurhash_rs import encode as blurhash_encode
 from django.conf import settings
 from django.core.cache import cache
 from django.core.files import File

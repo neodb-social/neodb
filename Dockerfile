@@ -1,7 +1,5 @@
 # syntax=docker/dockerfile:1
 FROM python:3.14-slim AS build
-ARG dev
-ARG buildver="dev-unknown"
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV UV_COMPILE_BYTECODE=0
 ENV PYTHONUNBUFFERED=1
@@ -11,22 +9,38 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt apt-get update \
 
 COPY --from=ghcr.io/astral-sh/uv:0.8.8 /uv /uvx /bin/
 
-COPY neodb /neodb
-COPY takahe /takahe
-COPY misc /misc
-COPY pyproject.toml uv.lock /neodb/
-
-RUN echo "${buildver}" > /etc/neodb_version \
- && echo "__version__ = \"${buildver}\"" > /neodb/boofilsic/__init__.py \
- && echo "__version__ = \"${buildver}\"" > /takahe/takahe/neodb.py
-
 # Single venv shared by both the neodb app (/neodb) and the takahe app (/takahe),
 # built from the unified pyproject.toml / uv.lock at the repository root.
+# It is built before the source and the per-build ARGs, and its files get a fixed
+# time (1980-01-01, the earliest a zip file holds), so the same dependencies give
+# byte-identical layers that `docker pull` does not download again.
 WORKDIR /neodb
+COPY pyproject.toml uv.lock /neodb/
+COPY misc/wheels-cache /misc/wheels-cache
 RUN uv venv /neodb-venv
 ENV VIRTUAL_ENV=/neodb-venv
 RUN find /misc/wheels-cache -type f | xargs -n 1 uv pip install --python /neodb-venv/bin/python || echo incompatible wheel ignored
-RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active --no-install-project $(if [ -z "$dev" ]; then echo "--no-dev"; fi)
+ARG dev
+# lingua is a ~300MB native library that seldom changes, so it moves to a tree of
+# its own for a layer that other dependency updates leave alone. The tree has the
+# parent directories too, as `COPY --link` gives the ones it creates the build time.
+# uv_cache.json records the install time of a wheel installed from a file path
+# (wheels-cache), so it is removed together with its line in RECORD.
+RUN --mount=type=cache,sharing=locked,target=/root/.cache uv sync --active --no-install-project $(if [ -z "$dev" ]; then echo "--no-dev"; fi) \
+ && sp=$(echo /neodb-venv/lib/python3*/site-packages) \
+ && find $sp -path '*.dist-info/uv_cache.json' -delete \
+ && sed -i '/\.dist-info\/uv_cache\.json,/d' $sp/*.dist-info/RECORD \
+ && mkdir -p /layers/lingua$sp \
+ && mv $sp/lingua /layers/lingua$sp/ \
+ && find /neodb-venv /layers -exec touch -h -d @315532800 {} +
+
+COPY neodb /neodb
+COPY takahe /takahe
+
+ARG buildver="dev-unknown"
+RUN echo "${buildver}" > /etc/neodb_version \
+ && echo "__version__ = \"${buildver}\"" > /neodb/boofilsic/__init__.py \
+ && echo "__version__ = \"${buildver}\"" > /takahe/takahe/neodb.py
 
 # runtime stage
 FROM python:3.14-slim AS runtime
@@ -44,10 +58,12 @@ RUN --mount=type=cache,sharing=locked,target=/var/cache/apt-run apt-get update \
  && useradd -m -U app && mkdir -p /www
 # postgresql and redis cli are not required, but install for development convenience
 
+# --link lets the build cache reuse these layers when only the layers below change
+COPY --link --from=build /layers/lingua/ /
+COPY --link --from=build /neodb-venv /neodb-venv
 COPY --from=build /etc/neodb_version /etc/neodb_version
 COPY --from=build /neodb /neodb
 COPY --from=build /takahe /takahe
-COPY --from=build /neodb-venv /neodb-venv
 
 WORKDIR /neodb
 RUN /neodb-venv/bin/django-admin compilemessages \

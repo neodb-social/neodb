@@ -5,7 +5,7 @@ description = "🧩 self-hosted server tracking what you read/watch/listen/play,
 readme = "README.md"
 requires-python = ">=3.14, <3.15"
 dependencies = [
-    "blurhash-rs>=1.1.0",
+    "blurhash-rs>=3.0.0",
     "cachetools>=5.5.0",
     "dateparser>=1.2.0",
     "django>=5.2,<5.3",
@@ -132,6 +132,8 @@ exclude = [
     ".git",
     "playground",
 ]
+# the default set before ruff 0.16, which raised the defaults from 59 rules to 413
+lint.select = ["E4", "E7", "E9", "F"]
 lint.ignore = ["F403", "F405"]
 # lint.extend-select = ["I"]
 

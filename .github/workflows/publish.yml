@@ -48,6 +48,9 @@ jobs:
     needs:
       - prepare_release
     runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    # workflow_run gets a read-only cache by default; this job builds only the
+    # default branch checkout, so it may write the cache that releases read
+    cache-mode: write
     strategy:
       fail-fast: false
       matrix:
@@ -85,11 +88,16 @@ jobs:
         id: build
         uses: docker/build-push-action@v7
         with:
+          # the default Git context does not apply .dockerignore
+          context: .
           push: ${{ github.ref == 'refs/heads/main' && github.repository_owner == 'neodb-social' }}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ env.REGISTRY_IMAGE }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+          # Release Image reads this cache too, so both reuse the apt layers
+          cache-from: type=gha,scope=${{ env.PLATFORM_PAIR }}
+          cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }},ignore-error=true
           build-args: |
             dev=1
             buildver=${{ needs.prepare_release.outputs.buildver }}

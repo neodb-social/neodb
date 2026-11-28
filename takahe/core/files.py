@@ -2,7 +2,7 @@ import io
 import ipaddress
 import socket
 
-from blurhash_rs import blurhash_encode
+from blurhash_rs import encode as blurhash_encode
 import httpx
 from django.conf import settings
 from django.core.files import File

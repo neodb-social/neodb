@@ -26,7 +26,9 @@
   <div>{% include "_credits.html" with credits=item.role_credits.director role_label="director" max=5 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.playwright role_label="playwright" max=5 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.composer role_label="composer" max=5 %}</div>
-  <div>{% include "_credits.html" with credits=item.role_credits.choreographer role_label="choreographer" max=5 %}</div>
+  <div>
+    {% include "_credits.html" with credits=item.role_credits.choreographer role_label="choreographer" max=5 %}
+  </div>
   <div>{% include "_credits.html" with credits=item.role_credits.actor role_label="actor" max=10 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.performer role_label="performer" max=10 %}</div>
   <div>{% include "_credits.html" with credits=item.role_credits.crew role_label="crew" max=10 %}</div>

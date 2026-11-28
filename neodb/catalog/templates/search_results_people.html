@@ -25,7 +25,9 @@
           {% else %}
             <div class="item-card-list">
               {% for item in items %}
-                <article class="entity-sort item-card">{% include "_item_card.html" with item=item hide_category=True %}</article>
+                <article class="entity-sort item-card">
+                  {% include "_item_card.html" with item=item hide_category=True %}
+                </article>
               {% empty %}
                 {% if request.GET.q %}
                   <p class="caveat">{% trans "No people matching your search query." %}</p>

@@ -10,10 +10,10 @@
 {% elif relationship.rejecting %}
   <span class="tag-list">
     <span><a title="{% trans "Click to unblock" %}"
-   hx-confirm="{% trans "Are you sure to unblock?" %}"
-   hx-post="{% url 'users:unblock' identity.handle %}"
-   hx-target="closest .action"
-   hx-swap="innerHTML">{% trans "Blocked" %}</a></span>
+             hx-confirm="{% trans "Are you sure to unblock?" %}"
+             hx-post="{% url 'users:unblock' identity.handle %}"
+             hx-target="closest .action"
+             hx-swap="innerHTML">{% trans "Blocked" %}</a></span>
   </span>
 {% else %}
   <span class="tag-list">
