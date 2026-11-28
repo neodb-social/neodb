@@ -398,9 +398,20 @@ def _clean_str(v: Any, size: int) -> str:
 
 def _clean_url(v: Any) -> str:
     u = str(v or "")[:500]
-    if u.startswith("/") or re.match(r"^https?://", u):
+    # a path on this site, or an http(s) URL; "//host" and "/\host" name another host, as browsers read them
+    if re.match(r"^/(?![/\\])", u) or re.match(r"^https?://", u):
         return u
     return ""
+
+
+def _clean_cover(v: Any) -> str:
+    """A cover from this site or its media storage, as the catalog gives them; else empty. A made card is
+    shown to visitors, and a cover from anywhere else would have their browsers fetch it from that host."""
+    u = _clean_url(v)
+    own = [settings.SITE_INFO["site_url"].rstrip("/") + "/"]
+    if re.match(r"^https?://", settings.MEDIA_URL):
+        own.append(settings.MEDIA_URL)
+    return u if u.startswith("/") or any(u.startswith(o) for o in own) else ""
 
 
 def _clean_made(made: Any) -> list[dict[str, Any]]:
@@ -441,7 +452,7 @@ def _clean_made(made: Any) -> list[dict[str, Any]]:
                         {
                             "url": _clean_url(it.get("url")),
                             "title": _clean_str(it.get("title"), 300),
-                            "cover": _clean_url(it.get("cover")),
+                            "cover": _clean_cover(it.get("cover")),
                             "category": it.get("category")
                             if it.get("category") in CATEGORIES
                             else "book",

@@ -1225,6 +1225,32 @@ class TestViews:
             )
             assert r.status_code == 400
 
+    def test_hand_picked_titles_keep_only_this_sites_covers(self):
+        make_deck(self.me)
+        site = settings.SITE_INFO["site_url"].rstrip("/")
+        items = [
+            {"url": "/book/a", "title": "A", "cover": site + "/m/item/a.jpg"},
+            {"url": "/book/b", "title": "B", "cover": "https://tracker.example/p.png"},
+            {"url": "/book/c", "title": "C", "cover": "//tracker.example/p.png"},
+            # a link that names another host is not a title of this site
+            {"url": "//tracker.example/book", "title": "D"},
+            {"url": "/\\tracker.example/book", "title": "E"},
+        ]
+        made = [{"id": 1, "n": 3, "source": {"type": "hand", "items": items}}]
+        r = self.owner_client.post(
+            reverse("journal:wrapped_save", args=[YEAR]),
+            json.dumps({"aud": 0, "made": made}),
+            content_type="application/json",
+        )
+        assert r.status_code == 200
+        deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
+        kept = deck.made[0]["source"]["items"]
+        assert [(i["url"], i["cover"]) for i in kept] == [
+            ("/book/a", site + "/m/item/a.jpg"),
+            ("/book/b", ""),
+            ("/book/c", ""),
+        ]
+
     def test_music_is_saved_and_reaches_visitors(self):
         save = reverse("journal:wrapped_save", args=[YEAR])
         make_deck(self.me)
