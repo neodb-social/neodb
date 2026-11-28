@@ -38,28 +38,36 @@ from journal.models import (
     TagMember,
     WrappedDeck,
 )
-from journal.wrapped import (
-    BULK_DAY,
+from journal.wrapped.aggregates import (
     _instance_key,
     _median,
     _percentile,
-    build_payload,
     compute_instance_stats,
     compute_kindred,
-    deck_for,
-    refresh_deck,
-    friends_allowed,
-    kindred_allowed,
     instance_stats,
-    live_year,
-    plain_excerpt,
-    resolve_words,
-    stored_payload,
     year_aggregates,
 )
+from journal.wrapped.base import (
+    BULK_DAY,
+    plain_excerpt,
+)
+from journal.wrapped.data import (
+    build_payload,
+    live_year,
+)
+from journal.wrapped.record import (
+    deck_for,
+    friends_allowed,
+    kindred_allowed,
+    refresh_deck,
+    stored_payload,
+)
+from journal.wrapped.words import (
+    resolve_words,
+)
 from journal.models.wrapped import MADE_CARDS_MAX
-from journal.wrapped_music import track as music_track
-from journal.wrapped_text import PLURALS, TEXT, card_text
+from journal.wrapped.music import track as music_track
+from journal.wrapped.text import PLURALS, TEXT, card_text
 from takahe.models import Domain
 from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
@@ -113,7 +121,7 @@ def make_deck(identity, year: int = YEAR, **fields) -> WrappedDeck:
 
 def on(day: datetime.date):
     """The site's date for the window in which a deck can be made."""
-    return patch("journal.wrapped._today", return_value=day)
+    return patch("journal.wrapped.record._today", return_value=day)
 
 
 def at(month: int, day: int, hour: int = 12, year: int = YEAR) -> datetime.datetime:
@@ -687,7 +695,7 @@ class TestReviewFixes:
         complete(busy, self.book, at(3, 3))
         complete(busier, self.book, at(3, 4))
         complete(busier, Edition.objects.create(title="More"), at(3, 5))
-        with patch("journal.wrapped.FRIENDS_MAX", 1):
+        with patch("journal.wrapped.data.FRIENDS_MAX", 1):
             friends = build_payload(self.me, YEAR, 0, TZ)["friends"]
         # followed accounts with no completion this year never take the places of those with some
         assert [f["handle"].split("@")[0] for f in friends] == ["rfbusier"]
@@ -760,7 +768,7 @@ class TestReviewFixes:
         complete(other, second, at(1, 5))
         complete(self.me, popular, at(2, 3))
         complete(self.me, second, at(2, 4))
-        with patch("journal.wrapped.FIRST_RANK_MAX", 2):
+        with patch("journal.wrapped.data.FIRST_RANK_MAX", 2):
             items = build_payload(self.me, YEAR, 2, TZ)["items"]
         ranks = {i["title"]: i["first_rank"] for i in items}
         assert ranks == {"Reviewed Book": 1, "Second Book": 2, "Popular Book": None}
@@ -905,7 +913,7 @@ class TestQueryCount:
         def run():
             with (
                 patch(
-                    "journal.wrapped.instance_stats",
+                    "journal.wrapped.data.instance_stats",
                     return_value={"top": None, "counts": [list(range(20))] * 3},
                 ),
                 CaptureQueriesContext(connection) as a,
@@ -952,7 +960,7 @@ class TestInstanceStats:
         clear_wrapped_cache()
         me = User.register(email="i@test.com", username="istats").identity
         complete(me, Edition.objects.create(title="Top"), at(2, 2))
-        with patch("journal.wrapped.django_rq.get_queue") as q:
+        with patch("journal.wrapped.aggregates.django_rq.get_queue") as q:
             assert instance_stats(YEAR) is None
             assert q.return_value.enqueue.called
             assert instance_stats(YEAR) is None
@@ -1006,7 +1014,7 @@ class TestInstanceStats:
         complete(me, Edition.objects.create(title="Open"), at(2, 3))
         # another process holds the lock and has not stored the totals yet: the deck waits, then keeps a gap
         cache.add(_instance_key(YEAR) + ":lock", 1, 600)
-        with patch("journal.wrapped.time.sleep"):
+        with patch("journal.wrapped.aggregates.time.sleep"):
             deck = make_deck(me)
         assert deck.data["0"]["warming"] and deck.data["0"]["instance_top"] is None
         # once the totals are there, the owner's next view fills the gap
@@ -1025,16 +1033,16 @@ class TestInstanceStats:
         me = User.register(email="i5@test.com", username="iwarm").identity
         complete(me, Edition.objects.create(title="Open"), at(2, 3))
         # the owner's page does not save its card list while a job's result is missing
-        with patch("journal.wrapped.instance_stats", return_value=None):
+        with patch("journal.wrapped.data.instance_stats", return_value=None):
             assert build_payload(me, YEAR, 0, TZ)["warming"] is True
         warm = {"top": None, "counts": [[]] * 3}
-        with patch("journal.wrapped.instance_stats", return_value=warm):
+        with patch("journal.wrapped.data.instance_stats", return_value=warm):
             assert build_payload(me, YEAR, 0, TZ)["warming"] is False
             # the kindred card and the flag come from one read of the cached matches
-            with patch("journal.wrapped.kindred_matches", return_value=None):
+            with patch("journal.wrapped.data.kindred_matches", return_value=None):
                 p = build_payload(me, YEAR, 2, TZ, include_kindred=True)
                 assert p["warming"] is True and p["kindred"] is None
-            with patch("journal.wrapped.kindred_matches", return_value={}):
+            with patch("journal.wrapped.data.kindred_matches", return_value={}):
                 p = build_payload(me, YEAR, 2, TZ, include_kindred=True)
                 assert p["warming"] is False
 
@@ -1048,7 +1056,7 @@ class TestInstanceStats:
         # each audience is compared with completions of the kind it can see
         assert compute_instance_stats(YEAR)["counts"] == [[1], [1, 1], [1, 2]]
         with patch(
-            "journal.wrapped.instance_stats",
+            "journal.wrapped.data.instance_stats",
             return_value={"top": None, "counts": [[1] * 10, [2] * 10, [3] * 10]},
         ):
             assert build_payload(me, YEAR, 0, TZ)["median"] == 1

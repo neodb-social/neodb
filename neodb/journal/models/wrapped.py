@@ -41,7 +41,7 @@ class WrappedDeck(models.Model):
     hidden = models.JSONField(default=dict)
     made = models.JSONField(default=list)
     shown = models.JSONField(default=dict)
-    # the background music the owner chose (an id in journal/wrapped_music.py); empty is no music, the default
+    # the background music the owner chose (an id in journal/wrapped/music.py); empty is no music, the default
     music = models.CharField(max_length=40, blank=True, default="")
     timezone = models.CharField(max_length=64, blank=True, default="")
     # the card data of each audience as the last update stored it ({str(level): payload}); the cards show

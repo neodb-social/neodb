@@ -4,13 +4,15 @@ from datetime import timedelta
 
 from common.models import BaseJob, JobManager
 from journal.models import WrappedDeck
-from journal.wrapped import (
-    auto_update_open,
+from journal.wrapped.aggregates import (
     compute_instance_stats,
     compute_kindred,
+    year_aggregates,
+)
+from journal.wrapped.record import (
+    auto_update_open,
     latest_year,
     refresh_deck,
-    year_aggregates,
 )
 
 logger = logging.getLogger(__name__)
