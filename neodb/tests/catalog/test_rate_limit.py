@@ -7,12 +7,14 @@ import time
 import uuid
 
 import pytest
+from django.conf import settings
 
 from catalog.common.rate_limit import RedisRateLimiter
 from catalog.sites.anilist import anilist_limiter
 from catalog.sites.igdb import igdb_limiter
 from catalog.sites.musicbrainz import musicbrainz_limiter
 from catalog.sites.openlibrary import _openlibrary_user_agent, openlibrary_limiter
+from common.models import SiteConfig
 
 
 def _fresh_limiter(rate: float) -> RedisRateLimiter:
@@ -216,27 +218,17 @@ def test_openlibrary_limiter_is_singleton() -> None:
     assert 1.0 / a.interval <= 3.0
 
 
-def test_openlibrary_user_agent_includes_contact(
-    monkeypatch: pytest.MonkeyPatch,
+@pytest.mark.parametrize(
+    ("sender", "suffix"),
+    [
+        ("ops@example.org", " (ops@example.org)"),
+        ("🧩 NeoDB <no-reply@neodb.social>", " (no-reply@neodb.social)"),
+        ("", ""),
+        ("運営@example.org", ""),
+    ],
+)
+def test_openlibrary_user_agent(
+    sender: str, suffix: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """The contact address is what earns the 3 req/s tier."""
-    from common.models import SiteConfig
-
-    monkeypatch.setattr(SiteConfig.system, "email_from", "ops@example.org")
-    ua = _openlibrary_user_agent()
-    assert "ops@example.org" in ua
-    assert ua.startswith("NeoDB/")
-
-
-def test_openlibrary_user_agent_falls_back_without_contact(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """No contact configured still means an honest UA, never a browser string."""
-    from django.conf import settings
-
-    from common.models import SiteConfig
-
-    monkeypatch.setattr(SiteConfig.system, "email_from", "")
-    ua = _openlibrary_user_agent()
-    assert ua == settings.NEODB_USER_AGENT
-    assert "Mozilla" not in ua
+    monkeypatch.setattr(SiteConfig.system, "email_from", sender)
+    assert _openlibrary_user_agent() == settings.NEODB_USER_AGENT + suffix
