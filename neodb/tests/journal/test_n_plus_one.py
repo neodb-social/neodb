@@ -1,5 +1,7 @@
 """Tests for N+1 query optimizations."""
 
+from collections.abc import Callable
+
 import pytest
 from django.db import connection, connections
 from django.test import Client
@@ -17,7 +19,7 @@ from catalog.models import (
     PeopleType,
     Work,
 )
-from journal.models import Collection, Mark, ShelfType, Tag
+from journal.models import Collection, Mark, Review, ShelfType, Tag
 from journal.models.common import prefetch_pieces_for_posts
 from journal.models.shelf import ShelfMember
 from takahe.utils import Takahe
@@ -303,9 +305,7 @@ class TestShelfAPIPrefetch:
         tag_member_individual = [
             q
             for q in ctx.captured_queries
-            if "journal_tagmember" in q["sql"]
-            and "item_id" in q["sql"]
-            and "IN" not in q["sql"]
+            if '"journal_tagmember"."item_id" =' in q["sql"]
         ]
         assert len(tag_member_individual) == 0
 
@@ -443,70 +443,50 @@ class TestPostMentionsPrefetch:
         self._assert_no_mention_queries(posts)
 
 
+def _page_query_counts(
+    client: Client, url: str, expected_text: list[str]
+) -> dict[str, int]:
+    with (
+        CaptureQueriesContext(connections["default"]) as journal,
+        CaptureQueriesContext(connections["takahe"]) as federation,
+    ):
+        response = client.get(url)
+    assert response.status_code == 200
+    html = response.content.decode()
+    for text in expected_text:
+        assert text in html
+    return {
+        table: sum(f'"{table}"' in query["sql"] for query in ctx.captured_queries)
+        for ctx, tables in (
+            (journal, ("journal_piecepost", "journal_rating", "catalog_item")),
+            (federation, ("users_identity", "activities_post")),
+        )
+        for table in tables
+    }
+
+
+def _assert_constant_page_queries(
+    client: Client, url: str, add_row: Callable[[int], list[str]]
+) -> None:
+    expected = add_row(0)
+    small = _page_query_counts(client, url, expected)
+    for i in range(1, 4):
+        expected.extend(add_row(i))
+    assert _page_query_counts(client, url, expected) == small
+
+
 @pytest.mark.django_db(databases="__all__")
-class TestCommentLatestPostPrefetch:
-    """Test that comments prefetch avoids N+1 on latest_post and post.author."""
+def test_comment_page_queries_do_not_grow_with_comments(client: Client) -> None:
+    book = Edition.objects.create(title="Post Prefetch Book")
+    url = f"/book/{book.uuid}/comments"
 
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.users = [
-            User.register(email=f"clp{i}@example.com", username=f"clpuser{i}")
-            for i in range(5)
-        ]
-        self.book = Edition.objects.create(title="Post Prefetch Book")
-        for i, user in enumerate(self.users):
-            Mark(user.identity, self.book).update(
-                ShelfType.COMPLETE, f"comment {i}", i + 5, [], 0
-            )
+    def add_comment(i: int) -> list[str]:
+        user = User.register(username=f"commenter{i}")
+        comment = f"Prefetch comment {i}"
+        Mark(user.identity, book).update(ShelfType.COMPLETE, comment, i + 5, [], 0)
+        return [comment]
 
-    def test_comments_no_per_comment_identity_queries(self):
-        """Comments page should not query users_identity per comment."""
-        client = Client()
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(f"/book/{self.book.uuid}/comments")
-        assert response.status_code == 200
-        # Count individual identity lookups (N+1 pattern)
-        identity_queries = [
-            q
-            for q in ctx.captured_queries
-            if "users_identity" in q["sql"]
-            and 'WHERE "users_identity"."id"' in q["sql"]
-        ]
-        # With batch prefetch, should have 0 individual identity queries
-        # (authors are prefetched via Takahe.get_posts)
-        assert len(identity_queries) == 0
-
-    def test_comments_no_per_comment_post_queries(self):
-        """Comments page should not query posts individually per comment."""
-        client = Client()
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(f"/book/{self.book.uuid}/comments")
-        assert response.status_code == 200
-        # Count individual post lookups
-        post_queries = [
-            q
-            for q in ctx.captured_queries
-            if "activities_post" in q["sql"]
-            and 'WHERE "activities_post"."id"' in q["sql"]
-        ]
-        # With batch prefetch, should have 0 individual post queries
-        assert len(post_queries) == 0
-
-    def test_comments_no_per_comment_piecepost_queries(self):
-        """Comments page should batch PiecePost queries."""
-        client = Client()
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(f"/book/{self.book.uuid}/comments")
-        assert response.status_code == 200
-        piecepost_queries = [
-            q
-            for q in ctx.captured_queries
-            if "journal_piecepost" in q["sql"]
-            and "piece_id" in q["sql"]
-            and "IN" not in q["sql"].upper()
-        ]
-        # Should have 0 individual piecepost queries (all batched via IN)
-        assert len(piecepost_queries) == 0
+    _assert_constant_page_queries(client, url, add_comment)
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -569,14 +549,7 @@ class TestCollectionEditItemsPrefetch:
                 f"/collection/{self.collection.uuid}/edit_items",
             )
         assert response.status_code == 200
-        er_individual = [
-            q
-            for q in ctx.captured_queries
-            if "catalog_externalresource" in q["sql"]
-            and "IN" not in q["sql"].upper()
-            and "item_id" in q["sql"]
-        ]
-        assert len(er_individual) == 0
+        assert _per_item_external_resource_queries(ctx.captured_queries) == []
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -614,121 +587,24 @@ class TestEditionParentItemTemplateShortCircuit:
 
 
 @pytest.mark.django_db(databases="__all__")
-class TestMarkLatestPostPrefetch:
-    """Test that Mark.get_marks_by_items prefetches latest_post for pieces."""
+def test_mark_pieces_have_prefetched_posts() -> None:
+    user = User.register(username="prefetchedposts")
+    book = Edition.objects.create(title="Latest Post Book")
+    Mark(user.identity, book).update(ShelfType.COMPLETE, "comment", 7, [], 0)
+    Review.update_item_review(book, user.identity, "Review", "Review body")
+    mark = Mark.get_marks_by_items(user.identity, [book], user)[book.pk]
 
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.users = [
-            User.register(email=f"mlp{i}@example.com", username=f"mlpuser{i}")
-            for i in range(3)
-        ]
-        self.book = Edition.objects.create(title="Latest Post Book")
-        for i, user in enumerate(self.users):
-            Mark(user.identity, self.book).update(
-                ShelfType.COMPLETE, f"comment {i}", i + 5, [], 0
-            )
-
-    def test_marks_have_prefetched_latest_post(self):
-        """After get_marks_by_items, latest_post should be in __dict__ (prefetched)."""
-        marks = Mark.get_marks_by_items(
-            self.users[0].identity, [self.book], self.users[0]
-        )
-        m = marks[self.book.pk]
-        # shelfmember and comment should have latest_post pre-set in __dict__
-        if m.shelfmember:
-            assert "latest_post_id" in m.shelfmember.__dict__
-            assert "latest_post" in m.shelfmember.__dict__
-        if m.comment:
-            assert "latest_post_id" in m.comment.__dict__
-            assert "latest_post" in m.comment.__dict__
-
-    def test_no_per_piece_post_queries(self):
-        """After prefetch, accessing latest_post should not trigger queries."""
-        marks = Mark.get_marks_by_items(
-            self.users[0].identity, [self.book], self.users[0]
-        )
-        m = marks[self.book.pk]
-        with CaptureQueriesContext(connection) as ctx:
-            if m.shelfmember:
-                _ = m.shelfmember.latest_post
-            if m.comment:
-                _ = m.comment.latest_post
-            if m.review:
-                _ = m.review.latest_post
-        assert len(ctx.captured_queries) == 0
-
-
-@pytest.mark.django_db(databases="__all__")
-class TestTagListLatestPostPrefetch:
-    """Test that tag/shelf list pages do not have N+1 on latest_post."""
-
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.user = User.register(email="tlp@example.com", username="tlpuser")
-        self.books = [Edition.objects.create(title=f"TLP Book {i}") for i in range(5)]
-        self.tag = Tag.objects.create(
-            owner=self.user.identity, title="tlp-tag", visibility=0
-        )
-        for book in self.books:
-            Mark(self.user.identity, book).update(
-                ShelfType.COMPLETE, f"comment for {book.title}", 7, ["tlp-tag"], 0
-            )
-            self.tag.append_item(book)
-
-    def test_tag_list_no_per_item_piecepost_queries(self):
-        """Tag list should batch PiecePost queries, not query per item."""
-        client = Client()
-        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(
-                f"/users/{self.user.username}/tags/tlp-tag/",
-            )
-        assert response.status_code == 200
-        # Individual PiecePost queries (not using IN) indicate N+1
-        piecepost_individual = [
-            q
-            for q in ctx.captured_queries
-            if "journal_piecepost" in q["sql"]
-            and "piece_id" in q["sql"]
-            and "IN" not in q["sql"].upper()
-        ]
-        assert len(piecepost_individual) == 0
-
-    def test_tag_list_no_per_item_post_queries(self):
-        """Tag list should not query activities_post individually per item."""
-        client = Client()
-        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(
-                f"/users/{self.user.username}/tags/tlp-tag/",
-            )
-        assert response.status_code == 200
-        post_individual = [
-            q
-            for q in ctx.captured_queries
-            if "activities_post" in q["sql"]
-            and 'WHERE "activities_post"."id"' in q["sql"]
-        ]
-        assert len(post_individual) == 0
-
-    def test_shelf_list_no_per_item_piecepost_queries(self):
-        """Shelf list should batch PiecePost queries."""
-        client = Client()
-        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(
-                f"/users/{self.user.username}/complete/book/",
-            )
-        assert response.status_code == 200
-        piecepost_individual = [
-            q
-            for q in ctx.captured_queries
-            if "journal_piecepost" in q["sql"]
-            and "piece_id" in q["sql"]
-            and "IN" not in q["sql"].upper()
-        ]
-        assert len(piecepost_individual) == 0
+    with (
+        CaptureQueriesContext(connection) as journal,
+        CaptureQueriesContext(connections["takahe"]) as federation,
+    ):
+        for piece in (mark.shelfmember, mark.comment, mark.review):
+            assert piece is not None
+            post = piece.latest_post
+            assert post is not None
+            assert piece.latest_post_id == post.pk
+    assert journal.captured_queries == []
+    assert federation.captured_queries == []
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -760,9 +636,7 @@ class TestCollectionListLatestPostPrefetch:
         piecepost_individual = [
             q
             for q in ctx.captured_queries
-            if "journal_piecepost" in q["sql"]
-            and "piece_id" in q["sql"]
-            and "IN" not in q["sql"].upper()
+            if '"journal_piecepost"."piece_id" =' in q["sql"]
         ]
         assert len(piecepost_individual) == 0
 
@@ -809,121 +683,29 @@ class TestCollectionGetStats:
 
 
 @pytest.mark.django_db(databases="__all__")
-class TestProfileShelfItemsPrefetch:
-    """Test that profile_shelf_items view prefetches items and rating info."""
+@pytest.mark.parametrize(
+    "path", ["tags/query-tag/", "wishlist/book/", "profile/book/wishlist/items"]
+)
+def test_list_queries_do_not_grow_with_items(client: Client, path: str) -> None:
+    user = User.register(username="queryreader")
+    client.force_login(user, backend="mastodon.auth.OAuth2Backend")
+    url = f"/users/{user.username}/{path}"
 
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.user = User.register(email="psi@example.com", username="psiuser")
-        self.books = [Edition.objects.create(title=f"PSI Book {i}") for i in range(3)]
-        for i, book in enumerate(self.books):
-            ExternalResource.objects.create(
-                item=book,
-                id_type=IdType.ISBN,
-                id_value=f"978222200000{book.pk}",
-                url=f"https://example.com/psi/{book.pk}",
-            )
-            Mark(self.user.identity, book).update(
-                ShelfType.WISHLIST, f"note {i}", i + 5, [], 0
-            )
-
-    def test_shelf_items_renders(self):
-        client = Client()
-        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
-        response = client.get(
-            f"/users/{self.user.username}/profile/book/wishlist/items",
+    def add_book(i: int) -> list[str]:
+        title = f"Prefetch book {i}"
+        book = Edition.objects.create(title=title)
+        ExternalResource.objects.create(
+            item=book,
+            id_type=IdType.ISBN,
+            id_value=f"978222200000{book.pk}",
+            url=f"https://example.com/psi/{book.pk}",
         )
-        assert response.status_code == 200
-        for book in self.books:
-            assert book.display_title in response.content.decode()
-
-    def test_shelf_items_no_per_item_queries(self):
-        """Profile shelf items should batch-fetch items, not query per member."""
-        client = Client()
-        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(
-                f"/users/{self.user.username}/profile/book/wishlist/items",
-            )
-        assert response.status_code == 200
-        individual_item_queries = [
-            q
-            for q in ctx.captured_queries
-            if "catalog_item" in q["sql"] and 'WHERE "catalog_item"."id" =' in q["sql"]
-        ]
-        assert len(individual_item_queries) == 0
-
-    def test_shelf_items_no_per_item_rating_queries(self):
-        """Rating info should be batch-fetched, not queried per item."""
-        client = Client()
-        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(
-                f"/users/{self.user.username}/profile/book/wishlist/items",
-            )
-        assert response.status_code == 200
-        individual_rating_queries = [
-            q
-            for q in ctx.captured_queries
-            if "journal_rating" in q["sql"]
-            and "GROUP BY" in q["sql"]
-            and "IN" not in q["sql"].upper()
-        ]
-        assert len(individual_rating_queries) == 0
-
-
-@pytest.mark.django_db(databases="__all__")
-class TestRenderListRatingPrefetch:
-    """Test that render_list batch-prefetches rating info for items."""
-
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.user = User.register(email="rlr@example.com", username="rlruser")
-        self.books = [Edition.objects.create(title=f"RLR Book {i}") for i in range(3)]
-        self.tag = Tag.objects.create(
-            owner=self.user.identity, title="rlr-tag", visibility=0
+        Mark(user.identity, book).update(
+            ShelfType.WISHLIST, f"note {i}", i + 5, ["query-tag"], 0
         )
-        for book in self.books:
-            Mark(self.user.identity, book).update(
-                ShelfType.WISHLIST, f"comment {book.title}", 7, ["rlr-tag"], 0
-            )
-            self.tag.append_item(book)
+        return [title]
 
-    def test_tag_list_no_per_item_rating_queries(self):
-        """Tag list should batch-fetch rating info, not query per item."""
-        client = Client()
-        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(
-                f"/users/{self.user.username}/tags/rlr-tag/",
-            )
-        assert response.status_code == 200
-        individual_rating_queries = [
-            q
-            for q in ctx.captured_queries
-            if "journal_rating" in q["sql"]
-            and "GROUP BY" in q["sql"]
-            and "IN" not in q["sql"].upper()
-        ]
-        assert len(individual_rating_queries) == 0
-
-    def test_shelf_list_no_per_item_rating_queries(self):
-        """Shelf list should batch-fetch rating info, not query per item."""
-        client = Client()
-        client.force_login(self.user, backend="mastodon.auth.OAuth2Backend")
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(
-                f"/users/{self.user.username}/wishlist/book/",
-            )
-        assert response.status_code == 200
-        individual_rating_queries = [
-            q
-            for q in ctx.captured_queries
-            if "journal_rating" in q["sql"]
-            and "GROUP BY" in q["sql"]
-            and "IN" not in q["sql"].upper()
-        ]
-        assert len(individual_rating_queries) == 0
+    _assert_constant_page_queries(client, url, add_book)
 
 
 @pytest.mark.django_db(databases="__all__")
@@ -1306,55 +1088,19 @@ class TestShelfAPIEditionWorksPrefetch:
 
 
 @pytest.mark.django_db(databases="__all__")
-class TestReviewsPrefetch:
-    """/item/.../reviews should batch rating, latest_post, and identity lookups."""
+def test_review_page_queries_do_not_grow_with_reviews(client: Client) -> None:
+    book = Edition.objects.create(title="Review Book")
+    url = f"/book/{book.uuid}/reviews"
 
-    @pytest.fixture(autouse=True)
-    def setup_data(self):
-        self.book = Edition.objects.create(title="Review Book")
-        self.reviewers = [
-            User.register(email=f"rv{i}@example.com", username=f"rvuser{i}")
-            for i in range(3)
-        ]
-        for i, u in enumerate(self.reviewers):
-            Mark(u.identity, self.book).update(ShelfType.COMPLETE, None, i + 5, [], 0)
-            u.identity.shelf_manager  # ensure manager exists
-            from journal.models import Review
+    def add_review(i: int) -> list[str]:
+        reviewer = User.register(username=f"reviewer{i}").identity
+        grade = i + 5
+        Mark(reviewer, book).update(ShelfType.COMPLETE, None, grade, [], 0)
+        title = f"Review title {i}"
+        Review.objects.create(owner=reviewer, item=book, title=title, body=f"Body {i}")
+        return [title, f'data-rating="{grade}.0"', reviewer.url]
 
-            Review.objects.create(
-                owner=u.identity,
-                item=self.book,
-                title=f"Title {i}",
-                body=f"Body {i}",
-            )
-
-    def test_reviews_render_without_per_review_queries(self) -> None:
-        client = Client()
-        with CaptureQueriesContext(connection) as ctx:
-            response = client.get(f"/book/{self.book.uuid}/reviews")
-        assert response.status_code == 200
-        # Per-review rating_grade lookups would match this pattern
-        rating_queries = [
-            q
-            for q in ctx.captured_queries
-            if "journal_rating" in q["sql"]
-            and '"journal_rating"."owner_id" =' in q["sql"]
-            and '"journal_rating"."item_id" =' in q["sql"]
-            and "IN" not in q["sql"].upper()
-        ]
-        assert rating_queries == []
-        identity_queries = [
-            q
-            for q in ctx.captured_queries
-            if "users_identity" in q["sql"]
-            and 'WHERE "users_identity"."id" =' in q["sql"]
-        ]
-        assert identity_queries == []
-        content = response.content.decode()
-        for i, reviewer in enumerate(self.reviewers):
-            assert f"Title {i}" in content
-            assert f'data-rating="{i + 5}.0"' in content
-            assert reviewer.identity.url in content
+    _assert_constant_page_queries(client, url, add_review)
 
 
 @pytest.mark.django_db(databases="__all__")
