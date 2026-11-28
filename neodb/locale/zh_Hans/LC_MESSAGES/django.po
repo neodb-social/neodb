@@ -12135,3 +12135,16 @@ msgstr[0] "{n} 条回应"
 msgid "your most reacted text has {n} like or boost, under {min}"
 msgid_plural "your most reacted text has {n} likes and boosts, under {min}"
 msgstr[0] "互动最多的文字只有 {n} 个喜欢和转播，少于 {min} 个"
+
+#: journal/templates/wrapped_year.html:33
+#, python-format
+msgid "Making your %(year)s cards. This can take a minute, and you can leave this page: the cards are made either way."
+msgstr "正在生成你的 %(year)s 年度卡片。这可能需要一分钟；你可以离开此页面，卡片仍会生成。"
+
+#: journal/templates/wrapped_year.html:39
+msgid "Your cards could not be made. Try again."
+msgstr "卡片生成失败，请重试。"
+
+#: journal/wrapped/text.py:292
+msgid "Updating the card data"
+msgstr "正在更新卡片数据"

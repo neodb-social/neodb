@@ -277,6 +277,7 @@ urlpatterns = [
     path("wrapped/<int:year>/generate", wrapped_generate, name="wrapped_generate"),
     path("wrapped/<int:year>/delete", wrapped_delete, name="wrapped_delete"),
     path("wrapped/<int:year>/refresh", wrapped_refresh, name="wrapped_refresh"),
+    path("wrapped/<int:year>/status", wrapped_status, name="wrapped_status"),
     path("wrapped/<int:year>/save", wrapped_save, name="wrapped_save"),
     path("wrapped/<int:year>/share", wrapped_share, name="wrapped_share"),
     path("wrapped/lookup", wrapped_lookup, name="wrapped_lookup"),

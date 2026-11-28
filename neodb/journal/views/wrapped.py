@@ -40,6 +40,7 @@ from catalog.search.utils import enqueue_fetch, fetch_job, get_fetch_lock
 from common.sentry import count as sentry_count
 from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, clean_json, target_identity_required
+from journal.jobs.wrapped import enqueue_deck_refresh, refresh_state
 from journal.models.common import VisibilityType
 from journal.models.wrapped import (
     ALL_HIDDEN,
@@ -69,7 +70,6 @@ from journal.wrapped.record import (
     make_state,
     make_window,
     owner_years,
-    refresh_deck,
     stored_payload,
 )
 from journal.wrapped.words import (
@@ -214,8 +214,15 @@ def _context(
             "lookup": reverse("journal:wrapped_lookup"),
             "words": reverse("journal:wrapped_words", args=[year]),
             "refresh": reverse("journal:wrapped_refresh", args=[year]),
+            "status": reverse("journal:wrapped_status", args=[year]),
             "preferences": reverse("users:preferences"),
         }
+        # a queued or running update: the page waits for it and reloads with the new data; a job that ends
+        # with this time unchanged did not store anything
+        payload["updating"] = refresh_state(deck.pk) == "updating"
+        payload["update_time"] = (
+            deck.refreshed_time.isoformat() if deck.refreshed_time else None
+        )
         payload["music_menu"] = music_menu()
         payload["years"] = owner_years(owner)
         payload["update_open"] = _may_make(viewer, year)
@@ -262,7 +269,10 @@ def wrapped_year(request: AuthedHttpRequest, year: int | None = None):
         return HttpResponseRedirect(reverse("journal:wrapped", args=[y]))
     owner = request.user.identity
     deck = deck_for(owner, y)
+    making = ""
     if deck is not None and deck.refreshed_time is None:
+        # not made yet: its job is queued or running, or it failed and the step is offered again
+        making = refresh_state(deck.pk)
         deck = None
     # the deck's time zone once it has one, so the year page and the cards cut the year alike
     tz = WrappedDeck(
@@ -289,8 +299,12 @@ def wrapped_year(request: AuthedHttpRequest, year: int | None = None):
             "years": owner_years(owner),
             "year_page": True,
             "deck_made": deck is not None,
+            "making": making == "updating",
         }
     )
+    if making == "updating":
+        payload["urls"] = {"status": reverse("journal:wrapped_status", args=[y])}
+        payload["deck_url"] = _deck_path(owner, y)
     ctx = {
         "identity": owner,
         "year": y,
@@ -298,6 +312,8 @@ def wrapped_year(request: AuthedHttpRequest, year: int | None = None):
         "is_owner": True,
         "year_page": {
             "deck_url": _deck_path(owner, y) if deck else None,
+            "making": making == "updating",
+            "failed": making == "failed",
             "state": make_state(y),
             "admin": not can_make(y) and _admin_any_time(request.user, y),
             "auto": auto_update_open(y),
@@ -314,23 +330,24 @@ def wrapped_year(request: AuthedHttpRequest, year: int | None = None):
 @login_required
 @require_POST
 def wrapped_generate(request: AuthedHttpRequest, year: int):
-    """Make the deck of a year, once, from 1 December to the end of January after it: this stores the card
-    data of each audience, which the cards then show until the next update."""
+    """Make the deck of a year, once, from 1 December to the end of January after it: a job stores the card
+    data of each audience, which the cards then show until the next update, and the year page waits for it."""
     owner = request.user.identity
-    if _may_make(request.user, year):
-        deck = deck_for(owner, year, create=True)
-        assert deck is not None
-        # a second submit waits for the first and then finds the deck made
-        with transaction.atomic():
-            deck = WrappedDeck.objects.select_for_update().get(pk=deck.pk)
-            if not deck.timezone and (tz := _session_tz(request)):
-                deck.timezone = tz
-                deck.save(update_fields=["timezone", "edited_time"])
-            if deck.refreshed_time is None:
-                refresh_deck(deck)
-                record_activity("annual", "web")
-        return HttpResponseRedirect(_deck_path(owner, year))
-    return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
+    if not _may_make(request.user, year):
+        return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
+    deck = deck_for(owner, year, create=True)
+    assert deck is not None
+    with transaction.atomic():
+        deck = WrappedDeck.objects.select_for_update().get(pk=deck.pk)
+        if not deck.timezone and (tz := _session_tz(request)):
+            deck.timezone = tz
+            deck.save(update_fields=["timezone", "edited_time"])
+    # queued once the time zone is committed, as the job reads it; a second submit finds the job queued
+    if deck.refreshed_time is None:
+        if enqueue_deck_refresh(deck, make=True):
+            record_activity("annual", "web")
+        return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
+    return HttpResponseRedirect(_deck_path(owner, year))
 
 
 @login_required
@@ -357,22 +374,44 @@ def _made_deck(owner: APIdentity, year: int, lock: bool = False) -> WrappedDeck:
 @login_required
 @require_POST
 def wrapped_refresh(request: AuthedHttpRequest, year: int):
-    """Store the card data again, now, while updates are open (to the end of January); at most once a
-    minute, as each update reads the whole year three times."""
+    """Queue a job that stores the card data again, while updates are open (to the end of January); at most
+    once a minute, as each update reads the whole year three times. The page asks ``wrapped_status`` when it
+    is done."""
     deck = _made_deck(request.user.identity, year)
     if not _may_make(request.user, year):
         return JsonResponse({"ok": False, "status": "closed"}, status=400)
+    if refresh_state(deck.pk) == "updating":
+        return JsonResponse({"ok": True, "status": "queued"})
     if not cache.add(f"wrapped:refresh:{deck.pk}", 1, 60):
         return JsonResponse({"ok": False, "status": "busy"}, status=429)
-    deck = WrappedDeck.objects.filter(pk=deck.pk).first()
-    if deck is None:
-        raise Http404(_("This summary is not made yet."))
-    refresh_deck(deck)
-    # the owner may have deleted the deck while it was read
-    if not WrappedDeck.objects.filter(pk=deck.pk).exists():
-        raise Http404(_("This summary is not made yet."))
-    record_activity("annual", "web")
-    return JsonResponse({"ok": True})
+    if enqueue_deck_refresh(deck):
+        record_activity("annual", "web")
+    return JsonResponse({"ok": True, "status": "queued"})
+
+
+@login_required
+@require_GET
+def wrapped_status(request: AuthedHttpRequest, year: int):
+    """Whether the owner's deck of a year is made, and whether a job that stores its card data is queued or
+    running or has just failed: the year page and the Edit sheet wait on this."""
+    deck = (
+        WrappedDeck.objects.defer("data")
+        .filter(owner=request.user.identity, year=year)
+        .first()
+    )
+    state = refresh_state(deck.pk) if deck else ""
+    resp = JsonResponse(
+        {
+            "made": bool(deck and deck.refreshed_time),
+            "updating": state == "updating",
+            "failed": state == "failed",
+            "time": deck.refreshed_time.isoformat()
+            if deck and deck.refreshed_time
+            else None,
+        }
+    )
+    patch_cache_control(resp, private=True, no_store=True)
+    return resp
 
 
 def _owner_level(request: AuthedHttpRequest, deck: WrappedDeck) -> int:
@@ -404,13 +443,14 @@ def wrapped_page(request: AuthedHttpRequest, user_name: str, year: int):
         if not deck.timezone and (tz := _session_tz(request)):
             deck.timezone = tz
             deck.save(update_fields=["timezone", "edited_time"])
-        # the deck was stored while another process was still computing the instance totals: fill the gap now
+        # the deck was stored while another process was still computing the instance totals: a job fills the
+        # gap, and the page reloads when it is done
         if (
             _may_make(request.user, year)
             and any(p.get("warming") for p in (deck.data or {}).values())
             and aggregates_ready(year)
         ):
-            refresh_deck(deck)
+            enqueue_deck_refresh(deck)
         level = _owner_level(request, deck)
         ctx = _context(target, deck, year, level, True, request.user)
     else:

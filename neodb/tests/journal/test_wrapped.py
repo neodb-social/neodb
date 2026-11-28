@@ -5,6 +5,7 @@ import json
 import re
 import time
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, PropertyMock, patch
 from zoneinfo import ZoneInfo
 
@@ -23,7 +24,8 @@ from django.utils import timezone
 from django.utils.translation import override
 
 from catalog.models import Edition, Movie, TVSeason, TVShow
-from journal.jobs.wrapped import WrappedDailyUpdate, WrappedInstanceStats
+from journal.jobs import wrapped as wrapped_jobs
+from journal.jobs.wrapped import WrappedDailyUpdate, WrappedInstanceStats, refresh_state
 from journal.models import (
     Collection,
     CollectionMember,
@@ -107,6 +109,38 @@ def _clear_circles_cache(wrapped_cache):
     """Takes the place of the conftest fixture of this name, which clears reco keys in the shared redis:
     here the cache is this module's own and was just cleared, so no fixture of this module touches redis.
     The class fixtures that build data ask for ``wrapped_cache`` too, so it always runs first."""
+
+
+class DeckJobs:
+    """Stands in for the queue of the jobs that make and update decks: a job runs at once, or waits while
+    ``hold`` is set until ``run()``. The tests share redis with the dev cluster, whose worker would otherwise
+    run a queued job against its own database."""
+
+    def __init__(self) -> None:
+        self.queues: list[str] = []
+        self.held: list[tuple[Any, tuple]] = []
+        self.hold = False
+
+    def get_queue(self, name: str) -> "DeckJobs":
+        self.queues.append(name)
+        return self
+
+    def enqueue(self, func: Any, *args: Any) -> None:
+        self.held.append((func, args))
+        if not self.hold:
+            self.run()
+
+    def run(self) -> None:
+        while self.held:
+            func, args = self.held.pop(0)
+            func(*args)
+
+
+@pytest.fixture(autouse=True)
+def deck_jobs(monkeypatch) -> DeckJobs:
+    jobs = DeckJobs()
+    monkeypatch.setattr(wrapped_jobs, "django_rq", jobs)
+    return jobs
 
 
 def clear_wrapped_cache() -> None:
@@ -1275,7 +1309,9 @@ class TestInstanceStats:
         assert all(not deck.data[str(lv)]["warming"] for lv in (0, 1, 2))
         assert deck.data["0"]["instance_top"]["title"] == "Open"
 
-    def test_a_deck_stored_while_another_process_computes_is_filled_later(self):
+    def test_a_deck_stored_while_another_process_computes_is_filled_later(
+        self, deck_jobs
+    ):
         clear_wrapped_cache()
         user = User.register(email="i7@test.com", username="ibusy")
         me = user.identity
@@ -1285,12 +1321,16 @@ class TestInstanceStats:
         with patch("journal.wrapped.aggregates.time.sleep"):
             deck = make_deck(me)
         assert deck.data["0"]["warming"] and deck.data["0"]["instance_top"] is None
-        # once the totals are there, the owner's next view fills the gap
+        # once the totals are there, the owner's next view has a job fill the gap, and the page waits for it
         compute_instance_stats(YEAR)
         owner = Client()
         owner.force_login(user)
+        deck_jobs.hold = True
         with on(datetime.date(YEAR, 12, 20)):
-            owner.get(deck_url("ibusy"))
+            r = owner.get(deck_url("ibusy"))
+        assert page_data(r)["updating"] is True and len(deck_jobs.held) == 1
+        assert WrappedDeck.objects.get(pk=deck.pk).data["0"]["warming"]
+        deck_jobs.run()
         stored = WrappedDeck.objects.get(pk=deck.pk).data["0"]
         assert not stored["warming"] and stored["instance_top"]["title"] == "Open"
         # an update with nothing new writes no data
@@ -1454,9 +1494,11 @@ class TestViews:
             r = self.owner_client.get(url)
             assert make.encode() in r.content
             assert b"every day in December" not in r.content
-            for _ in range(2):
-                r = self.owner_client.post(make)
-                assert r.status_code == 302 and r["Location"] == deck_url("owner")
+            # the first submit queues the job and waits on the year page; the second finds the deck made
+            r = self.owner_client.post(make)
+            assert r.status_code == 302 and r["Location"] == url
+            r = self.owner_client.post(make)
+            assert r.status_code == 302 and r["Location"] == deck_url("owner")
         assert WrappedDeck.objects.filter(owner=self.me, year=YEAR).count() == 1
         assert self.page(Client()).status_code == 200
         # a year outside the supported range is refused without an error
@@ -1809,7 +1851,8 @@ class TestViews:
                 self.owner_client.post(make)
                 complete(self.me, Edition.objects.create(title="Late Book"), at(7, 7))
                 r = self.owner_client.post(url)
-                assert r.status_code == 200 and r.json() == {"ok": True}
+                assert r.status_code == 200
+                assert r.json() == {"ok": True, "status": "queued"}
             assert [c.args for c in act.call_args_list] == [("annual", "web")] * 2
             deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
             titles = [i["title"] for i in deck.data["0"]["items"]]
@@ -1831,6 +1874,137 @@ class TestViews:
             assert (
                 b'id="wr-update-now"' not in r.content and b"Updates ended" in r.content
             )
+
+    def status(self, client=None):
+        return (client or self.owner_client).get(
+            reverse("journal:wrapped_status", args=[YEAR])
+        )
+
+    def test_a_job_makes_the_deck_while_the_year_page_waits(self, deck_jobs):
+        make = reverse("journal:wrapped_generate", args=[YEAR])
+        year_url = reverse("journal:wrapped", args=[YEAR])
+        deck_jobs.hold = True
+        assert self.status().json() == {
+            "made": False,
+            "updating": False,
+            "failed": False,
+            "time": None,
+        }
+        with on(datetime.date(YEAR, 12, 10)):
+            with patch("journal.views.wrapped.record_activity") as act:
+                # a second submit finds the job queued, and nothing is read in the request
+                with patch("journal.wrapped.record.snapshot") as read:
+                    for _ in range(2):
+                        r = self.owner_client.post(make)
+                        assert r.status_code == 302 and r["Location"] == year_url
+                read.assert_not_called()
+            assert act.call_count == 1
+            assert deck_jobs.queues == ["export"] and len(deck_jobs.held) == 1
+            status = self.status().json()
+            assert status["updating"] and not status["made"]
+            r = self.owner_client.get(year_url)
+            data = page_data(r)
+            assert data["making"] is True and data["deck_made"] is False
+            assert data["urls"]["status"] == reverse(
+                "journal:wrapped_status", args=[YEAR]
+            )
+            assert data["deck_url"] == deck_url("owner")
+            assert b"Making your 2025 cards" in r.content
+            assert make.encode() not in r.content and b"Open my cards" not in r.content
+            # the deck is not there yet for visitors, nor for the owner's deck link
+            assert self.page(Client()).status_code == 404
+            assert self.page(self.owner_client).status_code == 302
+            deck_jobs.run()
+            status = self.status().json()
+            assert status["made"] and not status["updating"] and status["time"]
+            r = self.owner_client.get(year_url)
+            assert b"Open my cards" in r.content and not page_data(r)["making"]
+            assert self.page(Client()).status_code == 200
+            r = self.owner_client.post(make)
+            assert r["Location"] == deck_url("owner") and not deck_jobs.held
+        # the status is the signed-in owner's own
+        assert (
+            Client().get(reverse("journal:wrapped_status", args=[YEAR])).status_code
+            == 302
+        )
+        stranger = Client()
+        stranger.force_login(self.stranger)
+        assert self.status(stranger).json()["made"] is False
+
+    def test_a_failed_job_offers_the_step_again(self, deck_jobs):
+        make = reverse("journal:wrapped_generate", args=[YEAR])
+        year_url = reverse("journal:wrapped", args=[YEAR])
+        deck_jobs.hold = True
+        with on(datetime.date(YEAR, 12, 10)):
+            self.owner_client.post(make)
+            with patch(
+                "journal.jobs.wrapped.refresh_deck", side_effect=RuntimeError("boom")
+            ):
+                with pytest.raises(RuntimeError):
+                    deck_jobs.run()
+            status = self.status().json()
+            assert status == {
+                "made": False,
+                "updating": False,
+                "failed": True,
+                "time": None,
+            }
+            r = self.owner_client.get(year_url)
+            assert b"Your cards could not be made" in r.content
+            assert make.encode() in r.content and not page_data(r)["making"]
+            # a new submit queues a new job, and the failure is forgotten
+            self.owner_client.post(make)
+            assert len(deck_jobs.held) == 1 and self.status().json()["failed"] is False
+            deck_jobs.run()
+        assert WrappedDeck.objects.get(owner=self.me, year=YEAR).refreshed_time
+
+    def test_update_now_waits_for_its_job(self, deck_jobs):
+        url = reverse("journal:wrapped_refresh", args=[YEAR])
+        deck = make_deck(self.me)
+        before = deck.refreshed_time
+        complete(self.me, Edition.objects.create(title="Late Book"), at(7, 7))
+        deck_jobs.hold = True
+        with on(datetime.date(YEAR, 12, 10)):
+            with patch("journal.wrapped.record.snapshot") as read:
+                assert self.owner_client.post(url).json() == {
+                    "ok": True,
+                    "status": "queued",
+                }
+                # while the job is queued, Update now again asks for no second one
+                assert self.owner_client.post(url).json()["status"] == "queued"
+                read.assert_not_called()
+            assert len(deck_jobs.held) == 1 and self.status().json()["updating"]
+            # the page opened meanwhile waits for the job, with the data stored before
+            r = self.page(self.owner_client)
+            assert page_data(r)["updating"] is True
+            # the page tells a finished job from a lost one by the stored time it opened with
+            assert before and page_data(r)["update_time"] == before.isoformat()
+            assert page_data(r)["urls"]["status"] == reverse(
+                "journal:wrapped_status", args=[YEAR]
+            )
+            assert "Late Book" not in [i["title"] for i in page_data(r)["items"]]
+            deck_jobs.run()
+            deck = WrappedDeck.objects.get(pk=deck.pk)
+            after = deck.refreshed_time
+            assert before and after and after > before
+            assert "Late Book" in [i["title"] for i in deck.data["2"]["items"]]
+            status = self.status().json()
+            assert not status["updating"] and status["time"] == after.isoformat()
+            assert page_data(self.page(self.owner_client))["updating"] is False
+            # and then once a minute, as before
+            assert self.owner_client.post(url).status_code == 429
+
+    def test_a_job_leaves_a_deck_deleted_while_it_waits(self, deck_jobs):
+        make = reverse("journal:wrapped_generate", args=[YEAR])
+        delete = reverse("journal:wrapped_delete", args=[YEAR])
+        deck_jobs.hold = True
+        with on(datetime.date(YEAR, 12, 10)):
+            self.owner_client.post(make)
+            deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
+            self.owner_client.post(delete)
+            deck_jobs.run()
+        assert not WrappedDeck.objects.filter(owner=self.me).exists()
+        assert refresh_state(deck.pk) == ""
 
     def test_the_daily_update_runs_from_december_to_1_january(self):
         mine = make_deck(self.me)
@@ -1986,13 +2160,14 @@ class TestViews:
         url = reverse("journal:wrapped_refresh", args=[YEAR])
         with on(datetime.date(YEAR, 12, 10)):
             assert self.owner_client.post(url).status_code == 404
-            # deleted while Update now reads the year
+            # deleted while the job of Update now reads the year: the job ends without an error
             deck = make_deck(self.me)
             with patch(
                 "journal.wrapped.record.snapshot", side_effect=delete_while_reading
             ):
-                assert self.owner_client.post(url).status_code == 404
+                assert self.owner_client.post(url).status_code == 200
         assert not WrappedDeck.objects.filter(owner=self.me).exists()
+        assert refresh_state(deck.pk) == ""
 
     def test_the_year_page_cuts_the_year_in_the_decks_time_zone(self):
         session = self.owner_client.session
@@ -2030,7 +2205,7 @@ class TestViews:
             r = self.owner_client.get(year_url)
             assert make.encode() in r.content and note in r.content
             r = self.owner_client.post(make)
-            assert r.status_code == 302 and r["Location"] == deck_url("owner")
+            assert r.status_code == 302 and r["Location"] == year_url
         assert WrappedDeck.objects.get(owner=self.me, year=YEAR).refreshed_time
         # and after it closes
         with on(datetime.date(YEAR + 1, 2, 1)):

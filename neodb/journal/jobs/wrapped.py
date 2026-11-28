@@ -2,6 +2,9 @@ import datetime
 import logging
 from datetime import timedelta
 
+import django_rq
+from django.core.cache import cache
+
 from common.models import BaseJob, JobManager
 from journal.models import WrappedDeck
 from journal.wrapped.aggregates import (
@@ -16,6 +19,56 @@ from journal.wrapped.record import (
 )
 
 logger = logging.getLogger(__name__)
+
+# a member's deck is made and updated by hand in a job, as an update reads the whole year three times; the marker
+# below keeps one job a deck queued or running, and tells the owner's page that the cards are on their way
+REFRESH_QUEUE = "export"
+REFRESH_PENDING_SECONDS = 600
+REFRESH_FAILED_SECONDS = 600
+
+
+def _pending_key(deck_pk: int) -> str:
+    return f"wrapped:updating:{deck_pk}"
+
+
+def _failed_key(deck_pk: int) -> str:
+    return f"wrapped:update-failed:{deck_pk}"
+
+
+def refresh_state(deck_pk: int) -> str:
+    """ "updating" while a job for the deck is queued or running, "failed" for a while after one failed, else empty."""
+    if cache.get(_pending_key(deck_pk)):
+        return "updating"
+    return "failed" if cache.get(_failed_key(deck_pk)) else ""
+
+
+def enqueue_deck_refresh(deck: WrappedDeck, make: bool = False) -> bool:
+    """Queue a job that stores the deck's card data again, unless one is queued or running; True when this
+    call queued it. ``make``: the job is the step that makes the deck, and does nothing once it is made."""
+    if not cache.add(_pending_key(deck.pk), 1, REFRESH_PENDING_SECONDS):
+        return False
+    cache.delete(_failed_key(deck.pk))
+    try:
+        django_rq.get_queue(REFRESH_QUEUE).enqueue(refresh_deck_job, deck.pk, make)
+    except Exception:
+        cache.delete(_pending_key(deck.pk))
+        raise
+    return True
+
+
+def refresh_deck_job(deck_pk: int, make: bool = False) -> None:
+    try:
+        deck = WrappedDeck.objects.filter(pk=deck_pk).first()
+        # the owner deleted the deck meanwhile, or a job before this one made it
+        if deck is None or (make and deck.refreshed_time is not None):
+            return
+        refresh_deck(deck)
+    except Exception:
+        # before the marker goes, so the waiting page never sees a job that ended without a result
+        cache.set(_failed_key(deck_pk), 1, REFRESH_FAILED_SECONDS)
+        raise
+    finally:
+        cache.delete(_pending_key(deck_pk))
 
 
 @JobManager.register

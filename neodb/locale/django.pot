@@ -12068,3 +12068,16 @@ msgid "your most reacted text has {n} like or boost, under {min}"
 msgid_plural "your most reacted text has {n} likes and boosts, under {min}"
 msgstr[0] ""
 msgstr[1] ""
+
+#: journal/templates/wrapped_year.html:33
+#, python-format
+msgid "Making your %(year)s cards. This can take a minute, and you can leave this page: the cards are made either way."
+msgstr ""
+
+#: journal/templates/wrapped_year.html:39
+msgid "Your cards could not be made. Try again."
+msgstr ""
+
+#: journal/wrapped/text.py:292
+msgid "Updating the card data"
+msgstr ""
