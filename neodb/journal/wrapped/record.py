@@ -50,18 +50,19 @@ def _today() -> datetime.date:
 
 
 def make_window(year: int) -> tuple[datetime.date, datetime.date]:
-    """A member makes the deck of a year once, from 1 December of that year to the end of February after it:
+    """A member makes the deck of a year once, from 1 December of that year to the end of January after it:
     the first day, and the day after the last."""
-    return datetime.date(year, 12, 1), datetime.date(year + 1, 3, 1)
+    return datetime.date(year, 12, 1), datetime.date(year + 1, 2, 1)
 
 
 def auto_last(year: int) -> datetime.date:
-    """The last day the site updates a deck of this year by itself: 2 January after it."""
-    return datetime.date(year + 1, 1, 2)
+    """The last day the site updates a deck of this year by itself: 1 January after it, so the last run
+    still takes in 31 December, and the cards can say "every day in December"."""
+    return datetime.date(year + 1, 1, 1)
 
 
 def auto_update_open(year: int) -> bool:
-    """Whether the nightly job still updates the decks of this year: from 1 December to 2 January."""
+    """Whether the nightly job still updates the decks of this year: from 1 December to 1 January."""
     if year < 1970 or year >= 9999:
         return False
     return make_window(year)[0] <= _today() <= auto_last(year)

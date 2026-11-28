@@ -11953,7 +11953,7 @@ msgstr ""
 
 #: journal/templates/wrapped.html:199
 #, python-format
-msgid "Last updated %(time)s. Updates ended with February, so the cards stay as they are."
+msgid "Last updated %(time)s. Updates ended on %(date)s."
 msgstr ""
 
 #: journal/views/wrapped.py:132
@@ -11981,17 +11981,17 @@ msgstr ""
 
 #: journal/templates/wrapped.html:82
 #, python-format
-msgid "Make your %(year)s cards any day until %(date)s. They update every night until %(auto)s, and you can update them by hand until %(date)s; after that they stay as they are."
+msgid "Make your %(year)s cards by %(date)s. Card data refreshes every day in December."
 msgstr ""
 
 #: journal/templates/wrapped.html:84
 #, python-format
-msgid "Make your %(year)s cards any day until %(date)s. You can update them by hand until then; after that they stay as they are."
+msgid "Make your %(year)s cards by %(date)s."
 msgstr ""
 
 #: journal/templates/wrapped.html:198
 #, python-format
-msgid "The site updates them every night until %(auto)s; you can also update them now, until %(date)s."
+msgid "Card data refreshes every day in December. You can also update it now, until %(date)s."
 msgstr ""
 
 #: journal/templates/wrapped.html:200

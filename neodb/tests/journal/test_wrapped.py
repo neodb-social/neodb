@@ -1196,9 +1196,14 @@ class TestViews:
         )
         share = reverse("journal:wrapped_share", args=[YEAR])
         assert self.owner_client.post(share, {"aud": 0}).status_code == 404
-        # in the window the page offers the step, and making the deck twice keeps one; then the cards open
-        with on(datetime.date(YEAR + 1, 2, 28)):
-            assert make.encode() in self.owner_client.get(url).content
+        # in the window the page offers the step, and in December says the card data refreshes daily
+        with on(datetime.date(YEAR, 12, 20)):
+            assert b"every day in December" in self.owner_client.get(url).content
+        # making the deck twice keeps one; then the cards open
+        with on(datetime.date(YEAR + 1, 1, 31)):
+            r = self.owner_client.get(url)
+            assert make.encode() in r.content
+            assert b"every day in December" not in r.content
             for _ in range(2):
                 r = self.owner_client.post(make)
                 assert r.status_code == 302 and r["Location"] == deck_url("owner")
@@ -1210,7 +1215,7 @@ class TestViews:
             assert r.status_code == 302
             assert r["Location"] == reverse("journal:wrapped", args=[bad])
         # after the window a deck is no longer made, and the year page no longer offers it
-        with on(datetime.date(YEAR + 1, 3, 1)):
+        with on(datetime.date(YEAR + 1, 2, 1)):
             late = reverse("journal:wrapped_generate", args=[YEAR - 1])
             r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR - 1]))
             assert r.status_code == 200 and b'id="wr-pending"' not in r.content
@@ -1227,9 +1232,9 @@ class TestViews:
     def test_a_visitor_is_offered_their_own_cards_only_while_they_can_be_made(self):
         make_deck(self.me)
         own = reverse("journal:wrapped", args=[YEAR])
-        with on(datetime.date(YEAR + 1, 2, 28)):
+        with on(datetime.date(YEAR + 1, 1, 31)):
             assert page_data(self.page(Client()))["make_url"] == own
-        with on(datetime.date(YEAR + 1, 3, 1)):
+        with on(datetime.date(YEAR + 1, 2, 1)):
             assert "make_url" not in page_data(self.page(Client()))
             # the owner keeps the way back to the year page
             assert page_data(self.page(self.owner_client))["make_url"] == own
@@ -1532,7 +1537,7 @@ class TestViews:
         assert titles(r) == ["Shown Book", "Late Book", "Own Book"]
         assert b'id="wr-piles"' in r.content
 
-    def test_update_now_until_the_end_of_february(self):
+    def test_update_now_until_the_end_of_january(self):
         url = reverse("journal:wrapped_refresh", args=[YEAR])
         make = reverse("journal:wrapped_generate", args=[YEAR])
         with on(datetime.date(YEAR, 12, 9)):
@@ -1550,14 +1555,14 @@ class TestViews:
             assert self.owner_client.post(url).status_code == 429  # once a minute
             r = self.page(self.owner_client)
             assert b'id="wr-update-now"' in r.content
-            assert b"updates them every night until" in r.content
-        # after 2 January only the owner updates the deck, until the end of February
-        with on(datetime.date(YEAR + 1, 1, 3)):
+            assert b"every day in December" in r.content
+        # from 2 January only the owner updates the deck, until the end of January
+        with on(datetime.date(YEAR + 1, 1, 2)):
             r = self.page(self.owner_client)
             assert b'id="wr-update-now"' in r.content
-            assert b"every night" not in r.content
+            assert b"every day in December" not in r.content
         clear_wrapped_cache()
-        with on(datetime.date(YEAR + 1, 3, 1)):
+        with on(datetime.date(YEAR + 1, 2, 1)):
             r = self.owner_client.post(url)
             assert r.status_code == 400 and r.json()["status"] == "closed"
             r = self.page(self.owner_client)
@@ -1565,7 +1570,7 @@ class TestViews:
                 b'id="wr-update-now"' not in r.content and b"Updates ended" in r.content
             )
 
-    def test_the_daily_update_runs_from_december_to_2_january(self):
+    def test_the_daily_update_runs_from_december_to_1_january(self):
         mine = make_deck(self.me)
         other = make_deck(self.fan.identity)
         complete(self.me, Edition.objects.create(title="Late Book"), at(8, 8))
@@ -1577,12 +1582,12 @@ class TestViews:
                 for i in WrappedDeck.objects.get(pk=deck.pk).data["2"]["items"]
             ]
 
-        for day in (datetime.date(YEAR, 11, 30), datetime.date(YEAR + 1, 1, 3)):
+        for day in (datetime.date(YEAR, 11, 30), datetime.date(YEAR + 1, 1, 2)):
             with on(day):
                 WrappedDailyUpdate().run()
         assert "Late Book" not in titles(mine) and "Fan Book" not in titles(other)
         with (
-            on(datetime.date(YEAR + 1, 1, 2)),
+            on(datetime.date(YEAR + 1, 1, 1)),
             patch("journal.jobs.wrapped.year_aggregates", wraps=year_aggregates) as agg,
         ):
             WrappedDailyUpdate().run()
@@ -1679,7 +1684,7 @@ class TestViews:
         with on(datetime.date(YEAR, 12, 10)):
             r = self.page(self.owner_client)
             assert b"You can make new cards until" in r.content
-        with on(datetime.date(YEAR + 1, 3, 1)):
+        with on(datetime.date(YEAR + 1, 2, 1)):
             r = self.page(self.owner_client)
             assert b"cards cannot be made again" in r.content
         # only a POST from the owner deletes it, and only that year's deck
@@ -1751,7 +1756,7 @@ class TestViews:
         year_url = reverse("journal:wrapped", args=[YEAR])
         note = b"As an admin, you can make and update these cards at any time"
         # outside the window a member can neither make nor update
-        with on(datetime.date(YEAR + 1, 3, 1)):
+        with on(datetime.date(YEAR + 1, 2, 1)):
             r = self.owner_client.get(year_url)
             assert make.encode() not in r.content and note not in r.content
             self.owner_client.post(make)
@@ -1766,7 +1771,7 @@ class TestViews:
             assert r.status_code == 302 and r["Location"] == deck_url("owner")
         assert WrappedDeck.objects.get(owner=self.me, year=YEAR).refreshed_time
         # and after it closes
-        with on(datetime.date(YEAR + 1, 3, 1)):
+        with on(datetime.date(YEAR + 1, 2, 1)):
             r = self.page(self.owner_client)
             assert b'id="wr-update-now"' in r.content and note in r.content
             assert page_data(r)["update_open"] is True

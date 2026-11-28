@@ -20,10 +20,10 @@ ALL_HIDDEN = "*"
 class WrappedDeck(models.Model):
     """A member's annual summary for one year: which cards each audience sees and how the cards are arranged.
 
-    The member makes the deck once, from 1 December to the end of February after the year; that stores the
+    The member makes the deck once, from 1 December to the end of January after the year; that stores the
     card data of each audience in ``data`` (all the cards need, made cards included, so later changes to
     items, collections or texts do not reach it), and the cards show only that. The site updates it every
-    night until 2 January, and the member can update it by hand until the end of February; after that it
+    day in December, and the member can update it by hand until the end of January; after that it
     stays as it is. One link serves everybody: a visitor sees the cards of their own
     audience (0 everyone, 1 followers, 2 the owner), with counts from entries at that level. The order and
     the made cards are the same for all three audiences.

@@ -33,9 +33,9 @@
               {% if year_page.admin %}
                 {% trans "As an admin, you can make and update these cards at any time, for testing." %}
               {% elif year_page.auto %}
-                {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" auto=year_page.auto_last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. They update every night until {{ auto }}, and you can update them by hand until {{ date }}; after that they stay as they are.{% endblocktranslate %}
+                {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" %}Make your {{ year }} cards by {{ date }}. Card data refreshes every day in December.{% endblocktranslate %}
               {% else %}
-                {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. You can update them by hand until then; after that they stay as they are.{% endblocktranslate %}
+                {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" %}Make your {{ year }} cards by {{ date }}.{% endblocktranslate %}
               {% endif %}
             </p>
             <form method="post" action="{% url 'journal:wrapped_generate' year %}">
