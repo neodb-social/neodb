@@ -38,11 +38,15 @@ docker compose --profile production down
 docker compose up -d --wait neodb-db takahe-db
 ```
 
-Dump both databases:
+Dump both databases. The dump files hold all site data, so `umask 077` makes them readable only by you. If dump files from an earlier attempt exist, delete them first.
 ```bash
-docker compose exec -T neodb-db pg_dump -U neodb -Fc neodb > neodb.dump
-docker compose exec -T takahe-db pg_dump -U takahe -Fc takahe > takahe.dump
+umask 077
+docker compose exec -T neodb-db pg_dump -U neodb -Fc neodb > neodb.dump \
+  && docker compose exec -T takahe-db pg_dump -U takahe -Fc takahe > takahe.dump \
+  && echo "Dump OK"
 ```
+
+Continue only if the output ends with `Dump OK`. If it does not, stop here. The old data is still in place, and `docker compose --profile production up -d` starts the site again.
 
 Stop the databases and move the old data aside:
 ```bash
@@ -54,8 +58,18 @@ mv $NEODB_DATA/takahe-db $NEODB_DATA/takahe-db.pg14
 Set `POSTGRES_VERSION=17-alpine` in `.env`. Start the new empty databases and restore the dumps:
 ```bash
 docker compose up -d --wait neodb-db takahe-db
-docker compose exec -T neodb-db pg_restore -U neodb -d neodb < neodb.dump
-docker compose exec -T takahe-db pg_restore -U takahe -d takahe < takahe.dump
+docker compose exec -T neodb-db pg_restore -U neodb -d neodb < neodb.dump \
+  && docker compose exec -T takahe-db pg_restore -U takahe -d takahe < takahe.dump \
+  && echo "Restore OK"
+```
+
+Continue only if the output ends with `Restore OK`. If it does not, do not start the cluster. Go back to the old data, then set `POSTGRES_VERSION=14-alpine` in `.env` and start the cluster as usual:
+```bash
+docker compose down
+mv $NEODB_DATA/neodb-db $NEODB_DATA/neodb-db.failed
+mv $NEODB_DATA/takahe-db $NEODB_DATA/takahe-db.failed
+mv $NEODB_DATA/neodb-db.pg14 $NEODB_DATA/neodb-db
+mv $NEODB_DATA/takahe-db.pg14 $NEODB_DATA/takahe-db
 ```
 
 Start the cluster:
@@ -63,6 +77,6 @@ Start the cluster:
 docker compose --profile production up -d
 ```
 
-Keep the `.pg14` folders and the dump files until you confirm that the site works.
+Keep the `.pg14` folders and the dump files until you confirm that the site works. Then delete the dump files, because they hold all site data.
 
 Do not use PostgreSQL 18 or later with this `compose.yml`. From 18, the official image keeps its data in a different path inside the container, and it does not start with the volume that `compose.yml` mounts.

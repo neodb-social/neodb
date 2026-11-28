@@ -446,7 +446,19 @@ def discord_send(channel, content, **args) -> bool:
 _DISCORD_WEBHOOK_RE = re.compile(
     r"discord(?:app)?\.com/api/webhooks/(?P<id>[0-9]{17,20})/(?P<token>[A-Za-z0-9\.\-\_]{60,})"
 )
-_DISCORD_ATTEMPTS = 3
+_DISCORD_ATTEMPTS = 5
+_DISCORD_MAX_RETRY_AFTER = 60
+
+
+def _discord_retry_after(r: httpx.Response) -> float:
+    try:
+        return float(r.json()["retry_after"])
+    except ValueError, KeyError, TypeError:
+        pass
+    try:
+        return float(r.headers.get("Retry-After", 1))
+    except ValueError:
+        return 1.0
 
 
 def discord_webhook_post(
@@ -475,12 +487,16 @@ def discord_webhook_post(
         r = httpx.post(
             endpoint, params=params, json={"content": content, **fields}, timeout=10
         )
-        if r.status_code == 429 and attempt + 1 < _DISCORD_ATTEMPTS:
-            try:
-                delay = float(r.headers.get("Retry-After", 1))
-            except ValueError:
-                delay = 1
-            time.sleep(min(delay, 10))
+        retry = attempt + 1 < _DISCORD_ATTEMPTS
+        # as discord.py did: a 429 without Via comes from Cloudflare, not
+        # Discord, and lasts too long to wait for
+        if r.status_code == 429 and retry and r.headers.get("Via"):
+            delay = _discord_retry_after(r)
+            if delay <= _DISCORD_MAX_RETRY_AFTER:
+                time.sleep(delay)
+                continue
+        elif r.status_code >= 500 and retry:
+            time.sleep(1 + attempt * 2)
             continue
         if r.is_error:
             # raise_for_status() would put the URL, and so the token, in the message

@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
@@ -30,22 +31,52 @@ def test_post_rejects_non_discord_url() -> None:
         discord_webhook_post(f"https://example.com/api/webhooks/1/{TOKEN}", "hi")
 
 
-def test_post_retries_after_rate_limit(
-    httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    delays = []
-    monkeypatch.setattr("common.utils.time.sleep", delays.append)
+def _rate_limited(httpx_mock: HTTPXMock, retry_after: float, via: bool = True) -> None:
     httpx_mock.add_response(
         url=f"{ENDPOINT}?wait=true",
         method="POST",
         status_code=429,
-        headers={"Retry-After": "0.5"},
+        headers={"Retry-After": "1", **({"Via": "1.1 google"} if via else {})},
+        json={"message": "You are being rate limited.", "retry_after": retry_after},
     )
+
+
+@pytest.fixture
+def delays(monkeypatch: pytest.MonkeyPatch) -> list[float]:
+    slept: list[float] = []
+    monkeypatch.setattr("common.utils.time.sleep", slept.append)
+    return slept
+
+
+def test_post_waits_full_retry_after(httpx_mock: HTTPXMock, delays: list) -> None:
+    _rate_limited(httpx_mock, 30.5)
     httpx_mock.add_response(
         url=f"{ENDPOINT}?wait=true", method="POST", json={"channel_id": "99"}
     )
     assert discord_webhook_post(CONFIGURED_URL, "hi", wait=True) == {"channel_id": "99"}
-    assert delays == [0.5]
+    assert delays == [30.5]
+
+
+def test_post_gives_up_on_cloudflare_or_long_rate_limit(
+    httpx_mock: HTTPXMock, delays: list
+) -> None:
+    _rate_limited(httpx_mock, 0.5, via=False)
+    with pytest.raises(httpx.HTTPStatusError):
+        discord_webhook_post(CONFIGURED_URL, "hi", wait=True)
+    _rate_limited(httpx_mock, 600)
+    with pytest.raises(httpx.HTTPStatusError):
+        discord_webhook_post(CONFIGURED_URL, "hi", wait=True)
+    assert delays == []
+
+
+def test_post_retries_server_errors_with_backoff(
+    httpx_mock: HTTPXMock, delays: list
+) -> None:
+    httpx_mock.add_response(url=ENDPOINT, method="POST", status_code=503)
+    httpx_mock.add_response(url=ENDPOINT, method="POST", status_code=502)
+    httpx_mock.add_response(url=ENDPOINT, method="POST")
+    assert discord_webhook_post(CONFIGURED_URL, "hi") is None
+    assert delays == [1, 3]
 
 
 def test_send_logs_failure_without_raising(
