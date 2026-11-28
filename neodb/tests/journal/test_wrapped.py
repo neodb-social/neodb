@@ -25,7 +25,12 @@ from django.utils.translation import override
 
 from catalog.models import Edition, Movie, TVSeason, TVShow
 from journal.jobs import wrapped as wrapped_jobs
-from journal.jobs.wrapped import WrappedDailyUpdate, WrappedInstanceStats, refresh_state
+from journal.jobs.wrapped import (
+    WrappedDailyUpdate,
+    WrappedInstanceStats,
+    enqueue_deck_refresh,
+    refresh_state,
+)
 from journal.models import (
     Collection,
     CollectionMember,
@@ -1336,6 +1341,28 @@ class TestInstanceStats:
         # an update with nothing new writes no data
         assert refresh_deck(WrappedDeck.objects.get(pk=deck.pk)) is False
 
+    def test_a_page_waits_for_a_warming_job_that_ended_before_it_read_the_state(
+        self,
+    ):
+        clear_wrapped_cache()
+        user = User.register(email="i8@test.com", username="ifast")
+        complete(user.identity, Edition.objects.create(title="Open"), at(2, 3))
+        cache.add(_instance_key(YEAR) + ":lock", 1, 600)
+        with patch("journal.wrapped.aggregates.time.sleep"):
+            deck = make_deck(user.identity)
+        compute_instance_stats(YEAR)
+        owner = Client()
+        owner.force_login(user)
+        # the job runs at once, so it has ended when the page reads the state; the page still holds the data
+        # read before it, so it waits, and the new update time has it reload
+        with on(datetime.date(YEAR, 12, 20)):
+            data = page_data(owner.get(deck_url("ifast")))
+        stored = WrappedDeck.objects.get(pk=deck.pk)
+        assert data["updating"] is True and refresh_state(deck.pk) == ""
+        assert data["items"] and not stored.data["0"]["warming"]
+        assert stored.refreshed_time
+        assert data["update_time"] != stored.refreshed_time.isoformat()
+
     def test_a_cold_cache_marks_the_payload_as_warming(self):
         clear_wrapped_cache()
         me = User.register(email="i5@test.com", username="iwarm").identity
@@ -1993,6 +2020,33 @@ class TestViews:
             assert page_data(self.page(self.owner_client))["updating"] is False
             # and then once a minute, as before
             assert self.owner_client.post(url).status_code == 429
+
+    def test_only_the_job_that_holds_the_marker_clears_it(self, deck_jobs):
+        deck = make_deck(self.me)
+        deck_jobs.hold = True
+        assert enqueue_deck_refresh(deck)
+        func, args = deck_jobs.held.pop()
+        # the first marker expires while its job waits, and a second job is queued; the first job then runs
+        # and leaves the second job's marker
+        cache.delete(f"wrapped:updating:{deck.pk}")
+        assert enqueue_deck_refresh(deck)
+        func(*args)
+        assert refresh_state(deck.pk) == "updating"
+        deck_jobs.run()
+        assert refresh_state(deck.pk) == ""
+        # a job whose marker expired while it waited holds it again for its run
+        assert enqueue_deck_refresh(deck)
+        cache.delete(f"wrapped:updating:{deck.pk}")
+        seen = []
+        real = wrapped_jobs.refresh_deck
+
+        def watch(d):
+            seen.append(refresh_state(d.pk))
+            return real(d)
+
+        with patch("journal.jobs.wrapped.refresh_deck", side_effect=watch):
+            deck_jobs.run()
+        assert seen == ["updating"] and refresh_state(deck.pk) == ""
 
     def test_a_job_leaves_a_deck_deleted_while_it_waits(self, deck_jobs):
         make = reverse("journal:wrapped_generate", args=[YEAR])

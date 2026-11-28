@@ -1,5 +1,6 @@
 import datetime
 import logging
+import uuid
 from datetime import timedelta
 
 import django_rq
@@ -21,7 +22,8 @@ from journal.wrapped.record import (
 logger = logging.getLogger(__name__)
 
 # a member's deck is made and updated by hand in a job, as an update reads the whole year three times; the marker
-# below keeps one job a deck queued or running, and tells the owner's page that the cards are on their way
+# below keeps one job a deck queued or running, and tells the owner's page that the cards are on their way. It holds
+# its job's token, so only that job clears it; it also expires, so a worker killed mid-job cannot leave it for good
 REFRESH_QUEUE = "export"
 REFRESH_PENDING_SECONDS = 600
 REFRESH_FAILED_SECONDS = 600
@@ -45,18 +47,32 @@ def refresh_state(deck_pk: int) -> str:
 def enqueue_deck_refresh(deck: WrappedDeck, make: bool = False) -> bool:
     """Queue a job that stores the deck's card data again, unless one is queued or running; True when this
     call queued it. ``make``: the job is the step that makes the deck, and does nothing once it is made."""
-    if not cache.add(_pending_key(deck.pk), 1, REFRESH_PENDING_SECONDS):
+    token = uuid.uuid4().hex
+    if not cache.add(_pending_key(deck.pk), token, REFRESH_PENDING_SECONDS):
         return False
     cache.delete(_failed_key(deck.pk))
     try:
-        django_rq.get_queue(REFRESH_QUEUE).enqueue(refresh_deck_job, deck.pk, make)
+        django_rq.get_queue(REFRESH_QUEUE).enqueue(
+            refresh_deck_job, deck.pk, make, token
+        )
     except Exception:
-        cache.delete(_pending_key(deck.pk))
+        _release(deck.pk, token)
         raise
     return True
 
 
-def refresh_deck_job(deck_pk: int, make: bool = False) -> None:
+def _release(deck_pk: int, token: str) -> None:
+    # a job queued after this marker expired holds a marker of its own
+    if cache.get(_pending_key(deck_pk)) == token:
+        cache.delete(_pending_key(deck_pk))
+
+
+def refresh_deck_job(deck_pk: int, make: bool = False, token: str = "") -> None:
+    key = _pending_key(deck_pk)
+    # the marker counts from the enqueue and may have expired while the job waited in the queue: hold it again
+    # for the run, unless a later job holds it
+    if cache.get(key) in (None, token):
+        cache.set(key, token, REFRESH_PENDING_SECONDS)
     try:
         deck = WrappedDeck.objects.filter(pk=deck_pk).first()
         # the owner deleted the deck meanwhile, or a job before this one made it
@@ -68,7 +84,7 @@ def refresh_deck_job(deck_pk: int, make: bool = False) -> None:
         cache.set(_failed_key(deck_pk), 1, REFRESH_FAILED_SECONDS)
         raise
     finally:
-        cache.delete(_pending_key(deck_pk))
+        _release(deck_pk, token)
 
 
 @JobManager.register

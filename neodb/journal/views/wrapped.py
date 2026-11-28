@@ -445,14 +445,17 @@ def wrapped_page(request: AuthedHttpRequest, user_name: str, year: int):
             deck.save(update_fields=["timezone", "edited_time"])
         # the deck was stored while another process was still computing the instance totals: a job fills the
         # gap, and the page reloads when it is done
-        if (
+        queued = (
             _may_make(request.user, year)
             and any(p.get("warming") for p in (deck.data or {}).values())
             and aggregates_ready(year)
-        ):
-            enqueue_deck_refresh(deck)
+            and enqueue_deck_refresh(deck)
+        )
         level = _owner_level(request, deck)
         ctx = _context(target, deck, year, level, True, request.user)
+        if queued:
+            # the page holds the data read before the job; it waits even when the job ended before the state was read
+            ctx["payload"]["updating"] = True
     else:
         viewer = request.identity
         # a follower sees the followers' cards, or everyone's when the member shows followers none; anybody else sees everyone's

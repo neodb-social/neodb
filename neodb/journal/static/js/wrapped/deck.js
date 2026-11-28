@@ -106,12 +106,13 @@
   const ACTIVITY = activityOf(ACT);
 
   const past = D.year < new Date().getFullYear();
-  // a job makes or updates the cards: ask the server until it has ended, for at most as long as the server waits for it
+  // a job makes or updates the cards: ask the server until it has ended, for at most as long as the server waits for it;
+  // each request has its own time limit, so one that hangs is retried and the deadline still applies
   function waitUpdate() {
-    const t0 = Date.now();
+    const t0 = Date.now(), limit = () => typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(15000) } : {};
     return new Promise((done, fail) => {
       const next = () => Date.now() - t0 > 600000 ? fail("timeout") : setTimeout(tick, 2000);
-      const tick = () => fetch(URLS.status, { cache: "no-store" }).then(r => { if (!r.ok) throw r.status; return r.json(); }).then(j => j.updating ? next() : done(j), next);
+      const tick = () => fetch(URLS.status, { cache: "no-store", ...limit() }).then(r => { if (!r.ok) throw r.status; return r.json(); }).then(j => j.updating ? next() : done(j), next);
       setTimeout(tick, 1000);
     });
   }
