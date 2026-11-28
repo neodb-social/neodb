@@ -488,7 +488,8 @@ def _reacted(
 
     A text counts with its latest post and the counts that post keeps; who reacted is never read. A deleted
     post does not count, and a text counts at a level only when both it and its post are visible there. On a
-    tie the earlier text wins. None for a level where no text has a like or a boost."""
+    tie the earlier text wins. None for a level where no text has a like or a boost. A note marked sensitive
+    stays out, as the card would show it without its warning."""
     out: dict[int, dict[str, Any] | None] = dict.fromkeys(levels)
     pieces = [
         (kind, pk, ts, item_id, vis)
@@ -499,6 +500,7 @@ def _reacted(
             created_time__gte=start,
             created_time__lt=end,
             visibility__lte=max(levels),
+            **({"sensitive": False} if kind == "note" else {}),
         )
         .values_list("pk", "created_time", "item_id", "visibility")
     ]
@@ -538,23 +540,22 @@ def _reacted(
                 )
             )
     ranked.sort()
-    items: dict[int, Item | None] = {}
-    texts: dict[int, Any] = {}
+    # a text that wins at several levels is read once; the card draws no stars, so it is the same at each
+    cards: dict[int, dict[str, Any] | None] = {}
 
-    def card(level: int, row: tuple) -> dict[str, Any] | None:
+    def card(row: tuple) -> dict[str, Any] | None:
         pk, kind, item_id, likes, boosts = row[2], row[4], row[5], row[6], row[7]
-        if item_id not in items:
-            items[item_id] = _items_by_id([item_id]).get(item_id)
-        it = items[item_id]
+        if pk in cards:
+            return cards[pk]
+        cards[pk] = None
+        it = _items_by_id([item_id]).get(item_id)
         if not it or it.is_deleted or str(it.category) not in CATEGORIES:
             return None
-        if pk not in texts:
-            texts[pk] = _words_model(kind).objects.filter(pk=pk).first()
-        piece = texts[pk]
+        piece = _words_model(kind).objects.filter(pk=pk).first()
         if piece is None:
             return None
         post_id = latest[pk]
-        return {
+        cards[pk] = {
             "kind": kind,
             "ref": str(piece.uid),
             **words_text(kind, piece),
@@ -564,15 +565,14 @@ def _reacted(
             "replies": int(posts[post_id][1].get("replies") or 0),
             "url": settings.SITE_INFO["site_url"].rstrip("/")
             + reverse("journal:post_view", args=(owner.handle, post_id)),
-            "item": _words_item(
-                it, _grades(owner, [it.pk], level).get(it.pk), _credits([it.pk])
-            ),
+            "item": _words_item(it, None, _credits([it.pk])),
         }
+        return cards[pk]
 
     for level in levels:
         # one title at a time: the next is read only when a title is gone
         tries = [r for r in ranked if r[3] <= level][:REACTED_TRIES]
-        out[level] = next(filter(None, (card(level, r) for r in tries)), None)
+        out[level] = next(filter(None, (card(r) for r in tries)), None)
     return out
 
 

@@ -1000,6 +1000,24 @@ class TestMostReacted:
         assert self.reacted(0)["text"] == "wide post"
         assert self.reacted(1)["text"] == "narrow post"
 
+    def test_a_score_under_the_card_rule_still_stores_its_counts(self):
+        # the page hides the card under three and its Edit tile names the score, so the data keeps it
+        self.text(Comment, self.book, at(2, 1), text="two likes", likes=2)
+        r = self.reacted(0)
+        assert (r["text"], r["likes"], r["boosts"]) == ("two likes", 2, 0)
+
+    def test_a_sensitive_note_stays_out(self):
+        self.text(
+            Note,
+            self.book,
+            at(2, 1),
+            content="behind a warning",
+            likes=9,
+            sensitive=True,
+        )
+        self.text(Comment, self.film, at(2, 2), text="plain", likes=3)
+        assert self.reacted(2)["text"] == "plain"
+
     def test_no_likes_or_boosts_gives_no_card_data(self):
         assert self.reacted(2) is None
         self.text(Comment, self.book, at(2, 1), text="only replies", replies=4)
