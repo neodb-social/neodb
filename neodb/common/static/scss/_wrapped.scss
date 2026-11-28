@@ -1,6 +1,8 @@
-// annual summary: the deck page is a full-screen stage that plays the cards one at a time; the owner's year page puts the whole year under it
+// annual summary: the deck page is a full-screen stage that plays the cards one at a time; the owner's year page is a normal page with the year at a glance
 // Pico sets --pico-color again on every button, so the page's own text colours are kept here
 .wr-body { --wr-ink: var(--pico-color); --wr-muted: var(--pico-muted-color); }
+// the year menu, in the deck's top bar and beside the year page's title
+.wr-body select.wr-yr { width: auto; height: auto; margin: 0; padding: 0.15rem 1.7rem 0.15rem 0.6rem; border-radius: var(--dc-pill); background-color: transparent; background-position: center right 0.5rem; font-size: var(--dc-fs-sm); font-weight: 700; color: var(--wr-ink); }
 .wr-sr { position: absolute; width: 1px; height: 1px; margin: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 // the stage: the card's own colour fills the screen (a deep shade of it in dark mode, where the card stays light)
@@ -21,7 +23,6 @@
   .wr-who a span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .wr-av { flex: 0 0 auto; width: 1.7rem; height: 1.7rem; border-radius: 50%; object-fit: cover; }
   .wr-yr { font-variant-numeric: tabular-nums; color: var(--pico-muted-color); }
-  select.wr-yr { width: auto; height: auto; margin: 0; padding: 0.15rem 1.7rem 0.15rem 0.6rem; border-radius: var(--dc-pill); background-color: transparent; background-position: center right 0.5rem; font-size: var(--dc-fs-sm); font-weight: 700; color: var(--wr-ink); }
   .wr-baract { display: flex; gap: 0.4rem; }
 
   // the progress bar: one segment for each card; the current one fills while the show plays
@@ -54,26 +55,17 @@
   .wr-round { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; margin: 0; padding: 0; border: 1px solid rgba(127, 127, 127, 0.3); border-radius: 50%; background: transparent; color: var(--wr-ink); box-shadow: none; }
   .wr-round:hover { border-color: var(--pico-primary); color: var(--pico-primary); }
   // immersive while the show plays: the controls fade away and the screen deepens a little at its edges
-  :is(.wr-bar, .wr-ctl, .wr-cue, .wr-end, .wr-nowplaying), .deck .card .cf { transition: opacity 0.6s ease; }
+  :is(.wr-bar, .wr-ctl, .wr-end, .wr-nowplaying), .deck .card .cf { transition: opacity 0.6s ease; }
   box-shadow: inset 0 0 0 rgba(0, 0, 0, 0); transition: background-color 0.6s ease, box-shadow 0.8s ease;
   &.immersive:not(.awake) { box-shadow: inset 0 0 220px rgba(0, 0, 0, 0.16); cursor: none; }
-  &.immersive:not(.awake) :is(.wr-bar, .wr-ctl, .wr-cue, .wr-end, .wr-nowplaying), &.immersive:not(.awake) .deck .card .cf { opacity: 0; pointer-events: none; }
+  &.immersive:not(.awake) :is(.wr-bar, .wr-ctl, .wr-end, .wr-nowplaying), &.immersive:not(.awake) .deck .card .cf { opacity: 0; pointer-events: none; }
   &.at-end .wr-ctl { display: none; }
-  &.none :is(.wr-ctl, .wr-prog, .wr-cue) { visibility: hidden; }
-  &.at-end .wr-cue { visibility: hidden; }
+  &.none :is(.wr-ctl, .wr-prog) { visibility: hidden; }
   .wr-end { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; padding: 0 1rem 0.4rem; }
-  .wr-cue { align-self: center; width: auto; margin: auto 0 0.8rem; padding: 0.3rem 0.8rem; border: 0; background: none; box-shadow: none; color: var(--wr-muted); font-size: var(--dc-fs-sm); }
-  .wr-cue:hover { color: var(--pico-primary); }
   // what plays, with its licence and Commons page, while the sound is on
   .wr-nowplaying { align-self: center; max-width: #{"min(var(--card), calc(100% - 2rem))"}; margin: 0 0 0.3rem; font-size: var(--dc-fs-xs); text-align: center; color: var(--wr-muted); }
   .wr-nowplaying a { color: inherit; }
   .wr-sound[aria-pressed="true"] { border-color: var(--pico-primary); color: var(--pico-primary); }
-  .wr-cue i { margin-left: 0.2rem; }
-  // before the deck is made: a blank card, with two more showing behind it, holds the step that makes the deck
-  .wr-pending { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.2rem; width: var(--card); max-width: calc(100% - 3rem); aspect-ratio: 4 / 5; margin: auto; padding: 2rem; border-radius: var(--dc-radius-lg); background: #fbfcfc; box-shadow: 0 10px 36px rgba(0, 0, 0, 0.1), 0.6rem -0.6rem 0 -0.15rem #e3e8eb, 1.2rem -1.2rem 0 -0.3rem #d5dce0; color: #1b2832; text-align: center; }
-  // the card stays light in dark mode, as the cards do, so its text keeps the card's ink instead of the page's
-  .wr-pending p { max-width: 24rem; margin: 0; font-size: var(--dc-fs-lg); color: #1b2832; }
-  .wr-pending form { margin: 0; }
   .wr-empty { flex: 1; display: grid; place-items: center; max-width: 30rem; margin: 0 auto; padding: 0 1rem 4rem; text-align: center; font-size: var(--dc-fs-lg); color: var(--pico-muted-color); }
   // under the message: links to the audiences with titles, or the button that updates the cards
   .wr-empty-aud { max-width: 30rem; margin: 0 auto 1.2rem; padding: 0 1rem; text-align: center; color: var(--pico-muted-color); }
@@ -121,14 +113,22 @@
 .wr-pill.primary:hover { color: var(--pico-primary-inverse); filter: brightness(1.08); }
 .wr-pill .wr-av { width: 1.3rem; height: 1.3rem; margin: -0.15rem 0 -0.15rem -0.45rem; }
 
-// the whole year, under the stage of the owner's year page
+// the owner's year page: the year at a glance, under the site's own header
 .wrapped-page {
   max-width: 1120px;
   margin: 0 auto;
   padding: calc(var(--dc-gap) * 2.5) calc(var(--dc-gap) * 1.5) 2rem;
+  [hidden] { display: none !important; }
   > section + section { margin-top: calc(var(--dc-gap) * 3); }
 
+  .wr-yhead { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+  .wr-yhead select.wr-yr { margin-bottom: 0.5rem; }
   .wr-h { margin: 0.3rem 0 0.5rem; font-size: clamp(1.7rem, 3.6vw, 2.6rem); letter-spacing: -0.025em; line-height: 1.08; color: var(--dc-strong); }
+  // the step that makes the cards, or the link to them: one line, so the year itself stays in the first screen
+  .wr-pending { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.7rem 1.2rem; margin-top: var(--dc-gap); padding: 0.9rem 1.2rem; }
+  .wr-pending p { flex: 1 1 20rem; margin: 0; color: var(--dc-strong); }
+  .wr-pending form { margin: 0; }
+  .wr-empty { margin: calc(var(--dc-gap) * 1.5) 0 0; font-size: var(--dc-fs-lg); color: var(--dc-muted); }
 
   .wr-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--dc-gap); margin-top: calc(var(--dc-gap) * 1.5); }
   .wr-stats .dc-surface { padding: 1rem 1.2rem; }
@@ -215,13 +215,13 @@
   .wr-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem 1rem; margin: 0 0 0.6rem; }
   .wr-actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
   .wr-actions .dc-btn { padding: 0.5rem 0.9rem; }
-  // the page's visibility first, apart from the cards: its label, the switch and what the chosen level means
-  .wr-vis, .wr-music, .wr-update { margin: 0 0 1.2rem; padding: 0 0 1rem; border-bottom: 1px solid var(--dc-border); }
+  // the audience first, above the cards: its label, the switch and what the chosen level means
+  .wr-vis { margin: 0 0 1.2rem; padding: 0 0 1rem; border-bottom: 1px solid var(--dc-border); }
+  // under the cards, each apart: the background music, the card data, and deleting the deck last
+  .wr-music, .wr-update, .wr-delete { margin: 1.5rem 0 0; padding: 1rem 0 0; border-top: 1px solid var(--dc-border); }
   // the card data: when it was stored, until when it updates, and the button that updates it now
   .wr-update .dc-fine { margin: 0 0 0.6rem; }
   .wr-update .dc-btn { width: auto; margin: 0; }
-  // deleting the deck: last in the sheet, apart from the cards
-  .wr-delete { margin: 1.5rem 0 0; padding: 1rem 0 0; border-top: 1px solid var(--dc-border); }
   .wr-delete .dc-fine { margin: 0 0 0.6rem; }
   .wr-delete .dc-btn { width: auto; margin: 0; border-color: var(--pico-del-color); color: var(--pico-del-color); }
   .wr-vis .wr-sizes { margin: 0; }
@@ -303,24 +303,42 @@
   .pick-grid input:checked + svg { border-color: var(--pico-primary); }
   .pick-grid label.full { opacity: 0.4; }
   .gif-out { margin-top: 0.8rem; }
-  // the QR code tab: the image on the left, the text and the buttons in a column on the right
-  .qr-tab { display: grid; grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.2rem; align-items: start; }
+  // a video post: the intro card it starts with, under a play sign, and how many cards it holds
+  .pub-vid { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }
+  .pub-vid .pv { position: relative; flex: 0 0 auto; width: 8rem; }
+  .pub-vid .pv svg { display: block; width: 100%; height: auto; border-radius: var(--dc-radius-sm); border: 1px solid var(--dc-border); }
+  .pub-vid .pv i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.6rem; color: #fff; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45)); }
+  .pub-vid span { font-size: var(--dc-fs-sm); color: var(--dc-muted); }
+  // the link and the QR code: the link first, then the image beside its buttons (above them on a phone)
+  .wr-linkrow { margin: 0 0 1.2rem; }
+  .qr-tab { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: 1.2rem; align-items: start; margin: 0 0 1.2rem; }
   .qr-prev { position: relative; display: grid; place-items: center; min-height: 6rem; }
   .qr-prev svg { display: block; width: 100%; height: auto; border-radius: var(--dc-radius); border: 1px solid var(--dc-border); }
   .qr-prev.locked svg { opacity: 0.35; }
   .qr-prev.locked .fa-lock { position: absolute; font-size: 2.4rem; color: var(--dc-strong); }
-  .qr-btns { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; margin: 0 0 0.8rem; }
+  .qr-btns { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
   .qr-btns .dc-btn { width: auto; margin: 0; }
   .wr-warn .dc-btn { margin: 0.4rem 0 0; padding: 0.3rem 0.7rem; font-size: var(--dc-fs-xs); }
-  @media (max-width: 600px) { .qr-tab { grid-template-columns: 1fr; } .qr-prev { max-width: 16rem; } }
-  // Share: the three audiences at the one link, and a warning when signed-out visitors cannot open it
-  .wr-auds { list-style: none; margin: 0 0 0.8rem; padding: 0; border: 1px solid var(--dc-border); border-radius: var(--dc-radius); }
-  .wr-auds li { display: grid; grid-template-columns: 9rem auto; gap: 0.1rem 0.8rem; margin: 0; padding: 0.6rem 0.8rem; list-style: none; }
-  .wr-auds li + li { border-top: 1px solid var(--dc-border); }
+  // the three audiences at the one link, side by side; the note of the one on screen under them
+  .wr-auds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 0 0.6rem; padding: 0; overflow: hidden; list-style: none; border: 1px solid var(--dc-border); border-radius: var(--dc-radius); }
+  .wr-auds li { display: flex; flex-direction: column; gap: 0.1rem; margin: 0; padding: 0.5rem 0.8rem; list-style: none; font-size: var(--dc-fs-sm); }
+  .wr-auds li + li { border-left: 1px solid var(--dc-border); }
   .wr-auds li.on { background: var(--dc-surface-2); }
   .wr-auds b { color: var(--dc-strong); }
-  .wr-auds .st { font-weight: 600; color: var(--dc-strong); }
-  .wr-auds small { grid-column: 1 / -1; color: var(--dc-muted); font-size: var(--dc-fs-xs); }
+  .wr-auds .st { color: var(--dc-muted); }
+  .wr-auds li.on .st { font-weight: 600; color: var(--dc-strong); }
+  .wr-audfoot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; }
+  .wr-audfoot .dc-fine { flex: 1 1 16rem; margin: 0; }
+  .wr-audfoot .dc-btn { width: auto; margin: 0; }
+  @media (max-width: 600px) {
+    .qr-tab { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+    .qr-prev { width: #{"min(12rem, 70%)"}; }
+    .qr-btns { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    .wr-auds { grid-template-columns: minmax(0, 1fr); }
+    .wr-auds li { flex-direction: row; justify-content: space-between; gap: 0.8rem; padding: 0.4rem 0.7rem; }
+    .wr-auds li + li { border-left: 0; border-top: 1px solid var(--dc-border); }
+  }
+  // a warning when the link opens nothing for some people
   .wr-warn { padding: 0.6rem 0.8rem; border-radius: var(--dc-radius); background: #fff4e5; color: #6b4300; font-size: var(--dc-fs-sm); }
   .wr-warn a { color: inherit; font-weight: 700; }
   .wr-withmusic { display: flex; align-items: center; gap: 0.4rem; margin: 0 0 0.6rem; font-size: var(--dc-fs-sm); }

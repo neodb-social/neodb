@@ -49,14 +49,12 @@
             <i class="fa-solid fa-volume-xmark"></i> <span id="wr-soundtext"></span>
           </button>
           {% if is_owner %}
-            {% if not year_page %}
-              <button class="wr-pill" type="button" id="wr-edit">
-                <i class="fa-solid fa-pen"></i> <span>{% trans "Edit" %}</span>
-              </button>
-              <button class="wr-pill primary" type="button" id="wr-publish">
-                <i class="fa-solid fa-share-from-square"></i> <span>{% trans "Share" %}</span>
-              </button>
-            {% endif %}
+            <button class="wr-pill" type="button" id="wr-edit">
+              <i class="fa-solid fa-pen"></i> <span>{% trans "Edit" %}</span>
+            </button>
+            <button class="wr-pill primary" type="button" id="wr-publish">
+              <i class="fa-solid fa-share-from-square"></i> <span>{% trans "Share" %}</span>
+            </button>
           {% elif request.user.is_authenticated %}
             <a class="wr-pill"
                href="{% url 'journal:wrapped' year %}"
@@ -73,85 +71,28 @@
       <h1 class="wr-sr">
         {% blocktranslate with name=identity.display_name %}{{ name }}’s {{ year }}, card by card{% endblocktranslate %}
       </h1>
-      {% if year_page %}
-        <div class="wr-pending" id="wr-pending">
-          {% if year_page.deck_url %}
-            <p>{% blocktranslate %}Your {{ year }} cards are ready.{% endblocktranslate %}</p>
-            <a class="wr-pill primary" href="{{ year_page.deck_url }}">
-              <i class="fa-solid fa-play"></i> {% trans "Open my cards" %}
-            </a>
-          {% elif year_page.state == "open" or year_page.admin %}
-            <p>
-              {% if year_page.admin %}
-                {% trans "As an admin, you can make and update these cards at any time, for testing." %}
-              {% elif year_page.auto %}
-                {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" auto=year_page.auto_last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. They update every night until {{ auto }}, and you can update them by hand until {{ date }}; after that they stay as they are.{% endblocktranslate %}
-              {% else %}
-                {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. You can update them by hand until then; after that they stay as they are.{% endblocktranslate %}
-              {% endif %}
-            </p>
-            <form method="post" action="{% url 'journal:wrapped_generate' year %}">
-              {% csrf_token %}
-              <button class="wr-pill primary" type="submit">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> {% blocktranslate %}Make my {{ year }} cards{% endblocktranslate %}
-              </button>
-            </form>
-          {% elif year_page.state == "early" %}
-            <p>
-              {% blocktranslate with date=year_page.start|date:"DATE_FORMAT" %}You can make your {{ year }} cards from {{ date }}.{% endblocktranslate %}
-            </p>
-          {% else %}
-            <p>
-              {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" %}The {{ year }} cards could be made until {{ date }}.{% endblocktranslate %}
-            </p>
-          {% endif %}
-        </div>
-      {% endif %}
       <p class="wr-empty" id="wr-empty" hidden></p>
-      {% if not year_page %}
-        <div class="wr-prog" id="wr-dots"></div>
-        <div class="deck" id="wr-deck"></div>
-        <div class="wr-ctl">
-          <button class="wr-round"
-                  type="button"
-                  id="wr-prev"
-                  aria-label="{% trans 'Previous card' %}">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <button class="wr-round" type="button" id="wr-play"></button>
-          <button class="wr-round"
-                  type="button"
-                  id="wr-next"
-                  aria-label="{% trans 'Next card' %}">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-        </div>
-        <div class="wr-end" id="wr-end" hidden></div>
-      {% endif %}
-      <p class="wr-nowplaying" id="wr-nowplaying" hidden></p>
-      {% if year_page %}
-        <button class="wr-cue" type="button" id="wr-cue">
-          <span id="wr-cuetext"></span> <i class="fa-solid fa-chevron-down"></i>
+      <div class="wr-prog" id="wr-dots"></div>
+      <div class="deck" id="wr-deck"></div>
+      <div class="wr-ctl">
+        <button class="wr-round"
+                type="button"
+                id="wr-prev"
+                aria-label="{% trans 'Previous card' %}">
+          <i class="fa-solid fa-chevron-left"></i>
         </button>
-      {% endif %}
+        <button class="wr-round" type="button" id="wr-play"></button>
+        <button class="wr-round"
+                type="button"
+                id="wr-next"
+                aria-label="{% trans 'Next card' %}">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+      <div class="wr-end" id="wr-end" hidden></div>
+      <p class="wr-nowplaying" id="wr-nowplaying" hidden></p>
     </div>
-    {% if year_page %}
-      <main class="wrapped-page" id="wr-year">
-        <section>
-          <p class="dc-eyebrow">{% blocktranslate %}{{ year }} annual summary{% endblocktranslate %}</p>
-          <h2 class="wr-h">{% trans "The whole year" %}</h2>
-          <div class="wr-stats" id="wr-stats"></div>
-        </section>
-        <section>
-          <div class="cat-filter"
-               id="wr-bymcat"
-               role="group"
-               aria-label="{% trans 'Filter by shelf' %}"></div>
-          <div class="piles" id="wr-piles"></div>
-        </section>
-      </main>
-    {% endif %}
-    {% if is_owner and not year_page %}
+    {% if is_owner %}
       <dialog id="wr-editdlg" aria-labelledby="wr-editdlg-title">
         <article>
           <header>
@@ -166,7 +107,7 @@
           <div class="wr-vis">
             {# the switch picks the audience whose deck the owner edits, as each audience sees its own cards #}
             <p class="wr-vislabel" id="wr-vislabel">
-              {% trans "Choose an audience to edit the cards it sees when it opens your annual summary" %}
+              {% trans "Choose an audience to edit the cards they see when they open your annual summary" %}
             </p>
             <span class="wr-sizes pagevis" role="group" aria-labelledby="wr-vislabel">
               <button data-pv="public" type="button">
@@ -181,6 +122,23 @@
             </span>
             <p class="dc-fine" id="wr-visnote"></p>
           </div>
+          <div class="wr-toolbar">
+            <span class="dc-sub" id="wr-decksub"></span>
+            <span class="wr-actions">
+              <button class="dc-btn outline" type="button" id="wr-suggest">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> {% trans "Suggested cards" %}
+              </button>
+              <button class="dc-btn outline" type="button" id="wr-hideall">
+                <i class="fa-solid fa-eye-slash"></i> {% trans "Hide all" %}
+              </button>
+              <button class="dc-btn outline" type="button" id="wr-resetorder" hidden>
+                <i class="fa-solid fa-rotate-left"></i> {% trans "Reset order" %}
+              </button>
+              <button class="dc-btn outline" type="button" id="wr-arrange"></button>
+            </span>
+          </div>
+          <p class="dc-fine" id="wr-hubsub"></p>
+          <div class="hub" id="wr-hub"></div>
           <div class="wr-music">
             <label class="wr-vislabel" for="wr-music">{% trans "Background music" %}</label>
             <div class="wr-musicrow">
@@ -219,23 +177,6 @@
               </p>
             {% endif %}
           </div>
-          <div class="wr-toolbar">
-            <span class="dc-sub" id="wr-decksub"></span>
-            <span class="wr-actions">
-              <button class="dc-btn outline" type="button" id="wr-suggest">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> {% trans "Suggested cards" %}
-              </button>
-              <button class="dc-btn outline" type="button" id="wr-hideall">
-                <i class="fa-solid fa-eye-slash"></i> {% trans "Hide all" %}
-              </button>
-              <button class="dc-btn outline" type="button" id="wr-resetorder" hidden>
-                <i class="fa-solid fa-rotate-left"></i> {% trans "Reset order" %}
-              </button>
-              <button class="dc-btn outline" type="button" id="wr-arrange"></button>
-            </span>
-          </div>
-          <p class="dc-fine" id="wr-hubsub"></p>
-          <div class="hub" id="wr-hub"></div>
           {% translate "Delete these cards and every change you made to them? This cannot be undone." as delete_confirm %}
           <form class="wr-delete"
                 id="wr-delete"
@@ -259,8 +200,6 @@
           </form>
         </article>
       </dialog>
-    {% endif %}
-    {% if is_owner and not year_page %}
       <dialog id="wr-mkdlg" aria-labelledby="wr-mkdlg-title">
         <article>
           <header>
@@ -335,9 +274,8 @@
             </button>
           </header>
           <div class="pub-tabs" id="wr-pub-tabs">
-            <button class="on" data-t="post" type="button">{% trans "Post cards" %}</button>
-            <button data-t="qr" type="button">{% trans "QR code" %}</button>
-            <button data-t="page" type="button">{% trans "Page link" %}</button>
+            <button class="on" data-t="post" type="button">{% trans "Cards" %}</button>
+            <button data-t="page" type="button">{% trans "Link and QR code" %}</button>
             <button data-t="dl" type="button">{% trans "Download" %}</button>
           </div>
           <div id="wr-pub-post">
@@ -363,6 +301,7 @@
               {% trans "Include the background music in the video" %}
             </label>
             <div class="pick-grid" id="wr-pub-grid"></div>
+            <div class="pub-vid" id="wr-pub-vid" hidden></div>
             <textarea id="wr-pub-note" rows="3" aria-label="{% trans 'Text of the post' %}"></textarea>
             <fieldset>
               <label>
@@ -392,52 +331,43 @@
               <button class="dc-btn primary" type="button" id="wr-pub-send">
                 <i class="fa-solid fa-paper-plane"></i> {% trans "Publish" %}
               </button>
+              <button class="dc-btn outline" type="button" id="wr-pub-copyimg" hidden>
+                <i class="fa-solid fa-copy"></i> {% trans "Copy image" %}
+              </button>
             </div>
           </div>
           <div id="wr-pub-page" hidden>
-            {% if not identity.anonymous_viewable %}
-              <p class="wr-warn">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                {% trans "People who are not signed in cannot open this page, because your profile is hidden from them." %}
-                <a href="{% url 'users:preferences' %}">{% trans "Change it in Settings" %}</a>
-              </p>
-            {% endif %}
-            <p class="wr-vislabel">{% trans "Who can see these cards" %}</p>
-            <ul class="wr-auds" id="wr-auds">
-            </ul>
-            <p>
-              <button class="dc-btn outline" type="button" id="wr-pub-edit">
-                <i class="fa-solid fa-pen"></i> {% trans "Change in Edit" %}
-              </button>
-            </p>
+            <p class="wr-warn" id="wr-qr-warn" hidden></p>
+            <label class="wr-vislabel" for="wr-pub-link">{% trans "Link to the page" %}</label>
             <div class="wr-linkrow" role="group">
-              <input type="text"
-                     id="wr-pub-link"
-                     readonly
-                     aria-label="{% trans 'Link to the page' %}">
+              <input type="text" id="wr-pub-link" readonly>
               <button class="dc-btn primary" type="button" id="wr-pub-copy">
                 <i class="fa-solid fa-link"></i> {% trans "Copy link" %}
               </button>
             </div>
-          </div>
-          <div id="wr-pub-qr" hidden>
+            <p class="wr-vislabel">{% trans "QR code" %}</p>
             <div class="qr-tab">
               <div class="qr-prev" id="wr-qr-prev"></div>
-              <div>
-                <p class="wr-warn" id="wr-qr-warn" hidden></p>
-                <div class="qr-btns">
-                  <button class="dc-btn outline" type="button" id="wr-qr-share" hidden>
-                    <i class="fa-solid fa-share-nodes"></i> {% trans "Share…" %}
-                  </button>
-                  <button class="dc-btn outline" type="button" id="wr-qr-copy" hidden>
-                    <i class="fa-solid fa-copy"></i> {% trans "Copy image" %}
-                  </button>
-                  <button class="dc-btn outline" type="button" id="wr-qr-dl">
-                    <i class="fa-solid fa-download"></i> {% trans "Download PNG" %}
-                  </button>
-                </div>
-                <p class="dc-fine" id="wr-qr-link"></p>
+              <div class="qr-btns">
+                <button class="dc-btn outline" type="button" id="wr-qr-share" hidden>
+                  <i class="fa-solid fa-share-nodes"></i> {% trans "Share…" %}
+                </button>
+                <button class="dc-btn outline" type="button" id="wr-qr-copy" hidden>
+                  <i class="fa-solid fa-copy"></i> {% trans "Copy image" %}
+                </button>
+                <button class="dc-btn outline" type="button" id="wr-qr-dl">
+                  <i class="fa-solid fa-download"></i> {% trans "Download PNG" %}
+                </button>
               </div>
+            </div>
+            <p class="wr-vislabel">{% trans "Who can see these cards" %}</p>
+            <ul class="wr-auds" id="wr-auds">
+            </ul>
+            <div class="wr-audfoot">
+              <p class="dc-fine" id="wr-audnote"></p>
+              <button class="dc-btn outline" type="button" id="wr-pub-edit">
+                <i class="fa-solid fa-pen"></i> {% trans "Change in Edit" %}
+              </button>
             </div>
           </div>
           <div id="wr-pub-dl" hidden>

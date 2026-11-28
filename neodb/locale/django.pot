@@ -10086,11 +10086,11 @@ msgid "A card from a collection follows the collection as it changes."
 msgstr ""
 
 #: journal/templates/wrapped.html:158
-msgid "Post cards"
+msgid "Cards"
 msgstr ""
 
-#: journal/templates/wrapped.html:159
-msgid "Page link"
+#: journal/templates/wrapped.html:278
+msgid "Link and QR code"
 msgstr ""
 
 #: journal/templates/wrapped.html:163
@@ -11362,6 +11362,10 @@ msgid "Pick at least one card"
 msgstr ""
 
 #: journal/wrapped_text.py:351
+msgid "Pick exactly one card to copy"
+msgstr ""
+
+#: journal/wrapped_text.py:351
 #, python-brace-format
 msgid "Posting failed: {error}"
 msgstr ""
@@ -11543,7 +11547,7 @@ msgid "Sign in"
 msgstr ""
 
 #: journal/templates/wrapped.html:76
-msgid "The whole year"
+msgid "Your year at a glance"
 msgstr ""
 
 #: journal/templates/wrapped.html:104 journal/wrapped_text.py:414
@@ -11800,7 +11804,7 @@ msgid "Image copied"
 msgstr ""
 
 #: journal/wrapped_text.py:433
-msgid "Only you can see the page now, so the code opens nothing for other people."
+msgid "Only you can see the page now, so other people cannot open it from the link or the code."
 msgstr ""
 
 #: journal/wrapped_text.py:434
@@ -11809,11 +11813,6 @@ msgstr ""
 
 #: journal/wrapped_text.py:436
 msgid "Show the cards the code opens"
-msgstr ""
-
-#: journal/wrapped_text.py:437
-#, python-brace-format
-msgid "The code opens {link}."
 msgstr ""
 
 #: journal/wrapped_text.py:454
@@ -11900,11 +11899,6 @@ msgstr ""
 msgid "You can make your %(year)s cards from %(date)s."
 msgstr ""
 
-#: journal/templates/wrapped.html:82
-#, python-format
-msgid "The %(year)s cards could be made until %(date)s."
-msgstr ""
-
 #: journal/views/wrapped.py:408 journal/views/wrapped.py:475
 msgid "This summary is not made yet."
 msgstr ""
@@ -11982,7 +11976,7 @@ msgid "Could not update the cards; try again"
 msgstr ""
 
 #: journal/templates/wrapped.html:157
-msgid "Choose an audience to edit the cards it sees when it opens your annual summary"
+msgid "Choose an audience to edit the cards they see when they open your annual summary"
 msgstr ""
 
 #: journal/wrapped_text.py:292

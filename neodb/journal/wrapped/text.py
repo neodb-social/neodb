@@ -407,6 +407,7 @@ TEXT = [
     gettext_noop("A deck can have up to {n} cards of your own"),
     gettext_noop("This audience sees none of this year's titles. Open another:"),
     gettext_noop("Pick at least one card"),
+    gettext_noop("Pick exactly one card to copy"),
     gettext_noop("Posting failed: {error}"),
     gettext_noop("Link copied"),
     gettext_noop("Export failed: {error}"),
@@ -448,14 +449,13 @@ TEXT = [
     gettext_noop("Could not share: {error}"),
     gettext_noop("Image copied"),
     gettext_noop(
-        "Only you can see the page now, so the code opens nothing for other people."
+        "Only you can see the page now, so other people cannot open it from the link or the code."
     ),
     gettext_noop("Only your followers can open this page, after they sign in."),
     gettext_noop(
         "People who are not signed in cannot open this page, because your profile is hidden from them."
     ),
     gettext_noop("Show the cards the code opens"),
-    gettext_noop("The code opens {link}."),
     # the stage, the piles of covers and the end of the page
     gettext_noop("Year"),
     gettext_noop("Copy link to this card"),

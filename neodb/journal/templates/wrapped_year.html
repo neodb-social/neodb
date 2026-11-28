@@ -1,0 +1,72 @@
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ identity.display_name }} - {% blocktranslate %}{{ year }} annual summary{% endblocktranslate %}</title>
+    {% include "common_libs.html" %}
+  </head>
+  <body class="wr-body">
+    {% include "_header.html" %}
+    <main class="wrapped-page" id="wr-year">
+      <section>
+        <div class="wr-yhead">
+          <div>
+            <p class="dc-eyebrow">{% blocktranslate %}{{ year }} annual summary{% endblocktranslate %}</p>
+            <h1 class="wr-h">{% trans "Your year at a glance" %}</h1>
+          </div>
+          <span id="wr-yr" hidden></span>
+        </div>
+        {% if year_page.deck_url %}
+          <div class="wr-pending dc-surface" id="wr-pending">
+            <p>{% blocktranslate %}Your {{ year }} cards are ready.{% endblocktranslate %}</p>
+            <a class="wr-pill primary" href="{{ year_page.deck_url }}">
+              <i class="fa-solid fa-play"></i> {% trans "Open my cards" %}
+            </a>
+          </div>
+        {% elif year_page.state == "open" or year_page.admin %}
+          <div class="wr-pending dc-surface" id="wr-pending">
+            <p>
+              {% if year_page.admin %}
+                {% trans "As an admin, you can make and update these cards at any time, for testing." %}
+              {% elif year_page.auto %}
+                {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" auto=year_page.auto_last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. They update every night until {{ auto }}, and you can update them by hand until {{ date }}; after that they stay as they are.{% endblocktranslate %}
+              {% else %}
+                {% blocktranslate with date=year_page.last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. You can update them by hand until then; after that they stay as they are.{% endblocktranslate %}
+              {% endif %}
+            </p>
+            <form method="post" action="{% url 'journal:wrapped_generate' year %}">
+              {% csrf_token %}
+              <button class="wr-pill primary" type="submit">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> {% blocktranslate %}Make my {{ year }} cards{% endblocktranslate %}
+              </button>
+            </form>
+          </div>
+        {% elif year_page.state == "early" %}
+          <div class="wr-pending dc-surface" id="wr-pending">
+            <p>
+              {% blocktranslate with date=year_page.start|date:"DATE_FORMAT" %}You can make your {{ year }} cards from {{ date }}.{% endblocktranslate %}
+            </p>
+          </div>
+        {% endif %}
+        <p class="wr-empty" id="wr-empty" hidden></p>
+        <div class="wr-stats" id="wr-stats"></div>
+      </section>
+      <section id="wr-months">
+        <div class="cat-filter"
+             id="wr-bymcat"
+             role="group"
+             aria-label="{% trans 'Filter by shelf' %}"></div>
+        <div class="piles" id="wr-piles"></div>
+      </section>
+    </main>
+    {% include "_footer.html" %}
+    {{ payload|json_script:"wr-data" }}
+    <script src="{% static 'js/wrapped/stats.js' %}"></script>
+    <script src="{% static 'js/wrapped/trend.js' %}"></script>
+    <script src="{% static 'js/wrapped/deck.js' %}"></script>
+  </body>
+</html>
