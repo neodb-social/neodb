@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 from django.db import connections
+from django.template.loader import render_to_string
 from django.test import Client
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -208,6 +209,19 @@ def test_item_page_shows_other_titles_and_language(
 
     assert other_title in text
     assert "French" in text
+
+
+@pytest.mark.django_db(databases="__all__")
+def test_game_shows_release_year(client: Client) -> None:
+    game = Game.objects.create(title="Year Game", release_date="1996-06-22")
+
+    page = _item_page(client, game)
+    heading = page.get_element_by_id("item-title").xpath(".//h1")[0].text_content()
+    card = render_to_string("_item_card_metadata_game.html", {"item": game})
+
+    assert "(1996)" in heading
+    assert "(1996)" in card
+    assert "1996-06-22" not in card
 
 
 def _mark(

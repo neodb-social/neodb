@@ -169,9 +169,11 @@ class TestDerivedProperties:
         assert m.year == 2010
         assert Movie(metadata={}).year is None
 
-    def test_game_release_year(self):
-        g = Game(metadata={"release_date": "1995"})
+    def test_game_year(self):
+        g = Game(metadata={"release_date": "1995-06-01"})
+        assert g.year == 1995
         assert g.release_year == 1995
+        assert Game(metadata={}).year is None
 
     def test_indexable_dates(self):
         m = Movie.objects.create(metadata={"release_date": "2010"})

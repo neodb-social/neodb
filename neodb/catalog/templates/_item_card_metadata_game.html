@@ -5,7 +5,6 @@
   <div class="multi-fields">
     {% include "_credits.html" with credits=item.role_credits.developer role_label="" max=2 %}
     {% include "_people.html" with people=item.additional_title role="other title" max=2 %}
-    {% if item.release_date %}<span>{{ item.release_date }}</span>{% endif %}
   </div>
 {% endblock brief %}
 {% block full %}
