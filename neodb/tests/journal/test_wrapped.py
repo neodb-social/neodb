@@ -1196,6 +1196,18 @@ class TestViews:
         )
         assert deck.made[0]["source"] == {"type": "auto", "cat": "all"}
         assert [i["url"] for i in deck.made[1]["source"]["items"]] == ["/book/x"]
+        # json.loads reads Infinity as a float: a bad value, not a server error
+        r = self.owner_client.post(
+            url, '{"aud": Infinity}', content_type="application/json"
+        )
+        assert r.status_code == 400
+        r = self.owner_client.post(
+            url,
+            '{"aud": 0, "made": [{"id": Infinity, "n": 5, "source": {"type": "auto", "cat": "all"}}]}',
+            content_type="application/json",
+        )
+        assert r.status_code == 200
+        assert WrappedDeck.objects.get(owner=self.me, year=YEAR).made == []
         for bad in ({}, {"aud": 7}, {"aud": "x"}):
             r = self.owner_client.post(
                 url, json.dumps(bad), content_type="application/json"
@@ -1478,12 +1490,21 @@ class TestViews:
         assert r.status_code == 400
         r = self.owner_client.post(url, {"visibility": 0, "aud": 0})
         assert r.status_code == 400
+        # a PNG header on data that does not decode is refused before any upload
+        broken = base64.b64encode(PNG[:30]).decode()
+        with patch("journal.views.wrapped.Takahe.upload_image") as up:
+            r = self.owner_client.post(
+                url,
+                {
+                    "img": [base64.b64encode(PNG).decode(), broken],
+                    "visibility": 0,
+                    "aud": 0,
+                },
+            )
+        assert r.status_code == 400 and not up.called
 
     def test_share_posts_all_images(self):
-        png = (
-            "data:image/png;base64,"
-            + base64.b64encode(b"\x89PNG\r\n\x1a\n" + b"0" * 20).decode()
-        )
+        png = "data:image/png;base64," + base64.b64encode(PNG).decode()
         make_deck(self.me)
         url = reverse("journal:wrapped_share", args=[YEAR])
         with (
@@ -1540,10 +1561,7 @@ class TestViews:
             assert b'id="wr-pub-xpost"' not in self.owner_client.get(page).content
 
     def test_share_never_reaches_wider_than_the_cards(self):
-        png = (
-            "data:image/png;base64,"
-            + base64.b64encode(b"\x89PNG\r\n\x1a\n" + b"0" * 20).decode()
-        )
+        png = "data:image/png;base64," + base64.b64encode(PNG).decode()
         make_deck(self.me)
         url = reverse("journal:wrapped_share", args=[YEAR])
         with (

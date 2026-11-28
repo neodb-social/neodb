@@ -453,7 +453,8 @@ def _clean_made(made: Any) -> list[dict[str, Any]]:
         try:
             n = max(3, min(MADE_CARD_ITEMS_MAX, int(m.get("n") or 5)))
             mid = int(m.get("id") or 0)
-        except TypeError, ValueError:
+        # json.loads reads Infinity as a float, and int() of it raises OverflowError
+        except TypeError, ValueError, OverflowError:
             continue
         out.append(
             {
@@ -479,7 +480,7 @@ def wrapped_save(request: AuthedHttpRequest, year: int):
         return HttpResponseBadRequest("invalid json")
     try:
         aud = int(data.get("aud", -1))
-    except TypeError, ValueError:
+    except TypeError, ValueError, OverflowError:
         aud = -1
     if aud not in AUDIENCES:
         return HttpResponseBadRequest("invalid audience")
@@ -548,6 +549,19 @@ def _save_choices(
     return None
 
 
+def _png_ok(raw: bytes) -> bool:
+    """A PNG that decodes and is not too large. Each image is decoded here, before any attachment row
+    exists, so a broken one never fails part way through the upload and leaves the others behind."""
+    if not raw.startswith(b"\x89PNG") or len(raw) > IMAGE_BYTES_MAX:
+        return False
+    try:
+        with Image.open(io.BytesIO(raw)) as img:
+            img.load()
+    except Exception:
+        return False
+    return True
+
+
 @login_required
 @require_POST
 def wrapped_share(request: AuthedHttpRequest, year: int):
@@ -575,13 +589,7 @@ def wrapped_share(request: AuthedHttpRequest, year: int):
         if head[4:8] != b"ftyp":
             return HttpResponseBadRequest("invalid video")
         poster = poster_file.read(IMAGE_BYTES_MAX + 1) if poster_file else b""
-        if not poster.startswith(b"\x89PNG") or len(poster) > IMAGE_BYTES_MAX:
-            return HttpResponseBadRequest("invalid image")
-        # decoded here, before the attachment row exists: a broken still must not leave one behind
-        try:
-            with Image.open(io.BytesIO(poster)) as img:
-                img.load()
-        except Exception:
+        if not _png_ok(poster):
             return HttpResponseBadRequest("invalid image")
     else:
         for s in request.POST.getlist("img")[:IMAGES_MAX]:
@@ -589,7 +597,7 @@ def wrapped_share(request: AuthedHttpRequest, year: int):
                 raw = base64.b64decode(s.split(",", 1)[-1], validate=True)
             except binascii.Error, ValueError:
                 return HttpResponseBadRequest("invalid image")
-            if not raw.startswith(b"\x89PNG") or len(raw) > IMAGE_BYTES_MAX:
+            if not _png_ok(raw):
                 return HttpResponseBadRequest("invalid image")
             images.append(raw)
         if not images:
