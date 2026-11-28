@@ -293,9 +293,6 @@
   .pub-tabs { display: flex; gap: 1.2rem; margin-bottom: 1rem; border-bottom: 1px solid var(--dc-border); flex-wrap: wrap; }
   .pub-tabs button { margin: 0 0 -1px; width: auto; padding: 0.4rem 0.1rem; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--dc-muted); font-size: var(--dc-fs-sm); font-weight: 700; }
   .pub-tabs button.on { color: var(--pico-primary); border-bottom-color: var(--pico-primary); }
-  .wr-linkrow { display: flex; gap: 0.5rem; align-items: center; }
-  .wr-linkrow input { margin: 0; flex: 1; }
-  .wr-linkrow .dc-btn { flex: 0 0 auto; }
   .pick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: 0.5rem; margin-bottom: 0.8rem; }
   .pick-grid label { position: relative; margin: 0; cursor: pointer; }
   .pick-grid label svg { width: 100%; height: auto; border-radius: var(--dc-radius-sm); border: 2px solid var(--dc-border); display: block; }
@@ -309,8 +306,8 @@
   .pub-vid .pv svg { display: block; width: 100%; height: auto; border-radius: var(--dc-radius-sm); border: 1px solid var(--dc-border); }
   .pub-vid .pv i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.6rem; color: #fff; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.45)); }
   .pub-vid span { font-size: var(--dc-fs-sm); color: var(--dc-muted); }
-  // the link and the QR code: the link first, then the image beside its buttons (above them on a phone)
-  .wr-linkrow { margin: 0 0 1.2rem; }
+  // the link and the QR code: the whole link first, then the image beside the buttons for both (above them on a phone)
+  #wr-pub-link { margin: 0 0 1.2rem; }
   .qr-tab { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: 1.2rem; align-items: start; margin: 0 0 1.2rem; }
   .qr-prev { position: relative; display: grid; place-items: center; min-height: 6rem; }
   .qr-prev svg { display: block; width: 100%; height: auto; border-radius: var(--dc-radius); border: 1px solid var(--dc-border); }

@@ -449,7 +449,7 @@ TEXT = [
     gettext_noop("Could not share: {error}"),
     gettext_noop("Image copied"),
     gettext_noop(
-        "Only you can see the page now, so other people cannot open it from the link or the code."
+        "Public and Followers see no cards, so only you can open this page now."
     ),
     gettext_noop("Only your followers can open this page, after they sign in."),
     gettext_noop(

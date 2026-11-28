@@ -339,23 +339,20 @@
           <div id="wr-pub-page" hidden>
             <p class="wr-warn" id="wr-qr-warn" hidden></p>
             <label class="wr-vislabel" for="wr-pub-link">{% trans "Link to the page" %}</label>
-            <div class="wr-linkrow" role="group">
-              <input type="text" id="wr-pub-link" readonly>
-              <button class="dc-btn primary" type="button" id="wr-pub-copy">
-                <i class="fa-solid fa-link"></i> {% trans "Copy link" %}
-              </button>
-            </div>
-            <p class="wr-vislabel">{% trans "QR code" %}</p>
+            <input type="text" id="wr-pub-link" readonly>
             <div class="qr-tab">
               <div class="qr-prev" id="wr-qr-prev"></div>
               <div class="qr-btns">
+                <button class="dc-btn primary" type="button" id="wr-pub-copy">
+                  <i class="fa-solid fa-link"></i> {% trans "Copy link" %}
+                </button>
                 <button class="dc-btn outline" type="button" id="wr-qr-share" hidden>
                   <i class="fa-solid fa-share-nodes"></i> {% trans "Share…" %}
                 </button>
                 <button class="dc-btn outline" type="button" id="wr-qr-copy" hidden>
                   <i class="fa-solid fa-copy"></i> {% trans "Copy image" %}
                 </button>
-                <button class="dc-btn outline" type="button" id="wr-qr-dl">
+                <button class="dc-btn outline" type="button" id="wr-qr-dl" hidden>
                   <i class="fa-solid fa-download"></i> {% trans "Download PNG" %}
                 </button>
               </div>

@@ -1333,14 +1333,13 @@
   const loadQr = () => qrLib = qrLib || new Promise((res, rej) => { if (window.qrcode) return res(); const s = document.createElement("script"); s.src = `${CDN}/npm/qrcode-generator@1.4.4/qrcode.js`; s.onload = res; s.onerror = () => rej(new Error("no QR library")); document.head.appendChild(s); });
   async function qrTab() {
     const auds = D.audiences || [], open = [0, 1].find(lv => { const a = auds.find(x => x.level === lv); return a && !(lv === LEVEL ? !state.shown.length : a.off); });
-    const warn = $("qr-warn"), btns = ["qr-share", "qr-copy", "qr-dl"].map($), prev = $("qr-prev"), row = btns[2].parentElement;
-    // the buttons come with the image; "Copy link" stays the one main button
-    row.hidden = true;
-    btns.forEach(b => { b.disabled = true; });
+    const warn = $("qr-warn"), btns = ["qr-share", "qr-copy", "qr-dl"].map($), prev = $("qr-prev");
+    // the image's buttons come with the image; "Copy link" beside them stays the one main button
+    btns.forEach(b => { b.hidden = true; });
     // one warning at most, the strongest reason first; the link and the code open the same page
     const editBtn = `<button type="button" class="dc-btn outline" data-qr-edit>${_("Change in Edit")}</button>`;
     let locked = false;
-    if (open == null) { locked = true; warn.innerHTML = `${esc(_("Only you can see the page now, so other people cannot open it from the link or the code."))} ${editBtn}`; }
+    if (open == null) { locked = true; warn.innerHTML = `${esc(_("Public and Followers see no cards, so only you can open this page now."))} ${editBtn}`; }
     else if (open === 1) warn.innerHTML = `${esc(_("Only your followers can open this page, after they sign in."))} ${editBtn}`;
     else if (D.anon_ok === false) warn.innerHTML = `${esc(_("People who are not signed in cannot open this page, because your profile is hidden from them."))} <a href="${esc(URLS.preferences)}">${esc(_("Change it in Settings"))}</a>`;
     else warn.innerHTML = "";
@@ -1361,8 +1360,7 @@
     catch (e) { toast(_("Export failed: {error}", { error: e.message })); return; }
     const file = new File([qrBlob], qrName(), { type: "image/png" });
     const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] })), canCopy = !!(navigator.clipboard && window.ClipboardItem);
-    $("qr-share").hidden = !canShare; $("qr-copy").hidden = !canCopy;
-    btns.forEach(b => { b.disabled = false; }); row.hidden = false;
+    $("qr-share").hidden = !canShare; $("qr-copy").hidden = !canCopy; $("qr-dl").hidden = false;
   }
   if (OWNER) {
     $("qr-share").onclick = () => { if (!qrBlob) return; navigator.share({ files: [new File([qrBlob], qrName(), { type: "image/png" })] }).catch(e => { if (e && e.name !== "AbortError") toast(_("Could not share: {error}", { error: e.message })); }); };

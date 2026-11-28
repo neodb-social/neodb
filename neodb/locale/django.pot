@@ -11777,10 +11777,6 @@ msgid_plural "{n} notes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: journal/templates/wrapped.html:245
-msgid "QR code"
-msgstr ""
-
 #: journal/templates/wrapped.html:321
 msgid "Share…"
 msgstr ""
@@ -11804,7 +11800,7 @@ msgid "Image copied"
 msgstr ""
 
 #: journal/wrapped_text.py:433
-msgid "Only you can see the page now, so other people cannot open it from the link or the code."
+msgid "Public and Followers see no cards, so only you can open this page now."
 msgstr ""
 
 #: journal/wrapped_text.py:434
