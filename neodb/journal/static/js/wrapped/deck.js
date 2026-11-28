@@ -1333,7 +1333,9 @@
   const loadQr = () => qrLib = qrLib || new Promise((res, rej) => { if (window.qrcode) return res(); const s = document.createElement("script"); s.src = `${CDN}/npm/qrcode-generator@1.4.4/qrcode.js`; s.onload = res; s.onerror = () => rej(new Error("no QR library")); document.head.appendChild(s); });
   async function qrTab() {
     const auds = D.audiences || [], open = [0, 1].find(lv => { const a = auds.find(x => x.level === lv); return a && !(lv === LEVEL ? !state.shown.length : a.off); });
-    const warn = $("qr-warn"), btns = ["qr-share", "qr-copy", "qr-dl"].map($), prev = $("qr-prev");
+    const warn = $("qr-warn"), btns = ["qr-share", "qr-copy", "qr-dl"].map($), prev = $("qr-prev"), row = btns[2].parentElement;
+    // the buttons come with the image; "Copy link" stays the one main button
+    row.hidden = true;
     btns.forEach(b => { b.disabled = true; });
     // one warning at most, the strongest reason first; the link and the code open the same page
     const editBtn = `<button type="button" class="dc-btn outline" data-qr-edit>${_("Change in Edit")}</button>`;
@@ -1347,7 +1349,7 @@
     prev.classList.toggle("locked", locked);
     // the image needs the cards of the audience the code opens; another view offers to switch to it
     if (!locked && open !== LEVEL) {
-      prev.innerHTML = `<button type="button" class="dc-btn primary" data-qr-switch>${esc(_("Show the cards the code opens"))}</button>`;
+      prev.innerHTML = `<button type="button" class="dc-btn outline" data-qr-switch>${esc(_("Show the cards the code opens"))}</button>`;
       prev.querySelector("[data-qr-switch]").onclick = () => goAudience(open, "wr-pubdlg:page");
       return;
     }
@@ -1360,7 +1362,7 @@
     const file = new File([qrBlob], qrName(), { type: "image/png" });
     const canShare = !!(navigator.canShare && navigator.canShare({ files: [file] })), canCopy = !!(navigator.clipboard && window.ClipboardItem);
     $("qr-share").hidden = !canShare; $("qr-copy").hidden = !canCopy;
-    btns.forEach(b => { b.disabled = false; });
+    btns.forEach(b => { b.disabled = false; }); row.hidden = false;
   }
   if (OWNER) {
     $("qr-share").onclick = () => { if (!qrBlob) return; navigator.share({ files: [new File([qrBlob], qrName(), { type: "image/png" })] }).catch(e => { if (e && e.name !== "AbortError") toast(_("Could not share: {error}", { error: e.message })); }); };
