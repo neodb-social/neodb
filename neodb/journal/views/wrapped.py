@@ -19,13 +19,14 @@ from django.http import (
     JsonResponse,
 )
 from django.shortcuts import render
+from django.core.cache import cache
 from django.core.files import File
 from django.urls import reverse
 from django.utils.cache import patch_cache_control
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from django.db import transaction
-from django.db.models import Min
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 from PIL import Image
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -35,8 +36,8 @@ from catalog.models import Item
 from catalog.sites.fedi import FediverseInstance
 from catalog.search.utils import enqueue_fetch, fetch_job, get_fetch_lock
 from common.sentry import count as sentry_count
+from common.sentry import record_activity
 from common.utils import AuthedHttpRequest, target_identity_required
-from journal.models import ShelfMember, ShelfType
 from journal.models.common import VisibilityType
 from journal.models.wrapped import (
     ALL_HIDDEN,
@@ -48,14 +49,22 @@ from journal.models.wrapped import (
 from journal.wrapped import (
     CATEGORIES,
     WORDS_KINDS,
-    build_payload,
+    _member,
+    aggregates_ready,
+    can_make,
     deck_for,
-    friends_allowed,
+    default_year,
+    latest_year,
     item_ref,
-    kindred_allowed,
+    live_year,
+    refresh_deck,
     resolve_words,
+    stored_payload,
+    live_stamp,
+    make_state,
+    make_window,
+    owner_years,
     words_menu,
-    year_range,
 )
 from journal.wrapped_music import BY_ID as MUSIC, menu as music_menu, track
 from journal.wrapped_text import card_text
@@ -68,27 +77,72 @@ logger = logging.getLogger(__name__)
 CARD_ID = re.compile(r"^[a-z0-9-]{1,40}$")
 IMAGES_MAX = 4
 IMAGE_BYTES_MAX = 4 * 1024 * 1024
-# a video of every card: about 0.3 MB a card, and a deck has at most about 50 cards
-VIDEO_BYTES_MAX = 16 * 1024 * 1024
+# a video of every card: about 0.3 MB a card, and a deck has at most about 60 cards
+VIDEO_BYTES_MAX = 20 * 1024 * 1024
+# the whole-year section of a visitor's page is kept this long: a shared link can bring many visitors, and the
+# section reads the whole year (about 0.1 to 0.2 s and 15 to 40 queries for 150 titles)
+LIVE_SECONDS = 3600
 
 
 def _year(year: int | None) -> int:
-    this = datetime.date.today().year
-    if not year or year < 1970 or year > this:
-        return this
+    if not year or year < 1970 or year > latest_year():
+        return default_year()
     return year
 
 
-def _most_public(owner: APIdentity, year: int, tz: ZoneInfo) -> int | None:
-    """The most public visibility among the owner's finished titles of the year; None when there are none.
-    An audience at this level or above has titles to show."""
-    start, end = year_range(year, tz)
-    return ShelfMember.objects.filter(
-        owner=owner,
-        parent__shelf_type=ShelfType.COMPLETE,
-        created_time__gte=start,
-        created_time__lt=end,
-    ).aggregate(v=Min("visibility"))["v"]
+def _session_tz(request: AuthedHttpRequest) -> str:
+    """The time zone the browser reported, when it is a real one; else empty (the site's own)."""
+    tz = request.session.get("detected_tz")
+    if isinstance(tz, str) and tz:
+        try:
+            ZoneInfo(tz)
+            return tz
+        except ZoneInfoNotFoundError, ValueError:
+            pass
+    return ""
+
+
+def _with_titles(deck: WrappedDeck) -> list[int]:
+    """The audiences whose stored cards have titles."""
+    return [
+        lv for lv in AUDIENCES if ((deck.data or {}).get(str(lv)) or {}).get("items")
+    ]
+
+
+def _live(
+    owner: APIdentity, deck: WrappedDeck, level: int, fresh: bool
+) -> dict[str, Any]:
+    """The whole-year section: read now for the owner, who may have just marked something, and kept for an
+    hour for visitors; the owner's read also replaces what visitors get. The key changes with the owner's
+    marks (their count and latest edit), so a mark made more private or deleted reaches visitors at once;
+    and with the page language, as titles are in it."""
+    key = f"wrapped:live:{owner.pk}:{deck.year}:{level}:{deck.timezone}:{get_language()}:{live_stamp(owner)}"
+    value = None if fresh else cache.get(key)
+    if value is None:
+        value = live_year(owner, deck.year, level, deck.tzinfo)
+        cache.set(key, value, LIVE_SECONDS)
+    return value
+
+
+def _og(owner: APIdentity, year: int, payload: dict[str, Any]) -> dict[str, str]:
+    """What a link preview shows: from the cards of this page's audience only (a crawler is signed out, so it
+    gets the public cards)."""
+    site = settings.SITE_INFO["site_url"].rstrip("/")
+    n = len(payload.get("items") or [])
+    name = owner.display_name
+    return {
+        "title": _("%(name)s’s %(year)s, card by card") % {"name": name, "year": year},
+        "description": ngettext(
+            "%(name)s finished %(n)d title in %(year)d.",
+            "%(name)s finished %(n)d titles in %(year)d.",
+            n,
+        )
+        % {"name": name, "n": n, "year": year},
+        "image": avatar
+        if (avatar := owner.avatar).startswith("http")
+        else site + avatar,
+        "url": payload["page_url"],
+    }
 
 
 def _made_for(deck: WrappedDeck, level: int) -> list[dict[str, Any]]:
@@ -103,18 +157,15 @@ def _context(
     level: int,
     is_owner: bool,
     viewer: Any = None,
-    most_public: int | None = None,
 ) -> dict[str, Any]:
     # a visitor gets only the made cards their audience may see; the others, and their texts, stay here
     made = deck.made if is_owner else _made_for(deck, level)
-    payload = build_payload(
-        owner,
-        year,
+    # the cards show what the last update stored; the whole-year section below them is read now
+    payload = stored_payload(
+        deck,
         level,
-        deck.tzinfo,
-        include_friends=friends_allowed(deck, level, is_owner),
-        include_kindred=kindred_allowed(deck, level, is_owner),
         viewer=viewer,
+        is_owner=is_owner,
         picker=is_owner,
         collection_refs=[
             str((m.get("source") or {}).get("uuid") or "")
@@ -133,6 +184,7 @@ def _context(
             or str(m.get("id")) in words
         ]
     payload["words"] = words
+    payload["live"] = _live(owner, deck, level, fresh=is_owner)
     payload["deck"] = state
     payload["level"] = level
     # a visitor sees the list the owner last saw for this audience; without one the browser applies the rules and overrides
@@ -155,15 +207,16 @@ def _context(
             "share": reverse("journal:wrapped_share", args=[year]),
             "lookup": reverse("journal:wrapped_lookup"),
             "words": reverse("journal:wrapped_words", args=[year]),
+            "refresh": reverse("journal:wrapped_refresh", args=[year]),
             "preferences": reverse("users:preferences"),
         }
         payload["music_menu"] = music_menu()
+        payload["years"] = owner_years(owner)
+        payload["update_open"] = can_make(year)
         payload["made_max"] = MADE_CARDS_MAX
         if not payload["items"]:
             # an audience with no titles: the empty page offers the audiences that have some
-            payload["levels_with_titles"] = [
-                lv for lv in AUDIENCES if most_public is not None and lv >= most_public
-            ]
+            payload["levels_with_titles"] = _with_titles(deck)
         # whether people who are not signed in can open the page at all (the QR code tab warns when not)
         payload["anon_ok"] = bool(owner.anonymous_viewable)
         # what each audience sees, for the Share dialog: no count for an audience the owner has not opened
@@ -175,7 +228,16 @@ def _context(
             }
             for lv in AUDIENCES
         ]
-    return {"identity": owner, "year": year, "payload": payload, "is_owner": is_owner}
+    ctx = {"identity": owner, "year": year, "payload": payload, "is_owner": is_owner}
+    if is_owner:
+        # the Card data part of the Edit dialog: when the data was stored, and whether it still updates
+        ctx["update"] = {
+            "open": can_make(year),
+            "time": deck.refreshed_time,
+            "daily": deck.daily,
+            "last": make_window(year)[1] - datetime.timedelta(days=1),
+        }
+    return ctx
 
 
 @login_required
@@ -185,39 +247,125 @@ def wrapped_deck(request: AuthedHttpRequest, year: int | None = None):
     if year != y:
         return HttpResponseRedirect(reverse("journal:wrapped", args=[y]))
     owner = request.user.identity
-    deck = deck_for(owner, y, create=True)
-    assert deck is not None
-    if not deck.timezone:
-        tz = request.session.get("detected_tz")
-        if isinstance(tz, str) and tz:
-            try:
-                ZoneInfo(tz)
-                deck.timezone = tz
-                deck.save(update_fields=["timezone", "edited_time"])
-            except ZoneInfoNotFoundError, ValueError:
-                pass
+    deck = deck_for(owner, y)
+    if deck is None or deck.refreshed_time is None:
+        resp = render(request, "wrapped.html", _pending_context(request, owner, y))
+        patch_cache_control(resp, private=True, no_store=True)
+        return resp
+    if not deck.timezone and (tz := _session_tz(request)):
+        deck.timezone = tz
+        deck.save(update_fields=["timezone", "edited_time"])
+    # the deck was stored while another process was still computing the instance totals: fill the gap now
+    if (
+        can_make(y)
+        and any(p.get("warming") for p in (deck.data or {}).values())
+        and aggregates_ready(y)
+    ):
+        refresh_deck(deck)
     # the audience the owner views and edits; by default the widest one that sees something
     try:
         level = int(request.GET.get("as", ""))
     except ValueError:
         level = -1
-    most_public = _most_public(owner, y, deck.tzinfo)
     if level not in AUDIENCES:
-        # the widest audience that is on and has titles at its level, so the owner never opens on an empty
-        # preview while their titles sit in a narrower one
+        # the widest audience that is on and has titles, so the owner never opens on an empty preview while
+        # their titles sit in a narrower one
         on = [lv for lv in AUDIENCES if not deck.is_off(lv)]
-        level = next(
-            (lv for lv in on if most_public is not None and lv >= most_public),
-            on[0] if on else 2,
-        )
+        with_titles = _with_titles(deck)
+        level = next((lv for lv in on if lv in with_titles), on[0] if on else 2)
     resp = render(
-        request,
-        "wrapped.html",
-        _context(owner, deck, y, level, True, request.user, most_public),
+        request, "wrapped.html", _context(owner, deck, y, level, True, request.user)
     )
     # no_store: the browser keeps no copy to show again after sign-out
     patch_cache_control(resp, private=True, no_store=True)
     return resp
+
+
+def _pending_context(
+    request: AuthedHttpRequest, owner: APIdentity, year: int
+) -> dict[str, Any]:
+    """The owner's page before the deck is made: the year's titles and counts, and no cards. The owner sees
+    every title, as the deck's own audience is chosen only once it exists."""
+    tz = WrappedDeck(owner=owner, year=year, timezone=_session_tz(request)).tzinfo
+    payload = live_year(owner, year, 2, tz)
+    start, end = make_window(year)
+    payload.update(
+        {
+            "year": year,
+            "member": _member(owner),
+            "history": None,
+            "friends": [],
+            "level": 2,
+            "owner_view": True,
+            "deck": {"order": [], "hidden": {}, "made": []},
+            "shown": None,
+            "words": {},
+            "lang": get_language() or "en",
+            "text": card_text(),
+            "make_url": reverse("journal:wrapped", args=[year]),
+            "years": owner_years(owner),
+            "pending": True,
+        }
+    )
+    return {
+        "identity": owner,
+        "year": year,
+        "payload": payload,
+        "is_owner": True,
+        "pending": {
+            "state": make_state(year),
+            "start": start,
+            "last": end - datetime.timedelta(days=1),
+        },
+    }
+
+
+@login_required
+@require_POST
+def wrapped_generate(request: AuthedHttpRequest, year: int):
+    """Make the deck of a year, once, from 1 December to the end of February after it: this stores the card
+    data of each audience, which the cards then show until the next update."""
+    if can_make(year):
+        deck = deck_for(request.user.identity, year, create=True)
+        assert deck is not None
+        # a second submit waits for the first and then finds the deck made
+        with transaction.atomic():
+            deck = WrappedDeck.objects.select_for_update().get(pk=deck.pk)
+            if not deck.timezone and (tz := _session_tz(request)):
+                deck.timezone = tz
+                deck.save(update_fields=["timezone", "edited_time"])
+            if deck.refreshed_time is None:
+                refresh_deck(deck)
+                record_activity("annual", "web")
+    return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
+
+
+def _made_deck(owner: APIdentity, year: int, lock: bool = False) -> WrappedDeck:
+    """The owner's deck of the year once it is made, without its stored data (which these views do not
+    read); a 404 before that."""
+    qs = WrappedDeck.objects.defer("data")
+    if lock:
+        qs = qs.select_for_update()
+    deck = qs.filter(owner=owner, year=year, refreshed_time__isnull=False).first()
+    if deck is None:
+        raise Http404(_("This summary is not made yet."))
+    return deck
+
+
+@login_required
+@require_POST
+def wrapped_refresh(request: AuthedHttpRequest, year: int):
+    """Store the card data again, now, while updates are open (to the end of February); at most once a
+    minute, as each update reads the whole year three times."""
+    deck = _made_deck(request.user.identity, year)
+    if not can_make(year):
+        return JsonResponse({"ok": False, "status": "closed"}, status=400)
+    if not cache.add(f"wrapped:refresh:{deck.pk}", 1, 60):
+        return JsonResponse({"ok": False, "status": "busy"}, status=429)
+    deck = WrappedDeck.objects.get(pk=deck.pk)
+    refresh_deck(deck)
+    record_activity("annual", "web")
+    return JsonResponse({"ok": True})
 
 
 @require_GET
@@ -227,17 +375,17 @@ def wrapped_page(request: AuthedHttpRequest, user_name: str, year: int):
     if request.user.is_authenticated and target.user == request.user:
         return HttpResponseRedirect(reverse("journal:wrapped", args=[year]))
     deck = deck_for(target, year)
+    if deck is not None and deck.refreshed_time is None:
+        deck = None
     viewer = request.identity
     # a follower sees the followers' cards, or everyone's when the member shows followers none; anybody else sees everyone's
     levels = [1, 0] if viewer and viewer.is_following(target) else [0]
     level = next((lv for lv in levels if deck and not deck.is_off(lv)), None)
     if deck is None or level is None:
         raise Http404(_("This summary is not shared."))
-    resp = render(
-        request,
-        "wrapped.html",
-        _context(target, deck, year, level, False, request.user),
-    )
+    ctx = _context(target, deck, year, level, False, request.user)
+    ctx["og"] = _og(target, year, ctx["payload"])
+    resp = render(request, "wrapped.html", ctx)
     # one link serves different cards to different viewers, so no shared cache may keep it, and the
     # browser keeps no copy to show again after the viewer loses access
     patch_cache_control(resp, private=True, no_store=True)
@@ -337,11 +485,9 @@ def wrapped_save(request: AuthedHttpRequest, year: int):
         return HttpResponseBadRequest("invalid audience")
     if isinstance(data.get("made"), list) and len(data["made"]) > MADE_CARDS_MAX:
         return HttpResponseBadRequest("too many cards")
-    deck = deck_for(request.user.identity, _year(year), create=True)
-    assert deck is not None
     with transaction.atomic():
         # the audiences share the JSON columns, so two saves must not read and write them at the same time
-        deck = WrappedDeck.objects.select_for_update().get(pk=deck.pk)
+        deck = _made_deck(request.user.identity, year, lock=True)
         error = _save_choices(deck, aud, data)
     return error or JsonResponse({"ok": True})
 
@@ -368,6 +514,9 @@ def _save_choices(
     if "made" in data:
         deck.made = _clean_made(data["made"])
         fields.append("made")
+    if isinstance(data.get("daily"), bool):
+        deck.daily = data["daily"]
+        fields.append("daily")
     if "music" in data:
         music = str(data["music"] or "")
         if music and music not in MUSIC:
@@ -402,8 +551,11 @@ def _save_choices(
 @login_required
 @require_POST
 def wrapped_share(request: AuthedHttpRequest, year: int):
-    """Post up to four cards as images, or a video of all of them, to the timeline with the member's note."""
+    """Post up to four cards as images, or a video of all of them, to the timeline with the member's note;
+    with "crosspost" on, also to the member's linked Mastodon and Bluesky accounts, as a normal post does."""
+    _made_deck(request.user.identity, year)
     comment = request.POST.get("comment", "")[:1000]
+    crosspost = request.POST.get("crosspost") == "1"
     try:
         visibility = VisibilityType(int(request.POST.get("visibility", 0)))
         aud = int(request.POST.get("aud", 2))
@@ -476,7 +628,7 @@ def wrapped_share(request: AuthedHttpRequest, year: int):
     )
     # a video goes to the other sites as its still (the intro card); the note carries the page link
     cross_images = images or ([poster] if poster else [])
-    if classic_crosspost and user.mastodon:
+    if crosspost and classic_crosspost and user.mastodon:
         attrs = {"platform": "mastodon", "mode": "wrapped"}
         try:
             user.mastodon.post(
@@ -491,10 +643,10 @@ def wrapped_share(request: AuthedHttpRequest, year: int):
         except Exception as e:
             logger.warning(f"wrapped post to {user.mastodon} failed: {e}")
             sentry_count("crosspost.failure", attributes=attrs)
-    elif post and user.mastodon:
+    elif crosspost and post and user.mastodon:
         assert post.url is not None
         user.mastodon.boost_later(post.url)
-    if visibility == VisibilityType.Public and user.bluesky:
+    if crosspost and visibility == VisibilityType.Public and user.bluesky:
         o = EmbedObj("🧩", "", user.absolute_url)
         txt = comment.rstrip() + "\n\n##obj##"
         attrs = {"platform": "bluesky", "mode": "wrapped"}

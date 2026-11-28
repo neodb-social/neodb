@@ -20,10 +20,12 @@ ALL_HIDDEN = "*"
 class WrappedDeck(models.Model):
     """A member's annual summary for one year: which cards each audience sees and how the cards are arranged.
 
-    The cards are computed from the journal each time the page renders; this row keeps only the member's
-    choices. One link serves everybody: a visitor sees the cards of their own audience (0 everyone, 1
-    followers, 2 the owner), with counts from entries at that level. The order and the made cards are
-    the same for all three audiences.
+    The member makes the deck once, from 1 December to the end of February after the year; that stores the
+    card data of each audience in ``data``, and the cards show only that. Until the end of February the
+    site updates it every night unless the member turned ``daily`` off, and the member can update it by
+    hand; after that it stays as it is. One link serves everybody: a visitor sees the cards of their own
+    audience (0 everyone, 1 followers, 2 the owner), with counts from entries at that level. The order and
+    the made cards are the same for all three audiences.
 
     ``hidden[str(level)]`` holds a card id only when the member overrode the rules for that audience
     (True hides a card the rules show, False shows a card the rules hide); ALL_HIDDEN set to True hides
@@ -41,6 +43,13 @@ class WrappedDeck(models.Model):
     # the background music the owner chose (an id in journal/wrapped_music.py); empty is no music, the default
     music = models.CharField(max_length=40, blank=True, default="")
     timezone = models.CharField(max_length=64, blank=True, default="")
+    # the card data of each audience as the last update stored it ({str(level): payload}); the cards show
+    # only this, so they stay as they were at that moment; empty until the member makes the deck
+    data = models.JSONField(default=dict)
+    # when the data was last stored; None until the member makes the deck
+    refreshed_time = models.DateTimeField(null=True, blank=True)
+    # the member lets the site update the data every night while updates are open (to the end of February)
+    daily = models.BooleanField(default=True)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
 

@@ -20,6 +20,7 @@ from .review import Review
 from .like import Like
 from .shelf import Shelf, ShelfLogEntry, ShelfMember
 from .tag import Tag, TagMember
+from .wrapped import WrappedDeck
 
 logger = logging.getLogger(__name__)
 
@@ -139,6 +140,8 @@ def remove_data_by_identity(owner: APIdentity):
     # while any remained.
     Shelf.objects.filter(owner=owner).delete()
     VerifiedCreator.objects.filter(owner=owner).delete()
+    # the annual summaries: clearing keeps the identity row, so its cascade never reaches them
+    WrappedDeck.objects.filter(owner=owner).delete()
     index = JournalIndex.instance()
     index.delete_by_owner(owner.pk)
     logger.info(f"removed journal data by {owner}, {removed} uploaded files")

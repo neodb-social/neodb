@@ -8,7 +8,7 @@
   // a pair of forms, chosen by n; the table holds [one, other] under the singular, and {n} is filled with n unless v sets it
   const _n = (s, p, n, v) => { const f = TX[s]; return fill(Array.isArray(f) ? f[n === 1 ? 0 : 1] : n === 1 ? s : p, Object.assign({ n }, v)); };
   const fmt = o => { try { return new Intl.DateTimeFormat(LANG, o); } catch (e) { return new Intl.DateTimeFormat("en", o); } };
-  if (!D.items.length) { window.WR = { D, empty: true, _, _n }; return; }
+  // no titles in the stored cards: the stats are still made (empty), as the whole-year section may have titles now
   const CATS = ["book", "movie", "tv", "music", "game", "podcast", "performance"];
   const CAT_LABEL = { book: _("Books"), movie: _("Movies"), tv: _("TV"), music: _("Music"), game: _("Games"), podcast: _("Podcasts"), performance: _("Performances") };
   // the shelf as a word inside a sentence
@@ -69,5 +69,5 @@
   function trunc(s, n) { s = String(s || ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
   // colours for the cards are fixed because a card is an image
   const SVG = { font: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif", ink: "#1b2832", muted: "#5c6f7b", primary: "#0172ad", line: "#dde3e8" };
-  window.WR = { D, _, _n, CATS, CAT_LABEL, CAT_NOUN, CAT_ICON, CAT_COLOR, MONTHS, MONTHS_LONG, MONTHS_NARROW, ROLE_LABEL, stats, esc, cover, fmtDate, who, trunc, SVG };
+  window.WR = { D, empty: !D.items.length, _, _n, CATS, CAT_LABEL, CAT_NOUN, CAT_ICON, CAT_COLOR, MONTHS, MONTHS_LONG, MONTHS_NARROW, ROLE_LABEL, stats, esc, cover, fmtDate, who, trunc, SVG };
 })();

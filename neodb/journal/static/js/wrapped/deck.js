@@ -1,12 +1,11 @@
 (function () {
   // the last save before the page goes elsewhere; the editing code sets it, and a page with no cards has nothing to save
   let leave = () => Promise.resolve();
-  // the owner can go to another year from the top bar: every year from the first finished title to this one
+  // the owner can go to another year from the top bar: the years with a deck, and the year whose deck can be made now
   (function years() {
     const D = WR.D, el = document.getElementById("wr-yr");
     if (!D.owner_view || !el || !D.make_url) return;
-    const now = new Date().getFullYear(), first = D.history && D.history.first ? +D.history.first.slice(0, 4) : D.year, ys = [];
-    for (let y = now; y >= Math.min(first, D.year); y--) ys.push(y);
+    const ys = [...new Set([...(D.years || []), D.year])].sort((a, b) => b - a);
     if (ys.length < 2) return;
     const sel = document.createElement("select");
     sel.id = "wr-yr"; sel.className = "wr-yr"; sel.setAttribute("aria-label", WR._("Year"));
@@ -14,29 +13,11 @@
     sel.onchange = () => { leave().then(() => { location.href = D.make_url.replace(`/${D.year}/`, `/${sel.value}/`); }, () => { sel.value = String(D.year); toast(WR._("Could not save the deck; try again")); }); };
     el.replaceWith(sel);
   })();
-  // a year with no finished title: say so on the stage instead of drawing empty cards
-  if (WR.empty) {
-    const msg = document.getElementById("wr-empty");
-    const past = WR.D.year < new Date().getFullYear();
-    msg.textContent = past ? WR._("Nothing was finished in {year}.", { year: WR.D.year }) : WR.D.owner_view ? WR._("Nothing finished this year yet. Mark a title as complete and the cards fill in.") : WR._("Nothing finished this year yet.");
-    msg.hidden = false;
-    document.querySelectorAll(".wrapped-page, #wr-dots, #wr-deck, .wr-ctl, #wr-cue, #wr-edit, #wr-publish").forEach(e => { e.hidden = true; });
-    // the owner on an audience that sees none of the year's titles: links to the audiences that do
-    const other = (WR.D.levels_with_titles || []).filter(lv => lv !== WR.D.level);
-    if (WR.D.owner_view && other.length) {
-      const label = { 0: WR._("Public"), 1: WR._("Followers only"), 2: WR._("Only me") }, nav = document.createElement("p");
-      nav.className = "wr-empty-aud";
-      nav.append(WR._("This audience sees none of this year's titles. Open another:"), " ");
-      other.forEach((lv, k) => { const a = document.createElement("a"), u = new URL(location.href); u.searchParams.set("as", lv); a.href = u.toString(); a.textContent = label[lv]; nav.append(a); if (k < other.length - 1) nav.append(" · "); });
-      msg.after(nav);
-    }
-    return;
-  }
   const { D, _, _n, CATS, CAT_LABEL, CAT_NOUN, CAT_ICON, CAT_COLOR, MONTHS, MONTHS_LONG, MONTHS_NARROW, ROLE_LABEL, stats: S, esc, cover, fmtDate, who, trunc, SVG } = WR;
   // the owner gets the editing controls and saves to the server; a visitor sees the cards the owner left shown
   const OWNER = !!D.owner_view, URLS = D.urls || {}, CDN = document.getElementById("wr-stage").dataset.cdn || "https://cdn.jsdelivr.net";
   const CSRF = (document.querySelector("[name=csrfmiddlewaretoken]") || {}).value || "";
-  const $ = id => document.getElementById("wr-" + id);
+  const $ = id => document.getElementById("wr-" + id), RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const n = S.items.length, Y = D.year, base = D.member.url.split("/users/")[0];
   // the bars each card must clear, set from 2025 production data (data-findings-2026-11-03.md and the round-nine pass rates)
   const RULE = { SMALL: 25, STREAK: 7, ACTIVE: 10, BUSY_MIN: 5, FAN: 10, GAP: 3, GAP_MARKS: 20, NEW: 0.6, OLD: 0.2, WISH: 3, WAIT: 365, TAGGED: 10 };
@@ -109,13 +90,52 @@
   const isoDay = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
   const addDays = (d, k) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + k, 12);
   // days with something logged, and the longest run of them
-  const ACTIVITY = (() => {
+  function activityOf(ACT) {
     const byDay = new Map();
     ACT.forEach(a => { const e = byDay.get(a.date) || { finish: 0, other: 0 }; if (a.kind === "complete") e.finish++; else e.other++; byDay.set(a.date, e); });
     const days = [...byDay.keys()].sort(); let run = 0, best = 0, bestEnd = null, prev = null;
     days.forEach(ds => { const d = new Date(ds + "T12:00:00"); run = prev && isoDay(addDays(prev, 1)) === ds ? run + 1 : 1; if (run > best) { best = run; bestEnd = d; } prev = d; });
     return { byDay, days: days.length, streak: best, start: bestEnd ? addDays(bestEnd, 1 - best) : null, end: bestEnd, hasOther: ACT.some(a => a.kind !== "complete") };
-  })();
+  }
+  const ACTIVITY = activityOf(ACT);
+
+  // stored cards with no title: say so on the stage instead of drawing empty cards; the whole-year section stays
+  // when it has titles now, and the owner can update the cards from here while updates are open
+  if (WR.empty) {
+    const msg = $("empty"), live = !!(D.live && D.live.items.length);
+    const past = D.year < new Date().getFullYear();
+    msg.textContent = live ? _("The cards have no titles from the last update.") : past ? _("Nothing was finished in {year}.", { year: D.year }) : OWNER ? _("Nothing finished this year yet. Mark a title as complete and the cards fill in.") : _("Nothing finished this year yet.");
+    msg.hidden = false;
+    document.querySelectorAll((live ? "" : ".wrapped-page, #wr-cue, ") + "#wr-dots, #wr-deck, .wr-ctl, #wr-edit, #wr-publish, #wr-pending").forEach(e => { e.hidden = true; });
+    if (live) {
+      yearSection();
+      $("cuetext").textContent = _("See the whole year");
+      $("cue").onclick = () => $("year").scrollIntoView({ behavior: RM ? "auto" : "smooth" });
+    }
+    if (OWNER && D.update_open && URLS.refresh) {
+      const btn = document.createElement("button");
+      btn.type = "button"; btn.className = "wr-pill primary"; btn.textContent = _("Update now");
+      btn.onclick = () => { btn.disabled = true; fetch(URLS.refresh, { method: "POST", headers: { "X-CSRFToken": CSRF } }).then(r => r.json()).then(j => { if (!j.ok) throw j.status; location.reload(); }).catch(st => { btn.disabled = false; toast(st === "busy" ? _("The cards were updated a moment ago; try again in a minute") : _("Could not update the cards; try again")); }); };
+      const p = document.createElement("p"); p.className = "wr-empty-aud"; p.append(btn); msg.after(p);
+    }
+    // the owner on an audience that sees none of the year's titles: links to the audiences that do
+    const other = (D.levels_with_titles || []).filter(lv => lv !== D.level);
+    if (OWNER && other.length && !live) {
+      const label = { 0: _("Public"), 1: _("Followers only"), 2: _("Only me") }, nav = document.createElement("p");
+      nav.className = "wr-empty-aud";
+      nav.append(_("This audience sees none of this year's titles. Open another:"), " ");
+      other.forEach((lv, k) => { const a = document.createElement("a"), u = new URL(location.href); u.searchParams.set("as", lv); a.href = u.toString(); a.textContent = label[lv]; nav.append(a); if (k < other.length - 1) nav.append(" · "); });
+      msg.after(nav);
+    }
+    return;
+  }
+  // the deck is not made yet: the page shows the year, and the stage offers to make the cards
+  if (D.pending) {
+    yearSection();
+    $("cuetext").textContent = _("See the whole year");
+    $("cue").onclick = () => $("year").scrollIntoView({ behavior: RM ? "auto" : "smooth" });
+    return;
+  }
 
   // ---------- svg helpers ----------
   const T = (x, y, t, size, o) => { o = o || {}; return `<text x="${x}" y="${y}" font-size="${size}" fill="${o.fill || INK}"${o.weight ? ` font-weight="${o.weight}"` : ""}${o.anchor ? ` text-anchor="${o.anchor}"` : ""}${o.ls ? ` letter-spacing="${o.ls}"` : ""}${o.cls ? ` class="${o.cls}"` : ""}${o.d != null ? ` style="--d:${o.d}ms"` : ""}${o.count != null ? ` data-count="${o.count}" data-pre="${esc(o.pre || "")}" data-suf="${esc(o.suf || "")}"` : ""}>${esc(t)}</text>`; };
@@ -296,7 +316,11 @@
     // five stars: all of them up to ten; past ten, the ten with a comment first, then the less-marked, then the latest
     const FS = S.fiveStar, fsMany = FS.length > RULE.FAN, said = i => i.comment && i.comment.length > 2 ? 1 : 0;
     const top = FS.length >= 3 ? (fsMany ? FS.slice().sort((a, b) => said(b) - said(a) || (a.marks ?? 1e9) - (b.marks ?? 1e9) || b.date.localeCompare(a.date)).slice(0, RULE.FAN).sort((a, b) => a.date.localeCompare(b.date)) : FS.slice(0, RULE.FAN)) : S.top.slice(0, 8);
-    cards.push({ id: "top", name: FS.length >= 3 ? _("Five stars") : _("Top shelf"), kind: "computed", interest: ok(S.rated.length >= 3 || top.length >= 5, _("fewer than three rated titles")), bg: () => TINT.paper, body: () => {
+    // the best of each shelf with three or more rated titles: games and films do not rank against each other
+    const shelfTops = S.cats.map(c => [c, S.byCat[c].filter(i => i.rating).sort((a, b) => b.rating - a.rating || (b.site_rating || 0) - (a.site_rating || 0) || a.date.localeCompare(b.date)).slice(0, 5)]).filter(([c, its]) => its.length >= 3);
+    // five stars lists every title that got them, of any shelf; a mixed list of the highest marks gives way to the shelf cards
+    const topOk = FS.length < 3 && shelfTops.length ? { ok: false, reason: _("the shelf cards take its place; show it if you like") } : ok(S.rated.length >= 3 || top.length >= 5, _("fewer than three rated titles"));
+    cards.push({ id: "top", name: FS.length >= 3 ? _("Five stars") : _("Top shelf"), kind: "computed", interest: topOk, bg: () => TINT.paper, body: () => {
       const line1 = FS.length >= 3 ? fsMany ? _("{n} titles got five stars; here are ten, the ones you wrote about first", { n: FS.length }) : _("Everything that got five stars this year") : S.topLabel;
       const t = cardTop(FS.length >= 3 ? _("{n} favourites", { n: FS.length }) : _("The highest marks"), line1, { eyebrow: FS.length >= 3 ? _("Five stars") : _("Top shelf") });
       // four or fewer get large covers; up to eight keep the wide fan; nine or ten use smaller covers, so the outer covers stay on the card
@@ -304,6 +328,9 @@
       let fan = ""; top.forEach((it, i) => { const k = i - (N - 1) / 2; const x = cx + k * step - W / 2, y = base + Math.abs(k) * 14; fan += `<g transform="translate(${x + W / 2},${y + H}) rotate(${rot(i)}) translate(${-(x + W / 2)},${-(y + H)})">${coverSvg(it, x, y, W, H, "fanin", 300 + i * 90)}</g>`; });
       return t.svg + fan;
     } });
+    shelfTops.forEach(([c, its], k) => {
+      cards.push({ id: "best-" + c, name: _("Top {shelf}", { shelf: CAT_NOUN[c] }), kind: "computed", interest: { ok: true }, bg: () => [TINT.blue, TINT.green, TINT.coral][k % 3], body: () => topNBody({ n: its.length, source: { type: "auto", cat: c } }, its) });
+    });
     const q = S.quiet;
     cards.push({ id: "quiet", name: _("Quiet favourite"), kind: "computed", interest: ok(q && q.marks != null && q.marks < 20, q ? _("your favourites all have 20 or more marks here") : _("no top mark to pick from")), bg: () => TINT.coral, body: () => {
       const t = cardTop(q.title, "", { eyebrow: _("The quiet favourite") });
@@ -508,6 +535,23 @@
       return t.svg + feature(f0.it, y, [label(_("Waited longest")), titleRow(f0.it.title, 40), line(_("saved {date}", { date: fy(f0.it.wishlisted) })), line(_("finished {date}", { date: fy(f0.it.date) }))], 300, w)
         + rest.map((x, j) => T(80, ly + j * 44, wrapW(x.it.title, 34, 400, 660, 1)[0], 34, { cls: "fade", d: 600 + j * 60 }) + T(1000, ly + j * 44, wait(x.days), 34, { fill: MUTED, anchor: "end", cls: "fade", d: 600 + j * 60 })).join("");
     } });
+    // Once more: titles finished again this year, after an earlier finish on another day (a bulk day is an import, not a finish)
+    const again = S.items.filter(i => i.done_before > 0 && i.first_done && !BULK.has(i.date)).sort((a, b) => a.first_done.localeCompare(b.first_done));
+    cards.push({ id: "again", name: _("Once more"), kind: "computed", interest: ok(again.length > 0, _("no title finished again this year")), bg: () => TINT.blue, body: () => {
+      const a0 = again[0], k = again.length;
+      const before = it => _n("finished once before", "finished {n} times before", it.done_before);
+      if (k === 1) {
+        const t = cardTop(a0.title, "", { eyebrow: _("Once more") });
+        return t.svg + feature(a0, t.y + 56, [line(who(a0)), a0.rating ? { stars: a0.rating, size: 44 } : null, { gap: 20 }, line(_("first finished {date}", { date: fy(a0.first_done) }), 34, INK), line(before(a0))], 300, 420);
+      }
+      // as on Finally: the title first finished longest ago large, then a short list of the others
+      const t = cardTop(_n("{n} title", "{n} titles", k), _("finished again this year, the first of them in {year}", { year: a0.first_done.slice(0, 4) }), { eyebrow: _("Once more"), count: k });
+      const rest = again.slice(1, 4), more = k - 1 - rest.length, rows = rest.length + (more > 0 ? 1 : 0);
+      const y = t.y + 50, w = featureW(y, Math.min(320, Math.floor((880 + DY - y - (64 + (rows - 1) * 44)) / 1.5))), ly = y + w * 1.5 + 64;
+      return t.svg + feature(a0, y, [titleRow(a0.title, 40), line(who(a0)), line(_("first finished {date}", { date: fy(a0.first_done) }), 34, INK), line(before(a0))], 300, w)
+        + rest.map((it, j) => T(80, ly + j * 44, wrapW(it.title, 34, 400, 660, 1)[0], 34, { cls: "fade", d: 600 + j * 60 }) + T(1000, ly + j * 44, _("since {year}", { year: it.first_done.slice(0, 4) }), 34, { fill: MUTED, anchor: "end", cls: "fade", d: 600 + j * 60 })).join("")
+        + (more > 0 ? T(80, ly + rest.length * 44, _("and {n} more", { n: more }), 34, { fill: MUTED, cls: "fade", d: 800 }) : "");
+    } });
     const w = D.waiting;
     cards.push({ id: "waiting", name: _("Unfinished business"), kind: "computed", interest: finOk ? { ok: false, reason: _("Finally takes its place; show both if you like") } : ok(!!w, _("wishlist history is not public here")), bg: () => TINT.coral, body: () => {
       const t = cardTop(_n("{n} day", "{n} days", w.days), _("on your wishlist, and counting"), { eyebrow: _("Unfinished business"), count: w.days });
@@ -684,7 +728,7 @@
     const by = id => c.find(k => k.id === id);
     const tc = TREND.cards(TR, UI);
     const xb = id => x.find(k => k.id === id);
-    return ordered([by("intro"), by("covers"), by("shelves"), tc.yoy, by("busiest"), by("biggest"), by("top"), by("quiet"), by("disagree"), by("streak"), by("weeks"), xb("marathonday"), by("era"), tc.taste, by("people"), xb("tags"), ...s, ...madeCards(), xb("versus"), xb("finally"), xb("waiting"), xb("essay"), tc.bests, outro()].filter(Boolean));
+    return ordered([by("intro"), by("covers"), by("shelves"), tc.yoy, by("busiest"), by("biggest"), by("top"), ...c.filter(k => k.id.startsWith("best-")), by("quiet"), by("disagree"), by("streak"), by("weeks"), xb("marathonday"), by("era"), tc.taste, by("people"), xb("tags"), ...s, ...madeCards(), xb("versus"), xb("again"), xb("finally"), xb("waiting"), xb("essay"), tc.bests, outro()].filter(Boolean));
   }
   // one visibility for the whole page; a card is only shown or hidden, and a card the rules reject starts hidden with its reason
   const REOPEN = "wr-reopen";
@@ -693,7 +737,7 @@
   const FIXED = new Set(["intro", "outro"]);
   // hidden unless the member says otherwise: a card the rules reject, and in a small year every card outside the compact set
   // "*": the member hid every card of this audience, so a card without an override of its own stays hidden
-  const byDefault = c => deckState.hidden["*"] === true || !c.interest.ok || (SMALL && !COMPACT.has(c.id) && c.kind !== "made");
+  const byDefault = c => deckState.hidden["*"] === true || !c.interest.ok || (SMALL && !COMPACT.has(c.id) && !c.id.startsWith("best-") && c.kind !== "made");
   function ordered(cards) {
     const pos = new Map(deckState.order.map((id, i) => [id, i]));
     if (!pos.size) return cards;
@@ -791,7 +835,7 @@
     $("suggest").onclick = () => { deckState.hidden = {}; saveDeck(); render(); toast(_("Back to the suggested cards")); };
   }
   // ---------- the stage: one card at a time, like stories ----------
-  const stage = $("stage"), deckEl = $("deck"), RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const stage = $("stage"), deckEl = $("deck");
   let cur = 0, auto = false, started = false;
   const list = () => deckEl.children;
   function reveal(el, again) { if (again) { el.classList.remove("in"); void el.offsetWidth; } if (el.classList.contains("in")) return; el.classList.add("in"); el.querySelectorAll("text[data-count]").forEach(t => { const to = +t.dataset.count, pre = t.dataset.pre || "", suf = t.dataset.suf || "", t0 = performance.now(), dur = 900; const step = now => { const k = Math.min(1, (now - t0) / dur), v = Math.round(to * (1 - Math.pow(1 - k, 3))); t.textContent = pre + v.toLocaleString() + suf; if (k < 1) requestAnimationFrame(step); }; if (!RM) requestAnimationFrame(step); }); }
@@ -895,46 +939,55 @@
   playBtn();
   function copyLink(url) { (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => toast(_("Link copied")), () => window.prompt("", url)); }
 
-  // ---------- hero and lists ----------
-  function hero() {
-  const act = ACTIVITY;
-  $("stats").innerHTML = [[n, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[TM.busiest], _n("busiest month, {n} title", "busiest month, {n} titles", TM.counts[TM.busiest])], [S.avg ? S.avg.toFixed(1) : _n("{n} day", "{n} days", act.streak), S.avg ? _("average rating, of 10") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num"${typeof a === "number" ? ` data-to="${a}"` : ""}>${typeof a === "number" ? a.toLocaleString() : a}</span><span class="lbl">${b}</span></div>`).join("");
-  }
-  hero();
-  // the stat tiles count up once, when they come into view
-  new IntersectionObserver((es, ob) => { if (!es[0].isIntersecting) return; ob.disconnect(); if (RM) return; $("stats").querySelectorAll("[data-to]").forEach(el => { const to = +el.dataset.to, t0 = performance.now(); const step = now => { const k = Math.min(1, (now - t0) / 1100); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString(); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }); }, { threshold: 0.5 }).observe($("stats"));
+  // ---------- the whole year: the counts, then a pile of covers for each month ----------
+  // it is also all the page shows before the deck is made
+  function yearSection() {
+    // read at each view (D.live), while the cards keep what the last update stored; before the deck is made the
+    // page's own data is the live year
+    const L = D.live, its = L ? L.items.slice().sort((a, b) => a.date.localeCompare(b.date)) : S.items, per = {};
+    its.forEach(i => { per[i.date] = (per[i.date] || 0) + 1; });
+    const bulk = L ? new Set(Object.keys(per).filter(d => per[d] > TREND.BULK_DAY)) : BULK;
+    const act = L ? activityOf(L.activity.filter(a => !(a.kind === "complete" && bulk.has(a.date)))) : ACTIVITY;
+    const counts = L ? MONTHS.map((z, m) => its.filter(i => !bulk.has(i.date) && +i.date.slice(5, 7) === m + 1).length) : TM.counts, busiest = counts.indexOf(Math.max(...counts));
+    const rated = its.filter(i => i.rating), avg = rated.length ? rated.reduce((a, i) => a + i.rating, 0) / rated.length : null;
+    const months = MONTHS.map((z, m) => its.filter(i => +i.date.slice(5, 7) === m + 1)), cats = CATS.filter(c => its.some(i => i.category === c));
+    $("stats").innerHTML = [[its.length, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[busiest], _n("busiest month, {n} title", "busiest month, {n} titles", counts[busiest])], [avg ? avg.toFixed(1) : _n("{n} day", "{n} days", act.streak), avg ? _("average rating, of 10") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num"${typeof a === "number" ? ` data-to="${a}"` : ""}>${typeof a === "number" ? a.toLocaleString() : a}</span><span class="lbl">${b}</span></div>`).join("");
+    // the stat tiles count up once, when they come into view
+    new IntersectionObserver((es, ob) => { if (!es[0].isIntersecting) return; ob.disconnect(); if (RM) return; $("stats").querySelectorAll("[data-to]").forEach(el => { const to = +el.dataset.to, t0 = performance.now(); const step = now => { const k = Math.min(1, (now - t0) / 1100); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString(); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }); }, { threshold: 0.5 }).observe($("stats"));
 
-  // ---------- the year in covers: a pile for each month, as long as the month was busy ----------
-  // the piles make a bar chart: the busiest month fills the track, and each pile draws at most 36 covers spread over its length
-  let bymCat = "all", openM = null, lists = [];
-  const PILE_MAX = 36, piles = $("piles");
-  function monthPanel(m) { const list = lists[m]; return `<div class="pile-open" role="region" aria-label="${esc(MONTHS_LONG[m])}"><div class="month-h"><h3>${esc(MONTHS_LONG[m])}</h3><span class="n">${_n("{n} title", "{n} titles", list.length)}</span></div><div class="bym">${list.map(it => `<div>${cover(it)}<p class="t">${esc(it.title)}</p></div>`).join("")}</div></div>`; }
-  function openMonth(m) {
-    openM = m; piles.querySelectorAll(".pile-open").forEach(x => x.remove());
-    piles.classList.toggle("picked", m != null);
-    piles.querySelectorAll(".pile").forEach(b => { const on = +b.dataset.m === m; b.classList.toggle("on", on); b.setAttribute("aria-expanded", on); });
-    if (m != null) piles.querySelector(`.pile[data-m="${m}"]`).insertAdjacentHTML("afterend", monthPanel(m));
+    // ---------- the year in covers: a pile for each month, as long as the month was busy ----------
+    // the piles make a bar chart: the busiest month fills the track, and each pile draws at most 36 covers spread over its length
+    let bymCat = "all", openM = null, lists = [];
+    const PILE_MAX = 36, piles = $("piles");
+    function monthPanel(m) { const list = lists[m]; return `<div class="pile-open" role="region" aria-label="${esc(MONTHS_LONG[m])}"><div class="month-h"><h3>${esc(MONTHS_LONG[m])}</h3><span class="n">${_n("{n} title", "{n} titles", list.length)}</span></div><div class="bym">${list.map(it => `<div>${cover(it)}<p class="t">${esc(it.title)}</p></div>`).join("")}</div></div>`; }
+    function openMonth(m) {
+      openM = m; piles.querySelectorAll(".pile-open").forEach(x => x.remove());
+      piles.classList.toggle("picked", m != null);
+      piles.querySelectorAll(".pile").forEach(b => { const on = +b.dataset.m === m; b.classList.toggle("on", on); b.setAttribute("aria-expanded", on); });
+      if (m != null) piles.querySelector(`.pile[data-m="${m}"]`).insertAdjacentHTML("afterend", monthPanel(m));
+    }
+    function byMonth() {
+      lists = months.map(all => bymCat === "all" ? all : all.filter(it => it.category === bymCat));
+      const max = Math.max(1, ...lists.map(l => l.length));
+      piles.style.setProperty("--gaps", max - 1);
+      piles.innerHTML = lists.map((list, m) => {
+        const c = list.length, pm = max > 1 ? (c - 1) / (max - 1) : 0, k = Math.min(c, PILE_MAX);
+        const pick = k < 2 ? list.slice(0, k) : Array.from({ length: k }, (z, j) => list[Math.round(j * (c - 1) / (k - 1))]);
+        const imgs = pick.map((it, j) => `<img src="${esc(it.cover)}" alt="" loading="lazy" style="--p:${(k > 1 ? j / (k - 1) * pm : 0).toFixed(4)};--r:${((j * 37) % 7 - 3) * 0.6}deg;background:${CAT_COLOR[it.category] || "#ccc"}">`).join("");
+        return `<button type="button" class="pile" data-m="${m}" style="--m:${m};--pm:${pm.toFixed(4)}" aria-expanded="false" aria-label="${esc(_("{month}, {titles}", { month: MONTHS_LONG[m], titles: _n("{n} title", "{n} titles", c) }))}"${c ? "" : " disabled"}><span class="stack">${imgs}${c ? `<span class="cnt">${c}</span>` : ""}</span><span class="mo">${esc(MONTHS[m])}</span></button>`;
+      }).join("");
+      piles.querySelectorAll(".pile").forEach(b => b.onclick = () => openMonth(openM === +b.dataset.m ? null : +b.dataset.m));
+      openMonth(openM != null && lists[openM].length ? openM : null);
+      document.querySelectorAll("#wr-bymcat button").forEach(b => { b.classList.toggle("on", b.dataset.cat === bymCat); b.setAttribute("aria-pressed", b.dataset.cat === bymCat); });
+    }
+    const bymCats = $("bymcat");
+    bymCats.innerHTML = `<button type="button" data-cat="all">${_("All")}</button>` + cats.map(c => `<button type="button" data-cat="${c}"><i class="fa-solid ${CAT_ICON[c]}"></i> ${CAT_LABEL[c]}</button>`).join("");
+    bymCats.querySelectorAll("button").forEach(b => b.onclick = () => { bymCat = b.dataset.cat; byMonth(); });
+    byMonth();
+    // the piles grow when their top comes up past the lowest 15% of the screen; a tall list on a phone does not wait for 20% of itself
+    new IntersectionObserver((es, ob) => { if (es[0].isIntersecting) { piles.classList.add("in"); ob.disconnect(); } }, { rootMargin: "0px 0px -15% 0px" }).observe(piles);
   }
-  function byMonth() {
-    lists = S.byMonth.map(all => bymCat === "all" ? all : all.filter(it => it.category === bymCat));
-    const max = Math.max(1, ...lists.map(l => l.length));
-    piles.style.setProperty("--gaps", max - 1);
-    piles.innerHTML = lists.map((list, m) => {
-      const c = list.length, pm = max > 1 ? (c - 1) / (max - 1) : 0, k = Math.min(c, PILE_MAX);
-      const pick = k < 2 ? list.slice(0, k) : Array.from({ length: k }, (z, j) => list[Math.round(j * (c - 1) / (k - 1))]);
-      const imgs = pick.map((it, j) => `<img src="${esc(it.cover)}" alt="" loading="lazy" style="--p:${(k > 1 ? j / (k - 1) * pm : 0).toFixed(4)};--r:${((j * 37) % 7 - 3) * 0.6}deg;background:${CAT_COLOR[it.category] || "#ccc"}">`).join("");
-      return `<button type="button" class="pile" data-m="${m}" style="--m:${m};--pm:${pm.toFixed(4)}" aria-expanded="false" aria-label="${esc(_("{month}, {titles}", { month: MONTHS_LONG[m], titles: _n("{n} title", "{n} titles", c) }))}"${c ? "" : " disabled"}><span class="stack">${imgs}${c ? `<span class="cnt">${c}</span>` : ""}</span><span class="mo">${esc(MONTHS[m])}</span></button>`;
-    }).join("");
-    piles.querySelectorAll(".pile").forEach(b => b.onclick = () => openMonth(openM === +b.dataset.m ? null : +b.dataset.m));
-    openMonth(openM != null && lists[openM].length ? openM : null);
-    document.querySelectorAll("#wr-bymcat button").forEach(b => { b.classList.toggle("on", b.dataset.cat === bymCat); b.setAttribute("aria-pressed", b.dataset.cat === bymCat); });
-  }
-  const bymCats = $("bymcat");
-  bymCats.innerHTML = `<button type="button" data-cat="all">${_("All")}</button>` + S.cats.map(c => `<button type="button" data-cat="${c}"><i class="fa-solid ${CAT_ICON[c]}"></i> ${CAT_LABEL[c]}</button>`).join("");
-  bymCats.querySelectorAll("button").forEach(b => b.onclick = () => { bymCat = b.dataset.cat; byMonth(); });
-  byMonth();
-  // the piles grow when their top comes up past the lowest 15% of the screen; a tall list on a phone does not wait for 20% of itself
-  new IntersectionObserver((es, ob) => { if (es[0].isIntersecting) { piles.classList.add("in"); ob.disconnect(); } }, { rootMargin: "0px 0px -15% 0px" }).observe(piles);
+  yearSection();
 
   // ---------- tint from the member's own covers ----------
   async function tintFromCovers() {
@@ -970,7 +1023,9 @@
   let mk = null;
   const el = $;
   function openMake() {
-    mk = { n: 5, src: "auto:all", picked: [], lookupTimer: null, mode: "list", work: null, text: null };
+    // a top list from one shelf reads better than a mixed one, so the dialog starts on the biggest shelf
+    const firstSrc = S.topCat ? "auto:" + S.topCat : "auto:all";
+    mk = { n: 5, src: firstSrc, picked: [], lookupTimer: null, mode: "list", work: null, text: null };
     ["mk-title", "mk-cap", "mk-q", "mk-wq"].forEach(id => el(id).value = ""); el("mk-res").innerHTML = ""; el("mk-texts").innerHTML = "";
     const seg = el("mk-n"); seg.innerHTML = [3, 4, 5, 6, 7, 8, 9, 10].map(k => `<button type="button" class="${k === 5 ? "on" : ""}" data-n="${k}">${k}</button>`).join("");
     seg.querySelectorAll("button").forEach(b => b.onclick = () => { mk.n = +b.dataset.n; seg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); mkPreview(); });
@@ -980,8 +1035,8 @@
       + `<optgroup label="${_("Your collections")}">${own.length ? own.map(opt).join("") : `<option disabled>${_("No collections of your own yet")}</option>`}</optgroup>`
       + `<optgroup label="${_("Collections you liked")}">${liked.length ? liked.map(opt).join("") : `<option disabled>${_("No liked collections yet")}</option>`}</optgroup>`
       + `<optgroup label="${_("Your own list")}"><option value="hand">${_("Pick titles or paste links")}</option></optgroup>`;
-    el("mk-src").value = "auto:all"; el("mk-src").onchange = () => setSource(el("mk-src").value);
-    setSource("auto:all"); setMode("list"); mkdlg.showModal();
+    el("mk-src").value = firstSrc; el("mk-src").onchange = () => setSource(el("mk-src").value);
+    setSource(firstSrc); setMode("list"); mkdlg.showModal();
   }
   function setSource(v) {
     mk.src = v; el("mk-src").value = v;
@@ -1132,6 +1187,8 @@
       fd.append("comment", $("pub-note").value);
       fd.append("visibility", (document.querySelector('#wr-pub-post input[name="wr-vis"]:checked') || {}).value || String(LEVEL));
       fd.append("aud", LEVEL);
+      // the same choice as on a normal post: off, the post stays on this site
+      fd.append("crosspost", ($("pub-xpost") || {}).checked ? "1" : "");
       const r = await fetch(URLS.share, { method: "POST", headers: { "X-CSRFToken": CSRF, Accept: "application/json" }, body: fd });
       if (!r.ok) throw new Error(r.status);
       pubdlg.close(); toast(video ? _("Posted the video to your timeline") : _n("Posted {n} card to your timeline", "Posted {n} cards to your timeline", ids.length));
@@ -1183,6 +1240,20 @@
     };
     $("editdlg").addEventListener("close", stopTry);
     creditShow();
+  }
+  // the card data in the Edit sheet: the daily update, and a button that stores the data again now
+  if (OWNER && $("daily")) {
+    const box = $("daily");
+    box.onchange = () => { const on = box.checked; fetch(URLS.save, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF }, body: JSON.stringify({ aud: LEVEL, daily: on }) }).then(r => { if (!r.ok) throw new Error(r.status); }).catch(() => { box.checked = !on; toast(_("Could not save the deck; try again")); }); };
+  }
+  if (OWNER && $("update-now")) {
+    const btn = $("update-now");
+    btn.onclick = () => {
+      btn.disabled = true;
+      // the owner's choices first, so the page that comes back has them
+      flushSave().then(() => fetch(URLS.refresh, { method: "POST", headers: { "X-CSRFToken": CSRF } })).then(r => r.json()).then(j => { if (!j.ok) throw j.status; location.reload(); })
+        .catch(st => { btn.disabled = false; toast(st === "busy" ? _("The cards were updated a moment ago; try again in a minute") : _("Could not update the cards; try again")); });
+    };
   }
 
   // ---------- the QR code tab: one 4:5 image with the year in numbers and a code that opens the page ----------

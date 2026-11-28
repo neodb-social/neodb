@@ -12,6 +12,7 @@ import logging
 import math
 import re
 import statistics
+import time
 import uuid
 from collections import defaultdict
 from collections.abc import Set as AbstractSet
@@ -26,6 +27,7 @@ from django.db import connection
 from django.db.models import (
     Count,
     F,
+    Max,
     Min,
     Q,
     QuerySet,
@@ -34,6 +36,7 @@ from django.db.models import (
 )
 from django.db.models.functions import RowNumber, TruncDate
 from django.urls import reverse
+from django.utils import timezone, translation
 
 from catalog.models import (
     Item,
@@ -102,6 +105,42 @@ CREDIT_ROLES = {
 ACTORS_PER_ITEM = 5
 # the Early card shows a place only up to this one (deck.js checks the same 10)
 FIRST_RANK_MAX = 10
+
+
+def _today() -> datetime.date:
+    """The site's date in its own time zone, not the visitor's, so the window has one boundary for everybody
+    and for the nightly job; tests patch this to open or close the window for making a deck."""
+    return timezone.localdate(timezone=ZoneInfo(settings.TIME_ZONE))
+
+
+def make_window(year: int) -> tuple[datetime.date, datetime.date]:
+    """A member makes the deck of a year once, from 1 December of that year to the end of February after it:
+    the first day, and the day after the last."""
+    return datetime.date(year, 12, 1), datetime.date(year + 1, 3, 1)
+
+
+def make_state(year: int) -> str:
+    """ "early" before the window for making the deck of this year, "open" in it, "closed" after it."""
+    if year < 1970 or year >= 9999:
+        return "closed"
+    start, end = make_window(year)
+    t = _today()
+    return "early" if t < start else "open" if t < end else "closed"
+
+
+def can_make(year: int) -> bool:
+    return make_state(year) == "open"
+
+
+def default_year() -> int:
+    """The year the summary page opens on: this year in December, else the year before."""
+    t = _today()
+    return t.year if t.month == 12 else t.year - 1
+
+
+def latest_year() -> int:
+    """The last year a page can be opened for: this one."""
+    return _today().year
 
 
 def _members() -> QuerySet[ShelfMember]:
@@ -243,6 +282,34 @@ def _first_ranks(owner: APIdentity, ids: list[int]) -> dict[int, int]:
         cur.execute(sql, [FIRST_RANK_MAX, owner.pk, ids])
         rows = cur.fetchall()
     return {i: n + 1 for i, n in rows if n < FIRST_RANK_MAX}
+
+
+def _done_before(
+    owner: APIdentity,
+    ids: list[int],
+    when: dict[int, datetime.datetime],
+    tz: ZoneInfo,
+) -> dict[int, tuple[int, str]]:
+    """Titles of the year that were also finished earlier, on another day: the number of those earlier days
+    and the first of them. Each finish leaves a COMPLETE entry in the shelf log; a progress update leaves
+    one too, with the progress in it, and that is not a finish. The entries take the visibility of the
+    member's current mark, as the title does."""
+    days: dict[int, set[datetime.date]] = defaultdict(set)
+    for item_id, ts in (
+        ShelfLogEntry.objects.filter(
+            owner=owner, item_id__in=ids, shelf_type=ShelfType.COMPLETE
+        )
+        .exclude(metadata__has_key="progress_value")
+        .values_list("item_id", "timestamp")
+    ):
+        days[item_id].add(ts.astimezone(tz).date())
+    out = {}
+    for item_id, ds in days.items():
+        done = when[item_id].astimezone(tz).date()
+        earlier = sorted(d for d in ds if d < done)
+        if earlier:
+            out[item_id] = (len(earlier), earlier[0].isoformat())
+    return out
 
 
 def _grades(
@@ -442,8 +509,10 @@ def _friends(
             pk__in=ids
         ).values_list("pk", "name", "username", "domain_id")
     }
+    # "id" lets each page leave out the members its visitor must not see; the page never sends it
     return [
         {
+            "id": pk,
             "handle": names[pk][1] if pk in names else people[pk],
             "name": names[pk][0] if pk in names else people[pk],
             "n": totals[pk],
@@ -858,6 +927,7 @@ def _kindred(
         if len(shared) < KINDRED_MIN_SHARED:
             continue
         return {
+            "id": person.pk,
             "handle": person.full_handle,
             "name": person.display_name,
             "url": person.url,
@@ -870,19 +940,10 @@ def _kindred(
     return None
 
 
-def build_payload(
-    owner: APIdentity,
-    year: int,
-    level: int,
-    tz: ZoneInfo,
-    include_friends: bool = True,
-    include_kindred: bool = False,
-    viewer: Any = None,
-    collection_refs: list[str] | None = None,
-    picker: bool = True,
-) -> dict[str, Any]:
-    start, end = year_range(year, tz)
-    ctypes = _ctype_categories()
+def _year_titles(
+    owner: APIdentity, level: int, start: datetime.datetime, end: datetime.datetime
+) -> tuple[list[int], dict[int, Item], dict[int, datetime.datetime]]:
+    """The titles finished in the year at this level, in order: their ids, the items, and when each was finished."""
     marks = list(
         _members()
         .filter(
@@ -904,6 +965,52 @@ def build_payload(
         and not items[i].is_deleted
         and str(items[i].category) in CATEGORIES
     ]
+    return ids, items, dict(marks)
+
+
+def live_year(owner: APIdentity, year: int, level: int, tz: ZoneInfo) -> dict[str, Any]:
+    """The year's finished titles and active days at this level, read at each view: the page's whole-year
+    section (the counts and the month piles) stays current, while the cards show what the last update
+    stored. Before the deck is made, this is all the page shows."""
+    start, end = year_range(year, tz)
+    ids, items, when = _year_titles(owner, level, start, end)
+    rating = _grades(owner, ids, level)
+    return {
+        "items": [
+            {
+                "uuid": items[i].uuid,
+                "title": items[i].display_title,
+                "category": str(items[i].category),
+                "cover": items[i].display_cover_image_url,
+                "url": items[i].absolute_url,
+                "rating": rating.get(i),
+                "date": when[i].astimezone(tz).date().isoformat(),
+            }
+            for i in ids
+        ],
+        "activity": _activity(owner, level, start, end, tz),
+    }
+
+
+def build_payload(
+    owner: APIdentity,
+    year: int,
+    level: int,
+    tz: ZoneInfo,
+    include_friends: bool = True,
+    include_kindred: bool = False,
+    viewer: Any = None,
+    collection_refs: list[str] | None = None,
+    picker: bool = True,
+    hidden: AbstractSet[int] | None = None,
+    instance: tuple[Any, Any] | None = None,
+) -> dict[str, Any]:
+    """``hidden``: the members to leave out of the social cards; by default those ``viewer`` must not see.
+    The stored data passes none, as it serves every visitor and each page applies its own visitor.
+    ``instance``: the year's instance totals and kindred matches, when the caller already read them."""
+    start, end = year_range(year, tz)
+    ctypes = _ctype_categories()
+    ids, items, when = _year_titles(owner, level, start, end)
     rating = _grades(owner, ids, level)
     # plain text with spoilers taken out, as the cards draw comments verbatim
     comment = {
@@ -933,7 +1040,7 @@ def build_payload(
     counts = Mark.get_mark_count_for_items(item_list)
     credits = _credits(ids)
     ranks = _first_ranks(owner, ids)
-    when = dict(marks)
+    again = _done_before(owner, ids, when, tz)
     out_items = []
     paths: dict[int, str] = {}
     for n, i in enumerate(ids):
@@ -962,14 +1069,21 @@ def build_payload(
                 else None,
                 "first_rank": ranks.get(i),
                 "tags": tags.get(i, []),
+                # finished before, on other days: how many times, and the first of them
+                "done_before": again[i][0] if i in again else 0,
+                "first_done": again[i][1] if i in again else None,
             }
         )
     history, last_year = _history(owner, level, year, tz, ctypes)
     waiting = _waiting(owner, level, end, tz)
-    stats = instance_stats(year)
-    matches = kindred_matches(year) if include_kindred else None
+    stats, matches = instance or (instance_stats(year), None)
+    if not include_kindred:
+        matches = None
+    elif instance is None:
+        matches = kindred_matches(year)
     # other members appear on the cards only as this visitor may see them
-    hidden = _hidden_people(viewer)
+    if hidden is None:
+        hidden = _hidden_people(viewer)
     payload: dict[str, Any] = {
         "year": year,
         "member": _member(owner),
@@ -1125,6 +1239,158 @@ def deck_for(owner: APIdentity, year: int, create: bool = False) -> WrappedDeck 
             owner=owner, year=year, defaults={"hidden": hidden}
         )
     return deck
+
+
+# how long a deck update waits for another process to fill a cold instance cache
+AGGREGATE_WAIT_SECONDS = 20
+
+
+def _aggregate(key: str, compute: Any, year: int) -> Any:
+    """A cached whole-instance result; on a miss one process computes it (the same lock as the queued job's,
+    so a running job counts), and the others wait a little for it. None when the wait runs out."""
+    value = cache.get(key)
+    if value is not None:
+        return value
+    if cache.add(key + ":lock", 1, 600):
+        return compute(year)
+    for _ in range(AGGREGATE_WAIT_SECONDS):
+        time.sleep(1)
+        value = cache.get(key)
+        if value is not None:
+            return value
+    return None
+
+
+def year_aggregates(year: int) -> tuple[Any, Any]:
+    """The year's instance totals and kindred matches, read once for one deck or a batch of them. A cold cache
+    is filled now rather than by a queued job, so a stored deck seldom keeps the gap; when it does (another
+    process is still computing), the stored data says ``warming`` and the next page view fills it."""
+    return (
+        _aggregate(_instance_key(year), compute_instance_stats, year),
+        _aggregate(_kindred_key(year), compute_kindred, year),
+    )
+
+
+def aggregates_ready(year: int) -> bool:
+    return cache.has_key(_instance_key(year)) and cache.has_key(_kindred_key(year))
+
+
+def live_stamp(owner: APIdentity) -> str:
+    """Changes with the owner's marks (their count and latest edit): the whole-year section's cache key."""
+    v = _members().filter(owner=owner).aggregate(n=Count("pk"), t=Max("edited_time"))
+    return f"{v['n']}:{v['t'].timestamp() if v['t'] else 0}"
+
+
+def snapshot(
+    owner: APIdentity, year: int, tz: ZoneInfo, instance: tuple[Any, Any] | None = None
+) -> dict[str, dict[str, Any]]:
+    """The card data of each audience, as the deck stores it: the social and kindred data of everyone, as
+    each page leaves out what its own visitor must not see; the collections that made cards use are read
+    when the page renders, as those cards are the owner's own picks. Titles are in the owner's language,
+    whether the owner or the nightly job stores the data."""
+    instance = instance or year_aggregates(year)
+    lang = (owner.user.language if owner.user else "") or settings.LANGUAGE_CODE
+    out = {}
+    with translation.override(lang):
+        for level in AUDIENCES:
+            p = build_payload(
+                owner,
+                year,
+                level,
+                tz,
+                include_friends=True,
+                include_kindred=True,
+                picker=False,
+                hidden=frozenset(),
+                instance=instance,
+            )
+            p.pop("collections", None)
+            out[str(level)] = p
+    return out
+
+
+def refresh_deck(deck: WrappedDeck, instance: tuple[Any, Any] | None = None) -> bool:
+    """Store the card data as it is now; True when it changed. The time is stored either way, as the page
+    tells the owner when the data was last updated."""
+    data = snapshot(deck.owner, deck.year, deck.tzinfo, instance)
+    fields = ["refreshed_time"]
+    changed = data != deck.data
+    if changed:
+        deck.data = data
+        fields.append("data")
+    deck.refreshed_time = timezone.now()
+    deck.save(update_fields=fields)
+    return changed
+
+
+def stored_payload(
+    deck: WrappedDeck,
+    level: int,
+    viewer: Any = None,
+    is_owner: bool = False,
+    collection_refs: list[str] | None = None,
+    picker: bool = False,
+) -> dict[str, Any]:
+    """The cards' data for one audience as the last update stored it, with what depends on this page applied
+    now: the members this visitor must not see leave the social cards, the social and kindred data reach
+    only an audience whose cards may show them, the member's name and picture are current, and the
+    collections of the made cards (and of the owner's picker) are read now."""
+    p = dict((deck.data or {}).get(str(level)) or {})
+    owner = deck.owner
+    friends = (p.get("friends") or []) if friends_allowed(deck, level, is_owner) else []
+    kin = p.get("kindred") if kindred_allowed(deck, level, is_owner) else None
+    # other people as they are now, as the stored data names them: not those this visitor must not see, nor
+    # deleted accounts or members the owner blocks; the kindred member also only while still discoverable
+    hidden = _hidden_people(viewer)
+    named = {f.get("id") for f in friends} | ({kin.get("id")} if kin else set())
+    named.discard(None)
+    present = (
+        set(
+            APIdentity.objects.filter(pk__in=named, deleted__isnull=True).values_list(
+                "pk", flat=True
+            )
+        )
+        - hidden
+        - set(owner.ignoring)
+        if named
+        else set()
+    )
+    p["friends"] = [
+        {k: v for k, v in f.items() if k != "id"}
+        for f in friends
+        if f.get("id") in present
+    ]
+    p["kindred"] = (
+        {k: v for k, v in kin.items() if k != "id"}
+        if kin and kin.get("id") in present and _discoverable(kin["id"])
+        else None
+    )
+    p["member"] = _member(owner)
+    p["collections"] = _collections(
+        owner, level, viewer, hidden, collection_refs, picker
+    )
+    return p
+
+
+def _discoverable(identity_id: int) -> bool:
+    """Whether a member may still appear as someone's kindred member: discoverable, and not excluded by the site."""
+    if not TakaheIdentity.objects.filter(pk=identity_id, discoverable=True).exists():
+        return False
+    excluded = SiteConfig.system.discover_exclude_posts_from
+    return not (
+        excluded and identity_id in Takahe.get_identity_ids_by_handles(excluded)
+    )
+
+
+def owner_years(owner: APIdentity) -> list[int]:
+    """The years the owner can open from the year menu: those with a deck, and the one whose deck can be made now."""
+    years = set(
+        WrappedDeck.objects.filter(
+            owner=owner, refreshed_time__isnull=False
+        ).values_list("year", flat=True)
+    )
+    years.update(y for y in (latest_year(), latest_year() - 1) if can_make(y))
+    return sorted(years, reverse=True)
 
 
 def friends_allowed(deck: WrappedDeck | None, level: int, is_owner: bool) -> bool:

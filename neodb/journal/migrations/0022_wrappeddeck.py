@@ -30,6 +30,9 @@ class Migration(migrations.Migration):
                 ("shown", models.JSONField(default=dict)),
                 ("music", models.CharField(blank=True, default="", max_length=40)),
                 ("timezone", models.CharField(blank=True, default="", max_length=64)),
+                ("data", models.JSONField(default=dict)),
+                ("refreshed_time", models.DateTimeField(blank=True, null=True)),
+                ("daily", models.BooleanField(default=True)),
                 ("created_time", models.DateTimeField(auto_now_add=True)),
                 ("edited_time", models.DateTimeField(auto_now=True)),
                 (

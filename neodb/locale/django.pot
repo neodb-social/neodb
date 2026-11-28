@@ -11889,3 +11889,112 @@ msgstr ""
 #: journal/wrapped_text.py:399
 msgid "This audience sees none of this year's titles. Open another:"
 msgstr ""
+
+#: journal/templates/wrapped.html:73
+#, python-format
+msgid "Make my %(year)s cards"
+msgstr ""
+
+#: journal/templates/wrapped.html:78
+#, python-format
+msgid "You can make your %(year)s cards from %(date)s."
+msgstr ""
+
+#: journal/templates/wrapped.html:82
+#, python-format
+msgid "The %(year)s cards could be made until %(date)s."
+msgstr ""
+
+#: journal/views/wrapped.py:408 journal/views/wrapped.py:475
+msgid "This summary is not made yet."
+msgstr ""
+
+#: journal/wrapped_text.py:129
+msgid "the shelf cards take its place; show it if you like"
+msgstr ""
+
+#: journal/wrapped_text.py:130
+#, python-brace-format
+msgid "Top {shelf}"
+msgstr ""
+
+#: journal/wrapped_text.py:285
+msgid "Once more"
+msgstr ""
+
+#: journal/wrapped_text.py:286
+msgid "no title finished again this year"
+msgstr ""
+
+#: journal/wrapped_text.py:287
+#, python-brace-format
+msgid "first finished {date}"
+msgstr ""
+
+#: journal/wrapped_text.py:288
+#, python-brace-format
+msgid "finished again this year, the first of them in {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:289
+#, python-brace-format
+msgid "since {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:521
+#, python-brace-format
+msgid "finished once before"
+msgid_plural "finished {n} times before"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/templates/wrapped.html:81
+#, python-format
+msgid "Make your %(year)s cards any day until %(date)s. Until then they update every day, unless you turn that off in Edit; after that they stay as they are."
+msgstr ""
+
+#: journal/templates/wrapped.html:185
+msgid "Card data"
+msgstr ""
+
+#: journal/templates/wrapped.html:188
+#, python-format
+msgid "Updated %(time)s. The cards show your marks and the site's numbers as they were then."
+msgstr ""
+
+#: journal/templates/wrapped.html:192
+#, python-format
+msgid "Update every day until %(date)s"
+msgstr ""
+
+#: journal/templates/wrapped.html:195
+msgid "Update now"
+msgstr ""
+
+#: journal/templates/wrapped.html:199
+#, python-format
+msgid "Last updated %(time)s. Updates ended with February, so the cards stay as they are."
+msgstr ""
+
+#: journal/views/wrapped.py:132
+#, python-format
+msgid "%(name)s finished %(n)d title in %(year)d."
+msgid_plural "%(name)s finished %(n)d titles in %(year)d."
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:290
+msgid "The cards were updated a moment ago; try again in a minute"
+msgstr ""
+
+#: journal/wrapped_text.py:291
+msgid "Could not update the cards; try again"
+msgstr ""
+
+#: journal/templates/wrapped.html:157
+msgid "Choose an audience to edit the cards it sees when it opens your annual summary"
+msgstr ""
+
+#: journal/wrapped_text.py:292
+msgid "The cards have no titles from the last update."
+msgstr ""

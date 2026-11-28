@@ -11965,3 +11965,110 @@ msgstr "一个卡片组最多可以有 {n} 张自己制作的卡片"
 #: journal/wrapped_text.py:399
 msgid "This audience sees none of this year's titles. Open another:"
 msgstr "这个可见范围看不到今年的任何作品。打开其他可见范围："
+
+#: journal/templates/wrapped.html:73
+#, python-format
+msgid "Make my %(year)s cards"
+msgstr "生成我的 %(year)s 年度卡片"
+
+#: journal/templates/wrapped.html:78
+#, python-format
+msgid "You can make your %(year)s cards from %(date)s."
+msgstr "从 %(date)s 起可以生成你的 %(year)s 年度卡片。"
+
+#: journal/templates/wrapped.html:82
+#, python-format
+msgid "The %(year)s cards could be made until %(date)s."
+msgstr "%(year)s 年度卡片的生成截止于 %(date)s。"
+
+#: journal/views/wrapped.py:408 journal/views/wrapped.py:475
+msgid "This summary is not made yet."
+msgstr "这份年度总结还没有生成。"
+
+#: journal/wrapped_text.py:129
+msgid "the shelf cards take its place; show it if you like"
+msgstr "由各分类的卡片代替；如果愿意，也可以显示"
+
+#: journal/wrapped_text.py:130
+#, python-brace-format
+msgid "Top {shelf}"
+msgstr "年度{shelf}"
+
+#: journal/wrapped_text.py:285
+msgid "Once more"
+msgstr "重温"
+
+#: journal/wrapped_text.py:286
+msgid "no title finished again this year"
+msgstr "今年没有重温的作品"
+
+#: journal/wrapped_text.py:287
+#, python-brace-format
+msgid "first finished {date}"
+msgstr "{date}第一次完成"
+
+#: journal/wrapped_text.py:288
+#, python-brace-format
+msgid "finished again this year, the first of them in {year}"
+msgstr "今年再次完成，最早的一部初次完成于 {year} 年"
+
+#: journal/wrapped_text.py:289
+#, python-brace-format
+msgid "since {year}"
+msgstr "初次 {year}"
+
+#: journal/wrapped_text.py:521
+#, python-brace-format
+msgid "finished once before"
+msgid_plural "finished {n} times before"
+msgstr[0] "之前完成过 {n} 次"
+
+#: journal/templates/wrapped.html:81
+#, python-format
+msgid "Make your %(year)s cards any day until %(date)s. Until then they update every day, unless you turn that off in Edit; after that they stay as they are."
+msgstr "在 %(date)s 之前的任意一天都可以生成你的 %(year)s 年度卡片。在此之前卡片每天更新，除非你在“编辑”中关闭；之后卡片将保持不变。"
+
+#: journal/templates/wrapped.html:185
+msgid "Card data"
+msgstr "卡片数据"
+
+#: journal/templates/wrapped.html:188
+#, python-format
+msgid "Updated %(time)s. The cards show your marks and the site's numbers as they were then."
+msgstr "更新于 %(time)s。卡片显示的是那时你的标记和站内数据。"
+
+#: journal/templates/wrapped.html:192
+#, python-format
+msgid "Update every day until %(date)s"
+msgstr "在 %(date)s 之前每天更新"
+
+#: journal/templates/wrapped.html:195
+msgid "Update now"
+msgstr "立即更新"
+
+#: journal/templates/wrapped.html:199
+#, python-format
+msgid "Last updated %(time)s. Updates ended with February, so the cards stay as they are."
+msgstr "最后更新于 %(time)s。更新已随二月结束，卡片将保持不变。"
+
+#: journal/views/wrapped.py:132
+#, python-format
+msgid "%(name)s finished %(n)d title in %(year)d."
+msgid_plural "%(name)s finished %(n)d titles in %(year)d."
+msgstr[0] "%(name)s 在 %(year)d 年完成了 %(n)d 部作品。"
+
+#: journal/wrapped_text.py:290
+msgid "The cards were updated a moment ago; try again in a minute"
+msgstr "卡片刚刚更新过，请一分钟后再试"
+
+#: journal/wrapped_text.py:291
+msgid "Could not update the cards; try again"
+msgstr "无法更新卡片，请重试"
+
+#: journal/templates/wrapped.html:157
+msgid "Choose an audience to edit the cards it sees when it opens your annual summary"
+msgstr "选择可见性，编辑这类用户访问你的年度总结时能看到的卡片组"
+
+#: journal/wrapped_text.py:292
+msgid "The cards have no titles from the last update."
+msgstr "上次更新的卡片中没有作品。"

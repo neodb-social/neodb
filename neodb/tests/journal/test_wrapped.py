@@ -22,7 +22,7 @@ from django.utils import timezone
 from django.utils.translation import override
 
 from catalog.models import Edition, Movie, TVSeason, TVShow
-from journal.jobs.wrapped import WrappedInstanceStats
+from journal.jobs.wrapped import WrappedDailyUpdate, WrappedInstanceStats
 from journal.models import (
     Collection,
     Comment,
@@ -38,16 +38,22 @@ from journal.models import (
 )
 from journal.wrapped import (
     BULK_DAY,
+    _instance_key,
     _median,
     _percentile,
     build_payload,
     compute_instance_stats,
     compute_kindred,
+    deck_for,
+    refresh_deck,
     friends_allowed,
     kindred_allowed,
     instance_stats,
+    live_year,
     plain_excerpt,
     resolve_words,
+    stored_payload,
+    year_aggregates,
 )
 from journal.models.wrapped import MADE_CARDS_MAX
 from journal.wrapped_music import track as music_track
@@ -55,6 +61,7 @@ from journal.wrapped_text import PLURALS, TEXT, card_text
 from takahe.models import Domain
 from takahe.models import Identity as TakaheIdentity
 from takahe.utils import Takahe
+from users.jobs.cleanup import clear_identity_data
 from users.models import APIdentity, User
 
 TZ = ZoneInfo("Asia/Shanghai")
@@ -88,6 +95,23 @@ def _clear_circles_cache(wrapped_cache):
 
 def clear_wrapped_cache() -> None:
     cache.clear()
+
+
+def make_deck(identity, year: int = YEAR, **fields) -> WrappedDeck:
+    """The deck as the step that makes it leaves it: the row, then its card data stored."""
+    deck = deck_for(identity, year, create=True)
+    assert deck is not None
+    for k, v in fields.items():
+        setattr(deck, k, v)
+    if fields:
+        deck.save()
+    refresh_deck(deck)
+    return deck
+
+
+def on(day: datetime.date):
+    """The site's date for the window in which a deck can be made."""
+    return patch("journal.wrapped._today", return_value=day)
 
 
 def at(month: int, day: int, hour: int = 12, year: int = YEAR) -> datetime.datetime:
@@ -153,6 +177,53 @@ class TestPayload:
         assert self.titles(0) == ["Public Book"]
         assert self.titles(1) == ["Public Book", "Followers Film"]
         assert self.titles(2) == ["Public Book", "Followers Film", "Private Book"]
+
+    def test_a_title_finished_before_counts_its_earlier_days(self):
+        for when, meta in (
+            (at(6, 1, year=2019), {}),
+            (at(6, 1, year=2021), {}),
+            # the same day as this year's finish, and a progress update, are no earlier finish
+            (at(3, 1, hour=8), {}),
+            (at(1, 9, year=2023), {"progress_type": "page", "progress_value": "10"}),
+        ):
+            ShelfLogEntry.objects.create(
+                owner=self.me,
+                item=self.public,
+                shelf_type=ShelfType.COMPLETE,
+                timestamp=when,
+                metadata=meta,
+            )
+        items = {i["title"]: i for i in build_payload(self.me, YEAR, 2, TZ)["items"]}
+        again = items.pop("Public Book")
+        assert (again["done_before"], again["first_done"]) == (2, "2019-06-01")
+        assert all(i["done_before"] == 0 for i in items.values())
+        # the whole-year section carries only what its counts and piles need
+        live = live_year(self.me, YEAR, 2, TZ)["items"]
+        assert [i["title"] for i in live] == [
+            "Public Book",
+            "Followers Film",
+            "Private Book",
+        ]
+        assert set(live[0]) == {
+            "uuid",
+            "title",
+            "category",
+            "cover",
+            "url",
+            "rating",
+            "date",
+        }
+
+    def test_clearing_the_account_removes_its_decks(self):
+        make_deck(self.me)
+        make_deck(self.me, YEAR - 1)
+        other = make_deck(
+            User.register(email="keep@test.com", username="keep").identity
+        )
+        # what the account deletion queues; the identity row stays, so no cascade reaches the decks
+        clear_identity_data(self.me.pk)
+        assert APIdentity.objects.filter(pk=self.me.pk).exists()
+        assert list(WrappedDeck.objects.values_list("pk", flat=True)) == [other.pk]
 
     def test_public_payload_carries_no_private_words(self):
         dump = json.dumps(build_payload(self.me, YEAR, 0, TZ), ensure_ascii=False)
@@ -422,15 +493,18 @@ class TestKindred:
         deck.shown = {"1": ["intro", "kindred"]}
         assert kindred_allowed(deck, 1, False)
         assert not kindred_allowed(None, 0, False)
-        # a signed-out visitor's page carries no match even when the matches are ready
+        # a signed-out visitor's page carries no match even when the stored data has one
         compute_kindred(YEAR)
         deck.hidden, deck.shown = {}, {}
         deck.save()
+        refresh_deck(deck)
+        assert deck.data["0"]["kindred"]["handle"].startswith("krare")
         r = Client().get(reverse("journal:wrapped_page", args=["kme", YEAR]))
         assert r.status_code == 200 and b"krare" not in r.content
 
     def test_turning_the_card_on_for_everyone_reaches_signed_out_visitors(self):
         compute_kindred(YEAR)
+        make_deck(self.me)
         owner = Client()
         owner.force_login(self.me.user)
         r = owner.post(
@@ -443,6 +517,12 @@ class TestKindred:
         assert deck.card_hidden(0, "kindred") is False
         page = Client().get(reverse("journal:wrapped_page", args=["kme", YEAR]))
         assert b"krare" in page.content
+        # a member who stops being discoverable leaves the stored card at once
+        krare = APIdentity.objects.get(username="krare", local=True)
+        TakaheIdentity.objects.filter(pk=krare.pk).update(discoverable=False)
+        page = Client().get(reverse("journal:wrapped_page", args=["kme", YEAR]))
+        assert b"krare" not in page.content
+        TakaheIdentity.objects.filter(pk=krare.pk).update(discoverable=True)
         # followers were not shown it, so their page still carries no match
         assert not kindred_allowed(deck, 1, False)
 
@@ -494,9 +574,8 @@ class TestReviewFixes:
         assert it["raters"] == 1
 
     def test_a_hidden_words_card_keeps_its_text_on_the_server(self):
-        deck = WrappedDeck.objects.create(
-            owner=self.me,
-            year=YEAR,
+        deck = make_deck(
+            self.me,
             made=[self.words_card(7)],
             hidden={"0": {"made-7": True}},
         )
@@ -595,6 +674,26 @@ class TestReviewFixes:
         TakaheIdentity.objects.filter(pk=pal.pk).update(restriction=1)
         assert friends(None) == []
         assert friends(self.user) == ["rfpal"]
+        # the stored cards serve every visitor, so each page leaves out the people its own visitor must not see
+        deck = make_deck(self.me)
+
+        def stored(viewer):
+            return stored_payload(deck, 0, viewer=viewer)["friends"]
+
+        assert [f["handle"].split("@")[0] for f in stored(self.user)] == ["rfpal"]
+        assert stored(None) == [] and stored(visitor) == []
+        TakaheIdentity.objects.filter(pk=pal.pk).update(restriction=0)
+        assert [f["handle"].split("@")[0] for f in stored(None)] == ["rfpal"]
+        assert stored(visitor) == [] and "id" not in stored(None)[0]
+        # people as they are now: not once the owner blocks them, nor once their account is gone
+        Takahe.block_or_mute(self.me.pk, pal.pk, False)
+        deck = WrappedDeck.objects.get(pk=deck.pk)
+        assert stored(None) == []
+        Takahe.unblock(self.me.pk, pal.pk)
+        deck = WrappedDeck.objects.get(pk=deck.pk)
+        assert len(stored(None)) == 1
+        APIdentity.objects.filter(pk=pal.pk).update(deleted=timezone.now())
+        assert stored(None) == []
 
     def test_an_early_place_is_kept_only_up_to_the_cap(self):
         popular = Edition.objects.create(title="Popular Book")
@@ -614,6 +713,7 @@ class TestReviewFixes:
         assert ranks == {"Reviewed Book": 1, "Second Book": 2, "Popular Book": None}
 
     def test_a_collection_card_without_a_collection_is_dropped(self):
+        make_deck(self.me)
         made = [{"id": 1, "n": 5, "source": {"type": "collection", "uuid": ""}}]
         r = self.owner.post(
             reverse("journal:wrapped_save", args=[YEAR]),
@@ -633,6 +733,7 @@ class TestReviewFixes:
         )
 
     def test_a_partial_save_keeps_cards_the_page_lacked_but_not_hidden_ones(self):
+        make_deck(self.me)
         url = reverse("journal:wrapped_save", args=[YEAR])
 
         def save(body):
@@ -654,6 +755,7 @@ class TestReviewFixes:
         assert shown == ["intro", "part"]
 
     def test_saves_reject_more_made_cards_than_allowed(self):
+        make_deck(self.me)
         url = reverse("journal:wrapped_save", args=[YEAR])
         made = [
             {"id": k + 1, "n": 5, "source": {"type": "auto", "cat": "all"}}
@@ -679,6 +781,7 @@ class TestReviewFixes:
         complete(
             user.identity, Edition.objects.create(title="Quiet Book"), at(2, 3), vis=1
         )
+        make_deck(user.identity)
         c = Client()
         c.force_login(user)
         assert page_data(c.get(reverse("journal:wrapped", args=[YEAR])))["level"] == 1
@@ -702,6 +805,7 @@ class TestReviewFixes:
         assert sum(year["r"]) == 0 and sum(year["f"]) == 0 and sum(year["b"]) == 31
 
     def test_a_non_public_video_post_reaches_mastodon_as_a_copy_with_its_still(self):
+        make_deck(self.me)
         mp4 = b"\x00\x00\x00\x18ftypmp42" + b"0" * 100
         png = PNG
         with (
@@ -722,6 +826,7 @@ class TestReviewFixes:
                     "comment": "my year",
                     "visibility": 1,
                     "aud": 0,
+                    "crosspost": "1",
                     "video": SimpleUploadedFile("v.mp4", mp4, "video/mp4"),
                     "poster": SimpleUploadedFile("p.png", png, "image/png"),
                 },
@@ -822,7 +927,7 @@ class TestInstanceStats:
         assert compute_instance_stats(YEAR)["top"] is None
         # with that result cached, the public payload and a signed-out visitor's page carry no top title
         assert build_payload(me, YEAR, 0, TZ)["instance_top"] is None
-        WrappedDeck.objects.create(owner=me, year=YEAR)
+        make_deck(me)
         r = Client().get(reverse("journal:wrapped_page", args=["itop", YEAR]))
         assert r.status_code == 200 and page_data(r)["instance_top"] is None
         assert b"Secret" not in r.content
@@ -832,6 +937,35 @@ class TestInstanceStats:
         # nor does a deleted title
         Edition.objects.filter(pk=opened.pk).update(is_deleted=True)
         assert compute_instance_stats(YEAR)["top"] is None
+
+    def test_a_stored_deck_never_keeps_a_cold_cache_gap(self):
+        clear_wrapped_cache()
+        me = User.register(email="i6@test.com", username="icold").identity
+        complete(me, Edition.objects.create(title="Open"), at(2, 3))
+        deck = make_deck(me)
+        assert all(not deck.data[str(lv)]["warming"] for lv in (0, 1, 2))
+        assert deck.data["0"]["instance_top"]["title"] == "Open"
+
+    def test_a_deck_stored_while_another_process_computes_is_filled_later(self):
+        clear_wrapped_cache()
+        user = User.register(email="i7@test.com", username="ibusy")
+        me = user.identity
+        complete(me, Edition.objects.create(title="Open"), at(2, 3))
+        # another process holds the lock and has not stored the totals yet: the deck waits, then keeps a gap
+        cache.add(_instance_key(YEAR) + ":lock", 1, 600)
+        with patch("journal.wrapped.time.sleep"):
+            deck = make_deck(me)
+        assert deck.data["0"]["warming"] and deck.data["0"]["instance_top"] is None
+        # once the totals are there, the owner's next view fills the gap
+        compute_instance_stats(YEAR)
+        owner = Client()
+        owner.force_login(user)
+        with on(datetime.date(YEAR, 12, 20)):
+            owner.get(reverse("journal:wrapped", args=[YEAR]))
+        stored = WrappedDeck.objects.get(pk=deck.pk).data["0"]
+        assert not stored["warming"] and stored["instance_top"]["title"] == "Open"
+        # an update with nothing new writes no data
+        assert refresh_deck(WrappedDeck.objects.get(pk=deck.pk)) is False
 
     def test_a_cold_cache_marks_the_payload_as_warming(self):
         clear_wrapped_cache()
@@ -931,14 +1065,63 @@ class TestViews:
     def page(self, client):
         return client.get(reverse("journal:wrapped_page", args=["owner", YEAR]))
 
-    def test_owner_page_creates_deck_and_renders_payload(self):
+    def test_owner_page_renders_the_deck_once_it_is_made(self):
+        make_deck(self.me)
         r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
         assert r.status_code == 200
         assert b"Shown Book" in r.content and b'id="wr-publish"' in r.content
         assert b'"lang": "en' in r.content and b'"text": {}' in r.content
-        assert WrappedDeck.objects.filter(owner=self.me, year=YEAR).exists()
+        assert "pending" not in page_data(r)
+
+    def test_before_the_deck_is_made_the_page_shows_the_year_and_no_cards(self):
+        url = reverse("journal:wrapped", args=[YEAR])
+        make = reverse("journal:wrapped_generate", args=[YEAR])
+        # opening the page makes nothing, and the deck can be neither saved nor shared
+        with on(datetime.date(YEAR, 11, 27)):
+            r = self.owner_client.get(url)
+            assert self.owner_client.post(make).status_code == 302
+        assert not WrappedDeck.objects.filter(owner=self.me).exists()
+        data = page_data(r)
+        assert data["pending"] is True and [i["title"] for i in data["items"]] == [
+            "Shown Book"
+        ]
+        # the cards' own data is left out, and no job is asked for the instance totals
+        assert data["history"] is None and data["friends"] == []
+        assert b'id="wr-deck"' not in r.content and b'id="wr-publish"' not in r.content
+        assert b'id="wr-pubdlg"' not in r.content and b'id="wr-mkdlg"' not in r.content
+        assert b"cards from" in r.content and make.encode() not in r.content
+        assert self.page(Client()).status_code == 404
+        save = reverse("journal:wrapped_save", args=[YEAR])
+        body = json.dumps({"aud": 0, "shown": ["intro"]})
+        assert (
+            self.owner_client.post(
+                save, body, content_type="application/json"
+            ).status_code
+            == 404
+        )
+        share = reverse("journal:wrapped_share", args=[YEAR])
+        assert self.owner_client.post(share, {"aud": 0}).status_code == 404
+        # in the window the page offers the step, and making the deck twice keeps one
+        with on(datetime.date(YEAR + 1, 2, 28)):
+            assert make.encode() in self.owner_client.get(url).content
+            for _ in range(2):
+                r = self.owner_client.post(make)
+                assert r.status_code == 302 and r["Location"] == url
+        assert WrappedDeck.objects.filter(owner=self.me, year=YEAR).count() == 1
+        assert self.page(Client()).status_code == 200
+        # a year outside the supported range is refused without an error
+        for bad in (1, 9999):
+            r = self.owner_client.post(reverse("journal:wrapped_generate", args=[bad]))
+            assert r.status_code == 302
+        # after the window a deck is no longer made
+        with on(datetime.date(YEAR + 1, 3, 1)):
+            r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR - 1]))
+            assert b"could be made until" in r.content
+            self.owner_client.post(reverse("journal:wrapped_generate", args=[YEAR - 1]))
+        assert not WrappedDeck.objects.filter(owner=self.me, year=YEAR - 1).exists()
 
     def test_share_warns_when_signed_out_visitors_cannot_open_the_page(self):
+        make_deck(self.me)
         url = reverse("journal:wrapped", args=[YEAR])
         # the QR code tab has an empty warning of its own, so the test looks for the text
         warning = b"your profile is hidden from them"
@@ -950,13 +1133,28 @@ class TestViews:
         assert reverse("users:preferences").encode() in r.content
         assert self.page(Client()).status_code in (302, 403)
 
-    def test_owner_without_year_goes_to_this_year(self):
-        r = self.owner_client.get(reverse("journal:wrapped_current_year"))
-        assert r.status_code == 302 and str(datetime.date.today().year) in r["Location"]
+    def test_owner_without_year_goes_to_the_year_of_the_season(self):
+        url = reverse("journal:wrapped_current_year")
+        # this year in December, the year before in the other months
+        for day, year in (
+            (datetime.date(2026, 12, 1), 2026),
+            (datetime.date(2027, 2, 1), 2026),
+            (datetime.date(2027, 11, 30), 2026),
+        ):
+            with on(day):
+                r = self.owner_client.get(url)
+            assert r["Location"] == reverse("journal:wrapped", args=[year])
+        # the year menu lists the years with a deck and the year whose deck can be made now
+        make_deck(self.me, 2023)
+        with on(datetime.date(2027, 1, 5)):
+            data = page_data(
+                self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+            )
+        assert data["years"] == [2026, 2023]
 
     def test_save_cleans_input_for_one_audience(self):
         url = reverse("journal:wrapped_save", args=[YEAR])
-        self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+        make_deck(self.me)
         body = {
             "aud": 1,
             "order": ["shelves", "intro", "BAD ID", 3],
@@ -1006,6 +1204,7 @@ class TestViews:
 
     def test_music_is_saved_and_reaches_visitors(self):
         save = reverse("journal:wrapped_save", args=[YEAR])
+        make_deck(self.me)
         r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
         assert b'"music": null' in r.content and b"bach-bwv846" in r.content
         assert b'"music": null' in self.page(Client()).content  # no music by default
@@ -1053,7 +1252,7 @@ class TestViews:
 
     def test_a_words_card_reaches_only_audiences_that_may_see_its_text(self):
         c, made = self.words_card("only my followers may read this line", 1)
-        WrappedDeck.objects.create(owner=self.me, year=YEAR, made=made)
+        make_deck(self.me, made=made)
         fan = Client()
         fan.force_login(self.fan)
         anon = self.page(Client()).content
@@ -1075,6 +1274,7 @@ class TestViews:
 
     def test_words_cards_are_cleaned_and_the_picker_lists_this_year(self):
         c, made = self.words_card("x" * 700, 0)
+        make_deck(self.me)
         bad = [
             {"id": 8, "source": {"type": "words", "kind": "poem", "ref": str(c.uid)}},
             {"id": 9, "source": {"type": "words", "kind": "note"}},
@@ -1097,7 +1297,9 @@ class TestViews:
         assert len(text["text"]) == 600 and text["more"] and text["chars"] == 700
 
     def test_new_deck_starts_with_suggested_cards_up_to_the_default_visibility(self):
-        self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+        make = reverse("journal:wrapped_generate", args=[YEAR])
+        with on(datetime.date(YEAR, 12, 1)):
+            self.owner_client.post(make)
         deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
         assert deck.hidden == {"0": {}, "1": {}, "2": {}}
         assert not any(deck.is_off(lv) for lv in (0, 1, 2))
@@ -1106,13 +1308,97 @@ class TestViews:
         pref = self.user.preference
         pref.default_visibility = 1
         pref.save()
-        self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+        with on(datetime.date(YEAR, 12, 1)):
+            self.owner_client.post(make)
         deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
         assert deck.is_off(0) and not deck.is_off(1) and not deck.is_off(2)
 
+    def test_the_cards_keep_the_stored_data_and_the_year_section_is_read_now(self):
+        make_deck(self.me)
+        complete(self.me, Edition.objects.create(title="Late Book"), at(5, 5))
+
+        def titles(r, part=None):
+            data = page_data(r)
+            return [i["title"] for i in (data[part] if part else data)["items"]]
+
+        r = self.page(Client())
+        assert titles(r) == ["Shown Book"]
+        assert titles(r, "live") == ["Shown Book", "Late Book"]
+        # the link preview tells what the visitor's own cards hold
+        assert (
+            b'property="og:title"' in r.content
+            and b"finished 1 title in 2025" in r.content
+        )
+        assert b'property="og:url" content="http' in r.content
+        assert b'property="og:image" content="http' in r.content
+        # visitors keep the year section for an hour, while the owner's marks stay as they are
+        with patch("journal.views.wrapped.live_year", wraps=live_year) as read:
+            self.page(Client())
+            assert not read.called
+            r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+            assert read.called and titles(r) == ["Shown Book"]
+        assert b'property="og:title"' not in r.content
+        # a mark made private reaches visitors at once
+        late = ShelfMember.objects.get(owner=self.me, item__title="Late Book")
+        late.visibility = 2
+        late.save(**QUIET)
+        assert titles(self.page(Client()), "live") == ["Shown Book"]
+
+    def test_update_now_and_the_daily_switch(self):
+        url = reverse("journal:wrapped_refresh", args=[YEAR])
+        make = reverse("journal:wrapped_generate", args=[YEAR])
+        save = reverse("journal:wrapped_save", args=[YEAR])
+        with on(datetime.date(YEAR, 12, 9)):
+            # nothing to update before the deck is made
+            assert self.owner_client.post(url).status_code == 404
+            with patch("journal.views.wrapped.record_activity") as act:
+                self.owner_client.post(make)
+                complete(self.me, Edition.objects.create(title="Late Book"), at(7, 7))
+                r = self.owner_client.post(url)
+                assert r.status_code == 200 and r.json() == {"ok": True}
+            assert [c.args for c in act.call_args_list] == [("annual", "web")] * 2
+            deck = WrappedDeck.objects.get(owner=self.me, year=YEAR)
+            titles = [i["title"] for i in deck.data["0"]["items"]]
+            assert titles == ["Shown Book", "Late Book"]
+            assert self.owner_client.post(url).status_code == 429  # once a minute
+            r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+            assert b'id="wr-update-now"' in r.content and b'id="wr-daily"' in r.content
+            body = json.dumps({"aud": 0, "daily": False})
+            self.owner_client.post(save, body, content_type="application/json")
+            assert not WrappedDeck.objects.get(pk=deck.pk).daily
+        clear_wrapped_cache()
+        with on(datetime.date(YEAR + 1, 3, 1)):
+            r = self.owner_client.post(url)
+            assert r.status_code == 400 and r.json()["status"] == "closed"
+            r = self.owner_client.get(reverse("journal:wrapped", args=[YEAR]))
+            assert (
+                b'id="wr-update-now"' not in r.content and b"Updates ended" in r.content
+            )
+
+    def test_the_daily_update_runs_only_while_updates_are_open(self):
+        mine = make_deck(self.me)
+        other = make_deck(self.fan.identity, daily=False)
+        before = (mine.data, other.data)
+        complete(self.me, Edition.objects.create(title="Late Book"), at(8, 8))
+        complete(self.fan.identity, Edition.objects.create(title="Fan Book"), at(8, 8))
+        with on(datetime.date(YEAR + 1, 3, 1)):
+            WrappedDailyUpdate().run()
+        assert WrappedDeck.objects.get(pk=mine.pk).data == before[0]
+        with (
+            on(datetime.date(YEAR + 1, 2, 28)),
+            patch("journal.jobs.wrapped.year_aggregates", wraps=year_aggregates) as agg,
+        ):
+            WrappedDailyUpdate().run()
+        # read once for the year, not once a deck
+        assert [c.args for c in agg.call_args_list] == [(YEAR,)]
+        mine.refresh_from_db()
+        other.refresh_from_db()
+        assert "Late Book" in [i["title"] for i in mine.data["2"]["items"]]
+        assert other.data == before[1]
+
     def test_visitor_needs_a_deck_and_an_open_audience(self):
         assert self.page(Client()).status_code == 404  # never opened by the owner
-        WrappedDeck.objects.create(owner=self.me, year=YEAR)
+        make_deck(self.me)
         r = self.page(Client())
         assert r.status_code == 200
         assert b"Shown Book" in r.content and b'id="wr-publish"' not in r.content
@@ -1129,7 +1415,7 @@ class TestViews:
         complete(
             self.me, Edition.objects.create(title="Fans Only Book"), at(2, 3), vis=1
         )
-        WrappedDeck.objects.create(owner=self.me, year=YEAR)
+        make_deck(self.me)
         fan, stranger = Client(), Client()
         fan.force_login(self.fan)
         stranger.force_login(self.stranger)
@@ -1152,6 +1438,7 @@ class TestViews:
             self.me, Edition.objects.create(title="Private Note Book"), at(2, 3), vis=2
         )
         url = reverse("journal:wrapped", args=[YEAR])
+        make_deck(self.me)
         r = self.owner_client.get(url)
         assert b'"level": 0' in r.content and b"Private Note Book" not in r.content
         assert b"Private Note Book" not in self.owner_client.get(url, {"as": 1}).content
@@ -1162,7 +1449,7 @@ class TestViews:
         assert b'"level": 1' in self.owner_client.get(url).content
 
     def test_owner_visiting_own_page_goes_to_the_editor(self):
-        WrappedDeck.objects.create(owner=self.me, year=YEAR)
+        make_deck(self.me)
         r = self.page(self.owner_client)
         assert r.status_code == 302 and r["Location"] == reverse(
             "journal:wrapped", args=[YEAR]
@@ -1172,12 +1459,13 @@ class TestViews:
         complete(
             self.me, Edition.objects.create(title="Private Note Book"), at(2, 3), vis=2
         )
-        WrappedDeck.objects.create(owner=self.me, year=YEAR)
+        make_deck(self.me)
         fan = Client()
         fan.force_login(self.fan)
         assert b"Private Note Book" not in self.page(fan).content
 
     def test_share_rejects_non_png(self):
+        make_deck(self.me)
         url = reverse("journal:wrapped_share", args=[YEAR])
         r = self.owner_client.post(
             url,
@@ -1196,6 +1484,7 @@ class TestViews:
             "data:image/png;base64,"
             + base64.b64encode(b"\x89PNG\r\n\x1a\n" + b"0" * 20).decode()
         )
+        make_deck(self.me)
         url = reverse("journal:wrapped_share", args=[YEAR])
         with (
             patch("journal.views.wrapped.Takahe.upload_image") as up,
@@ -1213,11 +1502,49 @@ class TestViews:
             up.return_value,
         ]
 
+    def test_crosspost_follows_the_checkbox(self):
+        make_deck(self.me)
+        png = "data:image/png;base64," + base64.b64encode(PNG).decode()
+        url = reverse("journal:wrapped_share", args=[YEAR])
+        with (
+            patch("journal.views.wrapped.Takahe.upload_image"),
+            patch("journal.views.wrapped.Takahe.post") as post,
+            patch("users.models.User.mastodon", new_callable=PropertyMock) as mastodon,
+            patch("users.models.User.bluesky", new_callable=PropertyMock) as bluesky,
+        ):
+            post.return_value.url = "https://example.org/p/1"
+            for flag in ("", "1"):
+                r = self.owner_client.post(
+                    url,
+                    {"img": [png], "visibility": 0, "aud": 0, "crosspost": flag},
+                    HTTP_ACCEPT="application/json",
+                )
+                assert r.status_code == 200
+                # off: the post stays on this site; on: a public post is boosted and goes to Bluesky
+                assert mastodon.return_value.boost_later.called == bool(flag)
+                assert bluesky.return_value.post.called == bool(flag)
+                assert not mastodon.return_value.post.called
+            # the box shows only with an account it can post to, checked as the member's preference says
+            page = reverse("journal:wrapped", args=[YEAR])
+            box = re.compile(
+                rb'<input type="checkbox"\s+id="wr-pub-xpost"\s*(checked)?'
+            )
+            m = box.search(self.owner_client.get(page).content)
+            assert m and m.group(1)
+            pref = self.user.preference
+            pref.mastodon_default_repost = False
+            pref.save()
+            m = box.search(self.owner_client.get(page).content)
+            assert m and not m.group(1)
+            mastodon.return_value = bluesky.return_value = None
+            assert b'id="wr-pub-xpost"' not in self.owner_client.get(page).content
+
     def test_share_never_reaches_wider_than_the_cards(self):
         png = (
             "data:image/png;base64,"
             + base64.b64encode(b"\x89PNG\r\n\x1a\n" + b"0" * 20).decode()
         )
+        make_deck(self.me)
         url = reverse("journal:wrapped_share", args=[YEAR])
         with (
             patch("journal.views.wrapped.Takahe.upload_image"),
@@ -1237,6 +1564,7 @@ class TestViews:
     def test_share_posts_a_video_with_its_still(self):
         mp4 = b"\x00\x00\x00\x18ftypmp42" + b"0" * 100
         png = PNG
+        make_deck(self.me)
         url = reverse("journal:wrapped_share", args=[YEAR])
         form = {"kind": "video", "comment": "my year", "visibility": 0, "aud": 0}
         with (

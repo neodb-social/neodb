@@ -126,6 +126,8 @@ TEXT = [
     gettext_noop("Five stars"),
     gettext_noop("Top shelf"),
     gettext_noop("fewer than three rated titles"),
+    gettext_noop("the shelf cards take its place; show it if you like"),
+    gettext_noop("Top {shelf}"),
     gettext_noop(
         "{n} titles got five stars; here are ten, the ones you wrote about first"
     ),
@@ -280,6 +282,15 @@ TEXT = [
     gettext_noop("saved {date}"),
     gettext_noop("finished {date}"),
     gettext_noop("Unfinished business"),
+    gettext_noop("Once more"),
+    gettext_noop("no title finished again this year"),
+    gettext_noop("first finished {date}"),
+    gettext_noop("finished again this year, the first of them in {year}"),
+    gettext_noop("since {year}"),
+    gettext_noop("The cards were updated a moment ago; try again in a minute"),
+    gettext_noop("Could not update the cards; try again"),
+    gettext_noop("The cards have no titles from the last update."),
+    gettext_noop("Update now"),
     gettext_noop("Finally takes its place; show both if you like"),
     gettext_noop("wishlist history is not public here"),
     gettext_noop("on your wishlist, and counting"),
@@ -511,6 +522,7 @@ PLURALS = [
         "only {n} title tagged, under {min}", "only {n} titles tagged, under {min}", n
     ),
     lambda n: ngettext("{n} tag", "{n} tags", n),
+    lambda n: ngettext("finished once before", "finished {n} times before", n),
     lambda n: ngettext("busiest month, {n} title", "busiest month, {n} titles", n),
     lambda n: ngettext("Your collection, {n} item.", "Your collection, {n} items.", n),
     lambda n: ngettext(
