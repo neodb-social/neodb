@@ -90,6 +90,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ env.REGISTRY_IMAGE }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+          # Release Image reads this cache too, so both reuse the apt layers
+          cache-from: type=gha,scope=${{ env.PLATFORM_PAIR }}
+          cache-to: type=gha,mode=max,scope=${{ env.PLATFORM_PAIR }},ignore-error=true
           build-args: |
             dev=1
             buildver=${{ needs.prepare_release.outputs.buildver }}

@@ -110,6 +110,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ env.REGISTRY_IMAGE }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+          # Written by Development Image on main; a cache written from a tag
+          # is visible to that tag only, so this workflow does not write one.
+          cache-from: type=gha,scope=${{ env.PLATFORM_PAIR }}
           build-args: |
             buildver=${{ needs.prepare_release.outputs.buildver }}
 
