@@ -1,3 +1,4 @@
+import csv
 import datetime
 import logging
 import os
@@ -28,6 +29,21 @@ _MAX_BUNDLE_MEMBERS = 100_000
 # for importers of plain-text exports (CSV, Letterboxd, Trakt)
 MAX_TEXT_EXPORT_SIZE = 512 * 1024 * 1024
 MAX_TEXT_EXPORT_MEMBERS = 10_000
+
+
+def read_matching_csv(
+    path: str, extra_columns: list[str]
+) -> tuple[list[str], list[dict[str, str | None]]]:
+    with open(path, encoding="utf-8-sig", newline="") as source:
+        reader = csv.DictReader(source)
+        fields = [name.strip() for name in reader.fieldnames or []]
+        # DictReader stores surplus cells under None.
+        rows = [
+            {name.strip(): value for name, value in row.items() if name}
+            for row in reader
+        ]
+    fields.extend(name for name in extra_columns if name not in fields)
+    return fields, rows
 
 
 def sniff_media(content: str | bytes, allow_av: bool = False) -> tuple[str, str] | None:
