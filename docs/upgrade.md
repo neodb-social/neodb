@@ -50,10 +50,13 @@ Continue only if the output ends with `Dump OK`. If it does not, stop here. The 
 
 Stop the databases and move the old data aside:
 ```bash
-docker compose down
-mv $NEODB_DATA/neodb-db $NEODB_DATA/neodb-db.pg14
-mv $NEODB_DATA/takahe-db $NEODB_DATA/takahe-db.pg14
+docker compose down \
+  && mv $NEODB_DATA/neodb-db $NEODB_DATA/neodb-db.pg14 \
+  && mv $NEODB_DATA/takahe-db $NEODB_DATA/takahe-db.pg14 \
+  && echo "Move OK"
 ```
+
+Continue only if the output ends with `Move OK`. If it does not, move back any folder that was already moved, for example `mv $NEODB_DATA/neodb-db.pg14 $NEODB_DATA/neodb-db`, and start the cluster as usual.
 
 Set `POSTGRES_VERSION=17-alpine` in `.env`. Start the new empty databases and restore the dumps:
 ```bash
