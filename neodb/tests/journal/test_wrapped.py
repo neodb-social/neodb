@@ -650,6 +650,21 @@ class TestReviewFixes:
         assert r.status_code == 200
         assert shown()[1] == {"7": "changed later"}
 
+    def test_an_update_keeps_a_made_card_saved_while_it_ran(self):
+        deck = make_deck(self.me)
+        # an update that read the deck before the owner saved a new made card
+        stale = WrappedDeck.objects.get(pk=deck.pk)
+        r = self.owner.post(
+            reverse("journal:wrapped_save", args=[YEAR]),
+            json.dumps({"aud": 0, "made": [self.words_card(7)]}),
+            content_type="application/json",
+        )
+        assert r.status_code == 200
+        refresh_deck(stale)
+        stored = WrappedDeck.objects.get(pk=deck.pk)
+        assert set(stored.data["0"]["made_data"]["words"]) == {"7"}
+        assert stale.made == stored.made
+
     def test_a_liked_collection_keeps_its_authors_rule(self):
         author = User.register(email="rfa@test.com", username="rfauthor").identity
         author.anonymous_viewable = False

@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from django.core.signing import b62_decode
+from django.db import transaction
 from django.db.models import (
     Count,
     Max,
@@ -218,13 +219,27 @@ def refresh_deck(deck: WrappedDeck, instance: tuple[Any, Any] | None = None) -> 
     """Store the card data as it is now; True when it changed. The time is stored either way, as the page
     tells the owner when the data was last updated."""
     data = snapshot(deck.owner, deck.year, deck.tzinfo, instance, deck.made)
-    fields = ["refreshed_time"]
-    changed = data != deck.data
-    if changed:
-        deck.data = data
-        fields.append("data")
-    deck.refreshed_time = timezone.now()
-    deck.save(update_fields=fields)
+    with transaction.atomic():
+        # the read above takes a while, and a save may have changed the made cards meanwhile; the row is
+        # locked for the write, and the made cards' data is read again for them as they are now
+        locked = WrappedDeck.objects.select_for_update().get(pk=deck.pk)
+        if locked.made != deck.made:
+            for key in data:
+                data[key]["made_data"] = made_data(
+                    deck.owner, locked.made, int(key), deck.tzinfo
+                )
+        fields = ["refreshed_time"]
+        changed = data != locked.data
+        if changed:
+            locked.data = data
+            fields.append("data")
+        locked.refreshed_time = timezone.now()
+        locked.save(update_fields=fields)
+    deck.made, deck.data, deck.refreshed_time = (
+        locked.made,
+        locked.data,
+        locked.refreshed_time,
+    )
     return changed
 
 
