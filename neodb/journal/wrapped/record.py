@@ -25,12 +25,14 @@ from journal.models.wrapped import ALL_HIDDEN, AUDIENCES
 
 from .base import (
     _hidden_people,
+    year_range,
 )
 from .aggregates import (
     year_aggregates,
 )
 from .data import (
     _collections,
+    _reacted,
     build_payload,
 )
 from .words import (
@@ -187,6 +189,8 @@ def snapshot(
     lang = (owner.user.language if owner.user else "") or settings.LANGUAGE_CODE
     out = {}
     with translation.override(lang):
+        # the year's texts and their posts, read once for all the audiences
+        reacted = _reacted(owner, AUDIENCES, *year_range(year, tz), tz)
         for level in AUDIENCES:
             p = build_payload(
                 owner,
@@ -198,6 +202,7 @@ def snapshot(
                 picker=False,
                 hidden=frozenset(),
                 instance=instance,
+                reacted=reacted,
             )
             p.pop("collections", None)
             p["made_data"] = made_data(owner, made or [], level, tz)
@@ -249,6 +254,9 @@ def stored_payload(
     Make a card dialog also gets their latest own and liked collections, read now."""
     p = dict((deck.data or {}).get(str(level)) or {})
     owner = deck.owner
+    # the Most reacted text reaches a visitor only while its card may be shown to their audience
+    if not is_owner and not deck.may_show(level, "reacted", True):
+        p["reacted"] = None
     friends = (p.get("friends") or []) if friends_allowed(deck, level, is_owner) else []
     kin = p.get("kindred") if kindred_allowed(deck, level, is_owner) else None
     # other people as they are now, as the stored data names them: not those this visitor must not see, nor

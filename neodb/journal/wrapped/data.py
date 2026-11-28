@@ -10,10 +10,12 @@ import datetime
 import logging
 import uuid
 from collections import defaultdict
+from collections.abc import Sequence
 from collections.abc import Set as AbstractSet
 from typing import Any
 from zoneinfo import ZoneInfo
 
+from django.conf import settings
 from django.core.signing import b62_decode
 from django.db import connection
 from django.db.models import (
@@ -23,6 +25,7 @@ from django.db.models import (
     Window,
 )
 from django.db.models.functions import RowNumber
+from django.urls import reverse
 
 from catalog.models import (
     Item,
@@ -32,6 +35,7 @@ from catalog.models import (
 )
 from common.models import SiteConfig
 from takahe.models import Identity as TakaheIdentity
+from takahe.models import Post as TakahePost
 from takahe.utils import Takahe
 from users.models import APIdentity
 
@@ -42,6 +46,7 @@ from journal.models import (
     Like,
     Mark,
     Note,
+    PiecePost,
     Rating,
     Review,
     ShelfLogEntry,
@@ -66,6 +71,7 @@ from .base import (
     plain_excerpt,
     year_range,
 )
+from .words import WORDS_KINDS, _words_item, _words_model, words_text
 from .aggregates import (
     KINDRED_MIN_SHARED,
     _median,
@@ -88,6 +94,14 @@ COLLECTION_ITEMS_MAX = 10
 
 # the Early card shows a place only up to this one (deck.js checks the same 10)
 FIRST_RANK_MAX = 10
+
+
+# the Most reacted card: a deleted post does not count
+GONE_POST_STATES = ("deleted", "deleted_fanned_out")
+
+
+# the Most reacted card reads the texts of its ranking this many at a time
+REACTED_BATCH = 50
 
 
 def _first_ranks(owner: APIdentity, ids: list[int]) -> dict[int, int]:
@@ -442,14 +456,16 @@ def _reviews(
             created_time__gte=start,
             created_time__lt=end,
             visibility__lte=level,
-        ).values_list("item_id", "title", "body", "created_time")
+        ).values_list("item_id", "title", "body", "created_time", "uid")
     )
     items = _items_by_id(list({r[0] for r in rows}))
-    for item_id, title, body, ts in rows:
+    for item_id, title, body, ts, uid in rows:
         it = items.get(item_id)
         out.append(
             {
                 "u": it.absolute_url if it else None,
+                # the Most reacted card compares it with its own text
+                "ref": str(uid),
                 "title": title,
                 "date": ts.astimezone(tz).date().isoformat(),
                 "words": len((body or "").split()),
@@ -457,6 +473,144 @@ def _reviews(
                 "excerpt": plain_excerpt(body),
             }
         )
+    return out
+
+
+def _reacted(
+    owner: APIdentity,
+    levels: Sequence[int],
+    start: datetime.datetime,
+    end: datetime.datetime,
+    tz: ZoneInfo,
+) -> dict[int, dict[str, Any] | None]:
+    """For each level, the member's comment, note or review of the year whose post got the most likes and
+    boosts there. The texts and their posts are read once for all the levels.
+
+    A text counts with its latest post and the counts that post keeps; who reacted is never read. A deleted
+    post does not count, and a text counts at a level only when both it and its post are visible there. On a
+    tie the earlier text wins. None for a level where no text has a like or a boost. A note marked sensitive
+    stays out, as the card would show it without its warning."""
+    out: dict[int, dict[str, Any] | None] = dict.fromkeys(levels)
+    pieces = [
+        (kind, pk, ts, item_id, vis)
+        for kind in WORDS_KINDS
+        for pk, ts, item_id, vis in _words_model(kind)
+        .objects.filter(
+            owner=owner,
+            created_time__gte=start,
+            created_time__lt=end,
+            visibility__lte=max(levels),
+            **({"sensitive": False} if kind == "note" else {}),
+        )
+        .values_list("pk", "created_time", "item_id", "visibility")
+    ]
+    if not pieces:
+        return out
+    # a mark posted again later links its comment to each new post; its page shows the latest
+    latest = dict(
+        PiecePost.objects.filter(piece_id__in=[p[1] for p in pieces])
+        .order_by("pk")
+        .values_list("piece_id", "post_id")
+    )
+    posts = {
+        pk: (Takahe.visibility_t2n(vis), s or {})
+        for pk, vis, s in TakahePost.objects.filter(pk__in=set(latest.values()))
+        .exclude(state__in=GONE_POST_STATES)
+        .values_list("pk", "visibility", "stats")
+    }
+    ranked = []
+    for kind, pk, ts, item_id, vis in pieces:
+        post = posts.get(latest.get(pk, 0))
+        if post is None:
+            continue
+        s = post[1]
+        likes, boosts = int(s.get("likes") or 0), int(s.get("boosts") or 0)
+        if likes + boosts:
+            # the score, then the time and the id for ties; the narrower of the text and its post
+            ranked.append(
+                (
+                    -likes - boosts,
+                    ts,
+                    pk,
+                    max(vis, post[0]),
+                    kind,
+                    item_id,
+                    likes,
+                    boosts,
+                )
+            )
+    # titles that are gone, or on no shelf the deck draws, leave the ranking before it is cut
+    ctypes = _ctype_categories()
+    live = {
+        pk
+        for pk, ct in Item.objects.filter(
+            pk__in={r[5] for r in ranked}, is_deleted=False
+        ).values_list("pk", "polymorphic_ctype_id")
+        if _category_of(ct, ctypes)
+    }
+    ranked = sorted(r for r in ranked if r[5] in live)
+    # texts are read a stretch of the ranking at a time, one query per kind
+    texts: dict[int, Any] = {}
+
+    def load(rows: list[tuple]) -> None:
+        want: dict[str, list[int]] = defaultdict(list)
+        for r in rows:
+            if r[2] not in texts:
+                want[r[4]].append(r[2])
+        for kind, pks in want.items():
+            texts.update(dict.fromkeys(pks))
+            texts.update(
+                {p.pk: p for p in _words_model(kind).objects.filter(pk__in=pks)}
+            )
+
+    # a text that wins at several levels is read once; the card draws no stars, so it is the same at each
+    cards: dict[int, dict[str, Any] | None] = {}
+
+    def card(row: tuple) -> dict[str, Any] | None:
+        pk, kind, item_id, likes, boosts = row[2], row[4], row[5], row[6], row[7]
+        if pk in cards:
+            return cards[pk]
+        cards[pk] = None
+        piece = texts.get(pk)
+        # the rules it was ranked by, checked on the row the text comes from, so a text made private or
+        # sensitive meanwhile stays out
+        if (
+            piece is None
+            or piece.visibility > row[3]
+            or getattr(piece, "sensitive", False)
+        ):
+            return None
+        words = words_text(kind, piece)
+        # a text that is all spoiler has nothing left to quote
+        if not words["text"]:
+            return None
+        it = _items_by_id([item_id]).get(item_id)
+        if not it or it.is_deleted or str(it.category) not in CATEGORIES:
+            return None
+        post_id = latest[pk]
+        cards[pk] = {
+            "kind": kind,
+            "ref": str(piece.uid),
+            **words,
+            "date": piece.created_time.astimezone(tz).date().isoformat(),
+            "likes": likes,
+            "boosts": boosts,
+            "replies": int(posts[post_id][1].get("replies") or 0),
+            "url": settings.SITE_INFO["site_url"].rstrip("/")
+            + reverse("journal:post_view", args=(owner.handle, post_id)),
+            "item": _words_item(it, None, _credits([it.pk])),
+        }
+        return cards[pk]
+
+    for level in levels:
+        # down the ranking until a text can be shown; the next stretch is read only when none of one can
+        rows = [r for r in ranked if r[3] <= level]
+        for i in range(0, len(rows), REACTED_BATCH):
+            stretch = rows[i : i + REACTED_BATCH]
+            load(stretch)
+            out[level] = next(filter(None, (card(r) for r in stretch)), None)
+            if out[level]:
+                break
     return out
 
 
@@ -615,10 +769,12 @@ def build_payload(
     picker: bool = True,
     hidden: AbstractSet[int] | None = None,
     instance: tuple[Any, Any] | None = None,
+    reacted: dict[int, dict[str, Any] | None] | None = None,
 ) -> dict[str, Any]:
     """``hidden``: the members to leave out of the social cards; by default those ``viewer`` must not see.
     The stored data passes none, as it serves every visitor and each page applies its own visitor.
-    ``instance``: the year's instance totals and kindred matches, when the caller already read them."""
+    ``instance``: the year's instance totals and kindred matches, when the caller already read them.
+    ``reacted``: the Most reacted text of each level, when the caller already read them."""
     start, end = year_range(year, tz)
     ctypes = _ctype_categories()
     ids, items, when = _year_titles(owner, level, start, end)
@@ -707,6 +863,9 @@ def build_payload(
             owner, level, viewer, hidden, collection_refs, picker
         ),
         "reviews": _reviews(owner, level, start, end, tz),
+        "reacted": (
+            reacted if reacted is not None else _reacted(owner, [level], start, end, tz)
+        ).get(level),
         "friends": _friends(owner, year, tz, paths, hidden) if include_friends else [],
         "kindred": _kindred(owner, year, matches, tz, paths, hidden)
         if include_kindred

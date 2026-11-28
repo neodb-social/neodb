@@ -314,6 +314,10 @@ TEXT = [
     gettext_noop("{n} characters, your longest review"),
     gettext_noop("{n} words, your longest review"),
     gettext_noop("{n} characters, your longest comment"),
+    gettext_noop("Most reacted"),
+    gettext_noop("View post"),
+    gettext_noop("no likes or boosts on your comments, notes or reviews this year"),
+    gettext_noop("it is the same text as The essay"),
     gettext_noop("Outro"),
     gettext_noop("See you in"),
     gettext_noop("Could not save the deck; try again"),
@@ -530,6 +534,14 @@ PLURALS = [
     ),
     lambda n: ngettext(
         "Posted {n} card to your timeline", "Posted {n} cards to your timeline", n
+    ),
+    lambda n: ngettext("{n} like", "{n} likes", n),
+    lambda n: ngettext("{n} boost", "{n} boosts", n),
+    lambda n: ngettext("{n} reply", "{n} replies", n),
+    lambda n: ngettext(
+        "your most reacted text has {n} like or boost, under {min}",
+        "your most reacted text has {n} likes and boosts, under {min}",
+        n,
     ),
 ]
 

@@ -12107,3 +12107,36 @@ msgstr "作为管理员，你可以随时生成和更新这些卡片，以便测
 #: journal/templates/wrapped.html:251
 msgid "This deletes the cards and every change you made to them. Posts you published stay."
 msgstr "这会删除卡片和你对它们的所有修改，已发布的帖文会保留。"
+
+#: journal/wrapped/text.py:317
+msgid "Most reacted"
+msgstr "互动最多"
+
+#: journal/wrapped/text.py:319
+msgid "no likes or boosts on your comments, notes or reviews this year"
+msgstr "今年你的短评、笔记和评论没有收到喜欢或转播"
+
+#: journal/wrapped/text.py:320
+msgid "it is the same text as The essay"
+msgstr "与“长评”是同一篇文字"
+
+#: journal/wrapped/text.py:538
+msgid "{n} like"
+msgid_plural "{n} likes"
+msgstr[0] "{n} 个喜欢"
+
+#: journal/wrapped/text.py:539
+msgid "{n} boost"
+msgid_plural "{n} boosts"
+msgstr[0] "{n} 次转播"
+
+#: journal/wrapped/text.py:540
+msgid "{n} reply"
+msgid_plural "{n} replies"
+msgstr[0] "{n} 条回应"
+
+#: journal/wrapped/text.py:542
+#, python-brace-format
+msgid "your most reacted text has {n} like or boost, under {min}"
+msgid_plural "your most reacted text has {n} likes and boosts, under {min}"
+msgstr[0] "互动最多的文字只有 {n} 个喜欢和转播，少于 {min} 个"
