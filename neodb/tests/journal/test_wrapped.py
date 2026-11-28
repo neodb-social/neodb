@@ -1035,17 +1035,18 @@ class TestMostReacted:
             r = _reacted(self.me, (0,), *year_range(YEAR, TZ), TZ)[0]
         assert narrowed and r is not None and r["text"] == "still public"
 
-    def test_titles_that_are_gone_leave_before_the_ranking_is_cut(self):
+    def test_a_text_on_a_title_that_is_gone_is_passed_over(self):
         self.text(Comment, self.other, at(2, 1), text="gone title", likes=9)
         self.text(Comment, self.book, at(2, 2), text="kept title", likes=3)
         self.other.is_deleted = True
         self.other.save()
-        with patch("journal.wrapped.data.REACTED_TRIES", 1):
-            assert self.reacted(0)["text"] == "kept title"
+        assert self.reacted(0)["text"] == "kept title"
 
-    def test_a_text_that_is_all_spoiler_is_skipped(self):
-        self.text(Comment, self.book, at(2, 1), text=">!the twist!<", likes=9)
-        self.text(Comment, self.film, at(2, 2), text="plain words", likes=3)
+    def test_texts_that_are_all_spoiler_are_passed_over_however_many(self):
+        for k in range(11):
+            item = Edition.objects.create(title=f"Spoiled {k}")
+            self.text(Comment, item, at(2, 1 + k), text=">!the twist!<", likes=20 - k)
+        self.text(Comment, self.film, at(3, 1), text="plain words", likes=3)
         assert self.reacted(0)["text"] == "plain words"
 
     def test_a_hidden_card_keeps_its_text_from_visitors(self):

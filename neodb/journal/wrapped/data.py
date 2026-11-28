@@ -100,10 +100,6 @@ FIRST_RANK_MAX = 10
 GONE_POST_STATES = ("deleted", "deleted_fanned_out")
 
 
-# the Most reacted card tries this many of the top texts, and takes the first whose title is still there
-REACTED_TRIES = 10
-
-
 def _first_ranks(owner: APIdentity, ids: list[int]) -> dict[int, int]:
     """The member's place among the members who marked each title, for titles where it is
     FIRST_RANK_MAX or better. The count of earlier marks stops at FIRST_RANK_MAX rows, so a popular
@@ -592,9 +588,9 @@ def _reacted(
         return cards[pk]
 
     for level in levels:
-        # one title at a time: the next is read only when a title is gone
-        tries = [r for r in ranked if r[3] <= level][:REACTED_TRIES]
-        out[level] = next(filter(None, (card(r) for r in tries)), None)
+        # one text at a time, down the ranking: the next is read only when one cannot be shown
+        tries = (card(r) for r in ranked if r[3] <= level)
+        out[level] = next(filter(None, tries), None)
     return out
 
 
