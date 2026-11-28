@@ -151,8 +151,12 @@ class Game(Item):
     )
 
     @property
-    def release_year(self) -> int | None:
+    def year(self) -> int | None:
         return year_of_partial_date(self.release_date)
+
+    @property
+    def release_year(self) -> int | None:
+        return self.year
 
     @classmethod
     def normalize_legacy_metadata(cls, metadata: dict) -> None:
