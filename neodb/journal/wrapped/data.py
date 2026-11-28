@@ -100,6 +100,10 @@ FIRST_RANK_MAX = 10
 GONE_POST_STATES = ("deleted", "deleted_fanned_out")
 
 
+# the Most reacted card reads the texts of its ranking this many at a time
+REACTED_BATCH = 50
+
+
 def _first_ranks(owner: APIdentity, ids: list[int]) -> dict[int, int]:
     """The member's place among the members who marked each title, for titles where it is
     FIRST_RANK_MAX or better. The count of earlier marks stops at FIRST_RANK_MAX rows, so a popular
@@ -545,6 +549,20 @@ def _reacted(
         if _category_of(ct, ctypes)
     }
     ranked = sorted(r for r in ranked if r[5] in live)
+    # texts are read a stretch of the ranking at a time, one query per kind
+    texts: dict[int, Any] = {}
+
+    def load(rows: list[tuple]) -> None:
+        want: dict[str, list[int]] = defaultdict(list)
+        for r in rows:
+            if r[2] not in texts:
+                want[r[4]].append(r[2])
+        for kind, pks in want.items():
+            texts.update(dict.fromkeys(pks))
+            texts.update(
+                {p.pk: p for p in _words_model(kind).objects.filter(pk__in=pks)}
+            )
+
     # a text that wins at several levels is read once; the card draws no stars, so it is the same at each
     cards: dict[int, dict[str, Any] | None] = {}
 
@@ -553,24 +571,21 @@ def _reacted(
         if pk in cards:
             return cards[pk]
         cards[pk] = None
-        it = _items_by_id([item_id]).get(item_id)
-        if not it or it.is_deleted or str(it.category) not in CATEGORIES:
-            return None
-        # read again under the rules it was ranked by, so a text made private meanwhile stays out
-        piece = (
-            _words_model(kind)
-            .objects.filter(
-                pk=pk,
-                visibility__lte=row[3],
-                **({"sensitive": False} if kind == "note" else {}),
-            )
-            .first()
-        )
-        if piece is None:
+        piece = texts.get(pk)
+        # the rules it was ranked by, checked on the row the text comes from, so a text made private or
+        # sensitive meanwhile stays out
+        if (
+            piece is None
+            or piece.visibility > row[3]
+            or getattr(piece, "sensitive", False)
+        ):
             return None
         words = words_text(kind, piece)
         # a text that is all spoiler has nothing left to quote
         if not words["text"]:
+            return None
+        it = _items_by_id([item_id]).get(item_id)
+        if not it or it.is_deleted or str(it.category) not in CATEGORIES:
             return None
         post_id = latest[pk]
         cards[pk] = {
@@ -588,9 +603,14 @@ def _reacted(
         return cards[pk]
 
     for level in levels:
-        # one text at a time, down the ranking: the next is read only when one cannot be shown
-        tries = (card(r) for r in ranked if r[3] <= level)
-        out[level] = next(filter(None, tries), None)
+        # down the ranking until a text can be shown; the next stretch is read only when none of one can
+        rows = [r for r in ranked if r[3] <= level]
+        for i in range(0, len(rows), REACTED_BATCH):
+            stretch = rows[i : i + REACTED_BATCH]
+            load(stretch)
+            out[level] = next(filter(None, (card(r) for r in stretch)), None)
+            if out[level]:
+                break
     return out
 
 

@@ -50,7 +50,7 @@ from journal.wrapped.aggregates import (
 )
 from journal.wrapped.base import (
     BULK_DAY,
-    _items_by_id,
+    _ctype_categories,
     plain_excerpt,
     year_range,
 )
@@ -1024,14 +1024,13 @@ class TestMostReacted:
         self.text(Comment, self.film, at(2, 2), text="still public", likes=3)
         narrowed = []
 
-        def narrowing(ids):
+        def narrowing():
             # the owner narrows the winner after the ranking read it as public
-            if not narrowed:
-                Comment.objects.filter(pk=first.pk).update(visibility=2, text="private")
-                narrowed.append(True)
-            return _items_by_id(ids)
+            Comment.objects.filter(pk=first.pk).update(visibility=2, text="private")
+            narrowed.append(True)
+            return _ctype_categories()
 
-        with patch("journal.wrapped.data._items_by_id", side_effect=narrowing):
+        with patch("journal.wrapped.data._ctype_categories", side_effect=narrowing):
             r = _reacted(self.me, (0,), *year_range(YEAR, TZ), TZ)[0]
         assert narrowed and r is not None and r["text"] == "still public"
 
@@ -1043,11 +1042,13 @@ class TestMostReacted:
         assert self.reacted(0)["text"] == "kept title"
 
     def test_texts_that_are_all_spoiler_are_passed_over_however_many(self):
-        for k in range(11):
+        for k in range(5):
             item = Edition.objects.create(title=f"Spoiled {k}")
             self.text(Comment, item, at(2, 1 + k), text=">!the twist!<", likes=20 - k)
         self.text(Comment, self.film, at(3, 1), text="plain words", likes=3)
-        assert self.reacted(0)["text"] == "plain words"
+        # a small stretch, so the plain text is three stretches down the ranking
+        with patch("journal.wrapped.data.REACTED_BATCH", 2):
+            assert self.reacted(0)["text"] == "plain words"
 
     def test_a_hidden_card_keeps_its_text_from_visitors(self):
         self.text(Comment, self.book, at(2, 1), text="hide me", likes=5)
@@ -1154,10 +1155,18 @@ class TestMostReacted:
                 item = Edition.objects.create(title=f"Q{offset + k}")
                 self.text(cls, item, at(3, 1 + offset + k), likes=1 + k, **fields)
 
+        def spoilers(n, offset):
+            # all spoiler and ranked above every plain text, so each is read and passed over
+            for k in range(n):
+                item = Edition.objects.create(title=f"S{offset + k}")
+                self.text(Comment, item, at(4, 1 + offset + k), text=">!x!<", likes=50)
+
         add(3, 0)
+        spoilers(1, 0)
         run()
         small = run()
         add(9, 3)
+        spoilers(8, 1)
         assert run() == small
 
 
