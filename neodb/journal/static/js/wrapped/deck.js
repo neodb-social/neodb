@@ -10,8 +10,13 @@
     if (ys.length < 2) return;
     const sel = document.createElement("select");
     sel.id = "wr-yr"; sel.className = "wr-yr"; sel.setAttribute("aria-label", WR._("Year"));
-    sel.innerHTML = ys.map(y => `<option${y === D.year ? " selected" : ""}>${y}</option>`).join("");
-    sel.onchange = () => { leave().then(() => { location.href = url.replace(new RegExp(`/${D.year}/$`), `/${sel.value}/`); }, () => { sel.value = String(D.year); toast(WR._("Could not save the deck; try again")); }); };
+    ys.forEach(y => sel.add(new Option(y, y, false, y === D.year)));
+    sel.onchange = () => {
+      const target = new URL(location.origin), year = ys[sel.selectedIndex];
+      if (!Number.isInteger(year)) return;
+      target.pathname = new URL(url, target).pathname.replace(/\/\d+\/$/, `/${year}/`);
+      leave().then(() => { location.href = target.href; }, () => { sel.value = String(D.year); toast(WR._("Could not save the deck; try again")); });
+    };
     el.replaceWith(sel);
   })();
   const { D, _, _n, CATS, CAT_LABEL, CAT_NOUN, CAT_ICON, CAT_COLOR, MONTHS, MONTHS_LONG, MONTHS_NARROW, ROLE_LABEL, stats: S, esc, cover, fmtDate, who, trunc, SVG } = WR;
@@ -765,12 +770,12 @@
     cards.forEach(c => { if (!c.hidden) { try { c.bgc = c.bg(); c.svg = card(c.bgc, c.body(), c.footInk); } catch (e) { console.warn("card failed", c.id, e); c.hidden = true; c.why = _("could not be drawn from this data"); } } if (c.hidden) c.svg = card(TINT.paper, eyebrow(c.name) + T(80, 330, c.name, 64, { weight: 800, ls: -2 }), c.foot); });
     const shown = cards.filter(c => !c.hidden), hid = cards.filter(c => c.hidden), mid = shown.filter(c => !FIXED.has(c.id));
     const deck = $("deck"), keepId = state.curId;
-    const btn = (attr, icon, label) => `<button class="dc-nav" type="button" title="${label}" aria-label="${label}" ${attr}><i class="fa-solid ${icon}"></i></button>`;
-    deck.innerHTML = shown.map((c, i) => `<div class="card" data-id="${c.id}" data-i="${i}" data-bg="${c.bgc || TINT.paper}"><div class="face">${c.svg}</div><div class="cf"><span class="n">${i + 1}/${shown.length}</span><span class="btns">${c.id === "kindred" && D.kindred ? `<a class="dc-nav" href="${esc(D.kindred.url)}" target="_blank" rel="noopener" title="${_("View profile")}" aria-label="${_("View profile")}"><i class="fa-solid fa-user"></i></a>` : ""}${btn("data-link", "fa-link", _("Copy link to this card"))}${OWNER ? btn("data-share", "fa-share-from-square", _("Post this card")) : ""}${btn("data-dl", "fa-download", _("Download PNG"))}</span></div></div>`).join("");
+    const btn = (attr, icon, label) => `<button class="dc-nav" type="button" title="${esc(label)}" aria-label="${esc(label)}" ${attr}><i class="fa-solid ${icon}"></i></button>`;
+    deck.innerHTML = shown.map((c, i) => `<div class="card" data-id="${c.id}" data-i="${i}" data-bg="${c.bgc || TINT.paper}"><div class="face">${c.svg}</div><div class="cf"><span class="n">${i + 1}/${shown.length}</span><span class="btns">${c.id === "kindred" && D.kindred ? `<a class="dc-nav" href="${esc(D.kindred.url)}" target="_blank" rel="noopener" title="${esc(_("View profile"))}" aria-label="${esc(_("View profile"))}"><i class="fa-solid fa-user"></i></a>` : ""}${btn("data-link", "fa-link", _("Copy link to this card"))}${OWNER ? btn("data-share", "fa-share-from-square", _("Post this card")) : ""}${btn("data-dl", "fa-download", _("Download PNG"))}</span></div></div>`).join("");
     $("dots").innerHTML = shown.map((c, i) => `<button type="button" data-i="${i}" aria-label="${i + 1}/${shown.length} ${esc(c.name)}"><b></b></button>`).join("");
     if (OWNER) {
       const hub = $("hub"); hub.classList.toggle("arranging", arranging);
-      const mv = (c, k) => FIXED.has(c.id) ? `<span class="pin"><i class="fa-solid fa-thumbtack"></i> ${c.id === "intro" ? _("always first") : _("always last")}</span>` : `<button type="button" class="outline" data-mv="-1" aria-label="${esc(_("Move {name} earlier", { name: c.name }))}"${k === 0 ? " disabled" : ""}><i class="fa-solid fa-arrow-left"></i></button><button type="button" class="outline" data-mv="1" aria-label="${esc(_("Move {name} later", { name: c.name }))}"${k === mid.length - 1 ? " disabled" : ""}><i class="fa-solid fa-arrow-right"></i></button>`;
+      const mv = (c, k) => FIXED.has(c.id) ? `<span class="pin"><i class="fa-solid fa-thumbtack"></i> ${esc(c.id === "intro" ? _("always first") : _("always last"))}</span>` : `<button type="button" class="outline" data-mv="-1" aria-label="${esc(_("Move {name} earlier", { name: c.name }))}"${k === 0 ? " disabled" : ""}><i class="fa-solid fa-arrow-left"></i></button><button type="button" class="outline" data-mv="1" aria-label="${esc(_("Move {name} later", { name: c.name }))}"${k === mid.length - 1 ? " disabled" : ""}><i class="fa-solid fa-arrow-right"></i></button>`;
       // every card in deck order: a hidden one is dimmed with its reason, and the eye on a tile hides or shows that card; Arrange moves only the shown ones
       const eye = c => { const label = c.hidden ? _("Show this card") : _("Hide this card"); return `<button type="button" class="eye" data-eye="${c.id}" title="${esc(label)}" aria-label="${esc(label)}: ${esc(c.name)}"><i class="fa-solid ${c.hidden ? "fa-eye-slash" : "fa-eye"}"></i></button>`; };
       hub.innerHTML = (arranging ? shown : cards).map(c => arranging
@@ -778,13 +783,13 @@
         : c.hidden
           ? `<div class="ht off" data-id="${c.id}"><div class="go">${c.svg}<span>${esc(c.name)}</span><small>${esc(c.why)}</small></div>${eye(c)}</div>`
           : `<div class="ht" data-id="${c.id}"><a href="#${c.id}" class="go" data-i="${shown.indexOf(c)}">${c.svg}<span>${esc(c.name)}</span></a>${eye(c)}</div>`).join("")
-        + (arranging ? "" : `<button class="make" type="button" id="wr-make"><div class="tile"><i class="fa-solid fa-plus"></i></div><span>${_("Make a card")}</span></button>`);
+        + (arranging ? "" : `<button class="make" type="button" id="wr-make"><div class="tile"><i class="fa-solid fa-plus"></i></div><span>${esc(_("Make a card"))}</span></button>`);
       $("hubsub").textContent = arranging ? _("Drag a card to a new place, or use its arrows. The intro stays first and the outro last.") : _("Hide or show a card with its eye, change the order with Arrange, or make your own with the plus.");
       // the switch at the top says who sees the page; the count belongs to the grid below it
       $("visnote").textContent = PAGEVIS[AUD].note;
       $("decksub").textContent = _("{shown} cards shown, {hidden} hidden.", { shown: shown.length, hidden: hid.length });
       const ar = $("arrange");
-      ar.innerHTML = arranging ? `<i class="fa-solid fa-check"></i> ${_("Done")}` : `<i class="fa-solid fa-arrows-up-down-left-right"></i> ${_("Arrange")}`;
+      ar.innerHTML = arranging ? `<i class="fa-solid fa-check"></i> ${esc(_("Done"))}` : `<i class="fa-solid fa-arrows-up-down-left-right"></i> ${esc(_("Arrange"))}`;
       ar.classList.toggle("primary", arranging); ar.classList.toggle("outline", !arranging);
       $("resetorder").hidden = !deckState.order.length;
       document.querySelectorAll(".pagevis button").forEach(b => b.classList.toggle("on", b.dataset.pv === AUD));
@@ -937,8 +942,8 @@
   // the end of the deck offers the next steps: for the owner the year page and Share, for a visitor their own
   // cards while they can still be made
   const replay = () => { window.scrollTo({ top: 0, behavior: "instant" }); go(0, "instant"); started = true; setAuto(true); };
-  const nextStep = OWNER ? `<button class="wr-pill" type="button" data-act="year"><i class="fa-solid fa-layer-group"></i> ${_("See the whole year")}</button><button class="wr-pill primary" type="button" data-act="share"><i class="fa-solid fa-share-from-square"></i> ${_("Share")}</button>` : D.make_url ? `<a class="wr-pill primary" href="${esc(D.make_url)}"><i class="fa-solid fa-wand-magic-sparkles"></i> ${_("Make your own {year}", { year: Y })}</a>` : "";
-  $("end").innerHTML = `<button class="wr-pill" type="button" data-act="replay"><i class="fa-solid fa-rotate-left"></i> ${_("Replay")}</button>${nextStep}`;
+  const nextStep = OWNER ? `<button class="wr-pill" type="button" data-act="year"><i class="fa-solid fa-layer-group"></i> ${esc(_("See the whole year"))}</button><button class="wr-pill primary" type="button" data-act="share"><i class="fa-solid fa-share-from-square"></i> ${esc(_("Share"))}</button>` : D.make_url ? `<a class="wr-pill primary" href="${esc(D.make_url)}"><i class="fa-solid fa-wand-magic-sparkles"></i> ${esc(_("Make your own {year}", { year: Y }))}</a>` : "";
+  $("end").innerHTML = `<button class="wr-pill" type="button" data-act="replay"><i class="fa-solid fa-rotate-left"></i> ${esc(_("Replay"))}</button>${nextStep}`;
   // to the year page after the waiting save, as the year menu does
   const toYearPage = () => leave().then(() => { location.href = D.make_url; }, () => toast(_("Could not save the deck; try again")));
   document.querySelectorAll("[data-act]").forEach(b => b.onclick = () => ({ replay, share: () => openPublish(), year: toYearPage })[b.dataset.act]());
@@ -951,7 +956,7 @@
     const its = S.items, act = ACTIVITY, counts = TM.counts, busiest = counts.indexOf(Math.max(...counts));
     const rated = its.filter(i => i.rating), avg = rated.length ? rated.reduce((a, i) => a + i.rating, 0) / rated.length : null;
     const months = MONTHS.map((z, m) => its.filter(i => +i.date.slice(5, 7) === m + 1)), cats = CATS.filter(c => its.some(i => i.category === c));
-    $("stats").innerHTML = [[its.length, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[busiest], _n("busiest month, {n} title", "busiest month, {n} titles", counts[busiest])], [avg ? avg.toFixed(1) : _n("{n} day", "{n} days", act.streak), avg ? _("average rating, of 10") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num"${typeof a === "number" ? ` data-to="${a}"` : ""}>${typeof a === "number" ? a.toLocaleString() : a}</span><span class="lbl">${b}</span></div>`).join("");
+    $("stats").innerHTML = [[its.length, _("titles completed")], [act.days, _("days with something logged")], [MONTHS_LONG[busiest], _n("busiest month, {n} title", "busiest month, {n} titles", counts[busiest])], [avg ? avg.toFixed(1) : _n("{n} day", "{n} days", act.streak), avg ? _("average rating, of 10") : _("longest streak")]].map(([a, b]) => `<div class="dc-surface"><span class="num"${typeof a === "number" ? ` data-to="${a}"` : ""}>${esc(typeof a === "number" ? a.toLocaleString() : a)}</span><span class="lbl">${esc(b)}</span></div>`).join("");
     // the stat tiles count up once, when they come into view
     new IntersectionObserver((es, ob) => { if (!es[0].isIntersecting) return; ob.disconnect(); if (RM) return; $("stats").querySelectorAll("[data-to]").forEach(el => { const to = +el.dataset.to, t0 = performance.now(); const step = now => { const k = Math.min(1, (now - t0) / 1100); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))).toLocaleString(); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }); }, { threshold: 0.5 }).observe($("stats"));
 
@@ -959,7 +964,7 @@
     // the piles make a bar chart: the busiest month fills the track, and each pile draws at most 36 covers spread over its length
     let bymCat = "all", openM = null, lists = [];
     const PILE_MAX = 36, piles = $("piles");
-    function monthPanel(m) { const list = lists[m]; return `<div class="pile-open" role="region" aria-label="${esc(MONTHS_LONG[m])}"><div class="month-h"><h3>${esc(MONTHS_LONG[m])}</h3><span class="n">${_n("{n} title", "{n} titles", list.length)}</span></div><div class="bym">${list.map(it => `<div>${cover(it)}<p class="t">${esc(it.title)}</p></div>`).join("")}</div></div>`; }
+    function monthPanel(m) { const list = lists[m]; return `<div class="pile-open" role="region" aria-label="${esc(MONTHS_LONG[m])}"><div class="month-h"><h3>${esc(MONTHS_LONG[m])}</h3><span class="n">${esc(_n("{n} title", "{n} titles", list.length))}</span></div><div class="bym">${list.map(it => `<div>${cover(it)}<p class="t">${esc(it.title)}</p></div>`).join("")}</div></div>`; }
     function openMonth(m) {
       openM = m; piles.querySelectorAll(".pile-open").forEach(x => x.remove());
       piles.classList.toggle("picked", m != null);
@@ -981,7 +986,7 @@
       document.querySelectorAll("#wr-bymcat button").forEach(b => { b.classList.toggle("on", b.dataset.cat === bymCat); b.setAttribute("aria-pressed", b.dataset.cat === bymCat); });
     }
     const bymCats = $("bymcat");
-    bymCats.innerHTML = `<button type="button" data-cat="all">${_("All")}</button>` + cats.map(c => `<button type="button" data-cat="${c}"><i class="fa-solid ${CAT_ICON[c]}"></i> ${CAT_LABEL[c]}</button>`).join("");
+    bymCats.innerHTML = `<button type="button" data-cat="all">${esc(_("All"))}</button>` + cats.map(c => `<button type="button" data-cat="${c}"><i class="fa-solid ${CAT_ICON[c]}"></i> ${esc(CAT_LABEL[c])}</button>`).join("");
     bymCats.querySelectorAll("button").forEach(b => b.onclick = () => { bymCat = b.dataset.cat; byMonth(); });
     byMonth();
     // the piles grow when their top comes up past the lowest 15% of the screen; a tall list on a phone does not wait for 20% of itself
@@ -1030,10 +1035,10 @@
     seg.querySelectorAll("button").forEach(b => b.onclick = () => { mk.n = +b.dataset.n; seg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); mkPreview(); });
     const own = COLS.filter(c => c.rel === "own"), liked = COLS.filter(c => c.rel === "liked");
     const opt = c => `<option value="col:${c.uuid}">${esc(trunc(c.title, 40))}${c.rel === "liked" ? ` · @${esc(c.owner)}` : ""} (${c.total})</option>`;
-    el("mk-src").innerHTML = `<optgroup label="${_("Highest marks this year")}"><option value="auto:all">${_("Every shelf")}</option>${S.cats.map(c => `<option value="auto:${c}">${CAT_LABEL[c]}</option>`).join("")}</optgroup>`
-      + `<optgroup label="${_("Your collections")}">${own.length ? own.map(opt).join("") : `<option disabled>${_("No collections of your own yet")}</option>`}</optgroup>`
-      + `<optgroup label="${_("Collections you liked")}">${liked.length ? liked.map(opt).join("") : `<option disabled>${_("No liked collections yet")}</option>`}</optgroup>`
-      + `<optgroup label="${_("Your own list")}"><option value="hand">${_("Pick titles or paste links")}</option></optgroup>`;
+    el("mk-src").innerHTML = `<optgroup label="${esc(_("Highest marks this year"))}"><option value="auto:all">${esc(_("Every shelf"))}</option>${S.cats.map(c => `<option value="auto:${c}">${esc(CAT_LABEL[c])}</option>`).join("")}</optgroup>`
+      + `<optgroup label="${esc(_("Your collections"))}">${own.length ? own.map(opt).join("") : `<option disabled>${esc(_("No collections of your own yet"))}</option>`}</optgroup>`
+      + `<optgroup label="${esc(_("Collections you liked"))}">${liked.length ? liked.map(opt).join("") : `<option disabled>${esc(_("No liked collections yet"))}</option>`}</optgroup>`
+      + `<optgroup label="${esc(_("Your own list"))}"><option value="hand">${esc(_("Pick titles or paste links"))}</option></optgroup>`;
     el("mk-src").value = firstSrc; el("mk-src").onchange = () => setSource(el("mk-src").value);
     setSource(firstSrc); setMode("list"); mkdlg.showModal();
   }
@@ -1042,7 +1047,7 @@
     const hand = v === "hand", col = v.startsWith("col:") ? COLS.find(c => c.uuid === v.slice(4)) : null;
     el("mk-pick").hidden = !hand; el("mk-n").hidden = hand; el("mk-nlabel").hidden = hand; el("mk-nhint").hidden = !hand;
     el("mk-col").hidden = !col; el("mk-colnote").hidden = !col;
-    if (col) { el("mk-col").innerHTML = `<span>${col.rel === "own" ? _n("Your collection, {n} item.", "Your collection, {n} items.", col.total) : _n("A collection by @{owner}, {n} item.", "A collection by @{owner}, {n} items.", col.total, { owner: esc(col.owner) })} ${_("The card shows the first ones in the collection's order and follows it when it changes.")}</span> <button type="button" class="outline" id="wr-mk-copy">${_("Pick from it by hand")}</button>`; el("mk-copy").onclick = () => { mk.picked = col.items.slice(0, mk.n).map(x => ({ ...refRaw(x), how: "collection" })); setSource("hand"); }; }
+    if (col) { el("mk-col").innerHTML = `<span>${esc(col.rel === "own" ? _n("Your collection, {n} item.", "Your collection, {n} items.", col.total) : _n("A collection by @{owner}, {n} item.", "A collection by @{owner}, {n} items.", col.total, { owner: col.owner }))} ${esc(_("The card shows the first ones in the collection's order and follows it when it changes."))}</span> <button type="button" class="outline" id="wr-mk-copy">${esc(_("Pick from it by hand"))}</button>`; el("mk-copy").onclick = () => { mk.picked = col.items.slice(0, mk.n).map(x => ({ ...refRaw(x), how: "collection" })); setSource("hand"); }; }
     mkPreview();
   }
   function mkItems() {
@@ -1070,12 +1075,12 @@
     if (!wordsMenu) {
       box.setAttribute("aria-busy", "true");
       try { const r = await fetch(URLS.words, { headers: { Accept: "application/json" } }); if (!r.ok) throw new Error(r.status); wordsMenu = (await r.json()).works || []; }
-      catch (e) { box.removeAttribute("aria-busy"); box.innerHTML = `<div class="rmsg">${_("The lookup failed. Try again.")}</div>`; return; }
+      catch (e) { box.removeAttribute("aria-busy"); box.innerHTML = `<div class="rmsg">${esc(_("The lookup failed. Try again."))}</div>`; return; }
       box.removeAttribute("aria-busy");
     }
     const q = el("mk-wq").value.trim().toLowerCase(), list = wordsMenu.filter(w => !q || w.title.toLowerCase().includes(q)).slice(0, 60);
     box.innerHTML = list.length ? list.map(w => `<button type="button" data-w="${wordsMenu.indexOf(w)}"${mk.work === w ? ' class="on"' : ""}>${cover(w)}<span>${esc(w.title)}</span><small>${esc(kindsOf(w))}</small></button>`).join("")
-      : `<div class="rmsg">${wordsMenu.length ? _("Nothing found") : _("You wrote no comment, note or review in {year}.", { year: Y })}</div>`;
+      : `<div class="rmsg">${esc(wordsMenu.length ? _("Nothing found") : _("You wrote no comment, note or review in {year}.", { year: Y }))}</div>`;
     box.querySelectorAll("[data-w]").forEach(b => b.onclick = () => { mk.work = wordsMenu[+b.dataset.w]; mk.text = mk.work.texts[0]; showWorks(); showTexts(); mkPreview(); });
     showTexts();
   }
@@ -1095,7 +1100,7 @@
     el("mk-preview").innerHTML = card(TINT.paper, topNBody({ title: el("mk-title").value.trim() || dft.title, caption: el("mk-cap").value.trim() || dft.caption, source: { type: "none" } }, mkItems()));
     const how = it => it.how === "link" ? _("from a link") : it.how === "collection" ? _("from a collection") : myUrls.has(it.url) ? _("marked {date}", { date: fmtDate(myUrls.get(it.url).date) }) : _("not marked in {year}", { year: Y });
     const pk = el("mk-picked");
-    pk.innerHTML = mk.picked.map((it, i) => `<div draggable="true" data-i="${i}"><b>${i + 1}</b>${cover(it)}<span class="t">${esc(it.title)}<small>${how(it)}</small></span><button type="button" data-rm="${i}" title="${_("Remove")}"><i class="fa-solid fa-xmark"></i></button></div>`).join("");
+    pk.innerHTML = mk.picked.map((it, i) => `<div draggable="true" data-i="${i}"><b>${i + 1}</b>${cover(it)}<span class="t">${esc(it.title)}<small>${esc(how(it))}</small></span><button type="button" data-rm="${i}" title="${esc(_("Remove"))}"><i class="fa-solid fa-xmark"></i></button></div>`).join("");
     pk.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { mk.picked.splice(+b.dataset.rm, 1); mkPreview(); });
     let drag = null; pk.querySelectorAll("[draggable]").forEach(row => { row.ondragstart = () => { drag = +row.dataset.i; }; row.ondragover = e => { e.preventDefault(); row.classList.add("over"); }; row.ondragleave = () => row.classList.remove("over"); row.ondrop = e => { e.preventDefault(); const to = +row.dataset.i; if (drag == null || drag === to) return; const [x] = mk.picked.splice(drag, 1); mk.picked.splice(to, 0, x); mkPreview(); }; });
   }
@@ -1173,7 +1178,7 @@
   if (OWNER) $("pub-edit").onclick = () => { pubdlg.close(); $("editdlg").showModal(); };
   // what each audience sees at the one link; the audience on screen counts live, another one as the owner last saw it.
   // Only the note of the audience on screen is shown, so the list stays short.
-  function audList() { $("auds").innerHTML = (D.audiences || []).map(a => { const name = ["public", "followers", "me"][a.level], here = a.level === LEVEL, n = here ? state.shown.length : a.shown, off = here ? !state.shown.length : a.off; return `<li${here ? ' class="on"' : ""}><b>${esc(PAGEVIS[name].label)}</b><span class="st">${off ? _("Not shared") : n == null ? _("Suggested cards") : _n("{n} card", "{n} cards", n)}</span></li>`; }).join(""); $("audnote").textContent = PAGEVIS[AUD].note; }
+  function audList() { $("auds").innerHTML = (D.audiences || []).map(a => { const name = ["public", "followers", "me"][a.level], here = a.level === LEVEL, n = here ? state.shown.length : a.shown, off = here ? !state.shown.length : a.off; return `<li${here ? ' class="on"' : ""}><b>${esc(PAGEVIS[name].label)}</b><span class="st">${esc(off ? _("Not shared") : n == null ? _("Suggested cards") : _n("{n} card", "{n} cards", n))}</span></li>`; }).join(""); $("audnote").textContent = PAGEVIS[AUD].note; }
   if (OWNER) $("publish").onclick = () => openPublish();
   if (OWNER) $("pub-send").onclick = async () => {
     const video = (document.querySelector('input[name="wr-mode"]:checked') || {}).value === "video";
@@ -1239,7 +1244,7 @@
   if (OWNER) {
     // the menu in the Edit sheet: no music first, then the tracks; the play button tries the chosen one
     const sel = $("music"), tracks = D.music_menu || [], tryBtn = $("music-try");
-    sel.innerHTML = `<option value="">${_("No music")}</option>` + tracks.map(t => `<option value="${esc(t.id)}">${esc(t.title)}</option>`).join("");
+    sel.innerHTML = `<option value="">${esc(_("No music"))}</option>` + tracks.map(t => `<option value="${esc(t.id)}">${esc(t.title)}</option>`).join("");
     sel.value = music ? music.id : "";
     let preview = null;
     const tryShow = on => { tryBtn.innerHTML = `<i class="fa-solid ${on ? "fa-stop" : "fa-play"}"></i>`; tryBtn.setAttribute("aria-label", on ? _("Pause") : _("Play")); };
@@ -1337,7 +1342,7 @@
     // the image's buttons come with the image; "Copy link" beside them stays the one main button
     btns.forEach(b => { b.hidden = true; });
     // one warning at most, the strongest reason first; the link and the code open the same page
-    const editBtn = `<button type="button" class="dc-btn outline" data-qr-edit>${_("Change in Edit")}</button>`;
+    const editBtn = `<button type="button" class="dc-btn outline" data-qr-edit>${esc(_("Change in Edit"))}</button>`;
     let locked = false;
     if (open == null) { locked = true; warn.innerHTML = `${esc(_("Public and Followers see no cards, so only you can open this page now."))} ${editBtn}`; }
     else if (open === 1) warn.innerHTML = `${esc(_("Only your followers can open this page, after they sign in."))} ${editBtn}`;
@@ -1469,12 +1474,12 @@
     try {
       const { r, items } = await buildFile(kind, v => { prog.value = v; }, kind === "mp4" && $("dl-music").checked);
       const mb = (r.blob.size / 1048576).toFixed(1);
-      if (kind === "zip") { setTimeout(URL.revokeObjectURL, 60000, saveBlob(r.blob, `${Y}-cards.zip`)); out.innerHTML = `<p class="dc-fine">${_("{size} MB, {n} files", { size: mb, n: items.length })}</p>`; }
-      else if (kind === "gif") { lastUrl = saveBlob(r.blob, `${Y}-wrapped.gif`); out.innerHTML = `<img src="${lastUrl}" alt="${_("GIF preview")}"><p class="dc-fine">${_("{size} MB, {n} frames at 2.5 s", { size: mb, n: r.frames })}</p>`; }
+      if (kind === "zip") { setTimeout(URL.revokeObjectURL, 60000, saveBlob(r.blob, `${Y}-cards.zip`)); out.innerHTML = `<p class="dc-fine">${esc(_("{size} MB, {n} files", { size: mb, n: items.length }))}</p>`; }
+      else if (kind === "gif") { lastUrl = saveBlob(r.blob, `${Y}-wrapped.gif`); out.innerHTML = `<img src="${lastUrl}" alt="${esc(_("GIF preview"))}"><p class="dc-fine">${esc(_("{size} MB, {n} frames at 2.5 s", { size: mb, n: r.frames }))}</p>`; }
       else {
         lastUrl = saveBlob(r.blob, `${Y}-wrapped.mp4`);
         const line = r.music ? _("{size} MB, {seconds} s video with music", { size: mb, seconds: r.seconds }) : _("{size} MB, {seconds} s video", { size: mb, seconds: r.seconds });
-        out.innerHTML = `<video src="${lastUrl}" controls loop playsinline></video><p class="dc-fine">${line}</p>${r.musicAsked && !r.music ? `<p class="dc-fine">${_("The music could not be added, so the video has no sound.")}</p>` : ""}`;
+        out.innerHTML = `<video src="${lastUrl}" controls loop playsinline></video><p class="dc-fine">${esc(line)}</p>${r.musicAsked && !r.music ? `<p class="dc-fine">${esc(_("The music could not be added, so the video has no sound."))}</p>` : ""}`;
       }
     } catch (e) { toast(_("Export failed: {error}", { error: e.message })); }
     prog.hidden = true; btns.forEach(b => { b.disabled = false; }); btn.removeAttribute("aria-busy"); mp4Gate();

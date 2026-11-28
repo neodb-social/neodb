@@ -15,7 +15,7 @@ from hashlib import md5
 from typing import Type, TypeVar
 
 import django_rq
-import requests
+import httpx
 from django.core.cache import cache
 from django.db import IntegrityError, transaction
 
@@ -26,7 +26,7 @@ from common.sentry import url_domain
 from common.validators import is_valid_url
 
 from ..models import ExternalResource, IdType, Item, SiteName
-from .downloaders import DownloadError, request_with_checked_redirects
+from .downloaders import DownloadError, resolve_public_redirects
 
 logger = logging.getLogger(__name__)
 
@@ -260,12 +260,10 @@ class SiteManager:
             return u
         elif not allow_head:
             return url
-        if not is_valid_url(url):
-            return url
         try:
-            u = request_with_checked_redirects("HEAD", url, timeout=2).url
-        except requests.RequestException:
-            logger.warning(f"HEAD timeout: {url}")
+            u = resolve_public_redirects(url, timeout=2)
+        except httpx.HTTPError, httpx.InvalidURL, ValueError:
+            logger.debug("Could not resolve catalog redirect")
             u = url
         cache.set(k, u if u != url else "", 3600)
         return u
