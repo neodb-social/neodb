@@ -85,6 +85,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v7
         with:
+          # the default Git context does not apply .dockerignore
+          context: .
           push: ${{ github.ref == 'refs/heads/main' && github.repository_owner == 'neodb-social' }}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
