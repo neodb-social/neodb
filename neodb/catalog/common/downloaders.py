@@ -23,7 +23,7 @@ from requests.utils import requote_uri
 from common.models import SiteConfig, register_language_cache_refresh
 from common.sentry import count as sentry_count
 from common.sentry import url_domain
-from common.validators import is_valid_url
+from common.validators import is_valid_url, resolve_public_http_url
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +95,32 @@ def redact_url(url: str | None) -> str:
 
 
 MAX_REDIRECTS = 10
+
+
+def resolve_public_redirects(url: str, timeout: float) -> str:
+    """Follow HEAD redirects against the public address checked for each hop."""
+    current = httpx.URL(url)
+    cookies = httpx.Cookies()
+    for hop in range(MAX_REDIRECTS):
+        ip = resolve_public_http_url(str(current), may_have_port=hop > 0)
+        if not ip:
+            raise ValueError("Host has no public address")
+        logical = httpx.Request("HEAD", current)
+        cookies.set_cookie_header(logical)
+        # A new client per hop keeps cookies and TLS connections for hosts
+        # sharing an IP separate. Resolve relative redirects against the name.
+        with httpx.Client(timeout=timeout, follow_redirects=False) as client:
+            response = client.head(
+                current.copy_with(host=ip),
+                headers=logical.headers,
+                extensions={"sni_hostname": current.raw_host.decode("ascii")},
+            )
+        response.request = logical
+        cookies.extract_cookies(response)
+        if not response.has_redirect_location:
+            return str(current)
+        current = current.join(response.headers["location"])
+    raise ValueError("Too many redirects")
 
 
 def request_with_checked_redirects(method: str, url: str, **kwargs: Any) -> Response:

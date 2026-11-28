@@ -1,6 +1,4 @@
-import ipaddress
 import logging
-import socket
 from urllib.parse import urlsplit, urlunsplit
 
 import django_rq
@@ -11,7 +9,7 @@ from django.db import models, transaction
 from django.utils import timezone
 
 from common.models import SiteConfig
-from common.validators import is_valid_url
+from common.validators import is_valid_url, resolve_public_ip
 from takahe.models import Token
 
 from .user import User
@@ -203,23 +201,6 @@ def _bump_failures(pk: int) -> int:
         return 1
 
 
-def _resolve_public_ip(hostname: str) -> str | None:
-    """Resolve fresh (no cache) and return one address only when every
-    answer is public, so the POST connects to what was just checked."""
-    try:
-        results = socket.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP)
-    except OSError:
-        return None
-    ips = [str(sockaddr[0]) for _, _, _, _, sockaddr in results]
-    for ip in ips:
-        addr = ipaddress.ip_address(ip)
-        # is_global also rejects shared address space (100.64.0.0/10) and
-        # multicast, which the private/reserved/loopback predicates admit
-        if not addr.is_global or addr.is_multicast:
-            return None
-    return ips[0] if ips else None
-
-
 def _post_webhook(url: str, payload: dict, timeout: float) -> bool:
     """POST without trusting DNS twice or the response: pin the address
     that passed the public-IP check (DNS rebinding) and close the
@@ -237,7 +218,7 @@ def _post_webhook(url: str, payload: dict, timeout: float) -> bool:
             return resp.is_success
     if parts.scheme != "https" or not hostname:
         return False
-    ip = _resolve_public_ip(hostname)
+    ip = resolve_public_ip(hostname)
     if not ip:
         return False
     ip_host = f"[{ip}]" if ":" in ip else ip

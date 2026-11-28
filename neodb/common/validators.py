@@ -20,38 +20,37 @@ _HOST_TTL = 300
 _host_cache: TTLCache = TTLCache(maxsize=4096, ttl=_HOST_TTL)
 
 
-def _resolve_hostname(hostname: str) -> bool | None:
-    """Tri-state resolution of `hostname`.
+def _lookup_public_ip(hostname: str) -> str | None:
+    results = socket.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP)
+    if not results:
+        raise socket.gaierror("No addresses")
+    for _family, _type, _proto, _canonname, sockaddr in results:
+        ip = ipaddress.ip_address(sockaddr[0])
+        if not ip.is_global or ip.is_reserved or ip.is_multicast:
+            logger.warning(f"Blocked request to {hostname}: resolves to {ip}")
+            return None
+    return str(ipaddress.ip_address(results[0][4][0]))
 
-    True when it resolves only to public IPs, False when any answer is
-    private/reserved, None when the resolver answers not at all -- which
-    callers weigh differently from "points inside our network".
-    """
+
+def resolve_public_ip(hostname: str) -> str | None:
+    """Return a fresh address for a connection only if every DNS answer is public."""
+    try:
+        return _lookup_public_ip(hostname)
+    except OSError:
+        return None
+
+
+def _resolve_hostname(hostname: str) -> bool | None:
+    """True for public, False for blocked and None for unresolved."""
     cached = _host_cache.get(hostname)
     if cached is not None:
         return cached
     try:
-        results = socket.getaddrinfo(hostname, None, proto=socket.IPPROTO_TCP)
-    except socket.gaierror, socket.timeout, OSError:
-        # Don't cache transient resolver failures so they recover quickly.
+        public = _lookup_public_ip(hostname) is not None
+    except OSError:
         return None
-    if not results:
-        return None
-    for _family, _type, _proto, _canonname, sockaddr in results:
-        ip = ipaddress.ip_address(sockaddr[0])
-        # is_global also covers shared address space such as 100.64/10
-        if (
-            not ip.is_global
-            or ip.is_private
-            or ip.is_reserved
-            or ip.is_loopback
-            or ip.is_link_local
-        ):
-            logger.warning(f"Blocked request to {hostname}: resolves to {ip}")
-            _host_cache[hostname] = False
-            return False
-    _host_cache[hostname] = True
-    return True
+    _host_cache[hostname] = public
+    return public
 
 
 def _hostname_is_public(hostname: str) -> bool:
@@ -78,6 +77,13 @@ def _url_host_and_scheme(
     if not hostname:
         return None
     return hostname, parsed.scheme
+
+
+def resolve_public_http_url(url: str, may_have_port: bool = False) -> str | None:
+    parts = _url_host_and_scheme(url, may_have_port)
+    if not parts or parts[1] not in ("http", "https"):
+        return None
+    return resolve_public_ip(parts[0])
 
 
 def is_valid_url(url: str | None, may_have_port: bool = False) -> bool:

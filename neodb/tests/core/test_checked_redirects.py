@@ -3,6 +3,7 @@ import urllib.error
 import urllib.request
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 from requests.exceptions import RequestException
 
@@ -11,6 +12,7 @@ from catalog.common.downloaders import (
     BasicDownloader,
     BasicImageDownloader,
     request_with_checked_redirects,
+    resolve_public_redirects,
 )
 from catalog.sites.rss import _CheckedRedirectHandler
 
@@ -37,6 +39,47 @@ def _response(status: int, location: str | None = None, url: str = "") -> MagicM
     resp.url = url
     resp.text = ""
     return resp
+
+
+def test_head_redirects_pin_each_address_and_keep_the_logical_url() -> None:
+    hosts = {"first.example": PUBLIC_IP, "next.example": "2606:4700:4700::1111"}
+    replies = [
+        httpx.Response(302, headers={"location": "/next", "set-cookie": "seen=yes"}),
+        httpx.Response(301, headers={"location": "https://next.example:8443/final"}),
+        httpx.Response(200),
+    ]
+    with (
+        patch("socket.getaddrinfo", side_effect=_getaddrinfo_for(hosts)),
+        patch.object(httpx.Client, "head", side_effect=replies) as head,
+    ):
+        assert resolve_public_redirects("https://first.example/start", 2) == (
+            "https://next.example:8443/final"
+        )
+    assert [str(call.args[0]) for call in head.call_args_list] == [
+        f"https://{PUBLIC_IP}/start",
+        f"https://{PUBLIC_IP}/next",
+        "https://[2606:4700:4700::1111]:8443/final",
+    ]
+    first, second, last = [call.kwargs for call in head.call_args_list]
+    assert first["headers"]["host"] == "first.example"
+    assert second["headers"]["cookie"] == "seen=yes"
+    assert "cookie" not in last["headers"]
+    assert last["headers"]["host"] == "next.example:8443"
+    assert last["extensions"]["sni_hostname"] == "next.example"
+
+
+@pytest.mark.parametrize("starts_public", [True, False])
+def test_head_stops_before_any_non_public_connection(starts_public: bool) -> None:
+    answers = [_addr_info(PUBLIC_IP)] if starts_public else []
+    answers.append(_addr_info(PUBLIC_IP) + _addr_info(PRIVATE_IP))
+    redirect = httpx.Response(302, headers={"location": "/next"})
+    with (
+        patch("socket.getaddrinfo", side_effect=answers),
+        patch.object(httpx.Client, "head", return_value=redirect) as head,
+        pytest.raises(ValueError),
+    ):
+        resolve_public_redirects("https://first.example/start", 2)
+    assert head.call_count == int(starts_public)
 
 
 def test_public_redirect_chain_is_followed() -> None:
