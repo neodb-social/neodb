@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <link rel="stylesheet"
-          href="{{ cdn_url }}/npm/swagger-ui-dist@5.18.2/swagger-ui.min.css">
+          href="{{ cdn_url }}/npm/swagger-ui-dist@5.36.0/swagger-ui.min.css">
     <title>{{ api.title }} Developer Console</title>
     {% include "common_libs.html" %}
     <style>
@@ -132,7 +132,7 @@
         Please check <a href="https://neodb.net/api/">NeoDB documentation</a> for details.
       </details>
       <div id="swagger-ui" data-theme="light"></div>
-      <script src="{{ cdn_url }}/npm/swagger-ui-dist@5.13.0/swagger-ui-bundle.min.js"></script>
+      <script src="{{ cdn_url }}/npm/swagger-ui-dist@5.36.0/swagger-ui-bundle.min.js"></script>
       <script>
         const ui = SwaggerUIBundle({
         url: '{{ openapi_json_url }}',

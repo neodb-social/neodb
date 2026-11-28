@@ -9,7 +9,6 @@ from datetime import timedelta
 from time import sleep
 
 import django_rq
-from discord import Object, SyncWebhook
 from django.db import connection, models
 from django.db.models.functions import Trim
 from django.utils import timezone
@@ -18,6 +17,7 @@ from tqdm import tqdm
 
 from common.models.site_config import SiteConfig
 from common.sentry import count as sentry_count
+from common.utils import discord_webhook_post
 
 logger = logging.getLogger(__name__)
 
@@ -69,23 +69,19 @@ def _make_migration_notifier(skip_key: str):
     dw = SiteConfig.system.discord_webhooks.get(
         _NOTIFY_CHANNEL
     ) or SiteConfig.system.discord_webhooks.get("default")
-    webhook = None
-    if dw:
-        try:
-            webhook = SyncWebhook.from_url(dw)
-        except Exception as e:
-            logger.warning(f"[migration] {skip_key}: discord webhook init failed: {e}")
     state: dict = {"thread_id": None}
 
     def notify(content: str) -> None:
-        if webhook is None:
+        if not dw:
             return
         try:
             if state["thread_id"] is None:
-                msg = webhook.send(content[:1989], thread_name=skip_key[:99], wait=True)
-                state["thread_id"] = msg.channel.id
+                msg = discord_webhook_post(
+                    dw, content[:1989], wait=True, thread_name=skip_key[:99]
+                )
+                state["thread_id"] = msg["channel_id"] if msg else None
             else:
-                webhook.send(content[:1989], thread=Object(id=state["thread_id"]))
+                discord_webhook_post(dw, content[:1989], thread_id=state["thread_id"])
         except Exception as e:
             logger.warning(f"[migration] {skip_key}: discord notify failed: {e}")
 

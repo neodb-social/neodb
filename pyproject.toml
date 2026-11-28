@@ -16,7 +16,6 @@ dependencies = [
     "django-environ>=0.11.2",
     "django-hijack>=3.7.0",
     "django-jsonform @ git+https://github.com/alphatownsman/django-jsonform",
-    "django-maintenance-mode",
     "django-ninja>=1.3.0",
     "django-polymorphic>=4.11.2",
     "django-redis",
@@ -30,7 +29,6 @@ dependencies = [
     "filetype>=1.2.0",
     "gunicorn>=23.0.0",
     "httpx>=0.27.2",
-    "igdb-api-v4>=0.3.3",
     "lingua-language-detector>=2.2.0",
     "listparser>=0.20",
     "lxml>=6.1.1",
@@ -49,7 +47,6 @@ dependencies = [
     "deepmerge>=2.0",
     "django-typed-models @ git+https://github.com/alphatownsman/django-typed-models.git",
     "atproto>=0.0.55",
-    "discord-py>=2.4.0",
     "libsass>=0.23.0",
     "certifi==2026.10.19",
     "deepl>=1.22.0",
@@ -85,21 +82,19 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pre-commit>=4.0.1",
+    "prek>=0.5.12",
     "django-stubs>=5.1.2",
     "djlint>=1.46.4",
     "types-lxml>=2026.2.16",
     "pyrefly>=1.4.0",
-    "ruff>=0.15.22,<0.16",
+    "ruff>=0.17.6,<0.18",
     "pytest-django>=4.11.1",
     "coverage>=7.13.5",
     "pytest-cov>=6.0.0",
     "mkdocs-material>=9.5.42,<10",
     "pytest-xdist>=3.8.0",
     # takahe test deps
-    "mock>=5.1.0",
     "pytest-asyncio>=0.23.6",
-    "pytest-dotenv>=0.5.2",
     "pytest-httpx>=0.30.0",
 ]
 

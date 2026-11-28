@@ -25,8 +25,10 @@ Install [uv](https://docs.astral.sh/uv/) package manager, packages and pre-commi
 curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync
 . .venv/bin/activate
-pre-commit install
+prek install
 ```
+
+[prek](https://prek.j178.dev/) runs the hooks in `.pre-commit-config.yaml`. To run all of them by hand: `prek run -a`.
 
 To develop Takahē, install requirements(-dev) and pre-commit hooks for `takahe` project as well, preferably using a different virtual environment.
 

@@ -20,8 +20,7 @@
     <title>{{ site_name }} - {% trans "Register" %} / {% trans "Login" %}</title>
     {% include "common_libs.html" %}
     <meta name="robots" content="noindex">
-    <script src="{{ cdn_url }}/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
-    <script src="{{ cdn_url }}/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <script src="{{ cdn_url }}/npm/@tarekraafat/autocomplete.js@10.2.11/dist/autoComplete.min.js"></script>
     <script async
             defer
             src="{{ cdn_url }}/npm/altcha@3.2.1/dist/main/altcha.min.js"
@@ -359,13 +358,14 @@
         $('#email').val(localStorage.email);
       } else {
         // restore cookie from previous versions
-        var d = Cookies.get('mastodon_domain');
+        var d = (document.cookie.match(/(?:^|; )mastodon_domain=([^;]*)/) || [])[1];
         if (d) {
+          d = decodeURIComponent(d);
           if (d == "@") {
             method = "email";
           } else {
             method = "mastodon";
-            $('#domain').val(Cookies.get('mastodon_domain'));
+            $('#domain').val(d);
           }
         }
       }

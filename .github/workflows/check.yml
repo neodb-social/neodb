@@ -22,9 +22,9 @@ jobs:
         uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
-      - name: Run pre-commit check
+      - name: Run pre-commit hooks
         run: |
-          SKIP=pyrefly uvx --with pre_commit pre-commit run -a --show-diff-on-failure
+          SKIP=pyrefly uvx prek run -a --show-diff-on-failure
 
   doc:
     runs-on: ubuntu-latest

@@ -1,9 +1,9 @@
 import logging
 import re
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import openpyxl
-import pytz
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from markdownify import markdownify as md
@@ -20,7 +20,7 @@ from users.models import Task
 
 logger = logging.getLogger(__name__)
 
-_tz_sh = pytz.timezone("Asia/Shanghai")
+_tz_sh = ZoneInfo("Asia/Shanghai")
 
 
 def _fetch_remote_image(url, identity_id):

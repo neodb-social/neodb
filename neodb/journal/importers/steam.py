@@ -2,7 +2,6 @@ import logging
 from datetime import datetime, timedelta
 from typing import Iterable, List, Optional, TypedDict
 
-import pytz
 import requests
 from django.utils import timezone
 from requests import RequestException
@@ -228,9 +227,7 @@ class SteamImporter(BaseImporter):
                     shelf_type=raw_mark["shelf_type"],
                     visibility=self.metadata["visibility"],
                     created_time=raw_mark["created_time"].replace(
-                        tzinfo=pytz.timezone(
-                            timezone.get_current_timezone_name()
-                        )  # use estimated tz from django
+                        tzinfo=timezone.get_current_timezone()  # use estimated tz from django
                     ),
                 )
                 logger.debug(f"Mark updated: {mark}")

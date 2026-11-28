@@ -7,8 +7,8 @@ from contextlib import ExitStack
 from datetime import timedelta
 from random import randint
 from urllib.parse import urlparse
+from zoneinfo import ZoneInfo
 
-import pytz
 from django.utils.dateparse import parse_datetime
 from django.utils.translation import gettext as _
 from markdownify import markdownify as md
@@ -28,7 +28,7 @@ from .base import (
 
 logger = logging.getLogger(__name__)
 
-_tz_sh = pytz.timezone("Asia/Shanghai")
+_tz_sh = ZoneInfo("Asia/Shanghai")
 
 _LETTERBOXD_HOSTS = ("letterboxd.com", "boxd.it")
 
