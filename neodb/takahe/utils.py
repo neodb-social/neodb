@@ -795,12 +795,15 @@ class Takahe:
         content: File,
         mimetype: str,
         description: str = "",
+        poster: bytes | None = None,
     ) -> PostAttachment:
         """Store non-image media (audio/video) as a post attachment.
 
-        Mirrors the non-image branch of takahe's Mastodon media upload: no
-        thumbnail or blurhash, and the stored name keeps an extension so the
-        web server serves it with the right Content-Type.
+        Mirrors the non-image branch of takahe's Mastodon media upload, and the
+        stored name keeps an extension so the web server serves it with the
+        right Content-Type. Without a poster there is no thumbnail or blurhash;
+        a poster image (a still of a video) gives the size, a thumbnail and a
+        blurhash, as for an image.
         """
         attachment = PostAttachment.objects.create(
             mimetype=mimetype,
@@ -808,6 +811,15 @@ class Takahe:
             state="fetched",
             author_id=author_pk,
         )
+        if poster:
+            with Image.open(io.BytesIO(poster)) as img:
+                attachment.width, attachment.height = img.size
+                still = img.convert("RGB")
+            still.thumbnail((400, 225), resample=Image.Resampling.BILINEAR)
+            thumb = io.BytesIO()
+            still.save(thumb, format="webp")
+            attachment.thumbnail = ImageFile(thumb, name="image.webp")
+            attachment.blurhash = blurhash_encode(still, x_components=4, y_components=4)
         if "." not in filename.rsplit("/", 1)[-1]:
             filename += mimetypes.guess_extension(mimetype) or ""
         attachment.file.save(filename or "attachment", content)  # pyrefly: ignore[missing-attribute]

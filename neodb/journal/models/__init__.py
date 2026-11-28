@@ -46,6 +46,7 @@ from .utils import (
     update_journal_for_merged_item,
     update_journal_for_merged_item_task,
 )
+from .wrapped import WrappedDeck
 
 __all__ = [
     "Article",
@@ -93,4 +94,5 @@ __all__ = [
     "reset_journal_visibility_for_user",
     "update_journal_for_merged_item",
     "update_journal_for_merged_item_task",
+    "WrappedDeck",
 ]

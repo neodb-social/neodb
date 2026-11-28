@@ -1,131 +1,445 @@
 {% load static %}
 {% load i18n %}
-{% load l10n %}
-{% load humanize %}
-{% load mastodon %}
-{% load thumb %}
-{% load collection %}
-{% load user_actions %}
 {% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}" class="classic-page">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ identity.display_name }} - {{ year }} {% trans "annual summary" %}</title>
+    <title>{{ site_name }} - {{ identity.display_name }} - {% blocktranslate %}{{ year }} annual summary{% endblocktranslate %}</title>
+    {% if og %}
+      <meta property="og:title" content="{{ og.title }}">
+      <meta name="description"
+            property="og:description"
+            content="{{ og.description }}">
+      <meta property="og:type" content="website">
+      <meta property="og:url" content="{{ og.url }}">
+      <meta property="og:image" content="{{ og.image }}">
+      <meta property="og:site_name" content="{{ site_name }}">
+      <meta name="twitter:card" content="summary">
+      <meta name="fediverse:creator" content="@{{ identity.full_handle }}">
+      <link rel="canonical" href="{{ og.url }}">
+    {% endif %}
     {% include "common_libs.html" %}
-    <script src="{% static 'js/roughviz.umd.js' %}"></script>
-    <script src="{{ cdn_url }}/npm/save-svg-as-png@1.4.17/lib/saveSvgAsPng.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Borel&family=Bruno+Ace&family=Caveat&family=Coming+Soon&family=Covered+By+Your+Grace&family=Fondamento&family=Indie+Flower&family=Neucha&family=VT323&display=swap"
-          rel="stylesheet">
   </head>
-  <body>
-    {% include "_header.html" %}
-    <main>
-      <div class="grid__main">
-        <span class="action">
-          <span>
-            <a onclick="restyle()" title="{% trans 'Another style' %}"><i class="fa-solid fa-shuffle"></i></a>
-          </span>
-          <span>
-            <a hx-get="{% url 'journal:wrapped_share' year %}"
-               hx-target="body"
-               hx-swap="beforeend"
-               title="{% trans 'Share' %}"><i class="fa-solid fa-share-from-square"></i></a>
-          </span>
-          <span>
-            <a onclick="saveSvgAsPng($('#viz0').children('svg')[0], '{{ year }}-wrapped.png');"
-               title="{% trans 'Download' %}"><i class="fa-solid fa-download"></i></a>
-          </span>
+  <body class="wr-body">
+    <div class="wr-stage"
+         id="wr-stage"
+         data-cdn="{{ cdn_url }}"
+         data-export="{% static 'js/wrapped/export.js' %}">
+      {% csrf_token %}
+      <header class="wr-bar">
+        <a class="wr-logo" href="{% url 'common:home' %}">
+          <img src="{{ site_logo }}" alt="{{ site_name }}" />
+        </a>
+        <span class="wr-who">
+          <a href="{{ identity.url }}">
+            <img class="wr-av" src="{{ identity.avatar }}" alt="" />
+            <span>{{ identity.display_name }}</span>
+          </a>
+          <span class="wr-yr" id="wr-yr">{{ year }}</span>
         </span>
-        <h5>{{ year }} {% trans "annual summary" %}</h5>
-        <div id="viz0"></div>
-        {{ by_cat|json_script:"cat-data" }}
-        {{ monthly|json_script:"mon-data" }}
-        {{ data|json_script:"data" }}
-        <script>
-          fontFamily = "Neucha, cursive";
-          var cats = JSON.parse(document.getElementById('cat-data').textContent);
-          var data = JSON.parse(document.getElementById('data').textContent);
-          var opts = {
-            title: "@{{ identity.user.mastodon.handle | default:identity.full_handle }} - {{ year }}",
-            element: '#viz0',
-            font: 1,
-            data: data,
-            labels: "Month",
-            highlight: "#666",
-            stackColorMapping:   {
-              '📚': '#B4D2A5',
-              '🎬': '#7CBDFE',
-              '📺': '#FED37C',
-              '💿': '#FEA36D',
-              '🎮': '#C5A290',
-              '🎙️': '#9D6AB0',
-              '🎭': '#FE7C7C',
-              'x': '#FDDB23',
-            },
-            roughness: 1,
-            fillStyle: 'solid',
-            margin: { top: 80, left: 20, right: 20, bottom: 80 },
-            stroke: 1,
-            padding: 0.2,
-            color: 'red',
-            strokeWidth: 1,
-            axisStrokeWidth: 1,
-            innerStrokeWidth: 1,
-            fillWeight: 1,
-            axisRoughness: 1,
-            yLabel:"",
-          };
-          var viz0 = new roughViz.StackedBar(opts);
-          viz0.setTitle = function(title) {
-            $('#viz0').children('svg').css("background-color", "#fbfcfc").css("border-radius", "1rem");
-
-            viz0.svg.append("text")
-            .attr("x", viz0.width / 2)
-            .attr("y", 0 - viz0.margin.top / 2)
-            .attr("class", "title")
-            .attr("text-anchor", "middle")
-            .style("font-size", 20)
-            .style("font-weight", "bold")
-            .style("font-family", fontFamily)
-            .style("color", "#666")
-            .text(title);
-
-            viz0.svg.append("text")
-            .attr("x", viz0.width / 2)
-            .attr("y", viz0.height + viz0.margin.top -30)
-            .attr("class", "title")
-            .attr("text-anchor", "middle")
-            .style("font-size", 20)
-            .style("font-family", fontFamily)
-            .style("color", "#000")
-            .text(cats);
-
-            viz0.svg.append("text")
-            .attr("x", viz0.width)
-            .attr("y", viz0.height + viz0.margin.top -10)
-            .attr("class", "title")
-            .attr("text-anchor", "end")
-            .style("font-size", 10)
-            .style("font-family", fontFamily)
-            .style("color", "#666")
-            .text("{{ identity.profile_uri }}");
-          };
-          viz0.boundRedraw();
-          function restyle() {
-            var font = ["Neucha", "Borel", "Bruno Ace", "Caveat", "Coming Soon", "Covered By Your Grace", "Fondamento", "Indie Flower", "VT323"][Math.floor(Math.random() * 9)];
-            fontFamily = font + ", cursive";
-            opts.roughness = Math.random()*4;
-            opts.fillStyle = ["hachure", "solid", "zigzag", "cross-hatch", "dashed", "zigzag-line"][Math.floor(Math.random() * 6)];
-            viz0.redraw(opts);
-          }
-        </script>
-      </div>
-      {% include "_sidebar.html" with show_profile=1 %}
+        <span class="wr-baract">
+          <button class="wr-pill wr-sound"
+                  type="button"
+                  id="wr-sound"
+                  aria-pressed="false"
+                  aria-label="{% trans 'Background music' %}"
+                  hidden>
+            <i class="fa-solid fa-volume-xmark"></i> <span id="wr-soundtext"></span>
+          </button>
+          {% if is_owner %}
+            {% if not pending %}
+              <button class="wr-pill" type="button" id="wr-edit">
+                <i class="fa-solid fa-pen"></i> <span>{% trans "Edit" %}</span>
+              </button>
+              <button class="wr-pill primary" type="button" id="wr-publish">
+                <i class="fa-solid fa-share-from-square"></i> <span>{% trans "Share" %}</span>
+              </button>
+            {% endif %}
+          {% elif request.user.is_authenticated %}
+            <a class="wr-pill"
+               href="{% url 'journal:wrapped' year %}"
+               title="{% trans 'Your own year' %}">
+              <img class="wr-av" src="{{ request.user.avatar }}" alt="" />
+              <span>{% trans "Your own year" %}</span>
+            </a>
+          {% else %}
+            <a class="wr-pill"
+               href="{% url 'users:login' %}?next={{ request.get_full_path | urlencode }}">{% trans "Sign in" %}</a>
+          {% endif %}
+        </span>
+      </header>
+      <h1 class="wr-sr">
+        {% blocktranslate with name=identity.display_name %}{{ name }}’s {{ year }}, card by card{% endblocktranslate %}
+      </h1>
+      {% if pending %}
+        {# the deck is not made yet: a blank card where the deck goes, and the step that makes it #}
+        <div class="wr-pending" id="wr-pending">
+          {% if pending.state == "open" %}
+            <p>
+              {% if pending.auto %}
+                {% blocktranslate with date=pending.last|date:"DATE_FORMAT" auto=pending.auto_last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. They update every night until {{ auto }}, and you can update them by hand until {{ date }}; after that they stay as they are.{% endblocktranslate %}
+              {% else %}
+                {% blocktranslate with date=pending.last|date:"DATE_FORMAT" %}Make your {{ year }} cards any day until {{ date }}. You can update them by hand until then; after that they stay as they are.{% endblocktranslate %}
+              {% endif %}
+            </p>
+            <form method="post" action="{% url 'journal:wrapped_generate' year %}">
+              {% csrf_token %}
+              <button class="wr-pill primary" type="submit">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> {% blocktranslate %}Make my {{ year }} cards{% endblocktranslate %}
+              </button>
+            </form>
+          {% elif pending.state == "early" %}
+            <p>
+              {% blocktranslate with date=pending.start|date:"DATE_FORMAT" %}You can make your {{ year }} cards from {{ date }}.{% endblocktranslate %}
+            </p>
+          {% else %}
+            <p>
+              {% blocktranslate with date=pending.last|date:"DATE_FORMAT" %}The {{ year }} cards could be made until {{ date }}.{% endblocktranslate %}
+            </p>
+          {% endif %}
+        </div>
+      {% endif %}
+      <p class="wr-empty" id="wr-empty" hidden></p>
+      {% if not pending %}
+        <div class="wr-prog" id="wr-dots"></div>
+        <div class="deck" id="wr-deck"></div>
+        <div class="wr-ctl">
+          <button class="wr-round"
+                  type="button"
+                  id="wr-prev"
+                  aria-label="{% trans 'Previous card' %}">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <button class="wr-round" type="button" id="wr-play"></button>
+          <button class="wr-round"
+                  type="button"
+                  id="wr-next"
+                  aria-label="{% trans 'Next card' %}">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+        <div class="wr-end" id="wr-end" hidden></div>
+      {% endif %}
+      <p class="wr-nowplaying" id="wr-nowplaying" hidden></p>
+      <button class="wr-cue" type="button" id="wr-cue">
+        <span id="wr-cuetext"></span> <i class="fa-solid fa-chevron-down"></i>
+      </button>
+    </div>
+    <main class="wrapped-page" id="wr-year">
+      <section>
+        <p class="dc-eyebrow">{% blocktranslate %}{{ year }} annual summary{% endblocktranslate %}</p>
+        <h2 class="wr-h">{% trans "The whole year" %}</h2>
+        <div class="wr-stats" id="wr-stats"></div>
+      </section>
+      <section>
+        <div class="cat-filter"
+             id="wr-bymcat"
+             role="group"
+             aria-label="{% trans 'Filter by shelf' %}"></div>
+        <div class="piles" id="wr-piles"></div>
+      </section>
+      <section class="wr-cta" id="wr-cta">
+      </section>
     </main>
+    {% if is_owner and not pending %}
+      <dialog id="wr-editdlg" aria-labelledby="wr-editdlg-title">
+        <article>
+          <header>
+            <strong id="wr-editdlg-title">{% trans "Edit the deck" %}</strong>
+            <button class="dc-nav"
+                    type="button"
+                    data-close
+                    aria-label="{% trans 'Close' %}">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </header>
+          <div class="wr-vis">
+            {# the switch picks the audience whose deck the owner edits, as each audience sees its own cards #}
+            <p class="wr-vislabel" id="wr-vislabel">
+              {% trans "Choose an audience to edit the cards it sees when it opens your annual summary" %}
+            </p>
+            <span class="wr-sizes pagevis" role="group" aria-labelledby="wr-vislabel">
+              <button data-pv="public" type="button">
+                <i class="fa-solid fa-globe"></i> {% trans "Public" %}
+              </button>
+              <button data-pv="followers" type="button">
+                <i class="fa-solid fa-user-group"></i> {% trans "Followers" %}
+              </button>
+              <button data-pv="me" type="button">
+                <i class="fa-solid fa-lock"></i> {% trans "Only me" %}
+              </button>
+            </span>
+            <p class="dc-fine" id="wr-visnote"></p>
+          </div>
+          <div class="wr-music">
+            <label class="wr-vislabel" for="wr-music">{% trans "Background music" %}</label>
+            <div class="wr-musicrow">
+              <select id="wr-music"></select>
+              <button class="dc-btn outline"
+                      type="button"
+                      id="wr-music-try"
+                      aria-label="{% trans 'Play' %}">
+                <i class="fa-solid fa-play"></i>
+              </button>
+            </div>
+            <p class="dc-fine" id="wr-music-credit"></p>
+          </div>
+          {# the cards show the data the last update stored: every night to 2 January, by hand to the end of February #}
+          <div class="wr-update">
+            <p class="wr-vislabel">{% trans "Card data" %}</p>
+            {% if update.open %}
+              <p class="dc-fine">
+                {% blocktranslate with time=update.time|date:"DATETIME_FORMAT" %}Updated {{ time }}. The cards show your marks and the site's numbers as they were then.{% endblocktranslate %}
+              </p>
+              <p class="dc-fine">
+                {% if update.auto %}
+                  {% blocktranslate with auto=update.auto_last|date:"DATE_FORMAT" date=update.last|date:"DATE_FORMAT" %}The site updates them every night until {{ auto }}; you can also update them now, until {{ date }}.{% endblocktranslate %}
+                {% else %}
+                  {% blocktranslate with date=update.last|date:"DATE_FORMAT" %}You can update them now, until {{ date }}; after that they stay as they are.{% endblocktranslate %}
+                {% endif %}
+              </p>
+              <button class="dc-btn outline" type="button" id="wr-update-now">
+                <i class="fa-solid fa-rotate"></i> <span>{% trans "Update now" %}</span>
+              </button>
+            {% else %}
+              <p class="dc-fine">
+                {% blocktranslate with time=update.time|date:"DATETIME_FORMAT" %}Last updated {{ time }}. Updates ended with February, so the cards stay as they are.{% endblocktranslate %}
+              </p>
+            {% endif %}
+          </div>
+          <div class="wr-toolbar">
+            <span class="dc-sub" id="wr-decksub"></span>
+            <span class="wr-actions">
+              <button class="dc-btn outline" type="button" id="wr-suggest">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> {% trans "Suggested cards" %}
+              </button>
+              <button class="dc-btn outline" type="button" id="wr-hideall">
+                <i class="fa-solid fa-eye-slash"></i> {% trans "Hide all" %}
+              </button>
+              <button class="dc-btn outline" type="button" id="wr-resetorder" hidden>
+                <i class="fa-solid fa-rotate-left"></i> {% trans "Reset order" %}
+              </button>
+              <button class="dc-btn outline" type="button" id="wr-arrange"></button>
+            </span>
+          </div>
+          <p class="dc-fine" id="wr-hubsub"></p>
+          <div class="hub" id="wr-hub"></div>
+        </article>
+      </dialog>
+    {% endif %}
+    {% if is_owner and not pending %}
+      <dialog id="wr-mkdlg" aria-labelledby="wr-mkdlg-title">
+        <article>
+          <header>
+            <strong id="wr-mkdlg-title">{% trans "Make a card" %}</strong>
+            <button class="dc-nav"
+                    type="button"
+                    data-close
+                    aria-label="{% trans 'Close' %}">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </header>
+          <div class="mk">
+            <div>
+              <span class="wr-sizes mk-mode" id="wr-mk-mode">
+                <button type="button" data-mode="list" class="on">{% trans "A list of titles" %}</button>
+                <button type="button" data-mode="words">{% trans "One title, your words" %}</button>
+              </span>
+              <div id="wr-mk-words" hidden>
+                <input type="search"
+                       id="wr-mk-wq"
+                       placeholder="{% trans 'Search the titles you wrote about' %}"
+                       aria-label="{% trans 'Search the titles you wrote about' %}"
+                       autocomplete="off">
+                <div class="results" id="wr-mk-works"></div>
+                <div class="mk-texts" id="wr-mk-texts"></div>
+              </div>
+              <div id="wr-mk-list">
+                <label for="wr-mk-src">{% trans "Items from" %}</label>
+                <select id="wr-mk-src"></select>
+                <div class="mk-col" id="wr-mk-col" hidden></div>
+                <div id="wr-mk-pick" hidden>
+                  <input type="search"
+                         id="wr-mk-q"
+                         placeholder="{% trans 'Search your titles, or paste a link' %}"
+                         aria-label="{% trans 'Search your titles, or paste a link' %}"
+                         autocomplete="off">
+                  <div class="results" id="wr-mk-res"></div>
+                  <div class="picked" id="wr-mk-picked"></div>
+                </div>
+                <label id="wr-mk-nlabel">{% trans "How many" %}</label>
+                <div class="seg" id="wr-mk-n"></div>
+                <p class="dc-fine" id="wr-mk-nhint" hidden></p>
+                <label for="wr-mk-title">{% trans "Title" %}</label>
+                <input type="text" id="wr-mk-title" maxlength="120">
+              </div>
+              <label for="wr-mk-cap">{% trans "Small heading" %}</label>
+              <input type="text" id="wr-mk-cap" maxlength="80">
+              <p class="dc-fine" id="wr-mk-aud" hidden></p>
+              <div class="wr-actions">
+                <button class="dc-btn primary" type="button" id="wr-mk-save">
+                  <i class="fa-solid fa-check"></i> {% trans "Add to the deck" %}
+                </button>
+                <button class="dc-btn outline" type="button" data-close>{% trans "Cancel" %}</button>
+              </div>
+              <p class="dc-fine"
+                 id="wr-mk-colnote"
+                 hidden>{% trans "A card from a collection follows the collection as it changes." %}</p>
+            </div>
+            <div class="preview" id="wr-mk-preview"></div>
+          </div>
+        </article>
+      </dialog>
+      <dialog id="wr-pubdlg" aria-labelledby="wr-pubdlg-title">
+        <article>
+          <header>
+            <strong id="wr-pubdlg-title">{% trans "Share" %}</strong>
+            <button class="dc-nav"
+                    type="button"
+                    data-close
+                    aria-label="{% trans 'Close' %}">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </header>
+          <div class="pub-tabs" id="wr-pub-tabs">
+            <button class="on" data-t="post" type="button">{% trans "Post cards" %}</button>
+            <button data-t="qr" type="button">{% trans "QR code" %}</button>
+            <button data-t="page" type="button">{% trans "Page link" %}</button>
+            <button data-t="dl" type="button">{% trans "Download" %}</button>
+          </div>
+          <div id="wr-pub-post">
+            <fieldset class="wr-mode">
+              <label>
+                <input type="radio" name="wr-mode" value="images" checked>
+                {% trans "Images, up to four cards" %}
+              </label>
+              <label>
+                <input type="radio" name="wr-mode" value="video">
+                {% trans "Video of all cards" %}
+              </label>
+            </fieldset>
+            <p class="dc-fine" id="wr-pub-imgnote">{% trans "Pick up to four cards for one post." %}</p>
+            <p class="dc-fine" id="wr-pub-vidnote" hidden>
+              {% trans "ZIP, GIF and video can take a minute and may need the latest Chrome. Keep this page open until it is done." %}
+            </p>
+            <p class="dc-fine" id="wr-pub-mp4note" hidden>
+              {% trans "This browser cannot make an MP4 video, so it can post images only." %}
+            </p>
+            <label class="wr-withmusic" id="wr-pub-musicrow" hidden>
+              <input type="checkbox" id="wr-pub-music" checked>
+              {% trans "Include the background music in the video" %}
+            </label>
+            <div class="pick-grid" id="wr-pub-grid"></div>
+            <textarea id="wr-pub-note" rows="3" aria-label="{% trans 'Text of the post' %}"></textarea>
+            <fieldset>
+              <label>
+                <input type="radio" name="wr-vis" value="0" checked>
+                {% trans "Public" %}
+              </label>
+              <label>
+                <input type="radio" name="wr-vis" value="1">
+                {% trans "Followers only" %}
+              </label>
+              <label>
+                <input type="radio" name="wr-vis" value="2">
+                {% trans "Mentioned only" %}
+              </label>
+            </fieldset>
+            {% if request.user.mastodon or request.user.bluesky %}
+              <label for="wr-pub-xpost"
+                     title="{% trans 'Crosspost to your connected social networks' %}">
+                <input type="checkbox"
+                       id="wr-pub-xpost"
+                       {% if request.user.preference.mastodon_default_repost %}checked{% endif %}>
+                {% trans "Crosspost" %}
+              </label>
+            {% endif %}
+            <progress id="wr-pub-prog" value="0" max="1" hidden></progress>
+            <div class="wr-actions">
+              <button class="dc-btn primary" type="button" id="wr-pub-send">
+                <i class="fa-solid fa-paper-plane"></i> {% trans "Publish" %}
+              </button>
+            </div>
+          </div>
+          <div id="wr-pub-page" hidden>
+            {% if not identity.anonymous_viewable %}
+              <p class="wr-warn">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                {% trans "People who are not signed in cannot open this page, because your profile is hidden from them." %}
+                <a href="{% url 'users:preferences' %}">{% trans "Change it in Settings" %}</a>
+              </p>
+            {% endif %}
+            <p class="wr-vislabel">{% trans "Who can see these cards" %}</p>
+            <ul class="wr-auds" id="wr-auds">
+            </ul>
+            <p>
+              <button class="dc-btn outline" type="button" id="wr-pub-edit">
+                <i class="fa-solid fa-pen"></i> {% trans "Change in Edit" %}
+              </button>
+            </p>
+            <div class="wr-linkrow" role="group">
+              <input type="text"
+                     id="wr-pub-link"
+                     readonly
+                     aria-label="{% trans 'Link to the page' %}">
+              <button class="dc-btn primary" type="button" id="wr-pub-copy">
+                <i class="fa-solid fa-link"></i> {% trans "Copy link" %}
+              </button>
+            </div>
+          </div>
+          <div id="wr-pub-qr" hidden>
+            <div class="qr-tab">
+              <div class="qr-prev" id="wr-qr-prev"></div>
+              <div>
+                <p class="wr-warn" id="wr-qr-warn" hidden></p>
+                <div class="qr-btns">
+                  <button class="dc-btn outline" type="button" id="wr-qr-share" hidden>
+                    <i class="fa-solid fa-share-nodes"></i> {% trans "Share…" %}
+                  </button>
+                  <button class="dc-btn outline" type="button" id="wr-qr-copy" hidden>
+                    <i class="fa-solid fa-copy"></i> {% trans "Copy image" %}
+                  </button>
+                  <button class="dc-btn outline" type="button" id="wr-qr-dl">
+                    <i class="fa-solid fa-download"></i> {% trans "Download PNG" %}
+                  </button>
+                </div>
+                <p class="dc-fine" id="wr-qr-link"></p>
+              </div>
+            </div>
+          </div>
+          <div id="wr-pub-dl" hidden>
+            <p>{% trans "Every card on the page as PNG files in one ZIP, or as a slideshow in a GIF or an MP4 video." %}</p>
+            <p class="dc-fine">{% trans "ZIP, GIF and video can take a minute and may need the latest Chrome. Keep this page open until it is done." %}</p>
+            <div class="wr-actions">
+              <button class="dc-btn primary" type="button" id="wr-dl-zip">
+                <i class="fa-solid fa-file-zipper"></i> {% trans "All cards as ZIP" %}
+              </button>
+              <button class="dc-btn outline" type="button" id="wr-dl-gif">
+                <i class="fa-solid fa-film"></i> {% trans "GIF slideshow" %}
+              </button>
+              <button class="dc-btn outline" type="button" id="wr-dl-mp4">
+                <i class="fa-solid fa-video"></i> {% trans "MP4 video" %}
+              </button>
+            </div>
+            <label class="wr-withmusic" id="wr-dl-musicrow" hidden>
+              <input type="checkbox" id="wr-dl-music" checked>
+              {% trans "Include the background music in the video" %}
+            </label>
+            <p class="dc-fine" id="wr-mp4-note" hidden>
+              {% trans "This browser cannot make an MP4 video. The GIF works everywhere." %}
+            </p>
+            <progress id="wr-gif-prog" value="0" max="1" hidden></progress>
+            <div class="gif-out" id="wr-gif-out"></div>
+          </div>
+        </article>
+      </dialog>
+    {% endif %}
     {% include "_footer.html" %}
+    {{ payload|json_script:"wr-data" }}
+    <script src="{% static 'js/wrapped/stats.js' %}"></script>
+    <script src="{% static 'js/wrapped/trend.js' %}"></script>
+    <script src="{% static 'js/wrapped/deck.js' %}"></script>
   </body>
 </html>

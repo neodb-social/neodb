@@ -6,6 +6,7 @@ from auditlog.context import set_actor
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import prefetch_related_objects
+from rq import get_current_job
 from rq.job import Job
 
 from catalog.common import (
@@ -164,6 +165,21 @@ def mark_fetch_completed(url):
     )
 
 
+def fetch_job_id(url: str) -> str:
+    """The id of the queued fetch job for this url, so a caller can follow its state."""
+    return "fetch_" + hashlib.md5(url.encode()).hexdigest()
+
+
+def fetch_job(url: str) -> Job | None:
+    """The queued, running or recently finished fetch job for this url, if rq still has it."""
+    try:
+        return Job.fetch(
+            id=fetch_job_id(url), connection=django_rq.get_connection("fetch")
+        )
+    except Exception:
+        return None
+
+
 def enqueue_fetch(url, is_refetch, user=None):
     # SSRF gate. ``_fetch_task`` will eventually issue HTTP to ``url`` via
     # ``SiteManager``; reject malformed, non-HTTP(S), and private/loopback
@@ -174,11 +190,10 @@ def enqueue_fetch(url, is_refetch, user=None):
     if not is_valid_url(url):
         logger.warning(f"enqueue_fetch: refusing unsafe URL {url!r}")
         return None
-    job_id = "fetch_" + hashlib.md5(url.encode()).hexdigest()
-    in_progress = False
+    job_id = fetch_job_id(url)
+    job = fetch_job(url)
     try:
-        job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
-        in_progress = job.get_status() in ["queued", "started"]
+        in_progress = bool(job) and job.get_status() in ["queued", "started"]
     except Exception:
         in_progress = False
     if not in_progress:
@@ -194,6 +209,15 @@ def _record_fetch_failure(url: str) -> None:
         "catalog.fetch.failure",
         attributes={"domain": url_domain(url)},
     )
+
+
+def _mark_fetch_failed() -> None:
+    """Note on the running job that a site was found but reading it failed (a timeout, say), so a caller
+    may try again; the job still returns "-", which is all that older callers read."""
+    job = get_current_job()
+    if job:
+        job.meta["fetch_failed"] = True
+        job.save_meta()
 
 
 def record_search_failure(site: str, reason: str) -> None:
@@ -231,13 +255,16 @@ def _fetch_task(url: str, is_refetch: bool, user_pk: int | None):
             else:
                 logger.error(f"fetch {url} failed")
                 _record_fetch_failure(url)
+                _mark_fetch_failed()
         except DownloadError as e:
             # Expected external failure -> warn, not a Sentry error. Censored
             # responses are already skipped.
             if e.response_type != RESPONSE_CENSORSHIP:
                 logger.warning(f"fetch {url} error", extra={"exception": e})
             _record_fetch_failure(url)
+            _mark_fetch_failed()
         except Exception as e:
             logger.error(f"parse {url} error {e}", extra={"exception": e})
             _record_fetch_failure(url)
+            _mark_fetch_failed()
         return "-"

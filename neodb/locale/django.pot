@@ -6894,21 +6894,8 @@ msgstr ""
 msgid "Tag list"
 msgstr ""
 
-#: journal/templates/wrapped.html:30
-msgid "Another style"
-msgstr ""
-
 #: journal/templates/wrapped.html:40
 msgid "Download"
-msgstr ""
-
-#: journal/templates/wrapped_share.html:16
-msgid "Share annual summary"
-msgstr ""
-
-#: journal/templates/wrapped_share.html:29
-#, python-format
-msgid "#%(year)s_report"
 msgstr ""
 
 #: journal/views/article.py:191 journal/views/review.py:180
@@ -7076,10 +7063,6 @@ msgstr ""
 
 #: journal/views/tag.py:83
 msgid "Tag updated."
-msgstr ""
-
-#: journal/views/wrapped.py:161
-msgid "Summary posted to timeline."
 msgstr ""
 
 #: mastodon/models/common.py:31
@@ -10038,4 +10021,1990 @@ msgstr ""
 #: social/templates/_event_post.html:18
 msgctxt "a post in a group"
 msgid "posted in"
+msgstr ""
+
+#: journal/templates/wrapped.html:9 journal/templates/wrapped.html:18
+#, python-format
+msgid "%(year)s annual summary"
+msgstr ""
+
+#: journal/templates/wrapped.html:20
+#, python-format
+msgid "%(name)s’s %(year)s, card by card"
+msgstr ""
+
+#: journal/templates/wrapped.html:32
+msgid "Replay"
+msgstr ""
+
+#: journal/templates/wrapped.html:44 journal/templates/wrapped.html:198
+msgid "Only me"
+msgstr ""
+
+#: journal/templates/wrapped.html:54
+msgid "Previous card"
+msgstr ""
+
+#: journal/templates/wrapped.html:60
+msgid "Next card"
+msgstr ""
+
+#: journal/templates/wrapped.html:75
+msgid "Reset order"
+msgstr ""
+
+#: journal/templates/wrapped.html:97
+msgid "Filter by shelf"
+msgstr ""
+
+#: journal/templates/wrapped.html:105
+msgid "Make a card"
+msgstr ""
+
+#: journal/templates/wrapped.html:115
+msgid "Items from"
+msgstr ""
+
+#: journal/templates/wrapped.html:121 journal/templates/wrapped.html:122
+msgid "Search your titles, or paste a link"
+msgstr ""
+
+#: journal/templates/wrapped.html:127
+msgid "How many"
+msgstr ""
+
+#: journal/templates/wrapped.html:132
+msgid "Small heading"
+msgstr ""
+
+#: journal/templates/wrapped.html:136
+msgid "Add to the deck"
+msgstr ""
+
+#: journal/templates/wrapped.html:140
+msgid "A card from a collection follows the collection as it changes."
+msgstr ""
+
+#: journal/templates/wrapped.html:158
+msgid "Post cards"
+msgstr ""
+
+#: journal/templates/wrapped.html:159
+msgid "Page link"
+msgstr ""
+
+#: journal/templates/wrapped.html:163
+msgid "Pick up to four cards for one post."
+msgstr ""
+
+#: journal/templates/wrapped.html:165
+msgid "Text of the post"
+msgstr ""
+
+#: journal/templates/wrapped.html:173
+msgid "Followers only"
+msgstr ""
+
+#: journal/templates/wrapped.html:177
+msgid "Mentioned only"
+msgstr ""
+
+#: journal/templates/wrapped.html:206
+msgid "Link to the page"
+msgstr ""
+
+#: journal/templates/wrapped.html:219
+msgid "GIF slideshow"
+msgstr ""
+
+#: journal/views/wrapped.py:117 journal/views/wrapped.py:120
+#: journal/views/wrapped.py:124
+msgid "This summary is not shared."
+msgstr ""
+
+#: journal/views/wrapped.py:258
+#, python-brace-format
+msgid "{year} annual summary card"
+msgstr ""
+
+#: journal/wrapped_text.py:12
+msgid "Movies"
+msgstr ""
+
+#: journal/wrapped_text.py:18
+msgid "books"
+msgstr ""
+
+#: journal/wrapped_text.py:19
+msgid "movies"
+msgstr ""
+
+#: journal/wrapped_text.py:20
+msgid "music"
+msgstr ""
+
+#: journal/wrapped_text.py:21
+msgid "games"
+msgstr ""
+
+#: journal/wrapped_text.py:22
+msgid "podcasts"
+msgstr ""
+
+#: journal/wrapped_text.py:23
+msgid "performances"
+msgstr ""
+
+#: journal/wrapped_text.py:31
+msgid "Everything that got five stars this year"
+msgstr ""
+
+#: journal/wrapped_text.py:32
+msgid "Your best-rated titles of the year"
+msgstr ""
+
+#: journal/wrapped_text.py:33
+msgid "Your highest marks, then the titles others rate highest"
+msgstr ""
+
+#: journal/wrapped_text.py:34
+msgid "No stars given this year, so here are the titles others rate highest"
+msgstr ""
+
+#. Translators: {nth} is an English ordinal such as tenth; use {n}, the number, instead
+#: journal/wrapped_text.py:38
+#, no-python-brace-format
+msgid "your {nth} year on NeoDB"
+msgstr ""
+
+#: journal/wrapped_text.py:39
+#, python-brace-format
+msgid ", with marks back to {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:40
+msgid "no earlier years in the data"
+msgstr ""
+
+#: journal/wrapped_text.py:41
+msgid "Your biggest year ever"
+msgstr ""
+
+#: journal/wrapped_text.py:42
+#, python-brace-format
+msgid "Your biggest year in {n} years"
+msgstr ""
+
+#: journal/wrapped_text.py:43
+#, python-brace-format
+msgid "Your biggest year since {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:44
+#, python-brace-format
+msgid "More {shelf} than in any year since {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:46
+#, no-python-format, python-brace-format
+msgid "Up {pct}% on {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:48
+#, no-python-format, python-brace-format
+msgid "{pct}% above your average"
+msgstr ""
+
+#: journal/wrapped_text.py:49
+msgid "A steady year"
+msgstr ""
+
+#: journal/wrapped_text.py:50
+msgid "Most titles"
+msgstr ""
+
+#: journal/wrapped_text.py:51
+#, python-brace-format
+msgid "Most {shelf}"
+msgstr ""
+
+#: journal/wrapped_text.py:52
+msgid "Most five-star titles"
+msgstr ""
+
+#: journal/wrapped_text.py:53
+msgid "Most days finishing a title"
+msgstr ""
+
+#: journal/wrapped_text.py:54
+msgid "Highest average rating"
+msgstr ""
+
+#: journal/wrapped_text.py:55
+msgid "Year over year"
+msgstr ""
+
+#: journal/wrapped_text.py:56
+#, python-brace-format
+msgid ", {n} of them on one bulk day"
+msgstr ""
+
+#: journal/wrapped_text.py:57
+#, python-brace-format
+msgid "; {n} a year on average since {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:58
+#, python-brace-format
+msgid "earlier years, {start} to {end}"
+msgstr ""
+
+#: journal/wrapped_text.py:59
+msgid "earlier years"
+msgstr ""
+
+#: journal/wrapped_text.py:60
+#, python-brace-format
+msgid "{year} by shelf"
+msgstr ""
+
+#: journal/wrapped_text.py:61
+msgid "first year, not compared"
+msgstr ""
+
+#: journal/wrapped_text.py:62
+msgid "bulk days, left out"
+msgstr ""
+
+#: journal/wrapped_text.py:63
+msgid "the full year"
+msgstr ""
+
+#: journal/wrapped_text.py:64
+msgid "Personal bests"
+msgstr ""
+
+#: journal/wrapped_text.py:65
+#, python-brace-format
+msgid "no record broken against the years since {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:66
+msgid "Three records"
+msgstr ""
+
+#: journal/wrapped_text.py:67
+msgid "Four records"
+msgstr ""
+
+#: journal/wrapped_text.py:68
+msgid "Five records"
+msgstr ""
+
+#: journal/wrapped_text.py:69
+#, python-brace-format
+msgid "set this year, against {start} to {end} of every year since {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:70
+#, python-brace-format
+msgid "set this year, against every year since {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:71
+msgid "Titles marked in bulk on one day are left out."
+msgstr ""
+
+#: journal/wrapped_text.py:72
+#, python-brace-format
+msgid "previous best {value} in {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:73
+msgid "How your taste moved"
+msgstr ""
+
+#: journal/wrapped_text.py:74
+#, python-brace-format
+msgid "no shelf moved by 15 points; the largest change is {shelf}, {n} points"
+msgstr ""
+
+#: journal/wrapped_text.py:75
+msgid "too few titles to compare"
+msgstr ""
+
+#: journal/wrapped_text.py:77
+#, no-python-format, python-brace-format
+msgid "{shelf} went from {a}% to {b}%"
+msgstr ""
+
+#: journal/wrapped_text.py:78
+#, python-brace-format
+msgid "of your year so far, against your average since {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:79
+#, python-brace-format
+msgid "of your year, against your average since {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:80
+#, python-brace-format
+msgid "{shelf}, share of each year"
+msgstr ""
+
+#: journal/wrapped_text.py:81
+msgid "other shelves"
+msgstr ""
+
+#: journal/wrapped_text.py:82
+#, python-brace-format
+msgid "Nothing was finished in {year}."
+msgstr ""
+
+#: journal/wrapped_text.py:83
+msgid "Nothing finished this year yet. Mark a title as complete and the cards fill in."
+msgstr ""
+
+#: journal/wrapped_text.py:84
+msgid "Nothing finished this year yet."
+msgstr ""
+
+#: journal/wrapped_text.py:85
+#, python-brace-format
+msgid "{n} titles marked on {date} are left out"
+msgstr ""
+
+#: journal/wrapped_text.py:86
+msgid "Intro"
+msgstr ""
+
+#: journal/wrapped_text.py:87
+msgid "Annual summary"
+msgstr ""
+
+#: journal/wrapped_text.py:88
+#, python-brace-format
+msgid "{name}’s year"
+msgstr ""
+
+#: journal/wrapped_text.py:89
+msgid "Your year in covers"
+msgstr ""
+
+#: journal/wrapped_text.py:90
+#, python-brace-format
+msgid "only in a small year, under {n} titles"
+msgstr ""
+
+#: journal/wrapped_text.py:91
+msgid "Shelves"
+msgstr ""
+
+#: journal/wrapped_text.py:92
+msgid "Completed"
+msgstr ""
+
+#: journal/wrapped_text.py:93
+#, python-brace-format
+msgid "{n} marked in bulk on {date}"
+msgstr ""
+
+#: journal/wrapped_text.py:94
+#, python-brace-format
+msgid "{n} dropped, not counted"
+msgstr ""
+
+#: journal/wrapped_text.py:95
+msgid "Busiest month"
+msgstr ""
+
+#: journal/wrapped_text.py:96
+#, python-brace-format
+msgid "{month} is only {x} times the monthly mean, under 1.6"
+msgstr ""
+
+#: journal/wrapped_text.py:97
+#, python-brace-format
+msgid "{n} titles in one month; {month} was the quietest with {quiet}"
+msgstr ""
+
+#: journal/wrapped_text.py:99
+#, no-python-format, python-brace-format
+msgid "{n} read this year, {pct}% of everything"
+msgstr ""
+
+#: journal/wrapped_text.py:101
+#, no-python-format, python-brace-format
+msgid "{n} watched this year, {pct}% of everything"
+msgstr ""
+
+#: journal/wrapped_text.py:103
+#, no-python-format, python-brace-format
+msgid "{n} listened to this year, {pct}% of everything"
+msgstr ""
+
+#: journal/wrapped_text.py:105
+#, no-python-format, python-brace-format
+msgid "{n} played this year, {pct}% of everything"
+msgstr ""
+
+#: journal/wrapped_text.py:107
+#, no-python-format, python-brace-format
+msgid "{n} followed this year, {pct}% of everything"
+msgstr ""
+
+#: journal/wrapped_text.py:109
+#, no-python-format, python-brace-format
+msgid "{n} attended this year, {pct}% of everything"
+msgstr ""
+
+#: journal/wrapped_text.py:110
+msgid "Biggest shelf"
+msgstr ""
+
+#: journal/wrapped_text.py:112
+#, no-python-format, python-brace-format
+msgid "the biggest shelf holds only {pct}%"
+msgstr ""
+
+#: journal/wrapped_text.py:113
+msgid "only one shelf this year"
+msgstr ""
+
+#: journal/wrapped_text.py:114
+msgid "Highest mark"
+msgstr ""
+
+#: journal/wrapped_text.py:115
+msgid "Five stars"
+msgstr ""
+
+#: journal/wrapped_text.py:116
+msgid "Top shelf"
+msgstr ""
+
+#: journal/wrapped_text.py:117
+msgid "fewer than three rated titles"
+msgstr ""
+
+#: journal/wrapped_text.py:118
+#, python-brace-format
+msgid "{n} titles got five stars; here are ten, the ones you wrote about first"
+msgstr ""
+
+#: journal/wrapped_text.py:119
+#, python-brace-format
+msgid "{n} favourites"
+msgstr ""
+
+#: journal/wrapped_text.py:120
+msgid "The highest marks"
+msgstr ""
+
+#: journal/wrapped_text.py:121
+msgid "Quiet favourite"
+msgstr ""
+
+#: journal/wrapped_text.py:122
+msgid "your favourites all have 20 or more marks here"
+msgstr ""
+
+#: journal/wrapped_text.py:123
+msgid "no top mark to pick from"
+msgstr ""
+
+#: journal/wrapped_text.py:124
+msgid "The quiet favourite"
+msgstr ""
+
+#: journal/wrapped_text.py:125
+#, python-brace-format
+msgid "from you, and no other mark on {site}."
+msgstr ""
+
+#: journal/wrapped_text.py:126
+#, python-brace-format
+msgid "{site} {value}"
+msgstr ""
+
+#: journal/wrapped_text.py:128
+msgid "Where you disagreed"
+msgstr ""
+
+#: journal/wrapped_text.py:130
+msgid "Against the grain"
+msgstr ""
+
+#: journal/wrapped_text.py:131
+msgid "The disappointment"
+msgstr ""
+
+#: journal/wrapped_text.py:132
+msgid "The surprise"
+msgstr ""
+
+#: journal/wrapped_text.py:133
+#, python-brace-format
+msgid "with something logged; the longest run, outlined, was {n} days, {start} to {end}"
+msgstr ""
+
+#: journal/wrapped_text.py:134
+msgid "with something logged; never two days in a row"
+msgstr ""
+
+#: journal/wrapped_text.py:135
+msgid "Active days"
+msgstr ""
+
+#: journal/wrapped_text.py:136
+msgid "Streak"
+msgstr ""
+
+#: journal/wrapped_text.py:137
+#, python-brace-format
+msgid "{days} with something logged, under {min}, and the longest run is {run}"
+msgstr ""
+
+#: journal/wrapped_text.py:138
+#, python-brace-format
+msgid "something logged every day, {start} to {end}"
+msgstr ""
+
+#: journal/wrapped_text.py:139
+#, python-brace-format
+msgid "a title finished every day, {start} to {end}"
+msgstr ""
+
+#: journal/wrapped_text.py:140
+msgid "Longest streak"
+msgstr ""
+
+#: journal/wrapped_text.py:141
+#, python-brace-format
+msgid "{start} to {end}"
+msgstr ""
+
+#: journal/wrapped_text.py:142
+msgid "a title finished"
+msgstr ""
+
+#: journal/wrapped_text.py:143
+msgid "progress or a comment"
+msgstr ""
+
+#: journal/wrapped_text.py:144
+msgid "nothing logged"
+msgstr ""
+
+#: journal/wrapped_text.py:145
+msgid "the run"
+msgstr ""
+
+#: journal/wrapped_text.py:146
+msgid "Week by week"
+msgstr ""
+
+#: journal/wrapped_text.py:147
+#, python-brace-format
+msgid "{n} titles is too few for a week strip"
+msgstr ""
+
+#: journal/wrapped_text.py:148
+#, python-brace-format
+msgid "{n} in a week"
+msgstr ""
+
+#: journal/wrapped_text.py:149
+#, python-brace-format
+msgid "the busiest week began {date}; {n} weeks of the year had a title finished"
+msgstr ""
+
+#: journal/wrapped_text.py:150
+msgid "titles finished that week"
+msgstr ""
+
+#: journal/wrapped_text.py:151
+msgid "the busiest week"
+msgstr ""
+
+#: journal/wrapped_text.py:152
+msgid "The era"
+msgstr ""
+
+#: journal/wrapped_text.py:153
+msgid "fewer than ten titles with a release year"
+msgstr ""
+
+#: journal/wrapped_text.py:154
+msgid "release years span under 15 years"
+msgstr ""
+
+#: journal/wrapped_text.py:156
+#, no-python-format, python-brace-format
+msgid "{pct}% of titles come from one decade"
+msgstr ""
+
+#: journal/wrapped_text.py:157
+msgid "Mostly new"
+msgstr ""
+
+#: journal/wrapped_text.py:159
+#, no-python-format, python-brace-format
+msgid "{pct}% came out in the last three years; the oldest title is from {year}."
+msgstr ""
+
+#: journal/wrapped_text.py:160
+msgid "The era you lived in"
+msgstr ""
+
+#: journal/wrapped_text.py:161
+msgid "older"
+msgstr ""
+
+#: journal/wrapped_text.py:162
+msgid "the last three years"
+msgstr ""
+
+#: journal/wrapped_text.py:164
+#, no-python-format, python-brace-format
+msgid "Only {pct}% came out in the last three years. Half your year was made before {year}."
+msgstr ""
+
+#: journal/wrapped_text.py:166
+#, no-python-format, python-brace-format
+msgid "Half your year was made before {year}, and {pct}% came out in the last three years."
+msgstr ""
+
+#: journal/wrapped_text.py:167
+#, python-brace-format
+msgid "{d}s"
+msgstr ""
+
+#: journal/wrapped_text.py:168
+#, python-brace-format
+msgid "the decade of {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:169
+msgid "titles by decade of release"
+msgstr ""
+
+#: journal/wrapped_text.py:171
+msgid "nobody appears on two titles"
+msgstr ""
+
+#: journal/wrapped_text.py:172
+msgid "On repeat"
+msgstr ""
+
+#: journal/wrapped_text.py:173
+msgid "People you kept returning to"
+msgstr ""
+
+#: journal/wrapped_text.py:174
+msgid "fewer than three followed members with visible marks this year"
+msgstr ""
+
+#: journal/wrapped_text.py:175
+msgid "In good company"
+msgstr ""
+
+#: journal/wrapped_text.py:176
+msgid "no title shared with two or more followed members"
+msgstr ""
+
+#: journal/wrapped_text.py:177
+#, python-brace-format
+msgid "You and {n}"
+msgstr ""
+
+#: journal/wrapped_text.py:178
+msgid "people you follow finished the same title this year"
+msgstr ""
+
+#: journal/wrapped_text.py:179
+msgid "Taste twin"
+msgstr ""
+
+#: journal/wrapped_text.py:180
+msgid "nobody you follow shares two titles with you"
+msgstr ""
+
+#: journal/wrapped_text.py:181
+#, python-brace-format
+msgid "@{handle} shares {n} of your titles this year, more than anyone you follow"
+msgstr ""
+
+#: journal/wrapped_text.py:182
+msgid "Who got there first"
+msgstr ""
+
+#: journal/wrapped_text.py:183
+msgid "too few shared titles with dates"
+msgstr ""
+
+#: journal/wrapped_text.py:184
+msgid "times someone you follow finished a title after you did"
+msgstr ""
+
+#: journal/wrapped_text.py:185
+msgid "Most followed"
+msgstr ""
+
+#: journal/wrapped_text.py:186
+#, python-brace-format
+msgid "{n} of them came after you"
+msgstr ""
+
+#: journal/wrapped_text.py:187
+msgid "times you came after someone,"
+msgstr ""
+
+#: journal/wrapped_text.py:188
+msgid "times you came after someone"
+msgstr ""
+
+#: journal/wrapped_text.py:189
+#, python-brace-format
+msgid "most often after {name}"
+msgstr ""
+
+#: journal/wrapped_text.py:190
+msgid "Off the beaten path"
+msgstr ""
+
+#: journal/wrapped_text.py:191
+msgid "no mark counts"
+msgstr ""
+
+#: journal/wrapped_text.py:193
+#, no-python-format, python-brace-format
+msgid "only {pct}% of titles have fewer than ten marks"
+msgstr ""
+
+#: journal/wrapped_text.py:194
+#, python-brace-format
+msgid "of your year is titles fewer than ten people on {site} have marked"
+msgstr ""
+
+#: journal/wrapped_text.py:195
+msgid "With the crowd, against it"
+msgstr ""
+
+#: journal/wrapped_text.py:196
+msgid "no rated title with a known distribution"
+msgstr ""
+
+#: journal/wrapped_text.py:197
+msgid "Both sides"
+msgstr ""
+
+#: journal/wrapped_text.py:198
+msgid "With the crowd"
+msgstr ""
+
+#: journal/wrapped_text.py:199
+msgid "How others rated it"
+msgstr ""
+
+#: journal/wrapped_text.py:201
+#, no-python-format, python-brace-format
+msgid "your five stars put you with the {pct}%"
+msgstr ""
+
+#: journal/wrapped_text.py:202
+msgid "who gave it five too"
+msgstr ""
+
+#: journal/wrapped_text.py:204
+#, no-python-format, python-brace-format
+msgid "you rated it higher than {pct}%"
+msgstr ""
+
+#: journal/wrapped_text.py:205
+#, python-brace-format
+msgid "of the {n} people who rated it"
+msgstr ""
+
+#: journal/wrapped_text.py:206
+msgid "Early"
+msgstr ""
+
+#: journal/wrapped_text.py:207
+msgid "no title where you were among the first ten markers, or the data is not public"
+msgstr ""
+
+#: journal/wrapped_text.py:208
+#, python-brace-format
+msgid "#{n}"
+msgstr ""
+
+#: journal/wrapped_text.py:209
+#, python-brace-format
+msgid "to mark it on {site}"
+msgstr ""
+
+#: journal/wrapped_text.py:210
+#, python-brace-format
+msgid "{n} people have marked it since."
+msgstr ""
+
+#: journal/wrapped_text.py:211
+msgid "Part of the year"
+msgstr ""
+
+#: journal/wrapped_text.py:212
+msgid "the instance totals are not ready yet"
+msgstr ""
+
+#: journal/wrapped_text.py:213
+msgid "finished this title, more than any other"
+msgstr ""
+
+#: journal/wrapped_text.py:214
+#, python-brace-format
+msgid "{site} in {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:215
+msgid "The most finished"
+msgstr ""
+
+#: journal/wrapped_text.py:216
+msgid "You were one of them."
+msgstr ""
+
+#: journal/wrapped_text.py:217
+msgid "Maybe next year."
+msgstr ""
+
+#: journal/wrapped_text.py:218
+msgid "Ahead of the pack"
+msgstr ""
+
+#: journal/wrapped_text.py:219
+msgid "below the median this year, so this card stays quiet"
+msgstr ""
+
+#: journal/wrapped_text.py:220
+msgid "the instance percentile is not ready yet"
+msgstr ""
+
+#: journal/wrapped_text.py:221
+#, python-brace-format
+msgid "of active members on {site} completed fewer titles than you this year"
+msgstr ""
+
+#: journal/wrapped_text.py:222
+msgid "the median member"
+msgstr ""
+
+#: journal/wrapped_text.py:224
+msgid "fewer titles"
+msgstr ""
+
+#: journal/wrapped_text.py:225
+msgid "more"
+msgstr ""
+
+#: journal/wrapped_text.py:226
+msgid "Versus last year"
+msgstr ""
+
+#: journal/wrapped_text.py:227
+msgid "Year over year takes its place with five or more years of marks"
+msgstr ""
+
+#: journal/wrapped_text.py:228
+msgid "no previous year on record"
+msgstr ""
+
+#: journal/wrapped_text.py:229
+#, python-brace-format
+msgid "{last}: {a}. {year}: {b}."
+msgstr ""
+
+#: journal/wrapped_text.py:230
+#, python-brace-format
+msgid "{year}, in each shelf's colour"
+msgstr ""
+
+#: journal/wrapped_text.py:231
+#, python-brace-format
+msgid "{date}, {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:232
+#, python-brace-format
+msgid "{n} years"
+msgstr ""
+
+#: journal/wrapped_text.py:233
+msgid "over a year"
+msgstr ""
+
+#: journal/wrapped_text.py:234
+#, python-brace-format
+msgid "{n} months"
+msgstr ""
+
+#: journal/wrapped_text.py:235
+msgid "Finally"
+msgstr ""
+
+#: journal/wrapped_text.py:236
+msgid "wishlist history is not in this data"
+msgstr ""
+
+#: journal/wrapped_text.py:237
+#, python-brace-format
+msgid "only {n} came off the wishlist, and none waited a year"
+msgstr ""
+
+#: journal/wrapped_text.py:238
+msgid "nothing came off the wishlist this year"
+msgstr ""
+
+#: journal/wrapped_text.py:239
+#, python-brace-format
+msgid "came off your wishlist this year; the longest wait was {wait}"
+msgstr ""
+
+#: journal/wrapped_text.py:240
+msgid "Waited longest"
+msgstr ""
+
+#: journal/wrapped_text.py:241
+#, python-brace-format
+msgid "saved {date}"
+msgstr ""
+
+#: journal/wrapped_text.py:242
+#, python-brace-format
+msgid "finished {date}"
+msgstr ""
+
+#: journal/wrapped_text.py:243
+msgid "Unfinished business"
+msgstr ""
+
+#: journal/wrapped_text.py:244
+msgid "Finally takes its place; show both if you like"
+msgstr ""
+
+#: journal/wrapped_text.py:245
+msgid "wishlist history is not public here"
+msgstr ""
+
+#: journal/wrapped_text.py:246
+msgid "on your wishlist, and counting"
+msgstr ""
+
+#: journal/wrapped_text.py:247
+#, python-brace-format
+msgid "Maybe {year}."
+msgstr ""
+
+#: journal/wrapped_text.py:248
+msgid "Marathon day"
+msgstr ""
+
+#: journal/wrapped_text.py:249
+msgid "no day with four or more marks"
+msgstr ""
+
+#: journal/wrapped_text.py:250
+#, python-brace-format
+msgid "{n} titles marked in one day"
+msgstr ""
+
+#: journal/wrapped_text.py:251
+#, python-brace-format
+msgid "and {n} more"
+msgstr ""
+
+#: journal/wrapped_text.py:252
+msgid "Your tags"
+msgstr ""
+
+#: journal/wrapped_text.py:254
+msgid "no tags on this year's titles"
+msgstr ""
+
+#: journal/wrapped_text.py:255
+#, python-brace-format
+msgid "on {n} titles; you used “{tag}” most"
+msgstr ""
+
+#: journal/wrapped_text.py:256
+#, python-brace-format
+msgid "tagged “{tag}”"
+msgstr ""
+
+#: journal/wrapped_text.py:257
+msgid "The essay"
+msgstr ""
+
+#: journal/wrapped_text.py:258
+#, python-brace-format
+msgid "longest comment is {n} characters, under 140, and no review this year"
+msgstr ""
+
+#: journal/wrapped_text.py:259
+msgid "no comments or reviews this year"
+msgstr ""
+
+#: journal/wrapped_text.py:260
+msgid "In your own words"
+msgstr ""
+
+#: journal/wrapped_text.py:261
+#, python-brace-format
+msgid "{n} characters, your longest review of {count}"
+msgstr ""
+
+#: journal/wrapped_text.py:262
+#, python-brace-format
+msgid "{n} words, your longest review of {count}"
+msgstr ""
+
+#: journal/wrapped_text.py:263
+#, python-brace-format
+msgid "{n} characters, your longest review"
+msgstr ""
+
+#: journal/wrapped_text.py:264
+#, python-brace-format
+msgid "{n} words, your longest review"
+msgstr ""
+
+#: journal/wrapped_text.py:265
+#, python-brace-format
+msgid "{n} characters, your longest comment"
+msgstr ""
+
+#: journal/wrapped_text.py:266
+msgid "Outro"
+msgstr ""
+
+#: journal/wrapped_text.py:267
+msgid "See you in"
+msgstr ""
+
+#: journal/wrapped_text.py:268
+msgid "Could not save the deck; try again"
+msgstr ""
+
+#: journal/wrapped_text.py:269
+msgid "My pick"
+msgstr ""
+
+#: journal/wrapped_text.py:270
+msgid "fewer than three items can be shown, so the collection may have changed"
+msgstr ""
+
+#: journal/wrapped_text.py:277
+msgid "hidden by you"
+msgstr ""
+
+#: journal/wrapped_text.py:278
+#, python-brace-format
+msgid "not shown in a small year, under {n} titles"
+msgstr ""
+
+#: journal/wrapped_text.py:279
+msgid "could not be drawn from this data"
+msgstr ""
+
+#: journal/wrapped_text.py:282
+msgid "Post this card"
+msgstr ""
+
+#: journal/wrapped_text.py:283
+msgid "Download PNG"
+msgstr ""
+
+#: journal/wrapped_text.py:284
+msgid "Hide this card"
+msgstr ""
+
+#: journal/wrapped_text.py:285
+msgid "always first"
+msgstr ""
+
+#: journal/wrapped_text.py:286
+msgid "always last"
+msgstr ""
+
+#: journal/wrapped_text.py:287
+#, python-brace-format
+msgid "Move {name} earlier"
+msgstr ""
+
+#: journal/wrapped_text.py:288
+#, python-brace-format
+msgid "Move {name} later"
+msgstr ""
+
+#: journal/wrapped_text.py:291
+msgid "Drag a card to a new place, or use its arrows. The intro stays first and the outro last."
+msgstr ""
+
+#: journal/wrapped_text.py:293
+#, python-brace-format
+msgid "{shown} cards shown, {hidden} hidden."
+msgstr ""
+
+#: journal/wrapped_text.py:294
+msgid "Done"
+msgstr ""
+
+#: journal/wrapped_text.py:295
+msgid "Arrange"
+msgstr ""
+
+#: journal/wrapped_text.py:298
+msgid "Back to the default order"
+msgstr ""
+
+#: journal/wrapped_text.py:303
+msgid "titles completed"
+msgstr ""
+
+#: journal/wrapped_text.py:304
+msgid "days with something logged"
+msgstr ""
+
+#: journal/wrapped_text.py:306
+msgid "longest streak"
+msgstr ""
+
+#: journal/wrapped_text.py:308
+msgid "Highest marks this year"
+msgstr ""
+
+#: journal/wrapped_text.py:309
+msgid "Every shelf"
+msgstr ""
+
+#: journal/wrapped_text.py:310
+msgid "Your collections"
+msgstr ""
+
+#: journal/wrapped_text.py:311
+msgid "No collections of your own yet"
+msgstr ""
+
+#: journal/wrapped_text.py:312
+msgid "Collections you liked"
+msgstr ""
+
+#: journal/wrapped_text.py:313
+msgid "No liked collections yet"
+msgstr ""
+
+#: journal/wrapped_text.py:314
+msgid "Your own list"
+msgstr ""
+
+#: journal/wrapped_text.py:315
+msgid "Pick titles or paste links"
+msgstr ""
+
+#: journal/wrapped_text.py:316
+msgid "The card shows the first ones in the collection's order and follows it when it changes."
+msgstr ""
+
+#: journal/wrapped_text.py:317
+msgid "Pick from it by hand"
+msgstr ""
+
+#: journal/wrapped_text.py:318
+#, python-brace-format
+msgid "My {n} picks of {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:319
+#, python-brace-format
+msgid "My top picks of {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:320
+msgid "Chosen by hand"
+msgstr ""
+
+#: journal/wrapped_text.py:321
+#, python-brace-format
+msgid "From @{owner}'s collection"
+msgstr ""
+
+#: journal/wrapped_text.py:322
+msgid "From my collection"
+msgstr ""
+
+#: journal/wrapped_text.py:323
+#, python-brace-format
+msgid "My top {n} titles of {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:324
+#, python-brace-format
+msgid "My top {n} {shelf} of {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:325
+msgid "Highest marks"
+msgstr ""
+
+#: journal/wrapped_text.py:326
+#, python-brace-format
+msgid "{n} picked. A card takes 3 to 10; drag to reorder."
+msgstr ""
+
+#: journal/wrapped_text.py:327
+msgid "from a link"
+msgstr ""
+
+#: journal/wrapped_text.py:328
+msgid "from a collection"
+msgstr ""
+
+#: journal/wrapped_text.py:329
+#, python-brace-format
+msgid "marked {date}"
+msgstr ""
+
+#: journal/wrapped_text.py:330
+#, python-brace-format
+msgid "not marked in {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:332
+msgid "A card takes at most ten titles"
+msgstr ""
+
+#: journal/wrapped_text.py:333
+msgid "Already on the list"
+msgstr ""
+
+#: journal/wrapped_text.py:334
+msgid "From the link"
+msgstr ""
+
+#: journal/wrapped_text.py:335
+#, python-brace-format
+msgid "{site} is fetching this page; still checking…"
+msgstr ""
+
+#: journal/wrapped_text.py:336
+#, python-brace-format
+msgid "Looking it up on {site}…"
+msgstr ""
+
+#: journal/wrapped_text.py:337
+msgid "Still not ready after a minute. Try the link again later."
+msgstr ""
+
+#: journal/wrapped_text.py:338
+msgid "This site is not one this instance can read. Try a link to the title on a supported site, or to its page here."
+msgstr ""
+
+#: journal/wrapped_text.py:339
+#, python-brace-format
+msgid "No title at this link on {site}."
+msgstr ""
+
+#: journal/wrapped_text.py:340
+msgid "Too many lookups just now. Try again in a moment."
+msgstr ""
+
+#: journal/wrapped_text.py:341
+msgid "That does not look like a full link."
+msgstr ""
+
+#: journal/wrapped_text.py:342
+msgid "The lookup failed. Try again."
+msgstr ""
+
+#: journal/wrapped_text.py:343
+#, python-brace-format
+msgid "in “{title}”"
+msgstr ""
+
+#: journal/wrapped_text.py:344
+#, python-brace-format
+msgid "Marked in {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:345
+msgid "In your collections"
+msgstr ""
+
+#: journal/wrapped_text.py:346
+msgid "Nothing found"
+msgstr ""
+
+#: journal/wrapped_text.py:347
+msgid "Paste a link to add a title from anywhere."
+msgstr ""
+
+#: journal/wrapped_text.py:348
+msgid "A card needs at least three titles"
+msgstr ""
+
+#: journal/wrapped_text.py:349
+msgid "Card added to the deck"
+msgstr ""
+
+#: journal/wrapped_text.py:350
+msgid "Pick at least one card"
+msgstr ""
+
+#: journal/wrapped_text.py:351
+#, python-brace-format
+msgid "Posting failed: {error}"
+msgstr ""
+
+#: journal/wrapped_text.py:353
+#, python-brace-format
+msgid "Export failed: {error}"
+msgstr ""
+
+#: journal/wrapped_text.py:354
+msgid "GIF preview"
+msgstr ""
+
+#: journal/wrapped_text.py:355
+#, python-brace-format
+msgid "{size} MB, {n} frames at 2.5 s"
+msgstr ""
+
+#: journal/wrapped_text.py:361
+#, python-brace-format
+msgid "marks go back {n} year; the trend cards need five"
+msgid_plural "marks go back {n} years; the trend cards need five"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:362
+#, python-brace-format
+msgid "{n} earlier year since {year} with ten or more titles; the trend cards need three"
+msgid_plural "{n} earlier years since {year} with ten or more titles; the trend cards need three"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:363
+#, python-brace-format
+msgid "{n} title so far"
+msgid_plural "{n} titles so far"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:364
+#, python-brace-format
+msgid "{n} title this year"
+msgid_plural "{n} titles this year"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:365
+#, python-brace-format
+msgid "{n} title"
+msgid_plural "{n} titles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:366
+#, python-brace-format
+msgid "only {n} record broken, under three"
+msgid_plural "only {n} records broken, under three"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:367
+#, python-brace-format
+msgid "{n} titles marked on {date} and {days} other bulk day are left out"
+msgid_plural "{n} titles marked on {date} and {days} other bulk days are left out"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:368
+#, python-brace-format
+msgid "{titles} across {n} shelf, so far"
+msgid_plural "{titles} across {n} shelves, so far"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:369
+#, python-brace-format
+msgid "{titles} across {n} shelf"
+msgid_plural "{titles} across {n} shelves"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:370
+#, python-brace-format
+msgid "the busiest month has {n} title, under {min}"
+msgid_plural "the busiest month has {n} titles, under {min}"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:371
+#, python-brace-format
+msgid "from you, and only {n} other mark on {site}."
+msgid_plural "from you, and only {n} other marks on {site}."
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:372
+#, python-brace-format
+msgid "{n} day"
+msgid_plural "{n} days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:373
+#, python-brace-format
+msgid "{n} day finishing a title"
+msgid_plural "{n} days finishing a title"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:374
+#, python-brace-format
+msgid "{n} day of progress and comments"
+msgid_plural "{n} days of progress and comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:375
+#, python-brace-format
+msgid "{n} mark"
+msgid_plural "{n} marks"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:376
+#, python-brace-format
+msgid "{n} person"
+msgid_plural "{n} people"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:377
+#, python-brace-format
+msgid "only {n} title tagged, under {min}"
+msgid_plural "only {n} titles tagged, under {min}"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:378
+#, python-brace-format
+msgid "{n} tag"
+msgid_plural "{n} tags"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:382
+#, python-brace-format
+msgid "busiest month, {n} title"
+msgid_plural "busiest month, {n} titles"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:383
+#, python-brace-format
+msgid "Your collection, {n} item."
+msgid_plural "Your collection, {n} items."
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:384
+#, python-brace-format
+msgid "A collection by @{owner}, {n} item."
+msgid_plural "A collection by @{owner}, {n} items."
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:385
+#, python-brace-format
+msgid "Posted {n} card to your timeline"
+msgid_plural "Posted {n} cards to your timeline"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/templates/wrapped.html:37 journal/templates/wrapped.html:39
+msgid "Your own year"
+msgstr ""
+
+#: journal/templates/wrapped.html:43
+msgid "Sign in"
+msgstr ""
+
+#: journal/templates/wrapped.html:76
+msgid "The whole year"
+msgstr ""
+
+#: journal/templates/wrapped.html:104 journal/wrapped_text.py:414
+msgid "Edit the deck"
+msgstr ""
+
+#: journal/wrapped_text.py:406
+msgid "Year"
+msgstr ""
+
+#: journal/wrapped_text.py:407
+msgid "Copy link to this card"
+msgstr ""
+
+#: journal/wrapped_text.py:409
+msgid "Pause"
+msgstr ""
+
+#: journal/wrapped_text.py:412
+msgid "See the whole year"
+msgstr ""
+
+#: journal/wrapped_text.py:413
+#, python-brace-format
+msgid "Make your own {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:416
+#, python-brace-format
+msgid "{month}, {titles}"
+msgstr ""
+
+#: journal/wrapped_text.py:337
+msgid "Show this card"
+msgstr ""
+
+#: journal/templates/wrapped.html:107 journal/templates/wrapped.html:108
+#: journal/templates/wrapped.html:226 journal/templates/wrapped.html:227
+msgid "Who can see these cards"
+msgstr ""
+
+#: journal/wrapped_text.py:332
+msgid "Hide or show a card with its eye, change the order with Arrange, or make your own with the plus."
+msgstr ""
+
+#: journal/wrapped_text.py:310
+msgid "Anyone with the link sees the cards; counts use public entries only."
+msgstr ""
+
+#: journal/wrapped_text.py:313
+msgid "Only your followers see the cards; counts include followers-only entries."
+msgstr ""
+
+#: journal/wrapped_text.py:316
+msgid "Only you see the cards; counts include private entries."
+msgstr ""
+
+#: journal/templates/wrapped.html:255
+msgid "Every card on the page as PNG files in one ZIP, or as a slideshow in a GIF or an MP4 video."
+msgstr ""
+
+#: journal/templates/wrapped.html:258
+msgid "All cards as ZIP"
+msgstr ""
+
+#: journal/templates/wrapped.html:264
+msgid "MP4 video"
+msgstr ""
+
+#: journal/templates/wrapped.html:258
+msgid "This browser cannot make an MP4 video, so it can post images only."
+msgstr ""
+
+#: journal/templates/wrapped.html:268
+msgid "This browser cannot make an MP4 video. The GIF works everywhere."
+msgstr ""
+
+#: journal/wrapped_text.py:402
+#, python-brace-format
+msgid "{size} MB, {n} files"
+msgstr ""
+
+#: journal/wrapped_text.py:403
+#, python-brace-format
+msgid "{size} MB, {seconds} s video"
+msgstr ""
+
+#: journal/templates/wrapped.html:129 journal/wrapped_text.py:406
+msgid "Suggested cards"
+msgstr ""
+
+#: journal/templates/wrapped.html:132
+msgid "Hide all"
+msgstr ""
+
+#: journal/templates/wrapped.html:212
+msgid "Images, up to four cards"
+msgstr ""
+
+#: journal/templates/wrapped.html:216
+msgid "Video of all cards"
+msgstr ""
+
+#: journal/templates/wrapped.html:250
+msgid "People who are not signed in cannot open this page, because your profile is hidden from them."
+msgstr ""
+
+#: journal/templates/wrapped.html:251
+msgid "Change it in Settings"
+msgstr ""
+
+#: journal/templates/wrapped.html:259
+msgid "Change in Edit"
+msgstr ""
+
+#: journal/wrapped_text.py:403
+msgid "Every card is hidden from this audience"
+msgstr ""
+
+#: journal/wrapped_text.py:404
+msgid "Back to the suggested cards"
+msgstr ""
+
+#: journal/wrapped_text.py:405
+msgid "Not shared"
+msgstr ""
+
+#: journal/wrapped_text.py:407
+msgid "Posted the video to your timeline"
+msgstr ""
+
+#: journal/wrapped_text.py:424
+#, python-brace-format
+msgid "{n} card"
+msgid_plural "{n} cards"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:408
+msgid "This audience sees no cards. Show some in Edit."
+msgstr ""
+
+#: journal/templates/wrapped.html:34 journal/templates/wrapped.html:135
+msgid "Background music"
+msgstr ""
+
+#: journal/wrapped_text.py:409
+msgid "Sound on"
+msgstr ""
+
+#: journal/wrapped_text.py:410
+msgid "Sound off"
+msgstr ""
+
+#: journal/wrapped_text.py:411
+msgid "No music"
+msgstr ""
+
+#: journal/wrapped_text.py:412
+msgid "The music could not be loaded"
+msgstr ""
+
+#: journal/templates/wrapped.html:182
+msgid "A list of titles"
+msgstr ""
+
+#: journal/templates/wrapped.html:183 journal/wrapped_text.py:416
+msgid "One title, your words"
+msgstr ""
+
+#: journal/templates/wrapped.html:188 journal/templates/wrapped.html:189
+msgid "Search the titles you wrote about"
+msgstr ""
+
+#: journal/wrapped_text.py:413
+msgid "My comment"
+msgstr ""
+
+#: journal/wrapped_text.py:414
+msgid "My note"
+msgstr ""
+
+#: journal/wrapped_text.py:417
+msgid "Pick a text"
+msgstr ""
+
+#: journal/wrapped_text.py:418
+msgid "This text is for followers only. Your followers and you get this card; the public page leaves it out."
+msgstr ""
+
+#: journal/wrapped_text.py:419
+msgid "This text is only for you. Only you get this card."
+msgstr ""
+
+#: journal/wrapped_text.py:420
+msgid "This text is public. Every audience gets this card."
+msgstr ""
+
+#: journal/wrapped_text.py:421
+#, python-brace-format
+msgid "You wrote no comment, note or review in {year}."
+msgstr ""
+
+#: journal/wrapped_text.py:422
+msgid "comment"
+msgstr ""
+
+#: journal/wrapped_text.py:423
+msgid "marked sensitive"
+msgstr ""
+
+#: journal/wrapped_text.py:425
+msgid "the text is gone, or this audience cannot see it"
+msgstr ""
+
+#: journal/wrapped_text.py:442
+#, python-brace-format
+msgid "{n} character"
+msgid_plural "{n} characters"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:443
+#, python-brace-format
+msgid "{n} note"
+msgid_plural "{n} notes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/templates/wrapped.html:245
+msgid "QR code"
+msgstr ""
+
+#: journal/templates/wrapped.html:321
+msgid "Share…"
+msgstr ""
+
+#: journal/templates/wrapped.html:324
+msgid "Copy image"
+msgstr ""
+
+#: journal/wrapped_text.py:430
+#, python-brace-format
+msgid "Could not copy: {error}"
+msgstr ""
+
+#: journal/wrapped_text.py:431
+#, python-brace-format
+msgid "Could not share: {error}"
+msgstr ""
+
+#: journal/wrapped_text.py:432
+msgid "Image copied"
+msgstr ""
+
+#: journal/wrapped_text.py:433
+msgid "Only you can see the page now, so the code opens nothing for other people."
+msgstr ""
+
+#: journal/wrapped_text.py:434
+msgid "Only your followers can open this page, after they sign in."
+msgstr ""
+
+#: journal/wrapped_text.py:436
+msgid "Show the cards the code opens"
+msgstr ""
+
+#: journal/wrapped_text.py:437
+#, python-brace-format
+msgid "The code opens {link}."
+msgstr ""
+
+#: journal/wrapped_text.py:454
+#, python-brace-format
+msgid "{n} five-star"
+msgid_plural "{n} five-star"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:455
+#, python-brace-format
+msgid "{n} shelf"
+msgid_plural "{n} shelves"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/templates/wrapped.html:264 journal/templates/wrapped.html:354
+msgid "Include the background music in the video"
+msgstr ""
+
+#: journal/wrapped_text.py:403
+#, python-brace-format
+msgid "{size} MB, {seconds} s video with music"
+msgstr ""
+
+#: journal/wrapped_text.py:404
+msgid "The music could not be added, so the video has no sound."
+msgstr ""
+
+#: journal/templates/wrapped.html:260 journal/templates/wrapped.html:337
+msgid "ZIP, GIF and video can take a minute and may need the latest Chrome. Keep this page open until it is done."
+msgstr ""
+
+#: journal/wrapped_text.py:399
+msgid "the video encoder stopped working"
+msgstr ""
+
+#: journal/wrapped_text.py:143
+#, python-brace-format
+msgid "no rating {gap} points (of 10) from the site average on a title with {n} or more marks"
+msgstr ""
+
+#: journal/wrapped_text.py:345
+msgid "average rating, of 10"
+msgstr ""
+
+#: journal/wrapped_text.py:211
+msgid "Kindred member"
+msgstr ""
+
+#: journal/wrapped_text.py:212
+msgid "no one you do not follow shares five of your titles this year"
+msgstr ""
+
+#: journal/wrapped_text.py:213
+msgid "only you see it, unless you show it to this audience"
+msgstr ""
+
+#: journal/wrapped_text.py:215
+#, python-brace-format
+msgid "@{handle} is not someone you follow, yet shares {n} of your titles this year"
+msgstr ""
+
+#: journal/wrapped_text.py:217
+msgid "View profile"
+msgstr ""
+
+#: journal/wrapped_text.py:398
+#, python-brace-format
+msgid "A deck can have up to {n} cards of your own"
+msgstr ""
+
+#: journal/wrapped_text.py:399
+msgid "This audience sees none of this year's titles. Open another:"
+msgstr ""
+
+#: journal/templates/wrapped.html:73
+#, python-format
+msgid "Make my %(year)s cards"
+msgstr ""
+
+#: journal/templates/wrapped.html:78
+#, python-format
+msgid "You can make your %(year)s cards from %(date)s."
+msgstr ""
+
+#: journal/templates/wrapped.html:82
+#, python-format
+msgid "The %(year)s cards could be made until %(date)s."
+msgstr ""
+
+#: journal/views/wrapped.py:408 journal/views/wrapped.py:475
+msgid "This summary is not made yet."
+msgstr ""
+
+#: journal/wrapped_text.py:129
+msgid "the shelf cards take its place; show it if you like"
+msgstr ""
+
+#: journal/wrapped_text.py:130
+#, python-brace-format
+msgid "Top {shelf}"
+msgstr ""
+
+#: journal/wrapped_text.py:285
+msgid "Once more"
+msgstr ""
+
+#: journal/wrapped_text.py:286
+msgid "no title finished again this year"
+msgstr ""
+
+#: journal/wrapped_text.py:287
+#, python-brace-format
+msgid "first finished {date}"
+msgstr ""
+
+#: journal/wrapped_text.py:288
+#, python-brace-format
+msgid "finished again this year, the first of them in {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:289
+#, python-brace-format
+msgid "since {year}"
+msgstr ""
+
+#: journal/wrapped_text.py:521
+#, python-brace-format
+msgid "finished once before"
+msgid_plural "finished {n} times before"
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/templates/wrapped.html:185
+msgid "Card data"
+msgstr ""
+
+#: journal/templates/wrapped.html:188
+#, python-format
+msgid "Updated %(time)s. The cards show your marks and the site's numbers as they were then."
+msgstr ""
+
+#: journal/templates/wrapped.html:195
+msgid "Update now"
+msgstr ""
+
+#: journal/templates/wrapped.html:199
+#, python-format
+msgid "Last updated %(time)s. Updates ended with February, so the cards stay as they are."
+msgstr ""
+
+#: journal/views/wrapped.py:132
+#, python-format
+msgid "%(name)s finished %(n)d title in %(year)d."
+msgid_plural "%(name)s finished %(n)d titles in %(year)d."
+msgstr[0] ""
+msgstr[1] ""
+
+#: journal/wrapped_text.py:290
+msgid "The cards were updated a moment ago; try again in a minute"
+msgstr ""
+
+#: journal/wrapped_text.py:291
+msgid "Could not update the cards; try again"
+msgstr ""
+
+#: journal/templates/wrapped.html:157
+msgid "Choose an audience to edit the cards it sees when it opens your annual summary"
+msgstr ""
+
+#: journal/wrapped_text.py:292
+msgid "The cards have no titles from the last update."
+msgstr ""
+
+#: journal/templates/wrapped.html:82
+#, python-format
+msgid "Make your %(year)s cards any day until %(date)s. They update every night until %(auto)s, and you can update them by hand until %(date)s; after that they stay as they are."
+msgstr ""
+
+#: journal/templates/wrapped.html:84
+#, python-format
+msgid "Make your %(year)s cards any day until %(date)s. You can update them by hand until then; after that they stay as they are."
+msgstr ""
+
+#: journal/templates/wrapped.html:198
+#, python-format
+msgid "The site updates them every night until %(auto)s; you can also update them now, until %(date)s."
+msgstr ""
+
+#: journal/templates/wrapped.html:200
+#, python-format
+msgid "You can update them now, until %(date)s; after that they stay as they are."
 msgstr ""

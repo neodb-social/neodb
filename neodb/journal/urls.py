@@ -272,7 +272,17 @@ urlpatterns = [
     ),
     path("users/<str:username>/feed/reviews/", ReviewFeed(), name="review_feed"),
     path("users/<str:username>/feed/articles/", ArticleFeed(), name="article_feed"),
-    path("wrapped/", WrappedView.as_view(), name="wrapped_current_year"),
-    path("wrapped/<int:year>/", WrappedView.as_view(), name="wrapped"),
-    path("wrapped/<int:year>/share", WrappedShareView.as_view(), name="wrapped_share"),
+    path("wrapped/", wrapped_deck, name="wrapped_current_year"),
+    path("wrapped/<int:year>/", wrapped_deck, name="wrapped"),
+    path("wrapped/<int:year>/generate", wrapped_generate, name="wrapped_generate"),
+    path("wrapped/<int:year>/refresh", wrapped_refresh, name="wrapped_refresh"),
+    path("wrapped/<int:year>/save", wrapped_save, name="wrapped_save"),
+    path("wrapped/<int:year>/share", wrapped_share, name="wrapped_share"),
+    path("wrapped/lookup", wrapped_lookup, name="wrapped_lookup"),
+    path("wrapped/<int:year>/words", wrapped_words, name="wrapped_words"),
+    path("wrapped/cover/<path:name>", wrapped_cover, name="wrapped_cover"),
+    path("wrapped/avatar/<int:identity_id>", wrapped_avatar, name="wrapped_avatar"),
+    path(
+        "users/<str:user_name>/wrapped/<int:year>/", wrapped_page, name="wrapped_page"
+    ),
 ]
